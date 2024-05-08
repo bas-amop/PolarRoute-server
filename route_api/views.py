@@ -13,7 +13,7 @@ class RouteView(APIView):
     def get(self, request):
         """Entry point for route requests"""
 
-        # check if route already exists
+        # check if route already exists, including if it has just been calculated in response to a previous request
 
         # if so, return route
 

@@ -1,6 +1,5 @@
 import datetime
 
-
 from route_api.models import Route
 
 
@@ -9,6 +8,7 @@ def does_route_exist(date: datetime.date, waypoint_start: tuple, waypoint_end: t
     Return False if not and the route object if it has.
     """
     # TODO account for tolerance of waypoint location in linear distance
+    # TODO check that route file exists, even if it has been previously calculated
 
     routes = Route.objects.filter(
         calculated__date=date,
