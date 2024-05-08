@@ -129,3 +129,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CELERY_BROKER_URL = 'amqp://guest:guest@localhost'
 # CELERY_BROKER_URL='amqp://localhost:5672',
 # CELERY_BACKEND_URL='rpc://localhost:5672',
+
+
+# Routing settings
+WAYPOINT_DISTANCE_TOLERANCE = 0

@@ -5,7 +5,9 @@ from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 
 from polarrouteserver.celery import app
+from route_api.models import Job, Route
 from route_api.tasks import calculate_route
+from route_api.utils import does_route_exist
 
 class Route(APIView):
     def get(self, request):
@@ -16,10 +18,14 @@ class Route(APIView):
         # if so, return route
 
         # else if route needs to be calculated
-        result = calculate_route.delay("hello_world")
+        task = calculate_route.delay("hello_world")
+
+        job_obj = Job.objects.create(id=task.id)
+        route_obj = Route.objects.create()
 
         data = {
-            'status-url': reverse('status', args=[result.id], request=request)
+            # url to request status of requested route
+            'status-url': reverse('status', args=[task.id], request=request)
         }
 
         return Response(data)

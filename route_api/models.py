@@ -34,7 +34,7 @@ class Route(PolarRouteModel):
 
 class Job(models.Model):
     "Route or mesh calculation jobs"
-    id = models.UUIDField(primary_key=True)
+    id = models.UUIDField(primary_key=True) #use uuids for primary keys to align with celery
 
     # job should correspond to mesh OR route, not both
     mesh = models.ForeignKey(Mesh, on_delete=models.DO_NOTHING, null=True)
