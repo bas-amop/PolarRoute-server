@@ -1,6 +1,9 @@
 import datetime
+import logging
 
 from route_api.models import Route
+
+logger = logging.getLogger(__name__)
 
 
 def does_route_exist(date: datetime.date, waypoint_start: tuple, waypoint_end: tuple):

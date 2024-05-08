@@ -1,5 +1,6 @@
-from celery.result import AsyncResult
+import logging
 
+from celery.result import AsyncResult
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
@@ -7,6 +8,8 @@ from rest_framework.views import APIView
 from polarrouteserver.celery import app
 from route_api.models import Job, Route
 from route_api.tasks import calculate_route
+
+logger = logging.getLogger(__name__)
 
 
 class RouteView(APIView):
