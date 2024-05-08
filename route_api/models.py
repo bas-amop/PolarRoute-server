@@ -31,3 +31,14 @@ class Route(PolarRouteModel):
     mesh = models.ForeignKey(Mesh, on_delete=models.DO_NOTHING, null=True)
     waypoint_start = models.JSONField(blank=True)
     waypoint_end = models.JSONField(blank=True)
+
+class Job(models.Model):
+    "Route or mesh calculation jobs"
+    id = models.UUIDField(primary_key=True)
+
+    # job should correspond to mesh OR route, not both
+    mesh = models.ForeignKey(Mesh, on_delete=models.DO_NOTHING, null=True)
+    route = models.ForeignKey(Route, on_delete=models.DO_NOTHING, null=True)
+
+    datetime = models.DateTimeField()
+    status = models.TextField(null=True)
