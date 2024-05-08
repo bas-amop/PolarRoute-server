@@ -5,40 +5,45 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='Mesh',
+            name="Mesh",
             fields=[
-                ('id', models.IntegerField(primary_key=True, serialize=False)),
-                ('requested', models.DateTimeField(null=True)),
-                ('calculated', models.DateTimeField(null=True)),
-                ('file', models.FilePathField(blank=True, null=True)),
-                ('status', models.TextField(null=True)),
+                ("id", models.IntegerField(primary_key=True, serialize=False)),
+                ("requested", models.DateTimeField(null=True)),
+                ("calculated", models.DateTimeField(null=True)),
+                ("file", models.FilePathField(blank=True, null=True)),
+                ("status", models.TextField(null=True)),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='Route',
+            name="Route",
             fields=[
-                ('id', models.IntegerField(primary_key=True, serialize=False)),
-                ('requested', models.DateTimeField(null=True)),
-                ('calculated', models.DateTimeField(null=True)),
-                ('file', models.FilePathField(blank=True, null=True)),
-                ('status', models.TextField(null=True)),
-                ('waypoint_start', models.JSONField(blank=True)),
-                ('waypoint_end', models.JSONField(blank=True)),
-                ('mesh', models.ForeignKey(null=True, on_delete=django.db.models.deletion.DO_NOTHING, to='route_api.mesh')),
+                ("id", models.IntegerField(primary_key=True, serialize=False)),
+                ("requested", models.DateTimeField(null=True)),
+                ("calculated", models.DateTimeField(null=True)),
+                ("file", models.FilePathField(blank=True, null=True)),
+                ("status", models.TextField(null=True)),
+                ("waypoint_start", models.JSONField(blank=True)),
+                ("waypoint_end", models.JSONField(blank=True)),
+                (
+                    "mesh",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        to="route_api.mesh",
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
     ]

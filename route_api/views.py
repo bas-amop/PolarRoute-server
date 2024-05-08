@@ -7,9 +7,9 @@ from rest_framework.views import APIView
 from polarrouteserver.celery import app
 from route_api.models import Job, Route
 from route_api.tasks import calculate_route
-from route_api.utils import does_route_exist
 
-class Route(APIView):
+
+class RouteView(APIView):
     def get(self, request):
         """Entry point for route requests"""
 
@@ -20,30 +20,27 @@ class Route(APIView):
         # else if route needs to be calculated
         task = calculate_route.delay("hello_world")
 
-        job_obj = Job.objects.create(id=task.id)
-        route_obj = Route.objects.create()
+        _ = Job.objects.create(id=task.id)
+        _ = Route.objects.create()
 
         data = {
             # url to request status of requested route
-            'status-url': reverse('status', args=[task.id], request=request)
+            "status-url": reverse("status", args=[task.id], request=request)
         }
 
         return Response(data)
 
-class Status(APIView):
+
+class StatusView(APIView):
     def get(self, id, request):
         "Return status of route generation job"
 
-        id = request.data['id']
+        id = request.data["id"]
 
         res = AsyncResult(id, app=app)
 
-        data = {
-            'id': id,
-            'status': res.state
-        }
+        data = {"id": id, "status": res.state}
 
         # if route is ready, should return link to get route information, or return route?
 
         return Response(data)
-    

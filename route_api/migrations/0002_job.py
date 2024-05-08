@@ -5,20 +5,33 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('route_api', '0001_initial'),
+        ("route_api", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Job',
+            name="Job",
             fields=[
-                ('id', models.UUIDField(primary_key=True, serialize=False)),
-                ('datetime', models.DateTimeField()),
-                ('status', models.TextField(null=True)),
-                ('mesh', models.ForeignKey(null=True, on_delete=django.db.models.deletion.DO_NOTHING, to='route_api.mesh')),
-                ('route', models.ForeignKey(null=True, on_delete=django.db.models.deletion.DO_NOTHING, to='route_api.route')),
+                ("id", models.UUIDField(primary_key=True, serialize=False)),
+                ("datetime", models.DateTimeField()),
+                ("status", models.TextField(null=True)),
+                (
+                    "mesh",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        to="route_api.mesh",
+                    ),
+                ),
+                (
+                    "route",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.DO_NOTHING,
+                        to="route_api.route",
+                    ),
+                ),
             ],
         ),
     ]

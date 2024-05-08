@@ -1,12 +1,11 @@
 import datetime
 
-from django.conf import settings
 
 from route_api.models import Route
 
 
-def does_route_exist(date:datetime.date, waypoint_start:tuple, waypoint_end:tuple):
-    """ Check if a route of given parameters has already been calculated. 
+def does_route_exist(date: datetime.date, waypoint_start: tuple, waypoint_end: tuple):
+    """Check if a route of given parameters has already been calculated.
     Return False if not and the route object if it has.
     """
     # TODO account for tolerance of waypoint location in linear distance
@@ -21,5 +20,3 @@ def does_route_exist(date:datetime.date, waypoint_start:tuple, waypoint_end:tupl
         return False
     else:
         return routes
-    
-    
