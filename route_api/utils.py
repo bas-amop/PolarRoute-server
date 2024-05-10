@@ -6,20 +6,29 @@ from route_api.models import Route
 logger = logging.getLogger(__name__)
 
 
-def does_route_exist(date: datetime.date, waypoint_start: tuple, waypoint_end: tuple):
+def route_exists(
+    date: datetime.date,
+    waypoint_start_lat: float,
+    waypoint_start_lon: float,
+    waypoint_end_lat: float,
+    waypoint_end_lon: float,
+) -> Route:
     """Check if a route of given parameters has already been calculated.
-    Return False if not and the route object if it has.
+    Return None if not and the route object if it has.
     """
     # TODO account for tolerance of waypoint location in linear distance
     # TODO check that route file exists, even if it has been previously calculated
+    # TODO if multiple matching routes exist, which to return?
 
     routes = Route.objects.filter(
         calculated__date=date,
-        waypoint_start__exact=waypoint_start,
-        waypoint_end__exact=waypoint_end,
+        waypoint_start_lat__exact=waypoint_start_lat,
+        waypoint_start_lon__exact=waypoint_start_lon,
+        waypoint_end_lat__exact=waypoint_end_lat,
+        waypoint_end_lon__exact=waypoint_end_lon,
     )
 
     if len(routes) < 1:
-        return False
+        return None
     else:
-        return routes
+        return routes.get()

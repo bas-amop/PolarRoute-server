@@ -16,7 +16,7 @@ class Status(enum.Enum):
 class PolarRouteModel(models.Model):
     "Abstract base class for common properties and methods of route and mesh models."
 
-    id = models.IntegerField(primary_key=True)
+    id = models.BigAutoField(primary_key=True)
     requested = models.DateTimeField(null=True)
     calculated = models.DateTimeField(null=True)
     file = models.FilePathField(null=True, blank=True)
@@ -37,8 +37,10 @@ class Mesh(PolarRouteModel):
 
 class Route(PolarRouteModel):
     mesh = models.ForeignKey(Mesh, on_delete=models.DO_NOTHING, null=True)
-    waypoint_start = models.JSONField(blank=True)
-    waypoint_end = models.JSONField(blank=True)
+    waypoint_start_lat = models.FloatField()
+    waypoint_start_lon = models.FloatField()
+    waypoint_end_lat = models.FloatField()
+    waypoint_end_lon = models.FloatField()
 
 
 class Job(models.Model):
