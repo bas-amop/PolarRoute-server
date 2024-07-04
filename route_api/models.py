@@ -2,6 +2,7 @@ import enum
 import logging
 
 from django.db import models
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
@@ -54,5 +55,5 @@ class Job(models.Model):
     mesh = models.ForeignKey(Mesh, on_delete=models.DO_NOTHING, null=True)
     route = models.ForeignKey(Route, on_delete=models.DO_NOTHING, null=True)
 
-    datetime = models.DateTimeField()
+    datetime = models.DateTimeField(default=timezone.now)
     status = models.TextField(null=True)

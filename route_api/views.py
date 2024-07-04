@@ -1,12 +1,14 @@
 import logging
+import json
+
+from django.http import HttpResponse
 
 from celery.result import AsyncResult
-from rest_framework.response import Response
 from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 
 from polarrouteserver.celery import app
-from route_api.models import Job, Route
+from route_api.models import Job
 from route_api.tasks import calculate_route
 
 logger = logging.getLogger(__name__)
@@ -24,26 +26,28 @@ class RouteView(APIView):
         task = calculate_route.delay("hello_world")
 
         _ = Job.objects.create(id=task.id)
-        _ = Route.objects.create()
+        # _ = Route.objects.create()
 
         data = {
             # url to request status of requested route
             "status-url": reverse("status", args=[task.id], request=request)
         }
 
-        return Response(data)
+        return HttpResponse(
+            json.dumps(data), headers={"Content-Type": "application/json"}
+        )
 
 
 class StatusView(APIView):
-    def get(self, id, request):
+    def get(self, request, id):
         "Return status of route generation job"
-
-        id = request.data["id"]
 
         res = AsyncResult(id, app=app)
 
         data = {"id": id, "status": res.state}
 
-        # if route is ready, should return link to get route information, or return route?
+        # TODO if route is ready, should return link to get route information, or return route?
 
-        return Response(data)
+        return HttpResponse(
+            json.dumps(data), headers={"Content-Type": "application/json"}
+        )
