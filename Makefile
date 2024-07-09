@@ -61,30 +61,48 @@ test: ## Run tests quickly with the default Python
 # 	@echo "+ $@"
 # 	@tox -e servedocs
 
+.PHONY: migrate
+migrate: ## Apply database migrations (or create for first time)
+	@echo "+ $@"
+	@python manage.py migrate
+
+.PHONY: migrations
+migrations: ## Create database migration files from changes to models
+	@echo "+ $@"
+	@python manage.py makemigrations
+
+.PHONY: start-dev-server
 start-dev-server: ## start Django dev server
 	@echo "+ $@"
 	@python manage.py runserver
 
+.PHONY: start-celery
 start-celery: ## Start celery
 	@echo "+ $@"
 	@celery -A polarrouteserver worker -l INFO &
 
+.PHONY: stop-celery
 stop-celery: ## Stop celery
 	@echo "+ $@"
 	@pkill -9 -f 'celery -A polarrouteserver worker'
 
+.PHONY: start-rabbitmq
 start-rabbitmq: ## Start rabbitmq via docker
 	@echo "+ $@"
 	@docker run -d -p 5672:5672 --name ${RABBITMQ_CONTAINER} rabbitmq
 
+.PHONY: stop-rabbitmq
 stop-rabbitmq: ## Stop rabbitmq docker container
 	@echo "+ $@"
 	@docker stop ${RABBITMQ_CONTAINER}
+	@docker rm ${RABBITMQ_CONTAINER}
 
-serve-dev: start-rabbitmq start-celery start-dev-server
+.PHONY: serve-dev
+export DJANGO_SETTINGS_MODULE=polarrouteserver.settings.development
+serve-dev: start-rabbitmq start-celery start-dev-server ## Run all the components for serving a development instance.
 
 .PHONY: help
 help:
-	@echo "Note: Remember fo activate your virtual envrionment (if used)."
+	@echo "Note: Remember to activate your virtual environment (if used)."
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-16s\033[0m %s\n", $$1, $$2}'
 
