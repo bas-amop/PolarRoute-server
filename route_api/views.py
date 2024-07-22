@@ -3,6 +3,7 @@ import json
 
 from django.http import HttpResponse
 
+import celery.states
 from celery.result import AsyncResult
 from rest_framework.reverse import reverse
 from rest_framework.generics import GenericAPIView
@@ -76,20 +77,19 @@ class RouteView(GenericAPIView):
 
 
 class StatusView(GenericAPIView):
-    def get(self, id):
+    def get(self, request, id):
         "Return status of route generation job"
 
         # update job with latest state
         job = Job.objects.get(id=id)
 
-        result = AsyncResult(self.id, app=app)
+        status = job.status
 
-        if result.ready():
-            data = {"id": id, "status": job.status, "route": result.get()}
+        data = {"id": str(id), "status": status}
 
-        else:
-            data = {"id": id, "status": job.status}
+        if status is celery.states.SUCCESS:
+            data.update({"route": job.route.json})
 
-            return HttpResponse(
-                json.dumps(data), headers={"Content-Type": "application/json"}
-            )
+        return HttpResponse(
+            json.dumps(data), headers={"Content-Type": "application/json"}
+        )

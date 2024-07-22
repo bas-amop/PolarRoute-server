@@ -15,9 +15,13 @@ def calculate_route(route_id: int):
     # dummy long-running process for initial development
     time.sleep(15)
 
+    route_geojson = {"test": "Hello from Polar Route"}
+
+    route.json = route_geojson
+
     # locate relevant mesh file
     # route calculation/optimisation using polar route
     # put route metadata in database
     # what to return? serialized Route object?
 
-    return f"Hello {route.id}"
+    return route_geojson
