@@ -74,10 +74,15 @@ migrations: ## Create database migration files from changes to models
 .PHONY: start-dev-server
 start-dev-server: ## start Django dev server
 	@echo "+ $@"
-	@python manage.py runserver
+	@python manage.py runserver &
+
+.PHONY: stop-dev-server
+stop-dev-server: ## Stop Django dev server
+	@echo "+ $@"
+	@pkill -9 -f 'python manage.py runserver'
 
 .PHONY: start-celery
-start-celery: ## Start celery
+start-celery: start-rabbitmq ## Start celery
 	@echo "+ $@"
 	@celery -A polarrouteserver worker -l INFO &
 

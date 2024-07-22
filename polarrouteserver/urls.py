@@ -20,13 +20,13 @@ from django.urls import path
 
 from route_api import views
 
-API_PREFIX_V0 = "api/v0/"
+# API_PREFIX_V0 = "api/v0/" # common url prefix for all version 0 api endpoints (for futureproofing)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    # these urls are duplicated here for future back-compatibility, there's probably a better way of doing this
-    path("route", views.RouteView.as_view()),
-    # path("status/<uuid:id>", views.StatusView.as_view()),
-    path(API_PREFIX_V0 + "route/", views.RouteView.as_view(), name="route"),
-    path(API_PREFIX_V0 + "status/<str:id>", views.StatusView.as_view(), name="status"),
+    # TODO these urls are duplicated here for future back-compatibility, there's probably a better way of doing this
+    path("api/route", views.RouteView.as_view(), name="route"),
+    path("api/status/<uuid:id>", views.StatusView.as_view(), name="status"),
+    # path(API_PREFIX_V0 + "route/", views.RouteView.as_view(), name="route"),
+    # path(API_PREFIX_V0 + "status/<str:id>", views.StatusView.as_view(), name="status"),
 ]

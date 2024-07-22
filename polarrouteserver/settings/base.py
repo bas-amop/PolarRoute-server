@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "route_api",
+    "drf_spectacular",
 ]
 
 MIDDLEWARE = [
@@ -130,6 +131,18 @@ CELERY_BROKER_URL = "amqp://guest:guest@localhost"
 # CELERY_BROKER_URL='amqp://localhost:5672',
 # CELERY_BACKEND_URL='rpc://localhost:5672',
 
+REST_FRAMEWORK = {
+    # YOUR SETTINGS
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "polarRouteServer",
+    "DESCRIPTION": "Your project description",
+    "VERSION": "0.0.1",
+    "SERVE_INCLUDE_SCHEMA": False,
+    # OTHER SETTINGS
+}
 
 # Routing settings
 WAYPOINT_DISTANCE_TOLERANCE = 0

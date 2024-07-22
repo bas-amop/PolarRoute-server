@@ -1,24 +1,19 @@
-import enum
 import logging
 
+from celery.result import AsyncResult
 from django.db import models
 from django.utils import timezone
 
+from polarrouteserver.celery import app
+
 logger = logging.getLogger(__name__)
-
-
-class Status(enum.Enum):
-    PENDING = enum.auto()
-    RUNNING = enum.auto()
-    FAILED = enum.auto()
-    COMPLETED = enum.auto()
 
 
 class PolarRouteModel(models.Model):
     "Abstract base class for common properties and methods of route and mesh models."
 
     id = models.BigAutoField(primary_key=True)
-    requested = models.DateTimeField(null=True)
+    requested = models.DateTimeField(default=timezone.now)
     calculated = models.DateTimeField(null=True)
     file = models.FilePathField(null=True, blank=True)
     status = models.TextField(null=True)
@@ -38,10 +33,11 @@ class Mesh(PolarRouteModel):
 
 class Route(PolarRouteModel):
     mesh = models.ForeignKey(Mesh, on_delete=models.DO_NOTHING, null=True)
-    waypoint_start_lat = models.FloatField()
-    waypoint_start_lon = models.FloatField()
-    waypoint_end_lat = models.FloatField()
-    waypoint_end_lon = models.FloatField()
+    start_lat = models.FloatField()
+    start_lon = models.FloatField()
+    end_lat = models.FloatField()
+    end_lon = models.FloatField()
+    json = models.JSONField(null=True)
 
 
 class Job(models.Model):
@@ -56,4 +52,8 @@ class Job(models.Model):
     route = models.ForeignKey(Route, on_delete=models.DO_NOTHING, null=True)
 
     datetime = models.DateTimeField(default=timezone.now)
-    status = models.TextField(null=True)
+
+    @property
+    def status(self):
+        result = AsyncResult(self.id, app=app)
+        return result.state
