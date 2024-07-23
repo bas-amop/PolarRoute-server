@@ -23,7 +23,7 @@ class PolarRouteModel(models.Model):
 
     def to_dict(self):
         "Return the object as a dict"
-        pass
+        raise NotImplementedError
 
 
 class Mesh(PolarRouteModel):
