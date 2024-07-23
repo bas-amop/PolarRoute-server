@@ -2,7 +2,6 @@ import json
 import uuid
 from unittest.mock import patch
 
-import celery.states
 from django.test import TestCase
 from rest_framework.test import APIRequestFactory
 
@@ -45,13 +44,7 @@ class TestStatusView(TestCase):
 
     @patch("route_api.views.AsyncResult")
     @patch("route_api.models.Job")
-    def test_get_status(self, job_mock, asyncresult_mock):
-        job_instance = job_mock.return_value
-        job_instance.status.return_value = celery.states.PENDING
-
-        asyncresult_instance = asyncresult_mock.return_value
-        asyncresult_instance.return_value = MockAsyncResult(ready=False)
-
+    def test_get_status(self):
         request = self.factory.get(f"/api/status/{self.job.id}")
 
         response = StatusView.as_view()(request, self.job.id)
@@ -60,11 +53,3 @@ class TestStatusView(TestCase):
 
         response_content = json.loads(response.content.decode())
         assert response_content.get("status") == "PENDING"
-
-
-class MockAsyncResult:
-    def __init__(self, ready):
-        self.ready = ready
-
-    def ready(self):
-        return self.ready
