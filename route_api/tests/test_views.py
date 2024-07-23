@@ -1,7 +1,8 @@
 import json
 import uuid
-from unittest.mock import patch
+from unittest.mock import patch, PropertyMock
 
+import celery.states
 from django.test import TestCase
 from rest_framework.test import APIRequestFactory
 
@@ -32,19 +33,16 @@ class TestRouteView(TestCase):
 class TestStatusView(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
-        route = Route.objects.create(
+        self.route = Route.objects.create(
             start_lat=0.0, start_lon=0.0, end_lat=0.0, end_lon=0.0, mesh=None
         )
 
-        # create a dummy job
+    def test_get_status_pending(self):
         self.job = Job.objects.create(
             id=uuid.uuid1(),
-            route=route,
+            route=self.route,
         )
 
-    @patch("route_api.views.AsyncResult")
-    @patch("route_api.models.Job")
-    def test_get_status(self):
         request = self.factory.get(f"/api/status/{self.job.id}")
 
         response = StatusView.as_view()(request, self.job.id)
@@ -53,3 +51,24 @@ class TestStatusView(TestCase):
 
         response_content = json.loads(response.content.decode())
         assert response_content.get("status") == "PENDING"
+
+    def test_get_status_complete(self):
+        with patch(
+            "route_api.models.Job.status", new_callable=PropertyMock
+        ) as mock_job_status:
+            mock_job_status.return_value = celery.states.SUCCESS
+
+            self.job = Job.objects.create(
+                id=uuid.uuid1(),
+                route=self.route,
+            )
+
+            request = self.factory.get(f"/api/status/{self.job.id}")
+
+            response = StatusView.as_view()(request, self.job.id)
+
+            self.assertEqual(response.status_code, 200)
+
+            response_content = json.loads(response.content.decode())
+            assert response_content.get("status") == "SUCCESS"
+            assert "route" in response_content.keys()
