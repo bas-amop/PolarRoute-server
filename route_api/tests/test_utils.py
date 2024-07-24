@@ -1,9 +1,10 @@
+from django.conf import settings
 from django.test import TestCase
 from django.utils import timezone
 from haversine import inverse_haversine, Unit, Direction
 
 from route_api.models import Route
-from route_api.utils import route_exists, SAME_WAYPOINT_TOLERANCE
+from route_api.utils import route_exists
 
 
 class TestRouteExists(TestCase):
@@ -55,13 +56,13 @@ class TestRouteExists(TestCase):
         # use inverse haversine method to create points at specified distance from start and end points
         in_tolerance_start = inverse_haversine(
             (self.start_lat, self.start_lon),
-            0.9 * SAME_WAYPOINT_TOLERANCE,
+            0.9 * settings.WAYPOINT_DISTANCE_TOLERANCE,
             Direction.NORTH,
             unit=Unit.NAUTICAL_MILES,
         )
         in_tolerance_end = inverse_haversine(
             (self.end_lat, self.end_lon),
-            0.9 * SAME_WAYPOINT_TOLERANCE,
+            0.9 * settings.WAYPOINT_DISTANCE_TOLERANCE,
             Direction.NORTH,
             unit=Unit.NAUTICAL_MILES,
         )
@@ -90,13 +91,13 @@ class TestRouteExists(TestCase):
 
         in_tolerance_start = inverse_haversine(
             (self.start_lat, self.start_lon),
-            0.8 * SAME_WAYPOINT_TOLERANCE,
+            0.8 * settings.WAYPOINT_DISTANCE_TOLERANCE,
             Direction.NORTH,
             unit=Unit.NAUTICAL_MILES,
         )
         in_tolerance_end = inverse_haversine(
             (self.end_lat, self.end_lon),
-            0.8 * SAME_WAYPOINT_TOLERANCE,
+            0.8 * settings.WAYPOINT_DISTANCE_TOLERANCE,
             Direction.NORTH,
             unit=Unit.NAUTICAL_MILES,
         )

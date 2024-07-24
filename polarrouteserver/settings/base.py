@@ -145,4 +145,28 @@ SPECTACULAR_SETTINGS = {
 }
 
 # Routing settings
-WAYPOINT_DISTANCE_TOLERANCE = 0
+WAYPOINT_DISTANCE_TOLERANCE = 1  # Nautical Miles
+MESH_PATH = Path("./mesh.json")
+
+# For now, vessel config is used in the pipeline to calculate a vessel mesh
+# VESSEL_CONFIG =  {
+#        "vessel_type": "SDA",
+#        "max_speed": 30,
+#        "unit": "km/hr",
+#        "beam": 10,
+#        "hull_type": "slender",
+#        "force_limit": 100000,
+#        "max_ice_conc": 80,
+#        "min_depth": 10
+# }
+TRAVELTIME_CONFIG = {
+    "objective_function": "traveltime",
+    "path_variables": ["fuel", "traveltime"],
+    "vector_names": ["uC", "vC"],
+    "zero_currents": False,
+    "variable_speed": True,
+    "time_unit": "days",
+    "early_stopping_criterion": True,
+    "save_dijkstra_graphs": True,
+    "smooth_path": {"max_iteration_number": 1000, "minimum_difference": 0.0005},
+}

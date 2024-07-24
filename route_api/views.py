@@ -53,8 +53,10 @@ class RouteView(GenericAPIView):
         # Create database record representing the calculation job
         job = Job.objects.create(
             id=task.id,
-            route=route,
         )
+
+        route.job = job
+        route.save()
 
         # Prepare response data
         data = {

@@ -1,13 +1,12 @@
 import datetime
 import logging
 
+from django.conf import settings
 import haversine
 
 from route_api.models import Route
 
 logger = logging.getLogger(__name__)
-
-SAME_WAYPOINT_TOLERANCE = 1  # nautical miles
 
 
 def route_exists(
@@ -56,7 +55,7 @@ def closest_route_in_tolerance(
     start_lon: float,
     end_lat: float,
     end_lon: float,
-    tolerance_nm: float = SAME_WAYPOINT_TOLERANCE,
+    tolerance_nm: float = settings.WAYPOINT_DISTANCE_TOLERANCE,
 ) -> Route | None:
     """Takes a list of routes and returns the closest if any are within tolerance, or None."""
 

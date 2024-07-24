@@ -9,6 +9,21 @@ from polarrouteserver.celery import app
 logger = logging.getLogger(__name__)
 
 
+class Job(models.Model):
+    "Route or mesh calculation jobs"
+
+    id = models.UUIDField(
+        primary_key=True
+    )  # use uuids for primary keys to align with celery
+
+    datetime = models.DateTimeField(default=timezone.now)
+
+    @property
+    def status(self):
+        result = AsyncResult(self.id, app=app)
+        return result.state
+
+
 class PolarRouteModel(models.Model):
     "Abstract base class for common properties and methods of route and mesh models."
 
@@ -17,6 +32,7 @@ class PolarRouteModel(models.Model):
     calculated = models.DateTimeField(null=True)
     file = models.FilePathField(null=True, blank=True)
     status = models.TextField(null=True)
+    job = models.OneToOneField(Job, on_delete=models.DO_NOTHING, null=True)
 
     class Meta:
         abstract = True
@@ -28,7 +44,7 @@ class PolarRouteModel(models.Model):
 
 class Mesh(PolarRouteModel):
     # some mesh properties?
-    pass
+    meshiphi_version = models.CharField(max_length=60, null=True)
 
 
 class Route(PolarRouteModel):
@@ -38,22 +54,4 @@ class Route(PolarRouteModel):
     end_lat = models.FloatField()
     end_lon = models.FloatField()
     json = models.JSONField(null=True)
-
-
-class Job(models.Model):
-    "Route or mesh calculation jobs"
-
-    id = models.UUIDField(
-        primary_key=True
-    )  # use uuids for primary keys to align with celery
-
-    # job should correspond to mesh OR route, not both
-    mesh = models.ForeignKey(Mesh, on_delete=models.DO_NOTHING, null=True)
-    route = models.ForeignKey(Route, on_delete=models.DO_NOTHING, null=True)
-
-    datetime = models.DateTimeField(default=timezone.now)
-
-    @property
-    def status(self):
-        result = AsyncResult(self.id, app=app)
-        return result.state
+    polar_route_version = models.CharField(max_length=60, null=True)
