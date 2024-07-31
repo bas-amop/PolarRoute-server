@@ -131,6 +131,9 @@ CELERY_BROKER_URL = "amqp://guest:guest@localhost"
 # CELERY_BROKER_URL='amqp://localhost:5672',
 # CELERY_BACKEND_URL='rpc://localhost:5672',
 
+
+# DRF Spectacular settings
+
 REST_FRAMEWORK = {
     # YOUR SETTINGS
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
