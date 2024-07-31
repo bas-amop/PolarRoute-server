@@ -1,5 +1,5 @@
-dr
 pre-commit
 pytest
+pytest-celery
 pytest-django
 ruff

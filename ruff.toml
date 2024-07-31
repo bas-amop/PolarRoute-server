@@ -1,2 +1,4 @@
+exclude = ["route_api/tests/*"]
+
 [lint.per-file-ignores]
 "polarrouteserver/settings/*" = ["F403"] # allow from .. import * in settings modules

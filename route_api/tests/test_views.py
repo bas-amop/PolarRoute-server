@@ -1,18 +1,38 @@
-import json
-import uuid
+import json, subprocess, time, uuid
 from unittest.mock import patch, PropertyMock
 
 import celery.states
 from django.test import TestCase
 from rest_framework.test import APIRequestFactory
 
+from polarrouteserver.celery import app
 from route_api.views import RouteView, StatusView
 from route_api.models import Job, Route
 
 
-class TestRouteView(TestCase):
+class CeleryTestCase(TestCase):
     def setUp(self):
+        # start up the celery worker and rabbitmq container
+        subprocess.run(["make", "start-celery"])
+        # wait for celery worker to start up
+        while True:
+            try:
+                if app.control.inspect().active() is not None:
+                    break
+            except:
+                time.sleep(1)
+
+    def tearDown(self):
+        subprocess.run(["make", "stop-rabbitmq", "stop-celery"])
+
+
+class TestRouteView(CeleryTestCase):
+    def setUp(self):
+        super().setUp()
         self.factory = APIRequestFactory()
+
+    def tearDown(self):
+        super().tearDown()
 
     def test_request_route(self):
         data = {
