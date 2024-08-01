@@ -90,7 +90,8 @@ class StatusView(GenericAPIView):
         data = {"id": str(id), "status": status}
 
         if status is celery.states.SUCCESS:
-            data.update({"route": job.route.json})
+            route = Route.objects.get(job=job)
+            data.update({"route": route.json})
 
         return HttpResponse(
             json.dumps(data), headers={"Content-Type": "application/json"}

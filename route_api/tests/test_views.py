@@ -3,6 +3,7 @@ from unittest.mock import patch, PropertyMock
 
 import celery.states
 from django.test import TestCase
+import kombu.exceptions
 from rest_framework.test import APIRequestFactory
 
 from polarrouteserver.celery import app
@@ -19,8 +20,9 @@ class CeleryTestCase(TestCase):
             try:
                 if app.control.inspect().active() is not None:
                     break
-            except:
+            except kombu.exceptions.OperationalError:
                 time.sleep(1)
+                continue
 
     def tearDown(self):
         subprocess.run(["make", "stop-rabbitmq", "stop-celery"])
@@ -50,18 +52,22 @@ class TestRouteView(CeleryTestCase):
         assert response_content.get("status-url") is not None
 
 
-class TestStatusView(TestCase):
+class TestStatusView(CeleryTestCase):
     def setUp(self):
+        super().setUp()
         self.factory = APIRequestFactory()
         self.route = Route.objects.create(
             start_lat=0.0, start_lon=0.0, end_lat=0.0, end_lon=0.0, mesh=None
         )
 
+    def tearDown(self):
+        super().tearDown()
+
     def test_get_status_pending(self):
         self.job = Job.objects.create(
-            id=uuid.uuid1(),
-            route=self.route,
+            id=uuid.uuid1()
         )
+        self.route.job=self.job
 
         request = self.factory.get(f"/api/status/{self.job.id}")
 
@@ -80,8 +86,9 @@ class TestStatusView(TestCase):
 
             self.job = Job.objects.create(
                 id=uuid.uuid1(),
-                route=self.route,
             )
+            self.route.job=self.job
+            self.route.save()
 
             request = self.factory.get(f"/api/status/{self.job.id}")
 
