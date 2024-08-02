@@ -22,5 +22,10 @@ from route_api import views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/route/<uuid:id>", views.RouteView.as_view(), name="route"),
+    path(
+        "api/route", views.RouteView.as_view(), name="route"
+    ),  # url for requesting(post)/deleting routes
+    path(
+        "api/route/<uuid:id>", views.RouteView.as_view(), name="route"
+    ),  # url for retrieving routes (get)
 ]

@@ -15,6 +15,8 @@ from route_api.tasks import calculate_route
 from route_api.serializers import RouteSerializer
 from route_api.utils import route_exists
 
+from django.conf import settings
+
 logger = logging.getLogger(__name__)
 
 
@@ -57,7 +59,7 @@ class RouteView(GenericAPIView):
         )
 
         # Start the task calculation
-        task = calculate_route.delay(route.id)
+        task = calculate_route.delay(route.id, str(settings.MESH_PATH))
 
         # Create database record representing the calculation job
         job = Job.objects.create(

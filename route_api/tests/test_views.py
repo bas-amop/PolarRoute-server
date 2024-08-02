@@ -2,6 +2,7 @@ import json, subprocess, time, uuid
 from unittest.mock import patch, PropertyMock
 
 import celery.states
+from celery.result import AsyncResult
 from django.test import TestCase
 import kombu.exceptions
 from rest_framework.test import APIRequestFactory
@@ -9,6 +10,7 @@ from rest_framework.test import APIRequestFactory
 from polarrouteserver.celery import app
 from route_api.views import RouteView
 from route_api.models import Job, Route
+from route_api.tasks import calculate_route
 
 
 class CeleryTestCase(TestCase):
@@ -98,3 +100,4 @@ class TestRouteStatus(CeleryTestCase):
             response_content = json.loads(response.data)
             assert response_content.get("status") == "SUCCESS"
             assert "json" in response_content.keys()
+            # assert calculate_route.AsyncResult(id=self.job.id, app=app).state == "SUCCESS"

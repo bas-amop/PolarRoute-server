@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 from celery.utils.log import get_task_logger
 from django.conf import settings
@@ -31,11 +32,11 @@ def calculate_route(
     Returns:
         dict: route geojson as dictionary
     """
-
+    self.update_state("STARTED")
     route = Route.objects.get(id=route_id)
 
     try:
-        if isinstance(mesh, str):
+        if isinstance(mesh, Path | str):
             with open(mesh) as f:
                 logger.info(f"Loading mesh file {mesh}")
                 vessel_mesh = json.load(f)
@@ -67,8 +68,9 @@ def calculate_route(
         route.json = route_mesh
         route.calculated = timezone.now()
         route.save()
-
+        self.update_state(state="SUCCESS")
         return route_mesh
     except Exception as e:
         logger.error(e)
         self.update_state(state="FAILURE")
+        return {"error": str(e)}
