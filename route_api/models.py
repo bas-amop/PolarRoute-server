@@ -9,21 +9,6 @@ from polarrouteserver.celery import app
 logger = logging.getLogger(__name__)
 
 
-class Job(models.Model):
-    "Route or mesh calculation jobs"
-
-    id = models.UUIDField(
-        primary_key=True
-    )  # use uuids for primary keys to align with celery
-
-    datetime = models.DateTimeField(default=timezone.now)
-
-    @property
-    def status(self):
-        result = AsyncResult(self.id, app=app)
-        return result.state
-
-
 class PolarRouteModel(models.Model):
     "Abstract base class for common properties and methods of route and mesh models."
 
@@ -32,14 +17,9 @@ class PolarRouteModel(models.Model):
     calculated = models.DateTimeField(null=True)
     file = models.FilePathField(null=True, blank=True)
     status = models.TextField(null=True)
-    job = models.OneToOneField(Job, on_delete=models.DO_NOTHING, null=True)
 
     class Meta:
         abstract = True
-
-    def to_dict(self):
-        "Return the object as a dict"
-        raise NotImplementedError
 
 
 class Mesh(PolarRouteModel):
@@ -55,3 +35,19 @@ class Route(PolarRouteModel):
     end_lon = models.FloatField()
     json = models.JSONField(null=True)
     polar_route_version = models.CharField(max_length=60, null=True)
+
+
+class Job(models.Model):
+    "Route or mesh calculation jobs"
+
+    id = models.UUIDField(
+        primary_key=True
+    )  # use uuids for primary keys to align with celery
+
+    datetime = models.DateTimeField(default=timezone.now)
+    route = models.ForeignKey(Route, on_delete=models.DO_NOTHING)
+
+    @property
+    def status(self):
+        result = AsyncResult(self.id, app=app)
+        return result.state

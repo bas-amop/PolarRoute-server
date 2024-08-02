@@ -19,9 +19,10 @@ def route_exists(
     """Check if a route of given parameters has already been calculated.
     Return None if not and the route object if it has.
     """
-    # TODO check that route file exists, even if it has been previously calculated
 
     # look for any routes already calculated from same day
+    # as a proxy for "same data"
+    # TODO check the mesh on this instead
     same_day_routes = Route.objects.filter(
         calculated__date=date,
     )
@@ -44,12 +45,12 @@ def route_exists(
             return exact_routes[0]
         else:
             # if no exact routes, look for any that are close enough
-            return closest_route_in_tolerance(
+            return _closest_route_in_tolerance(
                 same_day_routes, start_lat, start_lon, end_lat, end_lon
             )
 
 
-def closest_route_in_tolerance(
+def _closest_route_in_tolerance(
     routes: list,
     start_lat: float,
     start_lon: float,

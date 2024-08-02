@@ -7,7 +7,7 @@ import kombu.exceptions
 from rest_framework.test import APIRequestFactory
 
 from polarrouteserver.celery import app
-from route_api.views import RouteView, StatusView
+from route_api.views import RouteView
 from route_api.models import Job, Route
 
 
@@ -28,7 +28,7 @@ class CeleryTestCase(TestCase):
         subprocess.run(["make", "stop-rabbitmq", "stop-celery"])
 
 
-class TestRouteView(CeleryTestCase):
+class TestRouteRequest(CeleryTestCase):
     def setUp(self):
         super().setUp()
         self.factory = APIRequestFactory()
@@ -46,13 +46,13 @@ class TestRouteView(CeleryTestCase):
 
         response = RouteView.as_view()(request)
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 202)
 
-        response_content = json.loads(response.content.decode())
+        response_content = json.loads(response.data)
         assert response_content.get("status-url") is not None
 
 
-class TestStatusView(CeleryTestCase):
+class TestRouteStatus(CeleryTestCase):
     def setUp(self):
         super().setUp()
         self.factory = APIRequestFactory()
@@ -65,17 +65,17 @@ class TestStatusView(CeleryTestCase):
 
     def test_get_status_pending(self):
         self.job = Job.objects.create(
-            id=uuid.uuid1()
+            id=uuid.uuid1(),
+            route=self.route,
         )
-        self.route.job=self.job
 
-        request = self.factory.get(f"/api/status/{self.job.id}")
+        request = self.factory.get(f"/api/route/{self.job.id}")
 
-        response = StatusView.as_view()(request, self.job.id)
+        response = RouteView.as_view()(request, self.job.id)
 
         self.assertEqual(response.status_code, 200)
 
-        response_content = json.loads(response.content.decode())
+        response_content = json.loads(response.data)
         assert response_content.get("status") == "PENDING"
 
     def test_get_status_complete(self):
@@ -86,16 +86,15 @@ class TestStatusView(CeleryTestCase):
 
             self.job = Job.objects.create(
                 id=uuid.uuid1(),
+                route=self.route,
             )
-            self.route.job=self.job
-            self.route.save()
 
             request = self.factory.get(f"/api/status/{self.job.id}")
 
-            response = StatusView.as_view()(request, self.job.id)
+            response = RouteView.as_view()(request, self.job.id)
 
             self.assertEqual(response.status_code, 200)
 
-            response_content = json.loads(response.content.decode())
+            response_content = json.loads(response.data)
             assert response_content.get("status") == "SUCCESS"
-            assert "route" in response_content.keys()
+            assert "json" in response_content.keys()

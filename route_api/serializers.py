@@ -1,15 +1,16 @@
 from rest_framework import serializers
 
+from route_api.models import Route
 
-class PolarRouteSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
 
+class RouteSerializer(serializers.ModelSerializer):
     class Meta:
-        abstract = True
-
-
-class RouteSerializer(PolarRouteSerializer):
-    start_lat = serializers.FloatField()
-    start_lon = serializers.FloatField()
-    end_lat = serializers.FloatField()
-    end_lon = serializers.FloatField()
+        model = Route
+        fields = [
+            "start_lat",
+            "start_lon",
+            "end_lat",
+            "end_lon",
+            "json",
+            "polar_route_version",
+        ]

@@ -1,21 +1,26 @@
+from datetime import datetime
 import logging
 import json
 
-from django.http import HttpResponse
-
 import celery.states
 from celery.result import AsyncResult
-from rest_framework.reverse import reverse
+import rest_framework.status
 from rest_framework.generics import GenericAPIView
+from rest_framework.response import Response
+from rest_framework.reverse import reverse
 
 from polarrouteserver.celery import app
 from route_api.models import Job, Route
 from route_api.tasks import calculate_route
+from route_api.serializers import RouteSerializer
+from route_api.utils import route_exists
 
 logger = logging.getLogger(__name__)
 
 
 class RouteView(GenericAPIView):
+    serializer_class = RouteSerializer
+
     def post(self, request):
         """Entry point for route requests"""
 
@@ -27,16 +32,20 @@ class RouteView(GenericAPIView):
         end_lat = data["end"]["latitude"]
         end_lon = data["end"]["longitude"]
 
-        # TODO check if route already exists, including if it has just been calculated in response to a previous request
+        existing_route = route_exists(
+            datetime.today(), start_lat, start_lon, end_lat, end_lon
+        )
 
-        # if so, return route
-
-        # else if route needs to be calculated
+        if existing_route is not None:
+            return Response(
+                RouteSerializer(existing_route),
+                headers={"Content-Type": "application/json"},
+                status=rest_framework.status.HTTP_200_OK,
+            )
 
         # TODO Find the latest corresponding mesh object
         # TODO work out whether latest mesh contains start and end points
         # TODO calculate an up to date mesh if none available
-        # mesh = Mesh.objects.get()
 
         # Create route in database
         route = Route.objects.create(
@@ -53,19 +62,42 @@ class RouteView(GenericAPIView):
         # Create database record representing the calculation job
         job = Job.objects.create(
             id=task.id,
+            route=route,
         )
-
-        route.job = job
-        route.save()
 
         # Prepare response data
         data = {
             # url to request status of requested route
-            "status-url": reverse("status", args=[job.id], request=request)
+            "status-url": reverse("route", args=[job.id], request=request)
         }
 
-        return HttpResponse(
-            json.dumps(data), headers={"Content-Type": "application/json"}
+        return Response(
+            json.dumps(data),
+            headers={"Content-Type": "application/json"},
+            status=rest_framework.status.HTTP_202_ACCEPTED,
+        )
+
+    def get(self, request, id):
+        "Return status of route calculation and route itself if complete."
+
+        # update job with latest state
+        job = Job.objects.get(id=id)
+
+        status = job.status
+
+        data = {"id": str(id), "status": status}
+
+        data.update(RouteSerializer(job.route).data)
+
+        if status is not celery.states.SUCCESS:
+            # don't include the route json if it isn't available yet
+            data.pop("json")
+            data.pop("polar_route_version")
+
+        return Response(
+            json.dumps(data),
+            headers={"Content-Type": "application/json"},
+            status=rest_framework.status.HTTP_200_OK,
         )
 
     def delete(self, request):
@@ -77,22 +109,8 @@ class RouteView(GenericAPIView):
 
         result.revoke()
 
-
-class StatusView(GenericAPIView):
-    def get(self, request, id):
-        "Return status of route generation job"
-
-        # update job with latest state
-        job = Job.objects.get(id=id)
-
-        status = job.status
-
-        data = {"id": str(id), "status": status}
-
-        if status is celery.states.SUCCESS:
-            route = Route.objects.get(job=job)
-            data.update({"route": route.json})
-
-        return HttpResponse(
-            json.dumps(data), headers={"Content-Type": "application/json"}
+        return Response(
+            {},
+            headers={"Content-Type": "application/json"},
+            status=rest_framework.status.HTTP_202_ACCEPTED,
         )
