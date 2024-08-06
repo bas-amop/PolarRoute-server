@@ -2,7 +2,6 @@ from datetime import datetime
 import logging
 import json
 
-import celery.states
 from celery.result import AsyncResult
 import rest_framework.status
 from rest_framework.generics import GenericAPIView
@@ -85,16 +84,21 @@ class RouteView(GenericAPIView):
         # update job with latest state
         job = Job.objects.get(id=id)
 
-        status = job.status
+        # status = job.status
+        result = AsyncResult(id=id, app=app)
+        status = result.state
 
         data = {"id": str(id), "status": status}
 
         data.update(RouteSerializer(job.route).data)
 
-        if status is not celery.states.SUCCESS:
+        if status != "SUCCESS":
             # don't include the route json if it isn't available yet
             data.pop("json")
             data.pop("polar_route_version")
+
+        if status == "FAILURE":
+            data.update({"error": str(result.info)})
 
         return Response(
             json.dumps(data),

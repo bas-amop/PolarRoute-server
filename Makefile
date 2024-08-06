@@ -72,6 +72,7 @@ migrations: ## Create database migration files from changes to models
 	@python manage.py makemigrations
 
 .PHONY: start-dev-server
+start-dev-server: export DJANGO_SETTINGS_MODULE = polarrouteserver.settings.development
 start-dev-server: ## start Django dev server
 	@echo "+ $@"
 	@python manage.py runserver &

@@ -32,45 +32,39 @@ def calculate_route(
     Returns:
         dict: route geojson as dictionary
     """
-    self.update_state("STARTED")
     route = Route.objects.get(id=route_id)
 
-    try:
-        if isinstance(mesh, Path | str):
-            with open(mesh) as f:
-                logger.info(f"Loading mesh file {mesh}")
-                vessel_mesh = json.load(f)
-        elif isinstance(mesh, int):
-            logger.info(f"Loading mesh {mesh} from database.")
-            vessel_mesh = Mesh.objects.get(id=mesh).json
+    # try:
+    if isinstance(mesh, Path | str):
+        with open(mesh) as f:
+            logger.info(f"Loading mesh file {mesh}")
+            vessel_mesh = json.load(f)
+    elif isinstance(mesh, int):
+        logger.info(f"Loading mesh {mesh} from database.")
+        vessel_mesh = Mesh.objects.get(id=mesh).json
 
-        # convert waypoints into pandas dataframe for PolarRoute
-        waypoints = pd.DataFrame(
-            {
-                "Name": ["Start", "End"],
-                "Lat": [route.start_lat, route.end_lat],
-                "Long": [route.start_lon, route.end_lon],
-                "Source": ["X", np.nan],
-                "Destination": [np.nan, "X"],
-            }
-        )
+    # convert waypoints into pandas dataframe for PolarRoute
+    waypoints = pd.DataFrame(
+        {
+            "Name": ["Start", "End"],
+            "Lat": [route.start_lat, route.end_lat],
+            "Long": [route.start_lon, route.end_lon],
+            "Source": ["X", np.nan],
+            "Destination": [np.nan, "X"],
+        }
+    )
 
-        # Calculate route
-        rp = RoutePlanner(vessel_mesh, settings.TRAVELTIME_CONFIG, waypoints)
-        # Calculate optimal dijkstra path between waypoints
-        rp.compute_routes()
-        # Smooth the dijkstra routes
-        rp.compute_smoothed_routes()
+    # Calculate route
+    rp = RoutePlanner(vessel_mesh, settings.TRAVELTIME_CONFIG, waypoints)
+    # Calculate optimal dijkstra path between waypoints
+    rp.compute_routes()
+    # Smooth the dijkstra routes
+    rp.compute_smoothed_routes()
 
-        route_mesh = rp.to_json()
+    route_mesh = rp.to_json()
 
-        # Update the database
-        route.json = route_mesh
-        route.calculated = timezone.now()
-        route.save()
-        self.update_state(state="SUCCESS")
-        return route_mesh
-    except Exception as e:
-        logger.error(e)
-        self.update_state(state="FAILURE")
-        return {"error": str(e)}
+    # Update the database
+    route.json = route_mesh
+    route.calculated = timezone.now()
+    route.save()
+    return route_mesh
