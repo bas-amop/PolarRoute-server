@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "route_api",
     "django_celery_results",
-    "drf_spectacular",
 ]
 
 MIDDLEWARE = [
@@ -142,21 +141,6 @@ CACHES = {
         "BACKEND": "django.core.cache.backends.db.DatabaseCache",
         "LOCATION": "my_cache_table",
     }
-}
-
-# DRF Spectacular settings
-
-REST_FRAMEWORK = {
-    # YOUR SETTINGS
-    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
-}
-
-SPECTACULAR_SETTINGS = {
-    "TITLE": "polarRouteServer",
-    "DESCRIPTION": "Your project description",
-    "VERSION": "0.0.1",
-    "SERVE_INCLUDE_SCHEMA": False,
-    # OTHER SETTINGS
 }
 
 # Routing settings

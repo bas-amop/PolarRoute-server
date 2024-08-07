@@ -1,0 +1,112 @@
+openapi: 3.0.3
+info:
+  title: polarRouteServer
+  version: 0.0.1
+  description: Backend server for serving PolarRoute and MeshiPhi assets
+paths:
+  /api/route:
+    post:
+      operationId: api_route_request
+      description: Entry point for route requests
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/route-request'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/route-request-response'
+          description: ''
+  /api/route/{id}:
+    get:
+      operationId: api_route_retrieve
+      description: Return status of route calculation and route itself if complete.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/route-status-response'
+          description: ''
+    delete:
+      operationId: api_route_destroy
+      description: Cancel route calculation
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      responses:
+        '204':
+          description: No response body
+components:
+  schemas:
+    route-request:
+      type: object
+      properties:
+        start:
+          type: object
+          properties:
+            latitude:
+              type: number
+              format: double
+            longitude:
+              type: number
+              format: double
+        end:
+          type: object
+          properties:
+            latitude:
+              type: number
+              format: double
+            longitude:
+              type: number
+              format: double
+      required:
+      - start
+      - end
+    route-request-response:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          nullable: false
+        status-url:
+          type: string
+          format: url
+          nullable: false
+
+    route-status-response:
+      type: object
+      properties:
+        status:
+          type: string
+          nullable: false
+        json:
+          type: string
+          nullable: true
+        polar_route_version:
+          type: string
+          nullable: true
+          maxLength: 60
+

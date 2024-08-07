@@ -2,7 +2,6 @@ celery
 Django>4
 django-celery-results
 django-rest-framework
-drf-spectacular
 haversine
 polar-route==0.4.0
 pyyaml

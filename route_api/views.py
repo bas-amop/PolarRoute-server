@@ -68,8 +68,9 @@ class RouteView(GenericAPIView):
 
         # Prepare response data
         data = {
+            "id": job.id,
             # url to request status of requested route
-            "status-url": reverse("route", args=[job.id], request=request)
+            "status-url": reverse("route", args=[job.id], request=request),
         }
 
         return Response(

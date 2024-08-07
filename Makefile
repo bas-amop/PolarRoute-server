@@ -1,5 +1,6 @@
 .DEFAULT_GOAL := help
 RABBITMQ_CONTAINER := "prs-rabbitmq"
+SWAGGER_CONTAINER := "prs-swagger-ui"
 
 define BROWSER_PYSCRIPT
 import os, webbrowser, sys
@@ -116,6 +117,17 @@ stop-rabbitmq: ## Stop rabbitmq docker container
 .PHONY: serve-dev
 export DJANGO_SETTINGS_MODULE=polarrouteserver.settings.development
 serve-dev: start-rabbitmq start-celery start-dev-server ## Run all the components for serving a development instance.
+
+.PHONY: start-swagger
+start-swagger: ## Start swagger-ui container with API schema
+	@echo "+ $@"
+	@docker run -p 80:8080 -e SWAGGER_JSON=/schema.yml -v ${PWD}/schema.yml:/schema.yml --name ${SWAGGER_CONTAINER} swaggerapi/swagger-ui
+
+.PHONY: stop-swagger
+stop-swagger: ## Stop swagger-ui docker container
+	@echo "+ $@"
+	@docker stop ${SWAGGER_CONTAINER}
+	@docker rm ${SWAGGER_CONTAINER}
 
 .PHONY: help
 help:
