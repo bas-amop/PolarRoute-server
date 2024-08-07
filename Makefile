@@ -82,6 +82,16 @@ stop-dev-server: ## Stop Django dev server
 	@echo "+ $@"
 	@pkill -9 -f 'python manage.py runserver'
 
+.PHONY: start-django-server
+start-django-server: ## Start Django server (gunicorn)
+	@echo "+ $@"
+	@gunicorn polarrouteserver.wsgi &
+
+.PHONY: stop-django-server
+stop-django-server: ## Stop Django dev server
+	@echo "+ $@"
+	@pkill -9 -f 'gunicorn polarrouteserver.wsgi'
+
 .PHONY: start-celery
 start-celery: start-rabbitmq ## Start celery
 	@echo "+ $@"

@@ -3,7 +3,7 @@ import os
 from celery import Celery
 
 # Set the default Django settings module for the 'celery' program.
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "polarrouteserver.settings.base")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "polarrouteserver.settings.staging")
 
 app = Celery(
     "polarrouteserver", broker="amqp://localhost:5672", backend="rpc://localhost:5672"
