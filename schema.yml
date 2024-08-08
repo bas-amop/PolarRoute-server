@@ -81,6 +81,8 @@ components:
             longitude:
               type: number
               format: double
+        force_recalculate:
+          type: boolean
       required:
       - start
       - end

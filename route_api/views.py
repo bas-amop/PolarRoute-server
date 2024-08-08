@@ -1,6 +1,5 @@
 from datetime import datetime
 import logging
-import json
 
 from celery.result import AsyncResult
 import rest_framework.status
@@ -33,16 +32,30 @@ class RouteView(GenericAPIView):
         end_lat = data["end"]["latitude"]
         end_lon = data["end"]["longitude"]
 
+        force_recalculate = data.get("force_recalculate", False)
+
         existing_route = route_exists(
             datetime.today(), start_lat, start_lon, end_lat, end_lon
         )
 
         if existing_route is not None:
-            return Response(
-                RouteSerializer(existing_route),
-                headers={"Content-Type": "application/json"},
-                status=rest_framework.status.HTTP_200_OK,
-            )
+            if not force_recalculate:
+                logger.info(f"Existing route found: {existing_route}")
+                response_data = RouteSerializer(existing_route).data
+                response_data.update(
+                    {
+                        "meta": "Pre-existing route found and returned. To force recalculation, include 'force_recalculate': true in POST request."
+                    }
+                )
+                return Response(
+                    data=response_data,
+                    headers={"Content-Type": "application/json"},
+                    status=rest_framework.status.HTTP_200_OK,
+                )
+            else:
+                logger.info(
+                    f"Found existing route(s) but got force_recalculate={force_recalculate}, beginning recalculation."
+                )
 
         # TODO Find the latest corresponding mesh object
         # TODO work out whether latest mesh contains start and end points
@@ -74,7 +87,7 @@ class RouteView(GenericAPIView):
         }
 
         return Response(
-            json.dumps(data),
+            data,
             headers={"Content-Type": "application/json"},
             status=rest_framework.status.HTTP_202_ACCEPTED,
         )
@@ -102,7 +115,7 @@ class RouteView(GenericAPIView):
             data.update({"error": str(result.info)})
 
         return Response(
-            json.dumps(data),
+            data,
             headers={"Content-Type": "application/json"},
             status=rest_framework.status.HTTP_200_OK,
         )
