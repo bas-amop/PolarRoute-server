@@ -6,6 +6,7 @@ from django.conf import settings
 from django.utils import timezone
 import numpy as np
 import pandas as pd
+import polar_route
 from polar_route.route_planner import RoutePlanner
 
 from polarrouteserver.celery import app
@@ -66,5 +67,6 @@ def calculate_route(
     # Update the database
     route.json = route_mesh
     route.calculated = timezone.now()
+    route.polar_route_version = polar_route.__version__
     route.save()
     return route_mesh
