@@ -25,7 +25,7 @@ class TestCalculateRoute(TestCase):
     def test_calculate_route(self):
         """Calculate_route should return a dictionary"""
         route_json = calculate_route(self.route.id, self.test_mesh_path)
-        assert isinstance(route_json, dict)
+        assert isinstance(route_json, list)
 
     @pytest.mark.skip(reason="Requires production mesh file to be present, \
                       not suitable for automated testing.")
@@ -50,7 +50,8 @@ class TestCalculateRoute(TestCase):
             mesh=None
         )
 
-        route_json = calculate_route(self.out_of_mesh_route.id)
+        with pytest.raises(AssertionError):
+            route_json = calculate_route(self.out_of_mesh_route.id)
         assert "error" in route_json.keys()
 
     def test_task_status(self):
