@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 import polar_route
 from polar_route.route_planner import RoutePlanner
+from polar_route.utils import extract_geojson_routes
 
 from polarrouteserver.celery import app
 from .models import Mesh, Route
@@ -62,11 +63,11 @@ def calculate_route(
     # Smooth the dijkstra routes
     rp.compute_smoothed_routes()
 
-    route_mesh = rp.to_json()
+    extracted_routes = extract_geojson_routes(rp.to_json())
 
     # Update the database
-    route.json = route_mesh
+    route.json = extracted_routes
     route.calculated = timezone.now()
     route.polar_route_version = polar_route.__version__
     route.save()
-    return route_mesh
+    return extracted_routes
