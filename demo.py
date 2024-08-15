@@ -169,6 +169,14 @@ def parse_args():
         required=True,
     )
     parser.add_argument(
+        "-d",
+        "--delay",
+        type=int,
+        nargs="?",
+        help="(integer) number of seconds to delay between status calls.",
+        default=30,
+    )
+    parser.add_argument(
         "-f",
         "--force",
         action="store_true",
@@ -189,7 +197,10 @@ def parse_args():
 if __name__ == "__main__":
     args = parse_args()
     route = request_route(
-        args.url, parse_location(args.start), parse_location(args.end)
+        args.url,
+        parse_location(args.start),
+        parse_location(args.end),
+        status_update_delay=args.delay,
     )
 
     if route is None:
