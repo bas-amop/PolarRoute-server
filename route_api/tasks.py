@@ -58,25 +58,35 @@ def optimise_route(
     )
 
     try:
-        # Calculate route
-        rp = RoutePlanner(vessel_mesh, settings.TRAVELTIME_CONFIG, waypoints)
+        # Calculate traveltime optimised route
+        rp_traveltime = RoutePlanner(vessel_mesh, settings.TRAVELTIME_CONFIG, waypoints)
 
         # Calculate optimal dijkstra path between waypoints
-        rp.compute_routes()
+        rp_traveltime.compute_routes()
 
         # save the initial unsmoothed route
-        logger.info("Saving unsmoothed Dijkstra paths.")
-        route.json_unsmoothed = extract_geojson_routes(rp.to_json())
+        logger.info("Saving unsmoothed Dijkstra paths for traveltime-optimised route.")
+        route.json_unsmoothed = extract_geojson_routes(rp_traveltime.to_json())
         route.calculated = timezone.now()
         route.polar_route_version = polar_route.__version__
         route.save()
 
-        # Smooth the dijkstra routes
-        rp.compute_smoothed_routes()
+        # Calculate fuel optimised route
+        rp_fuel = RoutePlanner(vessel_mesh, settings.FUEL_CONFIG, waypoints)
+        rp_fuel.compute_routes()
+        logger.info("Saving unsmoothed Dijkstra paths for fuel-optimised route.")
+        route.json_unsmoothed += extract_geojson_routes(rp_fuel.to_json())
+        
+        route.save()
 
+        # Smooth the dijkstra routes
+        rp_traveltime.compute_smoothed_routes()
+        rp_fuel.compute_smoothed_routes()
         # Save the smoothed route(s)
         logger.info("Route smoothing complete.")
-        extracted_routes = extract_geojson_routes(rp.to_json())
+        traveltime_routes = extract_geojson_routes(rp_traveltime.to_json())
+        fuel_routes = extract_geojson_routes(rp_fuel.to_json())
+        extracted_routes = traveltime_routes + fuel_routes
 
         # Update the database
         route.json = extracted_routes
@@ -90,3 +100,4 @@ def optimise_route(
         route.status = f"{e}"
         route.save()
         raise Ignore()
+
