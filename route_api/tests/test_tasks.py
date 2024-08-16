@@ -51,8 +51,7 @@ class TestCalculateRoute(TestCase):
         )
 
         with pytest.raises(AssertionError):
-            route_json = calculate_route(self.out_of_mesh_route.id)
-        assert "error" in route_json.keys()
+            calculate_route(self.out_of_mesh_route.id)
 
     def test_task_status(self):
         """Test that task object status is updated appropriately."""
