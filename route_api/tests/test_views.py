@@ -50,8 +50,8 @@ class TestRouteRequest(CeleryTestCase):
 
         self.assertEqual(response.status_code, 202)
 
-        response_content = json.loads(response.data)
-        assert response_content.get("status-url") is not None
+        assert f"api/route/{response.data.get('id')}" in response.data.get("status-url")
+        assert isinstance(uuid.UUID(response.data.get("id")), uuid.UUID)
 
 
 class TestRouteStatus(CeleryTestCase):
