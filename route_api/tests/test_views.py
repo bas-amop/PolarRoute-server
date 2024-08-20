@@ -6,6 +6,7 @@ from celery.result import AsyncResult
 from django.test import TestCase
 import kombu.exceptions
 from rest_framework.test import APIRequestFactory
+import pytest
 
 from polarrouteserver.celery import app
 from route_api.views import RouteView
@@ -13,30 +14,10 @@ from route_api.models import Job, Route
 from route_api.tasks import calculate_route
 
 
-class CeleryTestCase(TestCase):
+@pytest.mark.usefixtures("celery", "database")
+class TestRouteRequest(TestCase):
     def setUp(self):
-        # start up the celery worker and rabbitmq container
-        subprocess.run(["make", "start-celery"])
-        # wait for celery worker to start up
-        while True:
-            try:
-                if app.control.inspect().active() is not None:
-                    break
-            except kombu.exceptions.OperationalError:
-                time.sleep(1)
-                continue
-
-    def tearDown(self):
-        subprocess.run(["make", "stop-rabbitmq", "stop-celery"])
-
-
-class TestRouteRequest(CeleryTestCase):
-    def setUp(self):
-        super().setUp()
         self.factory = APIRequestFactory()
-
-    def tearDown(self):
-        super().tearDown()
 
     def test_request_route(self):
         data = {
@@ -54,16 +35,13 @@ class TestRouteRequest(CeleryTestCase):
         assert isinstance(uuid.UUID(response.data.get("id")), uuid.UUID)
 
 
-class TestRouteStatus(CeleryTestCase):
+@pytest.mark.usefixtures("database")
+class TestRouteStatus(TestCase):
     def setUp(self):
-        super().setUp()
         self.factory = APIRequestFactory()
         self.route = Route.objects.create(
             start_lat=0.0, start_lon=0.0, end_lat=0.0, end_lon=0.0, mesh=None
         )
-
-    def tearDown(self):
-        super().tearDown()
 
     def test_get_status_pending(self):
         self.job = Job.objects.create(
@@ -77,8 +55,7 @@ class TestRouteStatus(CeleryTestCase):
 
         self.assertEqual(response.status_code, 200)
 
-        response_content = json.loads(response.data)
-        assert response_content.get("status") == "PENDING"
+        assert response.data.get("status") == "PENDING"
 
     def test_get_status_complete(self):
         with patch(
@@ -97,7 +74,6 @@ class TestRouteStatus(CeleryTestCase):
 
             self.assertEqual(response.status_code, 200)
 
-            response_content = json.loads(response.data)
-            assert response_content.get("status") == "SUCCESS"
-            assert "json" in response_content.keys()
+            assert response.data.get("status") == "SUCCESS"
+            assert "json" in response.data.keys()
             # assert calculate_route.AsyncResult(id=self.job.id, app=app).state == "SUCCESS"

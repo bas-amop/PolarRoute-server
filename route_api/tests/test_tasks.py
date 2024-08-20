@@ -5,16 +5,18 @@ from unittest.mock import patch, PropertyMock
 
 import celery.states
 from celery.result import AsyncResult
-from django.test import TestCase
+from django.test import TestCase, TransactionTestCase
 import pytest
 
 from polarrouteserver.celery import app
 from route_api.models import Route
 from route_api.tasks import calculate_route
 
+pytest_plugins = ("celery.contrib.pytest",) 
+
 test_mesh_path = str(Path("route_api", "tests", "fixtures", "test_vessel_mesh.json"))
 
-
+@pytest.mark.usefixtures("database")
 class TestCalculateRoute(TestCase):
     def setUp(self):
         self.route = Route.objects.create(
@@ -53,12 +55,21 @@ class TestCalculateRoute(TestCase):
         with pytest.raises(AssertionError):
             calculate_route(self.out_of_mesh_route.id)
 
+@pytest.mark.usefixtures("database")
+class TestTaskStatus(TransactionTestCase):
+
+    def setUp(self):
+        self.route = Route.objects.create(
+            start_lat=1.1, start_lon=1.1, end_lat=8.9, end_lon=8.9, mesh=None
+        )
+        self.test_mesh_path = test_mesh_path
+
     def test_task_status(self):
         """Test that task object status is updated appropriately."""
-        
+
         task = calculate_route.delay(self.route.id, self.test_mesh_path)
         assert AsyncResult(id = task.id, app=app).state == "PENDING"
-        time.sleep(2)
+        time.sleep(5)
         assert AsyncResult(id = task.id, app=app).state == "SUCCESS"
 
 
@@ -79,7 +90,5 @@ class TestCalculateRoute(TestCase):
         )
 
         task = calculate_route.delay(self.out_of_mesh_route.id)
-        time.sleep(2)
+        time.sleep(5)
         assert AsyncResult(id = task.id, app=app).state == "FAILURE"
-
-# TODO test errors cause state update

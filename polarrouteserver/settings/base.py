@@ -37,8 +37,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "route_api",
     "django_celery_results",
+    "route_api",
 ]
 
 MIDDLEWARE = [
@@ -77,8 +77,12 @@ WSGI_APPLICATION = "polarrouteserver.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "polarrouteserver",
+        "USER": "postgres",
+        "PASSWORD": "polarroute",
+        "HOST": "localhost",
+        "PORT": 5432,
     }
 }
 
@@ -129,19 +133,19 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 CELERY_BROKER_URL = "amqp://guest:guest@localhost"
 # CELERY_BROKER_URL='amqp://localhost:5672',
-# CELERY_BACKEND_URL='rpc://localhost:5672',
+# CELERY_RESULT_BACKEND='db+postgresql+psycopg://postgres:polarroute@localhost:5432/polarrouteserver'
 
-CELERY_RESULT_BACKEND = "django-db"
+# CELERY_RESULT_BACKEND = "django-db"
 # celery setting.
-CELERY_CACHE_BACKEND = "default"
+# CELERY_CACHE_BACKEND = "default"
 
 # django setting.
-CACHES = {
-    "default": {
-        "BACKEND": "django.core.cache.backends.db.DatabaseCache",
-        "LOCATION": "my_cache_table",
-    }
-}
+# CACHES = {
+#     "default": {
+#         "BACKEND": "django.core.cache.backends.db.DatabaseCache",
+#         "LOCATION": "my_cache_table",
+#     }
+# }
 
 # Routing settings
 WAYPOINT_DISTANCE_TOLERANCE = 1  # Nautical Miles

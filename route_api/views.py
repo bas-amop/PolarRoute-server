@@ -99,7 +99,7 @@ class RouteView(GenericAPIView):
         job = Job.objects.get(id=id)
 
         # status = job.status
-        result = AsyncResult(id=id, app=app)
+        result = AsyncResult(id=str(id), app=app)
         status = result.state
 
         data = {"id": str(id), "status": status}
