@@ -3,11 +3,9 @@ import os
 from celery import Celery
 
 # Set the default Django settings module for the 'celery' program.
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "polarrouteserver.settings.staging")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "polarrouteserver.settings.production")
 
-app = Celery(
-    "polarrouteserver", broker="amqp://localhost:5672", backend="rpc://localhost:5672"
-)
+app = Celery("polarrouteserver")
 
 # Using a string here means the worker doesn't have to serialize
 # the configuration object to child processes.

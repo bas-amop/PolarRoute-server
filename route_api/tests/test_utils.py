@@ -2,11 +2,12 @@ from django.conf import settings
 from django.test import TestCase
 from django.utils import timezone
 from haversine import inverse_haversine, Unit, Direction
+import pytest
 
 from route_api.models import Route
 from route_api.utils import route_exists
 
-
+@pytest.mark.usefixtures("database")
 class TestRouteExists(TestCase):
     "Test function for checking for existing routes"
 
