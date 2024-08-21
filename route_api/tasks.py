@@ -18,13 +18,13 @@ logger = get_task_logger(__name__)
 
 
 @app.task(bind=True)
-def calculate_route(
+def optimise_route(
     self,
     route_id: int,
     mesh: str | int = settings.MESH_PATH,
 ) -> dict:
     """
-    Use PolarRoute to calculate route from Route database object and mesh.
+    Use PolarRoute to calculate optimal route from Route database object and mesh.
     Saves Route in database and returns route geojson as dictionary.
 
     Params:

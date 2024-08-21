@@ -9,7 +9,7 @@ from rest_framework.reverse import reverse
 
 from polarrouteserver.celery import app
 from route_api.models import Job, Route
-from route_api.tasks import calculate_route
+from route_api.tasks import optimise_route
 from route_api.serializers import RouteSerializer
 from route_api.utils import route_exists
 
@@ -71,7 +71,7 @@ class RouteView(GenericAPIView):
         )
 
         # Start the task calculation
-        task = calculate_route.delay(route.id, str(settings.MESH_PATH))
+        task = optimise_route.delay(route.id, str(settings.MESH_PATH))
 
         # Create database record representing the calculation job
         job = Job.objects.create(

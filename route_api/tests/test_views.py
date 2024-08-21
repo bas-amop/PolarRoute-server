@@ -11,7 +11,7 @@ import unittest
 from polarrouteserver.celery import app
 from route_api.views import RouteView
 from route_api.models import Job, Route
-from route_api.tasks import calculate_route
+from route_api.tasks import optimise_route
 
 
 class TestRouteRequest(TestCase):

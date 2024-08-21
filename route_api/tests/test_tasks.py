@@ -11,17 +11,17 @@ import pytest
 
 from polarrouteserver.celery import app
 from route_api.models import Route
-from route_api.tasks import calculate_route
+from route_api.tasks import optimise_route
 
-class TestCalculateRoute(TestCase):
+class TestOptimiseRoute(TestCase):
     def setUp(self):
         self.route = Route.objects.create(
             start_lat=1.1, start_lon=1.1, end_lat=8.9, end_lon=8.9, mesh=None
         )
 
-    def test_calculate_route(self):
-        """Calculate_route should return a dictionary"""
-        route_json = calculate_route(self.route.id)
+    def test_optimise_route(self):
+        """optimise_route should return a dictionary"""
+        route_json = optimise_route(self.route.id)
         assert isinstance(route_json, list)
 
     def test_out_of_mesh_error(self):
@@ -41,7 +41,7 @@ class TestCalculateRoute(TestCase):
         )
 
         with pytest.raises(AssertionError):
-            calculate_route(self.out_of_mesh_route.id)
+            optimise_route(self.out_of_mesh_route.id)
 
 class TestTaskStatus(TransactionTestCase):
 
@@ -53,7 +53,7 @@ class TestTaskStatus(TransactionTestCase):
     def test_task_status(self):
         """Test that task object status is updated appropriately."""
 
-        task = calculate_route.delay(self.route.id)
+        task = optimise_route.delay(self.route.id)
         assert task.state == "SUCCESS"
 
 
@@ -74,5 +74,5 @@ class TestTaskStatus(TransactionTestCase):
         )
 
         with pytest.raises(AssertionError):
-            task = calculate_route.delay(self.out_of_mesh_route.id)
+            task = optimise_route.delay(self.out_of_mesh_route.id)
             assert task.state == "FAILURE"
