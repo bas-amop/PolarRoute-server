@@ -7,7 +7,6 @@ import pytest
 from route_api.models import Route
 from route_api.utils import route_exists
 
-@pytest.mark.usefixtures("database")
 class TestRouteExists(TestCase):
     "Test function for checking for existing routes"
 

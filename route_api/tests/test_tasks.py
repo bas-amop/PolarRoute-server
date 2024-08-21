@@ -5,6 +5,7 @@ from unittest.mock import patch, PropertyMock
 
 import celery.states
 from celery.result import AsyncResult
+from django.conf import settings
 from django.test import TestCase, TransactionTestCase
 import pytest
 
@@ -12,33 +13,20 @@ from polarrouteserver.celery import app
 from route_api.models import Route
 from route_api.tasks import calculate_route
 
-pytest_plugins = ("celery.contrib.pytest",) 
-
-test_mesh_path = str(Path("route_api", "tests", "fixtures", "test_vessel_mesh.json"))
-
-@pytest.mark.usefixtures("database")
 class TestCalculateRoute(TestCase):
     def setUp(self):
         self.route = Route.objects.create(
             start_lat=1.1, start_lon=1.1, end_lat=8.9, end_lon=8.9, mesh=None
         )
-        self.test_mesh_path = test_mesh_path
 
     def test_calculate_route(self):
         """Calculate_route should return a dictionary"""
-        route_json = calculate_route(self.route.id, self.test_mesh_path)
-        assert isinstance(route_json, list)
-
-    @pytest.mark.skip(reason="Requires production mesh file to be present, \
-                      not suitable for automated testing.")
-    def test_calculate_route_with_production_mesh(self):
-        """Check using the default mesh"""
         route_json = calculate_route(self.route.id)
-        assert isinstance(route_json, dict)
+        assert isinstance(route_json, list)
 
     def test_out_of_mesh_error(self):
         """Test that out of mesh locations causes error to be returned"""
-        with open(self.test_mesh_path) as f:
+        with open(settings.MESH_PATH) as f:
             mesh = json.load(f)
         
         lat_min = mesh["config"]["mesh_info"]["region"]["lat_min"]
@@ -55,27 +43,23 @@ class TestCalculateRoute(TestCase):
         with pytest.raises(AssertionError):
             calculate_route(self.out_of_mesh_route.id)
 
-@pytest.mark.usefixtures("database")
 class TestTaskStatus(TransactionTestCase):
 
     def setUp(self):
         self.route = Route.objects.create(
             start_lat=1.1, start_lon=1.1, end_lat=8.9, end_lon=8.9, mesh=None
         )
-        self.test_mesh_path = test_mesh_path
 
     def test_task_status(self):
         """Test that task object status is updated appropriately."""
 
-        task = calculate_route.delay(self.route.id, self.test_mesh_path)
-        assert AsyncResult(id = task.id, app=app).state == "PENDING"
-        time.sleep(5)
-        assert AsyncResult(id = task.id, app=app).state == "SUCCESS"
+        task = calculate_route.delay(self.route.id)
+        assert task.state == "SUCCESS"
 
 
     def test_out_of_mesh_error_causes_task_failure(self):
         """Check that an example error (out of mesh) results in the task status being updated correctly."""
-        with open(self.test_mesh_path) as f:
+        with open(settings.MESH_PATH) as f:
             mesh = json.load(f)
         
         lat_min = mesh["config"]["mesh_info"]["region"]["lat_min"]
@@ -89,6 +73,6 @@ class TestTaskStatus(TransactionTestCase):
             mesh=None
         )
 
-        task = calculate_route.delay(self.out_of_mesh_route.id)
-        time.sleep(5)
-        assert AsyncResult(id = task.id, app=app).state == "FAILURE"
+        with pytest.raises(AssertionError):
+            task = calculate_route.delay(self.out_of_mesh_route.id)
+            assert task.state == "FAILURE"

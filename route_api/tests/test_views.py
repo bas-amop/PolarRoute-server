@@ -4,9 +4,9 @@ from unittest.mock import patch, PropertyMock
 import celery.states
 from celery.result import AsyncResult
 from django.test import TestCase
-import kombu.exceptions
 from rest_framework.test import APIRequestFactory
 import pytest
+import unittest
 
 from polarrouteserver.celery import app
 from route_api.views import RouteView
@@ -14,7 +14,6 @@ from route_api.models import Job, Route
 from route_api.tasks import calculate_route
 
 
-@pytest.mark.usefixtures("celery", "database")
 class TestRouteRequest(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
@@ -22,7 +21,7 @@ class TestRouteRequest(TestCase):
     def test_request_route(self):
         data = {
             "start": {"latitude": 0.0, "longitude": 0.0},
-            "end": {"latitude": 0.0, "longitude": 0.0},
+            "end": {"latitude": 1.0, "longitude": 1.0},
         }
 
         request = self.factory.post("/api/route/", data=data, format="json")
@@ -35,8 +34,14 @@ class TestRouteRequest(TestCase):
         assert isinstance(uuid.UUID(response.data.get("id")), uuid.UUID)
 
 
-@pytest.mark.usefixtures("database")
-class TestRouteStatus(TestCase):
+pytestmark = pytest.mark.django_db
+
+@pytest.mark.usefixtures("celery_app","celery_worker", "celery_enable_logging")
+@pytest.mark.django_db
+class TestRouteStatus:
+    
+    pytestmark = pytest.mark.django_db
+
     def setUp(self):
         self.factory = APIRequestFactory()
         self.route = Route.objects.create(
@@ -44,6 +49,9 @@ class TestRouteStatus(TestCase):
         )
 
     def test_get_status_pending(self):
+
+        self.setUp()
+
         self.job = Job.objects.create(
             id=uuid.uuid1(),
             route=self.route,
@@ -53,13 +61,16 @@ class TestRouteStatus(TestCase):
 
         response = RouteView.as_view()(request, self.job.id)
 
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
 
         assert response.data.get("status") == "PENDING"
 
     def test_get_status_complete(self):
+
+        self.setUp()
+
         with patch(
-            "route_api.models.Job.status", new_callable=PropertyMock
+            "route_api.views.AsyncResult.state", new_callable=PropertyMock
         ) as mock_job_status:
             mock_job_status.return_value = celery.states.SUCCESS
 
@@ -72,8 +83,6 @@ class TestRouteStatus(TestCase):
 
             response = RouteView.as_view()(request, self.job.id)
 
-            self.assertEqual(response.status_code, 200)
-
+            assert response.status_code == 200
             assert response.data.get("status") == "SUCCESS"
             assert "json" in response.data.keys()
-            # assert calculate_route.AsyncResult(id=self.job.id, app=app).state == "SUCCESS"
