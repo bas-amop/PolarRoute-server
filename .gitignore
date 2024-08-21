@@ -8,6 +8,7 @@ database/*
 *.pot
 *.pyc
 __pycache__
+*.sqlite
 *.sqlite3
 media
 
