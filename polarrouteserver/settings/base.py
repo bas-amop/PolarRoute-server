@@ -198,13 +198,5 @@ base_routeplanner_config = {
     "save_dijkstra_graphs": False,
     # "smooth_path": {"max_iteration_number": 1000, "minimum_difference": 0.0005},
 }
-TRAVELTIME_CONFIG = base_routeplanner_config.update(
-    {
-        "objective_function": "traveltime",
-    }
-)
-FUEL_CONFIG = base_routeplanner_config.update(
-    {
-        "objective_function": "fuel",
-    }
-)
+TRAVELTIME_CONFIG = base_routeplanner_config | {"objective_function": "traveltime"}
+FUEL_CONFIG = base_routeplanner_config | {"objective_function": "fuel"}
