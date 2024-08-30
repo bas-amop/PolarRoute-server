@@ -148,9 +148,9 @@ def parse_args():
         "-u",
         "--url",
         type=str,
-        nargs=1,
+        nargs="?",
         default="localhost:8000",
-        help="Base URL to send request to.",
+        help="Base URL to send request to. Default: localhost:8000",
     )
     parser.add_argument(
         "-s",
@@ -173,7 +173,7 @@ def parse_args():
         "--delay",
         type=int,
         nargs="?",
-        help="(integer) number of seconds to delay between status calls.",
+        help="(integer) number of seconds to delay between status calls. Default: 30",
         default=30,
     )
     parser.add_argument(
