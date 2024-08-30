@@ -1,7 +1,6 @@
 .DEFAULT_GOAL := help
 RABBITMQ_CONTAINER := "prs-rabbitmq"
 SWAGGER_CONTAINER := "prs-swagger-ui"
-POSTGRES_CONTAINER := "prs-postgres"
 
 define BROWSER_PYSCRIPT
 import os, webbrowser, sys
@@ -115,26 +114,9 @@ stop-rabbitmq: ## Stop rabbitmq docker container
 	@docker stop ${RABBITMQ_CONTAINER}
 	@docker rm ${RABBITMQ_CONTAINER}
 
-.PHONY: start-dev-db
-start-dev-db: ## Start postgres via docker
-	@echo "+ $@"
-	@docker run -d -e POSTGRES_PASSWORD=polarroute \
-	-e PGDATA=/var/lib/postgresql/data/pgdata \
-	-e POSTGRES_DB=polarrouteserver \
-	-v ./database/:/var/lib/postgresql/data \
-	--user 1001 \
-	-p 5432:5432 \
-	--name ${POSTGRES_CONTAINER} postgres:16
-
-.PHONY: stop-dev-db
-stop-dev-db: ## Stop postgres docker container
-	@echo "+ $@"
-	@docker stop ${POSTGRES_CONTAINER}
-	@docker rm ${POSTGRES_CONTAINER}
-
 .PHONY: serve-dev
 export DJANGO_SETTINGS_MODULE=polarrouteserver.settings.development
-serve-dev: start-dev-postgres start-rabbitmq start-celery start-dev-server ## Run all the components for serving a development instance.
+serve-dev: start-rabbitmq start-celery start-dev-server ## Run all the components for serving a development instance.
 
 .PHONY: start-swagger
 start-swagger: ## Start swagger-ui container with API schema
