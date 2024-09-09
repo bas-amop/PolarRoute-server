@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
-
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -25,8 +25,35 @@ SECRET_KEY = "django-insecure-dutfial2$h()(2ivh5euo*t27*p3ukqso7f_-^&w831zq!oz-g
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    '0.0.0.0',
+]
 
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "simple": {
+            "format": "{levelname} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        },
+    },
+    "loggers": {
+        "root": {
+            "handlers": ["console"],
+            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+            "propagate": True,
+        },
+    },
+}
 
 # Application definition
 
@@ -127,11 +154,13 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # Celery settings
 
+CELERY_WORKER_HIJACK_ROOT_LOGGER = True
+
 CELERY_BROKER_URL = "amqp://guest:guest@localhost"
 # CELERY_BROKER_URL='amqp://localhost:5672',
 # CELERY_RESULT_BACKEND='db+postgresql+psycopg://postgres:polarroute@localhost:5432/polarrouteserver'
 
-# CELERY_RESULT_BACKEND = "django-db"
+CELERY_RESULT_BACKEND = "django-db"
 # celery setting.
 # CELERY_CACHE_BACKEND = "default"
 

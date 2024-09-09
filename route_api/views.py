@@ -24,6 +24,8 @@ class RouteView(GenericAPIView):
     def post(self, request):
         """Entry point for route requests"""
 
+        logger.info("Got route request")
+
         data = request.data
 
         # TODO validate request JSON
@@ -94,6 +96,8 @@ class RouteView(GenericAPIView):
 
     def get(self, request, id):
         "Return status of route calculation and route itself if complete."
+
+        logger.info("Got status request")
 
         # update job with latest state
         job = Job.objects.get(id=id)
