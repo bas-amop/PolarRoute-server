@@ -1,4 +1,7 @@
 exclude = ["route_api/tests/*"]
 
 [lint.per-file-ignores]
-"polarrouteserver/settings/*" = ["F403"] # allow from .. import * in settings modules
+"polarrouteserver/settings/*" = [
+    "F403", # allow from .. import * in settings modules
+    "F405", # allow defined in * imports in settings modules
+    ] 
