@@ -65,7 +65,7 @@ def optimise_route(
         rp.compute_smoothed_routes()
 
         extracted_routes = extract_geojson_routes(rp.to_json())
-    
+
         # Update the database
         route.json = extracted_routes
         route.calculated = timezone.now()
@@ -74,8 +74,5 @@ def optimise_route(
         return extracted_routes
 
     except Exception as e:
-        self.update_state(state=states.FAILURE, meta={'error': e})
-        return {
-            "error": e
-        }
-
+        self.update_state(state=states.FAILURE, meta={"error": e})
+        raise e
