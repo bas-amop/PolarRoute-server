@@ -116,7 +116,7 @@ class RouteView(GenericAPIView):
             data.pop("polar_route_version")
 
         if status == "FAILURE":
-            data.update({"error": str(result.info)})
+            data.update({"error": job.route.status})
 
         return Response(
             data,

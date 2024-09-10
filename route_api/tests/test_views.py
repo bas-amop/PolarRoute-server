@@ -3,6 +3,7 @@ from unittest.mock import patch, PropertyMock
 
 import celery.states
 from celery.result import AsyncResult
+from django.conf import settings
 from django.test import TestCase
 from rest_framework.test import APIRequestFactory
 import pytest
@@ -79,10 +80,49 @@ class TestRouteStatus:
                 route=self.route,
             )
 
-            request = self.factory.get(f"/api/status/{self.job.id}")
+            request = self.factory.get(f"/api/route/{self.job.id}")
 
             response = RouteView.as_view()(request, self.job.id)
 
             assert response.status_code == 200
             assert response.data.get("status") == "SUCCESS"
             assert "json" in response.data.keys()
+
+    def test_get_status_failed(self):
+
+        self.setUp()
+        
+        with open(settings.MESH_PATH) as f:
+            mesh = json.load(f)
+        
+        # Request a point that is out of mesh
+        lat_min = mesh["config"]["mesh_info"]["region"]["lat_min"]
+        lat_max = mesh["config"]["mesh_info"]["region"]["lat_max"]
+        lon_min = mesh["config"]["mesh_info"]["region"]["long_min"]
+        lon_max = mesh["config"]["mesh_info"]["region"]["long_max"]
+
+        data = {
+            "start": {"latitude": lat_min-5, "longitude": lon_min-5},
+            "end": {"latitude": abs(lat_max-lat_min)/2, "longitude": abs(lon_max-lon_min)/2},
+        }
+
+        # make route request
+        request = self.factory.post("/api/route/", data=data, format="json")
+
+        # using try except to ignore deliberate error in celery task in test envrionment
+        # in production, celery handles this
+        try:
+            post_response = RouteView.as_view()(request)
+        except AssertionError:
+            pass
+
+        assert post_response.status_code == 202
+
+        # make status request
+        request = self.factory.get(f"/api/route/{post_response.data['id']}")
+
+        get_response = RouteView.as_view()(request, post_response.data['id'])
+
+        # assert response.status_code == 200
+        assert get_response.data.get("status") == "FAILURE"
+        assert "error" in get_response.data.keys()
