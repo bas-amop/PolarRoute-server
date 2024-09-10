@@ -18,13 +18,58 @@ from django.conf import settings
 logger = logging.getLogger(__name__)
 
 
-class RouteView(GenericAPIView):
+class LoggingMixin:
+    """
+    Provides full logging of requests and responses
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.logger = logging.getLogger("django.request")
+
+    def initial(self, request, *args, **kwargs):
+        try:
+            self.logger.debug(
+                {
+                    "request": request.data,
+                    "method": request.method,
+                    "endpoint": request.path,
+                    "user": request.user.username,
+                    "ip_address": request.META.get("REMOTE_ADDR"),
+                    "user_agent": request.META.get("HTTP_USER_AGENT"),
+                }
+            )
+        except Exception:
+            self.logger.exception("Error logging request data")
+
+        super().initial(request, *args, **kwargs)
+
+    def finalize_response(self, request, response, *args, **kwargs):
+        try:
+            self.logger.debug(
+                {
+                    "response": response.data,
+                    "status_code": response.status_code,
+                    "user": request.user.username,
+                    "ip_address": request.META.get("REMOTE_ADDR"),
+                    "user_agent": request.META.get("HTTP_USER_AGENT"),
+                }
+            )
+        except Exception:
+            self.logger.exception("Error logging response data")
+
+        return super().finalize_response(request, response, *args, **kwargs)
+
+
+class RouteView(LoggingMixin, GenericAPIView):
     serializer_class = RouteSerializer
 
     def post(self, request):
         """Entry point for route requests"""
 
-        logger.info("Got route request")
+        logger.info(
+            f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}: {request.data}"
+        )
 
         data = request.data
 
@@ -97,7 +142,9 @@ class RouteView(GenericAPIView):
     def get(self, request, id):
         "Return status of route calculation and route itself if complete."
 
-        logger.info("Got status request")
+        logger.info(
+            f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
+        )
 
         # update job with latest state
         job = Job.objects.get(id=id)
@@ -128,6 +175,10 @@ class RouteView(GenericAPIView):
         """Cancel route calculation"""
 
         id = request.data.get("id")
+
+        logger.info(
+            f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
+        )
 
         result = AsyncResult(id=id, app=app)
 
