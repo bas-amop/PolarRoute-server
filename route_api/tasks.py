@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 
 from celery.utils.log import get_task_logger
+from celery import states
 from django.conf import settings
 from django.utils import timezone
 import numpy as np
@@ -36,7 +37,6 @@ def optimise_route(
     """
     route = Route.objects.get(id=route_id)
 
-    # try:
     if isinstance(mesh, Path | str):
         with open(mesh) as f:
             logger.info(f"Loading mesh file {mesh}")
@@ -56,18 +56,26 @@ def optimise_route(
         }
     )
 
-    # Calculate route
-    rp = RoutePlanner(vessel_mesh, settings.TRAVELTIME_CONFIG, waypoints)
-    # Calculate optimal dijkstra path between waypoints
-    rp.compute_routes()
-    # Smooth the dijkstra routes
-    rp.compute_smoothed_routes()
+    try:
+        # Calculate route
+        rp = RoutePlanner(vessel_mesh, settings.TRAVELTIME_CONFIG, waypoints)
+        # Calculate optimal dijkstra path between waypoints
+        rp.compute_routes()
+        # Smooth the dijkstra routes
+        rp.compute_smoothed_routes()
 
-    extracted_routes = extract_geojson_routes(rp.to_json())
+        extracted_routes = extract_geojson_routes(rp.to_json())
+    
+        # Update the database
+        route.json = extracted_routes
+        route.calculated = timezone.now()
+        route.polar_route_version = polar_route.__version__
+        route.save()
+        return extracted_routes
 
-    # Update the database
-    route.json = extracted_routes
-    route.calculated = timezone.now()
-    route.polar_route_version = polar_route.__version__
-    route.save()
-    return extracted_routes
+    except Exception as e:
+        self.update_state(state=states.FAILURE, meta={'error': e})
+        return {
+            "error": e
+        }
+
