@@ -1,8 +1,9 @@
 import json
 from pathlib import Path
 
-from celery.utils.log import get_task_logger
 from celery import states
+from celery.exceptions import Ignore
+from celery.utils.log import get_task_logger
 from django.conf import settings
 from django.utils import timezone
 import numpy as np
@@ -74,5 +75,7 @@ def optimise_route(
         return extracted_routes
 
     except Exception as e:
-        self.update_state(state=states.FAILURE, meta={"error": e})
-        raise e
+        self.update_state(state=states.FAILURE)
+        route.status = f"{e}"
+        route.save()
+        raise Ignore()

@@ -1,9 +1,8 @@
 import json
 from pathlib import Path
-import time
 from unittest.mock import patch, PropertyMock
 
-import celery.states
+from celery.exceptions import Ignore
 from celery.result import AsyncResult
 from django.conf import settings
 from django.test import TestCase, TransactionTestCase
@@ -40,7 +39,7 @@ class TestOptimiseRoute(TestCase):
             mesh=None
         )
 
-        with pytest.raises(AssertionError):
+        with pytest.raises(Ignore):
             optimise_route(self.out_of_mesh_route.id)
 
 class TestTaskStatus(TransactionTestCase):
