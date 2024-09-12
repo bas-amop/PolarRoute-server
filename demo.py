@@ -60,7 +60,7 @@ def make_request(
 
     print(f"Response: {response.status} {response.reason}")
 
-    return response
+    return json.loads(response.read()), response.status
 
 
 def request_route(
@@ -87,7 +87,7 @@ def request_route(
     """
 
     # make route request
-    response = make_request(
+    response_body, status = make_request(
         "POST",
         url,
         "/api/route",
@@ -106,19 +106,18 @@ def request_route(
         ),
     )
 
-    if not str(response.status).startswith("2"):
+    if not str(status).startswith("2"):
         return None
 
-    post_body = json.loads(response.read())
     # if route is returned
-    if post_body.get("json") is not None:
-        return post_body["json"]
+    if response_body.get("json") is not None:
+        return response_body["json"]
 
     # if no route returned, request status at status-url
-    status_url = post_body.get("status-url")
+    status_url = response_body.get("status-url")
     if status_url is None:
         raise Exception("No status URL returned.")
-    id = post_body.get("id")
+    id = response_body.get("id")
 
     status_request_count = 0
     while status_request_count <= num_requests:
@@ -130,21 +129,21 @@ def request_route(
 
         # make route request
         print(f"Status request #{status_request_count} of {num_requests}")
-        response = make_request(
+        response_body, status = make_request(
             "GET",
             url,
             f"/api/route/{id}",
             headers={"Host": url, "Content-Type": "application/json"},
         )
 
-        get_body = json.loads(response.read())
-        print(f"Route calculation {get_body.get('status')}.")
-        if get_body.get("status") == "PENDING":
+        print(f"Route calculation {response_body.get('status')}.")
+        print(response_body)
+        if response_body.get("status") == "PENDING":
             continue
-        elif get_body.get("status") == "FAILURE":
+        elif response_body.get("status") == "FAILURE":
             return None
-        elif get_body.get("status") == "SUCCESS":
-            return get_body.get("json")
+        elif response_body.get("status") == "SUCCESS":
+            return response_body.get("json")
     print(
         f'Max number of requests sent. Quitting.\nTo send more status requests, run: "curl {url}/api/route/{id}"'
     )
