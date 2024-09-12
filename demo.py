@@ -27,6 +27,42 @@ STANDARD_LOCATIONS = {
 }
 
 
+def make_request(
+    type: str, url: str, endpoint: str, headers: dict, body: dict = None
+) -> http.client.HTTPResponse:
+    """Sends HTTP request, prints details and returns response.
+
+    Args:
+        type (str): HTTP request type, e.g. "GET" or "POST"
+        url (str): base url to send request to
+        endpoint (str): endpoint, e.g. "/api/route/some-id"
+        headers (dict): HTTP headers
+        body (dict, optional): HTTP request body. Defaults to None.
+
+    Returns:
+        http.client.HTTPResponse
+    """
+    sending_str = f"Sending {type} request to {url}{endpoint}: \nHeaders: {headers}\n"
+
+    if body:
+        sending_str += f"Body: {body}\n"
+
+    print(sending_str)
+
+    conn = http.client.HTTPConnection(url)
+    conn.request(
+        type,
+        endpoint,
+        headers=headers,
+        body=body,
+    )
+    response = conn.getresponse()
+
+    print(f"Response: {response.status} {response.reason}")
+
+    return response
+
+
 def request_route(
     url: str,
     start: Location,
@@ -51,13 +87,12 @@ def request_route(
     """
 
     # make route request
-    print(f"Sending POST request to {url}/api/route")
-    conn = http.client.HTTPConnection(url)
-    conn.request(
+    response = make_request(
         "POST",
+        url,
         "/api/route",
-        headers={"Host": url, "Content-Type": "application/json"},
-        body=json.dumps(
+        {"Host": url, "Content-Type": "application/json"},
+        json.dumps(
             {
                 "start": {
                     "latitude": start.lat,
@@ -70,9 +105,7 @@ def request_route(
             }
         ),
     )
-    response = conn.getresponse()
 
-    print(f"{response.status} response, {response.reason}")
     if not str(response.status).startswith("2"):
         return None
 
@@ -91,33 +124,30 @@ def request_route(
     while status_request_count <= num_requests:
         status_request_count += 1
         print(
-            f"Waiting for {status_update_delay} seconds before sending status request."
+            f"\nWaiting for {status_update_delay} seconds before sending status request."
         )
         time.sleep(status_update_delay)
 
-        print(
-            f"Sending GET request {status_request_count}/{num_requests} to {url}/api/route/{id}"
-        )
         # make route request
-        conn = http.client.HTTPConnection(url)
-        conn.request(
+        print(f"Status request #{status_request_count} of {num_requests}")
+        response = make_request(
             "GET",
+            url,
             f"/api/route/{id}",
             headers={"Host": url, "Content-Type": "application/json"},
         )
-        response = conn.getresponse()
 
         get_body = json.loads(response.read())
+        print(f"Route calculation {get_body.get('status')}.")
         if get_body.get("status") == "PENDING":
-            print("Route calculation PENDING. ")
             continue
         elif get_body.get("status") == "FAILURE":
-            print("Route calculation FAILURE.")
             return None
         elif get_body.get("status") == "SUCCESS":
-            print("Route calculation SUCCESS.")
             return get_body.get("json")
-    print("Max number of requests sent. Quitting.")
+    print(
+        f'Max number of requests sent. Quitting.\nTo send more status requests, run: "curl {url}/api/route/{id}"'
+    )
     return None
 
 
