@@ -3,6 +3,7 @@
 import argparse
 import http.client
 import json
+import pprint
 import re
 import sys
 import time
@@ -106,6 +107,8 @@ def request_route(
         ),
     )
 
+    print(pprint.pprint(response_body))
+
     if not str(status).startswith("2"):
         return None
 
@@ -137,7 +140,7 @@ def request_route(
         )
 
         print(f"Route calculation {response_body.get('status')}.")
-        print(response_body)
+        print(pprint.pprint(response_body))
         if response_body.get("status") == "PENDING":
             continue
         elif response_body.get("status") == "FAILURE":
