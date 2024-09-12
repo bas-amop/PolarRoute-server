@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/5.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
+
 import os
 from pathlib import Path
 
@@ -26,8 +27,8 @@ SECRET_KEY = "django-insecure-dutfial2$h()(2ivh5euo*t27*p3ukqso7f_-^&w831zq!oz-g
 DEBUG = True
 
 ALLOWED_HOSTS = [
-    'localhost',
-    '0.0.0.0',
+    "localhost",
+    "0.0.0.0",
 ]
 
 

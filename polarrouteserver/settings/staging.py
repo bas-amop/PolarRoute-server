@@ -13,7 +13,7 @@ MESH_PATH = config.get("mesh_path")
 
 ALLOWED_HOSTS.extend(config.get("allowed_hosts"))
 
-CELERY_BROKER_URL=config.get("celery_broker_url")
+CELERY_BROKER_URL = config.get("celery_broker_url")
 
 LOGGING = {
     "version": 1,
@@ -36,9 +36,9 @@ LOGGING = {
         "file": {
             "level": "DEBUG",
             "class": "logging.handlers.RotatingFileHandler",
-            "filename": Path(BASE_DIR, "logs" ,"django.log"),
+            "filename": Path(BASE_DIR, "logs", "django.log"),
             "formatter": "verbose",
-        }
+        },
     },
     "loggers": {
         "root": {
