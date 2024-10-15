@@ -171,17 +171,14 @@ class RouteView(LoggingMixin, GenericAPIView):
             status=rest_framework.status.HTTP_200_OK,
         )
 
-    def delete(self, request):
+    def delete(self, request, id):
         """Cancel route calculation"""
-
-        id = request.data.get("id")
 
         logger.info(
             f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
         )
 
-        result = AsyncResult(id=id, app=app)
-
+        result = AsyncResult(id=str(id), app=app)
         result.revoke()
 
         return Response(

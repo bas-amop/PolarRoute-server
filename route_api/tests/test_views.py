@@ -34,7 +34,6 @@ class TestRouteRequest(TestCase):
         assert f"api/route/{response.data.get('id')}" in response.data.get("status-url")
         assert isinstance(uuid.UUID(response.data.get("id")), uuid.UUID)
 
-
 pytestmark = pytest.mark.django_db
 
 @pytest.mark.usefixtures("celery_app","celery_worker", "celery_enable_logging")
@@ -126,3 +125,19 @@ class TestRouteStatus:
         # assert response.status_code == 200
         assert get_response.data.get("status") == "FAILURE"
         assert "error" in get_response.data.keys()
+
+    
+    def test_cancel_route(self):
+
+        self.setUp()
+
+        self.job = Job.objects.create(
+            id=uuid.uuid1(),
+            route=self.route,
+        )
+
+        request = self.factory.delete(f"/api/route/{self.job.id}")
+
+        response = RouteView.as_view()(request, self.job.id)
+
+        assert response.status_code == 202
