@@ -47,6 +47,7 @@ lint: ## Check code style
 	@ruff check
 
 .PHONY: test
+test: export DJANGO_SETTINGS_MODULE = polarrouteserver.settings.test
 test: ## Run tests quickly with the default Python
 	@echo "+ $@"
 	@pytest
