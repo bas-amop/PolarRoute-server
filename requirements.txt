@@ -5,3 +5,4 @@ django-rest-framework
 haversine
 polar-route==0.5.2
 pyyaml
+SQLAlchemy
