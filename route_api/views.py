@@ -81,6 +81,7 @@ class RouteView(LoggingMixin, GenericAPIView):
 
         force_recalculate = data.get("force_recalculate", False)
 
+        # TODO find existing routes based on mesh, not date
         existing_route = route_exists(
             datetime.today(), start_lat, start_lon, end_lat, end_lon
         )
@@ -89,15 +90,20 @@ class RouteView(LoggingMixin, GenericAPIView):
             if not force_recalculate:
                 logger.info(f"Existing route found: {existing_route}")
                 response_data = RouteSerializer(existing_route).data
+                existing_job = existing_route.job_set.latest("datetime")
                 response_data.update(
                     {
-                        "meta": "Pre-existing route found and returned. To force recalculation, include 'force_recalculate': true in POST request."
+                        "meta": "Pre-existing route found and returned. To force new calculation, include 'force_recalculate': true in POST request.",
+                        "id": str(existing_job.id),
+                        "status-url": reverse(
+                            "route", args=[existing_job.id], request=request
+                        ),
                     }
                 )
                 return Response(
                     data=response_data,
                     headers={"Content-Type": "application/json"},
-                    status=rest_framework.status.HTTP_200_OK,
+                    status=rest_framework.status.HTTP_202_ACCEPTED,
                 )
             else:
                 logger.info(

@@ -34,6 +34,15 @@ class TestRouteRequest(TestCase):
         assert f"api/route/{response.data.get('id')}" in response.data.get("status-url")
         assert isinstance(uuid.UUID(response.data.get("id")), uuid.UUID)
 
+    
+        # Test that requesting the same route doesn't start a new job.
+        # request the same route parameters
+        request = self.factory.post("/api/route/", data=data, format="json")
+        response2 = RouteView.as_view()(request)
+        assert response.data.get('id') == response2.data.get('id')
+        assert f"api/route/{response.data.get('id')}" in response2.data.get("status-url")
+
+
 pytestmark = pytest.mark.django_db
 
 @pytest.mark.usefixtures("celery_app","celery_worker", "celery_enable_logging")
