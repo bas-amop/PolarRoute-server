@@ -60,11 +60,22 @@ def optimise_route(
     try:
         # Calculate route
         rp = RoutePlanner(vessel_mesh, settings.TRAVELTIME_CONFIG, waypoints)
+
         # Calculate optimal dijkstra path between waypoints
         rp.compute_routes()
+
+        # save the initial unsmoothed route
+        logger.info("Saving unsmoothed Dijkstra paths.")
+        route.json_unsmoothed = extract_geojson_routes(rp.to_json())
+        route.calculated = timezone.now()
+        route.polar_route_version = polar_route.__version__
+        route.save()
+
         # Smooth the dijkstra routes
         rp.compute_smoothed_routes()
 
+        # Save the smoothed route(s)
+        logger.info("Route smoothing complete.")
         extracted_routes = extract_geojson_routes(rp.to_json())
 
         # Update the database
