@@ -2,9 +2,11 @@ import os
 from pathlib import Path
 import yaml
 
+from celery.schedules import crontab
+
 from .base import *
 
-# DEBUG = False
+DEBUG = False
 
 with open(Path("config", "staging.yaml"), "r") as f:
     config = yaml.load(f, Loader=yaml.Loader)
@@ -15,6 +17,13 @@ MESH_DIR = config.get("mesh_dir")
 ALLOWED_HOSTS.extend(config.get("allowed_hosts"))
 
 CELERY_BROKER_URL = config.get("celery_broker_url")
+
+CELERY_BEAT_SCHEDULE = {
+    "sample_task": {
+        "task": "route_api.tasks.import_new_meshes",
+        "schedule": crontab(minute="*/10"),
+    },
+}
 
 LOGGING = {
     "version": 1,
