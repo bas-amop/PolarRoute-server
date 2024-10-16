@@ -1,11 +1,13 @@
+import datetime
+import hashlib
+
 from django.conf import settings
 from django.test import TestCase
 from django.utils import timezone
 from haversine import inverse_haversine, Unit, Direction
-import pytest
 
-from route_api.models import Route
-from route_api.utils import route_exists
+from route_api.models import Mesh, Route
+from route_api.utils import route_exists, select_mesh
 
 class TestRouteExists(TestCase):
     "Test function for checking for existing routes"
@@ -120,3 +122,34 @@ class TestRouteExists(TestCase):
             end_lon=self.end_lon,
         )
         assert route == closest_route
+
+class TestSelectMesh(TestCase):
+
+    def setUp(self):
+        # create some meshes in the database
+
+        self.southern_mesh = Mesh.objects.create(
+            name = "southern_test_mesh.vessel.json",
+            md5 = hashlib.md5("dummy_hashable_string".encode('utf-8')).hexdigest(),
+            meshiphi_version = "2.1.13",
+            created = datetime.datetime.now(),
+            lat_min =  -80.0,
+            lat_max =  -40.0,
+            lon_min = -110.0,
+            lon_max =   -5.0
+        )
+
+    def test_select_mesh(self):
+        assert select_mesh(
+            start_lat = -60,
+            start_lon = -55,
+            end_lat   = -80,
+            end_lon   = -110
+        ) == self.southern_mesh
+
+        assert select_mesh(
+            start_lat = -90,
+            start_lon = -55,
+            end_lat   = -80,
+            end_lon   = -110
+        ) == None

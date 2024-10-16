@@ -1,4 +1,3 @@
-from datetime import datetime
 import logging
 
 from celery.result import AsyncResult
@@ -11,7 +10,7 @@ from polarrouteserver.celery import app
 from route_api.models import Job, Route
 from route_api.tasks import optimise_route
 from route_api.serializers import RouteSerializer
-from route_api.utils import route_exists
+from route_api.utils import route_exists, select_mesh
 
 from django.conf import settings
 
@@ -81,10 +80,17 @@ class RouteView(LoggingMixin, GenericAPIView):
 
         force_recalculate = data.get("force_recalculate", False)
 
+        mesh = select_mesh(start_lat, start_lon, end_lat, end_lon)
+
+        if mesh is None:
+            return Response(
+                data={"error": "No suitable mesh available."},
+                headers={"Content-Type": "application/json"},
+                status=rest_framework.status.HTTP_501_NOT_IMPLEMENTED,
+            )
+
         # TODO find existing routes based on mesh, not date
-        existing_route = route_exists(
-            datetime.today(), start_lat, start_lon, end_lat, end_lon
-        )
+        existing_route = route_exists(mesh, start_lat, start_lon, end_lat, end_lon)
 
         if existing_route is not None:
             if not force_recalculate:

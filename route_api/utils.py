@@ -4,9 +4,39 @@ import logging
 from django.conf import settings
 import haversine
 
-from route_api.models import Route
+from route_api.models import Mesh, Route
 
 logger = logging.getLogger(__name__)
+
+
+def select_mesh(
+    start_lat: float,
+    start_lon: float,
+    end_lat: float,
+    end_lon: float,
+) -> Mesh | None:
+    """Find the most suitable mesh from the database for a given set of start and end coordinates.
+    Returns either a Mesh object or None.
+    """
+
+    try:
+        return (
+            Mesh.objects.filter(
+                lat_min__lte=start_lat,
+                lat_max__gte=start_lat,
+                lon_min__lte=start_lon,
+                lon_max__gte=start_lon,
+            )
+            .filter(
+                lat_min__lte=end_lat,
+                lat_max__gte=end_lat,
+                lon_min__lte=end_lon,
+                lon_max__gte=end_lon,
+            )
+            .latest("created")
+        )
+    except Mesh.DoesNotExist:
+        return None
 
 
 def route_exists(
