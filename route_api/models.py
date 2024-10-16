@@ -9,25 +9,24 @@ from polarrouteserver.celery import app
 logger = logging.getLogger(__name__)
 
 
-class PolarRouteModel(models.Model):
-    "Abstract base class for common properties and methods of route and mesh models."
-
+class Mesh(models.Model):
     id = models.BigAutoField(primary_key=True)
+    meshiphi_version = models.CharField(max_length=60, null=True)
+    md5 = models.CharField(max_length=64)
+    created = models.DateTimeField()
+    lat_min = models.FloatField()
+    lat_max = models.FloatField()
+    lon_min = models.FloatField()
+    lon_max = models.FloatField()
+    json = models.JSONField(null=True)
+    name = models.CharField(max_length=50, null=True)
+
+
+class Route(models.Model):
     requested = models.DateTimeField(default=timezone.now)
     calculated = models.DateTimeField(null=True)
     file = models.FilePathField(null=True, blank=True)
     info = models.TextField(null=True)
-
-    class Meta:
-        abstract = True
-
-
-class Mesh(PolarRouteModel):
-    # some mesh properties?
-    meshiphi_version = models.CharField(max_length=60, null=True)
-
-
-class Route(PolarRouteModel):
     mesh = models.ForeignKey(Mesh, on_delete=models.DO_NOTHING, null=True)
     start_lat = models.FloatField()
     start_lon = models.FloatField()

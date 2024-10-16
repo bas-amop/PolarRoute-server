@@ -1,5 +1,8 @@
+from datetime import datetime
+import gzip
 import json
 from pathlib import Path
+import os
 
 from celery import states
 from celery.exceptions import Ignore
@@ -11,6 +14,7 @@ import pandas as pd
 import polar_route
 from polar_route.route_planner import RoutePlanner
 from polar_route.utils import extract_geojson_routes
+import yaml
 
 from polarrouteserver.celery import app
 from .models import Mesh, Route
@@ -87,6 +91,65 @@ def optimise_route(
 
     except Exception as e:
         self.update_state(state=states.FAILURE)
-        route.status = f"{e}"
+        route.info = f"{e}"
         route.save()
         raise Ignore()
+
+
+@app.task(bind=True)
+def import_new_meshes(self):
+    """Look for new meshes and insert them into the database."""
+
+    # find the latest metadata file
+    files = os.listdir(settings.MESH_DIR)
+    file_list = [
+        os.path.join(settings.MESH_DIR, file)
+        for file in files
+        if file.startswith("upload_metadata_") and file.endswith(".yaml.gz")
+    ]
+    if len(file_list) == 0:
+        msg = "Upload metadata file not found."
+        logger.error(msg)
+        raise FileNotFoundError(msg)
+    latest_metadata_file = max(file_list, key=os.path.getctime)
+
+    # load in the metadata
+    with gzip.open(latest_metadata_file, "rb") as f:
+        metadata = yaml.load(f.read(), Loader=yaml.Loader)
+
+    meshes_added = []
+    for record in metadata["records"]:
+        # we only want the vessel json files
+        if not record["filepath"].endswith(".vessel.json"):
+            continue
+
+        # extract the filename from the filepath
+        mesh_filename = record["filepath"].split("/")[-1]
+
+        # load in the mesh json
+        with gzip.open(Path(settings.MESH_DIR, mesh_filename + ".gz"), "rb") as f:
+            mesh_json = json.load(f)
+
+        # create an entry in the database
+        mesh, created = Mesh.objects.get_or_create(
+            md5=record["md5"],
+            defaults={
+                "name": mesh_filename,
+                "created": datetime.strptime(record["created"], "%Y%m%dT%H%M%S"),
+                "json": mesh_json,
+                "meshiphi_version": record["meshiphi"],
+                "lat_min": record["latlong"]["latmin"],
+                "lat_max": record["latlong"]["latmax"],
+                "lon_min": record["latlong"]["lonmin"],
+                "lon_max": record["latlong"]["lonmax"],
+            },
+        )
+        if created:
+            logger.info(
+                f"Adding new mesh to database: {mesh.id} {mesh.name} {mesh.created}"
+            )
+            meshes_added.append(
+                {"id": mesh.id, "md5": record["md5"], "name": mesh.name}
+            )
+
+    return meshes_added
