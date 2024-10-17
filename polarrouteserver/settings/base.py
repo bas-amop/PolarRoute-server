@@ -191,14 +191,15 @@ MESH_PATH = Path("./mesh.json")
 #        "max_ice_conc": 80,
 #        "min_depth": 10
 # }
-TRAVELTIME_CONFIG = {
-    "objective_function": "traveltime",
+base_routeplanner_config = {
     "path_variables": ["fuel", "traveltime"],
     "vector_names": ["uC", "vC"],
     "zero_currents": False,
-    "variable_speed": True,
+    "variable_speed": False,
     "time_unit": "days",
-    "early_stopping_criterion": True,
-    "save_dijkstra_graphs": True,
-    "smooth_path": {"max_iteration_number": 1000, "minimum_difference": 0.0005},
+    "early_stopping_criterion": False,
+    "save_dijkstra_graphs": False,
+    # "smooth_path": {"max_iteration_number": 1000, "minimum_difference": 0.0005},
 }
+TRAVELTIME_CONFIG = base_routeplanner_config | {"objective_function": "traveltime"}
+FUEL_CONFIG = base_routeplanner_config | {"objective_function": "fuel"}

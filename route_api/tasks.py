@@ -58,36 +58,45 @@ def optimise_route(
     )
 
     try:
-        # Calculate route
-        rp = RoutePlanner(mesh.json, settings.TRAVELTIME_CONFIG, waypoints)
+        unsmoothed_routes = []
+        route_planners = []
+        for config in (settings.TRAVELTIME_CONFIG, settings.FUEL_CONFIG):
+            rp = RoutePlanner(vessel_mesh, config, waypoints)
 
-        # Calculate optimal dijkstra path between waypoints
-        rp.compute_routes()
+            # Calculate optimal dijkstra path between waypoints
+            rp.compute_routes()
 
-        # save the initial unsmoothed route
-        logger.info("Saving unsmoothed Dijkstra paths.")
-        route.json_unsmoothed = extract_geojson_routes(rp.to_json())
-        route.calculated = timezone.now()
-        route.polar_route_version = polar_route.__version__
-        route.save()
+            route_planners.append(rp)
 
-        # Smooth the dijkstra routes
-        rp.compute_smoothed_routes()
+            # save the initial unsmoothed route
+            logger.info(
+                f"Saving unsmoothed Dijkstra paths for {config['objective_function']}-optimised route."
+            )
+            unsmoothed_routes.append(extract_geojson_routes(rp.to_json()))
+            route.json_unsmoothed = unsmoothed_routes
+            route.calculated = timezone.now()
+            route.polar_route_version = polar_route.__version__
+            route.save()
 
-        # Save the smoothed route(s)
-        logger.info("Route smoothing complete.")
-        extracted_routes = extract_geojson_routes(rp.to_json())
+        smoothed_routes = []
+        for i, rp in enumerate(route_planners):
+            # Smooth the dijkstra routes
+            rp.compute_smoothed_routes()
+            # Save the smoothed route(s)
+            logger.info(f"Route smoothing {i+1}/{len(route_planners)} complete.")
+            smoothed_routes.append(extract_geojson_routes(rp.to_json()))
 
         # Update the database
-        route.json = extracted_routes
+        route.json = smoothed_routes
         route.calculated = timezone.now()
         route.polar_route_version = polar_route.__version__
         route.save()
-        return extracted_routes
+        return smoothed_routes
 
     except Exception as e:
+        logger.error(e)
         self.update_state(state=states.FAILURE)
-        route.info = f"{e}"
+        route.info = {"error": f"{e}"}
         route.save()
         raise Ignore()
 
