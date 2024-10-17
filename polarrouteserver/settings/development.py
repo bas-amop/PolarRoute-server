@@ -7,3 +7,4 @@ with open(Path("config", "development.yaml"), "r") as f:
     config = yaml.load(f, Loader=yaml.Loader)
 
 MESH_PATH = config.get("mesh_path")
+MESH_DIR = config.get("mesh_dir")

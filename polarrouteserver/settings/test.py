@@ -3,6 +3,7 @@ from pathlib import Path
 from .base import *
 
 MESH_PATH = Path("route_api", "tests", "fixtures", "test_vessel_mesh.json")
+MESH_DIR = Path("route_api", "tests", "fixtures")
 
 CELERY_BROKER_URL = "memory://"
 CELERY_RESULT_BACKEND = "db+sqlite:///results.sqlite"

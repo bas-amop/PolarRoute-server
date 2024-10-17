@@ -6,7 +6,7 @@ from celery import Celery, signals
 from django.conf import settings
 
 # Set the default Django settings module for the 'celery' program.
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "polarrouteserver.settings.production")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "polarrouteserver.settings.development")
 
 app = Celery("polarrouteserver")
 

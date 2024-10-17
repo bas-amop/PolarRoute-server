@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_celery_results",
+    "django_celery_beat",
     "route_api",
 ]
 
@@ -173,6 +174,8 @@ CELERY_RESULT_BACKEND = "django-db"
 #     }
 # }
 
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+
 # Routing settings
 WAYPOINT_DISTANCE_TOLERANCE = 1  # Nautical Miles
 MESH_PATH = Path("./mesh.json")
@@ -188,12 +191,11 @@ MESH_PATH = Path("./mesh.json")
 #        "max_ice_conc": 80,
 #        "min_depth": 10
 # }
-TRAVELTIME_CONFIG = {
-    "objective_function": "traveltime",
+base_routeplanner_config = {
     "path_variables": ["fuel", "traveltime"],
     "vector_names": ["uC", "vC"],
     "zero_currents": False,
-    "variable_speed": True,
+    "variable_speed": False,
     "time_unit": "days",
     "early_stopping_criterion": True,
     "save_dijkstra_graphs": True,
@@ -203,3 +205,5 @@ TRAVELTIME_CONFIG = {
     "smoothing_merge_separation": 1e-3,
     "smoothing_converged_sep": 1e-3,
 }
+TRAVELTIME_CONFIG = base_routeplanner_config | {"objective_function": "traveltime"}
+FUEL_CONFIG = base_routeplanner_config | {"objective_function": "fuel"}
