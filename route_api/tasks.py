@@ -61,7 +61,7 @@ def optimise_route(
         unsmoothed_routes = []
         route_planners = []
         for config in (settings.TRAVELTIME_CONFIG, settings.FUEL_CONFIG):
-            rp = RoutePlanner(vessel_mesh, config, waypoints)
+            rp = RoutePlanner(mesh.json, config, waypoints)
 
             # Calculate optimal dijkstra path between waypoints
             rp.compute_routes()
