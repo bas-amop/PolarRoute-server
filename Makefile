@@ -97,7 +97,7 @@ stop-django-server: ## Stop Django dev server
 .PHONY: start-celery
 start-celery: start-rabbitmq ## Start celery
 	@echo "+ $@"
-	@DJANGO_SETTINGS_MODULE='polarrouteserver.settings.development' celery -A polarrouteserver worker -l INFO --detach
+	@DJANGO_SETTINGS_MODULE='polarrouteserver.settings.development' celery -A polarrouteserver  worker --beat --scheduler django --loglevel=info --detach
 
 .PHONY: stop-celery
 stop-celery: ## Stop celery

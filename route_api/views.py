@@ -1,4 +1,3 @@
-from datetime import datetime
 import logging
 
 from celery.result import AsyncResult
@@ -11,9 +10,7 @@ from polarrouteserver.celery import app
 from route_api.models import Job, Route
 from route_api.tasks import optimise_route
 from route_api.serializers import RouteSerializer
-from route_api.utils import route_exists
-
-from django.conf import settings
+from route_api.utils import route_exists, select_mesh
 
 logger = logging.getLogger(__name__)
 
@@ -81,10 +78,17 @@ class RouteView(LoggingMixin, GenericAPIView):
 
         force_recalculate = data.get("force_recalculate", False)
 
-        # TODO find existing routes based on mesh, not date
-        existing_route = route_exists(
-            datetime.today(), start_lat, start_lon, end_lat, end_lon
-        )
+        mesh = select_mesh(start_lat, start_lon, end_lat, end_lon)
+
+        if mesh is None:
+            return Response(
+                data={"error": "No suitable mesh available."},
+                headers={"Content-Type": "application/json"},
+                status=rest_framework.status.HTTP_204_NO_CONTENT,
+            )
+        # TODO Future: calculate an up to date mesh if none available
+
+        existing_route = route_exists(mesh, start_lat, start_lon, end_lat, end_lon)
 
         if existing_route is not None:
             if not force_recalculate:
@@ -110,21 +114,17 @@ class RouteView(LoggingMixin, GenericAPIView):
                     f"Found existing route(s) but got force_recalculate={force_recalculate}, beginning recalculation."
                 )
 
-        # TODO Find the latest corresponding mesh object
-        # TODO work out whether latest mesh contains start and end points
-        # TODO calculate an up to date mesh if none available
-
         # Create route in database
         route = Route.objects.create(
             start_lat=start_lat,
             start_lon=start_lon,
             end_lat=end_lat,
             end_lon=end_lon,
-            mesh=None,
+            mesh=mesh,
         )
 
         # Start the task calculation
-        task = optimise_route.delay(route.id, str(settings.MESH_PATH))
+        task = optimise_route.delay(route.id)
 
         # Create database record representing the calculation job
         job = Job.objects.create(

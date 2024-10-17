@@ -1,5 +1,6 @@
 celery
 Django>=5
+django-celery-beat
 django-celery-results
 django-rest-framework
 haversine
