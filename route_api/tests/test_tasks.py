@@ -55,6 +55,16 @@ class TestTaskStatus(TransactionTestCase):
         task = optimise_route.delay(self.route.id)
         assert task.state == "SUCCESS"
 
+    def test_unsmoothed_route_creation(self):
+        """Test that route calculation task created unsmoothed route as well as the main route."""
+
+        _ = optimise_route.delay(self.route.id)
+
+        route = Route.objects.get(id=self.route.id)
+
+        assert route.json is not None
+        assert route.json_unsmoothed is not None
+
 
     def test_out_of_mesh_error_causes_task_failure(self):
         """Check that an example error (out of mesh) results in the task status being updated correctly."""

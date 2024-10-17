@@ -16,7 +16,7 @@ class PolarRouteModel(models.Model):
     requested = models.DateTimeField(default=timezone.now)
     calculated = models.DateTimeField(null=True)
     file = models.FilePathField(null=True, blank=True)
-    status = models.TextField(null=True)
+    info = models.TextField(null=True)
 
     class Meta:
         abstract = True
@@ -34,6 +34,7 @@ class Route(PolarRouteModel):
     end_lat = models.FloatField()
     end_lon = models.FloatField()
     json = models.JSONField(null=True)
+    json_unsmoothed = models.JSONField(null=True)
     polar_route_version = models.CharField(max_length=60, null=True)
 
 

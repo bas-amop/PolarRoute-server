@@ -94,6 +94,7 @@ class TestRouteStatus:
 
             assert response.status_code == 200
             assert response.data.get("status") == "SUCCESS"
+            assert "json_unsmoothed" in response.data.keys()
             assert "json" in response.data.keys()
 
     def test_get_status_failed(self):
