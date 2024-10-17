@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_celery_results",
+    "django_celery_beat",
     "route_api",
 ]
 
@@ -172,6 +173,8 @@ CELERY_RESULT_BACKEND = "django-db"
 #         "LOCATION": "my_cache_table",
 #     }
 # }
+
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
 # Routing settings
 WAYPOINT_DISTANCE_TOLERANCE = 1  # Nautical Miles
