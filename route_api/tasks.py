@@ -70,7 +70,9 @@ def optimise_route(
             route_planners.append(rp)
 
             # save the initial unsmoothed route
-            logger.info(f"Saving unsmoothed Dijkstra paths for {config["objective_function"]}-optimised route.")
+            logger.info(
+                f"Saving unsmoothed Dijkstra paths for {config['objective_function']}-optimised route."
+            )
             unsmoothed_routes.append(extract_geojson_routes(rp.to_json()))
             route.json_unsmoothed = unsmoothed_routes
             route.calculated = timezone.now()
@@ -78,11 +80,11 @@ def optimise_route(
             route.save()
 
         smoothed_routes = []
-        for rp,i in enumerate(route_planners):
+        for i, rp in enumerate(route_planners):
             # Smooth the dijkstra routes
             rp.compute_smoothed_routes()
             # Save the smoothed route(s)
-            logger.info(f"Route smoothing {i}/{len(route_planners)} complete.")
+            logger.info(f"Route smoothing {i+1}/{len(route_planners)} complete.")
             smoothed_routes.append(extract_geojson_routes(rp.to_json()))
 
         # Update the database
@@ -93,9 +95,8 @@ def optimise_route(
         return smoothed_routes
 
     except Exception as e:
+        logger.error(e)
         self.update_state(state=states.FAILURE)
-        route.status = f"{e}"
+        route.info = {"error": f"{e}"}
         route.save()
         raise Ignore()
-
-
