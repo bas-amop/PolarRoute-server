@@ -1,22 +1,21 @@
-import json, subprocess, time, uuid
+import  json, uuid
 from unittest.mock import patch, PropertyMock
 
 import celery.states
-from celery.result import AsyncResult
 from django.conf import settings
 from django.test import TestCase
 from rest_framework.test import APIRequestFactory
 import pytest
-import unittest
 
-from polarrouteserver.celery import app
 from route_api.views import RouteView
 from route_api.models import Job, Route
-from route_api.tasks import optimise_route
+
+from route_api.tests.utils import add_test_mesh_to_db
 
 
 class TestRouteRequest(TestCase):
     def setUp(self):
+        add_test_mesh_to_db()
         self.factory = APIRequestFactory()
 
     def test_request_route(self):
@@ -53,8 +52,9 @@ class TestRouteStatus:
 
     def setUp(self):
         self.factory = APIRequestFactory()
+        mesh=add_test_mesh_to_db()
         self.route = Route.objects.create(
-            start_lat=0.0, start_lon=0.0, end_lat=0.0, end_lon=0.0, mesh=None
+            start_lat=0.0, start_lon=0.0, end_lat=0.0, end_lon=0.0, mesh=mesh
         )
 
     def test_get_status_pending(self):
@@ -97,7 +97,7 @@ class TestRouteStatus:
             assert "json_unsmoothed" in response.data.keys()
             assert "json" in response.data.keys()
 
-    def test_get_status_failed(self):
+    def test_request_out_of_mesh(self):
 
         self.setUp()
         
@@ -125,16 +125,8 @@ class TestRouteStatus:
         except AssertionError:
             pass
 
-        assert post_response.status_code == 202
-
-        # make status request
-        request = self.factory.get(f"/api/route/{post_response.data['id']}")
-
-        get_response = RouteView.as_view()(request, post_response.data['id'])
-
-        # assert response.status_code == 200
-        assert get_response.data.get("status") == "FAILURE"
-        assert "error" in get_response.data.keys()
+        assert post_response.status_code == 204
+        assert post_response.data["error"] == "No suitable mesh available."
 
     
     def test_cancel_route(self):

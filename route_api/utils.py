@@ -1,4 +1,3 @@
-import datetime
 import logging
 
 from django.conf import settings
@@ -40,7 +39,7 @@ def select_mesh(
 
 
 def route_exists(
-    date: datetime.date,
+    mesh: Mesh,
     start_lat: float,
     start_lon: float,
     end_lat: float,
@@ -50,18 +49,13 @@ def route_exists(
     Return None if not and the route object if it has.
     """
 
-    # look for any routes already calculated from same day
-    # as a proxy for "same data"
-    # TODO check the mesh on this instead
-    same_day_routes = Route.objects.filter(
-        calculated__date=date,
-    )
+    same_mesh_routes = Route.objects.filter(mesh=mesh)
 
     # if there are none return None
-    if len(same_day_routes) == 0:
+    if len(same_mesh_routes) == 0:
         return None
     else:
-        exact_routes = same_day_routes.filter(
+        exact_routes = same_mesh_routes.filter(
             start_lat=start_lat,
             start_lon=start_lon,
             end_lat=end_lat,
@@ -76,7 +70,7 @@ def route_exists(
         else:
             # if no exact routes, look for any that are close enough
             return _closest_route_in_tolerance(
-                same_day_routes, start_lat, start_lon, end_lat, end_lon
+                same_mesh_routes, start_lat, start_lon, end_lat, end_lon
             )
 
 
