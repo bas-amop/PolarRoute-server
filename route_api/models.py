@@ -26,7 +26,7 @@ class Route(models.Model):
     requested = models.DateTimeField(default=timezone.now)
     calculated = models.DateTimeField(null=True)
     file = models.FilePathField(null=True, blank=True)
-    info = models.TextField(null=True)
+    info = models.JSONField(null=True)
     mesh = models.ForeignKey(Mesh, on_delete=models.DO_NOTHING, null=True)
     start_lat = models.FloatField()
     start_lon = models.FloatField()

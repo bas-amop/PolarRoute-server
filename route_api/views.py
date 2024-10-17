@@ -124,7 +124,7 @@ class RouteView(LoggingMixin, GenericAPIView):
         )
 
         # Start the task calculation
-        task = optimise_route.delay(route.id, mesh.id)
+        task = optimise_route.delay(route.id)
 
         # Create database record representing the calculation job
         job = Job.objects.create(

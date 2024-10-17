@@ -27,7 +27,6 @@ logger = get_task_logger(__name__)
 def optimise_route(
     self,
     route_id: int,
-    mesh: str | int = settings.MESH_PATH,
 ) -> dict:
     """
     Use PolarRoute to calculate optimal route from Route database object and mesh.
@@ -35,20 +34,17 @@ def optimise_route(
 
     Params:
         route_id(int): id of record in Route database table
-        mesh(str|int): path to vessel mesh file or id of record in Mesh database table
 
     Returns:
         dict: route geojson as dictionary
     """
     route = Route.objects.get(id=route_id)
+    mesh = route.mesh
 
-    if isinstance(mesh, Path | str):
-        with open(mesh) as f:
-            logger.info(f"Loading mesh file {mesh}")
-            vessel_mesh = json.load(f)
-    elif isinstance(mesh, int):
-        logger.info(f"Loading mesh {mesh} from database.")
-        vessel_mesh = Mesh.objects.get(id=mesh).json
+    if mesh.created.date() < datetime.now().date():
+        route.info = {
+            "info": f"Latest available mesh from f{datetime.strftime(mesh.created, '%Y/%m/%d %H:%M%S')}"
+        }
 
     # convert waypoints into pandas dataframe for PolarRoute
     waypoints = pd.DataFrame(
@@ -63,7 +59,7 @@ def optimise_route(
 
     try:
         # Calculate route
-        rp = RoutePlanner(vessel_mesh, settings.TRAVELTIME_CONFIG, waypoints)
+        rp = RoutePlanner(mesh.json, settings.TRAVELTIME_CONFIG, waypoints)
 
         # Calculate optimal dijkstra path between waypoints
         rp.compute_routes()

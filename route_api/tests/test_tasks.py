@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 import gzip
 import hashlib
 import json
@@ -16,11 +17,13 @@ import yaml
 from polarrouteserver.celery import app
 from route_api.models import Mesh, Route
 from route_api.tasks import import_new_meshes, optimise_route
+from route_api.tests.utils import add_test_mesh_to_db
 
 class TestOptimiseRoute(TestCase):
     def setUp(self):
+        self.mesh = add_test_mesh_to_db()
         self.route = Route.objects.create(
-            start_lat=1.1, start_lon=1.1, end_lat=8.9, end_lon=8.9, mesh=None
+            start_lat=1.1, start_lon=1.1, end_lat=8.9, end_lon=8.9, mesh=self.mesh
         )
 
     def test_optimise_route(self):
@@ -41,17 +44,26 @@ class TestOptimiseRoute(TestCase):
         self.out_of_mesh_route = Route.objects.create(
             start_lat=lat_min-5, start_lon=lon_min-5,
             end_lat=abs(lat_max-lat_min)/2, end_lon=abs(lon_max-lon_min)/2,
-            mesh=None
+            mesh=self.mesh
         )
 
         with pytest.raises(Ignore):
             optimise_route(self.out_of_mesh_route.id)
 
+    def test_stale_mesh_warning(self):
+        # make the created date on the mesh older than today for this test
+        self.mesh.created = datetime.now().date() - timedelta(days=1)
+        self.mesh.save()
+        _ = optimise_route(self.route.id)
+        route = Route.objects.get(id=self.route.id)
+        assert "Latest available mesh from" in route.info["info"]
+
 class TestTaskStatus(TransactionTestCase):
 
     def setUp(self):
+        self.mesh = add_test_mesh_to_db()
         self.route = Route.objects.create(
-            start_lat=1.1, start_lon=1.1, end_lat=8.9, end_lon=8.9, mesh=None
+            start_lat=1.1, start_lon=1.1, end_lat=8.9, end_lon=8.9, mesh=self.mesh
         )
 
     def test_task_status(self):
@@ -84,7 +96,7 @@ class TestTaskStatus(TransactionTestCase):
         self.out_of_mesh_route = Route.objects.create(
             start_lat=lat_min-5, start_lon=lon_min-5,
             end_lat=abs(lat_max-lat_min)/2, end_lon=abs(lon_max-lon_min)/2,
-            mesh=None
+            mesh=self.mesh
         )
 
         with pytest.raises(AssertionError):
