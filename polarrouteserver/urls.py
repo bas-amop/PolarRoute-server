@@ -28,4 +28,5 @@ urlpatterns = [
     path(
         "api/route/<uuid:id>", views.RouteView.as_view(), name="route"
     ),  # url for retrieving routes (get)
+    path("api/recent_routes", views.RecentRoutesView.as_view(), name="recent_routes"),
 ]
