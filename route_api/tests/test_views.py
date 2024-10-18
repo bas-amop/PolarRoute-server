@@ -7,7 +7,7 @@ from django.test import TestCase
 from rest_framework.test import APIRequestFactory
 import pytest
 
-from route_api.views import RouteView
+from route_api.views import RouteView, RecentRoutesView
 from route_api.models import Job, Route
 
 from route_api.tests.utils import add_test_mesh_to_db
@@ -143,3 +143,32 @@ class TestRouteStatus:
         response = RouteView.as_view()(request, self.job.id)
 
         assert response.status_code == 202
+
+@pytest.mark.usefixtures("celery_app","celery_worker", "celery_enable_logging")
+@pytest.mark.django_db
+class TestRecentRoutes:
+
+    pytestmark = pytest.mark.django_db
+
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.mesh = add_test_mesh_to_db()
+        self.route1 = self.route = Route.objects.create(
+            start_lat=0.0, start_lon=0.0, end_lat=0.0, end_lon=0.0, mesh=self.mesh
+        )
+        self.route2 = self.route = Route.objects.create(
+            start_lat=1.0, start_lon=1.0, end_lat=1.0, end_lon=0.0, mesh=self.mesh
+        )
+        self.job1 = Job.objects.create(id=uuid.uuid1(), route=self.route1)
+        self.job2 = Job.objects.create(id=uuid.uuid1(), route=self.route2)
+    
+    def test_recent_routes_request(self):
+
+        self.setUp()
+
+        request = self.factory.get(f"/api/recent_routes/")
+
+        response = RecentRoutesView.as_view()(request)
+
+        assert response.status_code == 200
+        assert len(response.data) == 2

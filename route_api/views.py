@@ -1,3 +1,4 @@
+from datetime import datetime
 import logging
 
 from celery.result import AsyncResult
@@ -191,4 +192,42 @@ class RouteView(LoggingMixin, GenericAPIView):
             {},
             headers={"Content-Type": "application/json"},
             status=rest_framework.status.HTTP_202_ACCEPTED,
+        )
+
+
+class RecentRoutesView(LoggingMixin, GenericAPIView):
+    def get(self, request):
+        """Get recent routes"""
+
+        logger.info(
+            f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
+        )
+
+        # only get today's routes
+        routes_today = Route.objects.filter(requested__date=datetime.now().date())
+        response_data = []
+        for route in routes_today:
+            job = route.job_set.latest("datetime")
+
+            result = AsyncResult(id=str(job.id), app=app)
+            status = result.state
+
+            data = {"id": str(job.id), "status": status}
+
+            data.update(RouteSerializer(route).data)
+
+            if status != "SUCCESS" or route.json_unsmoothed is not None:
+                # don't include the route json if it isn't available yet
+                data.pop("json")
+                data.pop("polar_route_version")
+
+            if status == "FAILURE":
+                data.update({"error": route.info})
+
+            response_data.append(data)
+
+        return Response(
+            response_data,
+            headers={"Content-Type": "application/json"},
+            status=rest_framework.status.HTTP_200_OK,
         )
