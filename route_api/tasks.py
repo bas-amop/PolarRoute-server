@@ -12,7 +12,7 @@ from django.utils import timezone
 import numpy as np
 import pandas as pd
 import polar_route
-from polar_route.route_planner import RoutePlanner
+from polar_route.route_planner.route_planner import RoutePlanner
 from polar_route.utils import extract_geojson_routes
 import yaml
 
@@ -61,10 +61,10 @@ def optimise_route(
         unsmoothed_routes = []
         route_planners = []
         for config in (settings.TRAVELTIME_CONFIG, settings.FUEL_CONFIG):
-            rp = RoutePlanner(mesh.json, config, waypoints)
+            rp = RoutePlanner(mesh.json, config)
 
             # Calculate optimal dijkstra path between waypoints
-            rp.compute_routes()
+            rp.compute_routes(waypoints)
 
             route_planners.append(rp)
 
