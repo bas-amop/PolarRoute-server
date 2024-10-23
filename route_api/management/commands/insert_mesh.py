@@ -21,13 +21,11 @@ class Command(BaseCommand):
             if filepath.endswith(".gz"):
                 with gzip.open(filepath, "rb") as f:
                     mesh_json = json.load(f)
-                    file_contents = f.read().encode("utf-8")
-                    md5 = hashlib.md5(file_contents).hexdigest()
             else:
                 with open(filepath, "r") as f:
-                    file_contents = f.read().encode("utf-8")
-                    md5 = hashlib.md5(file_contents).hexdigest()
-                    mesh_json = json.loads(file_contents)
+                    mesh_json = json.load(f)
+
+            md5 = hashlib.md5(str(mesh_json).encode("utf-8")).hexdigest()
 
             if mesh_json["config"].get("vessel_info", None) is None:
                 raise CommandError(
