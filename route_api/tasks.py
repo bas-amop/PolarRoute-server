@@ -1,3 +1,4 @@
+import copy
 from datetime import datetime
 import gzip
 import json
@@ -60,8 +61,12 @@ def optimise_route(
     try:
         unsmoothed_routes = []
         route_planners = []
-        for config in (settings.TRAVELTIME_CONFIG, settings.FUEL_CONFIG):
-            rp = RoutePlanner(mesh.json, config)
+        configs = (
+            settings.TRAVELTIME_CONFIG,
+            settings.FUEL_CONFIG,
+        )
+        for config in configs:
+            rp = RoutePlanner(copy.deepcopy(mesh.json), config)
 
             # Calculate optimal dijkstra path between waypoints
             rp.compute_routes(waypoints)
