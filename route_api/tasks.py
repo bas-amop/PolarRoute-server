@@ -50,7 +50,10 @@ def optimise_route(
     # convert waypoints into pandas dataframe for PolarRoute
     waypoints = pd.DataFrame(
         {
-            "Name": ["Start", "End"],
+            "Name": [
+                "Start" if route.start_name is None else route.start_name,
+                "End" if route.end_name is None else route.end_name,
+            ],
             "Lat": [route.start_lat, route.end_lat],
             "Long": [route.start_lon, route.end_lon],
             "Source": ["X", np.nan],

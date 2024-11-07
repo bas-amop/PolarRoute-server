@@ -21,15 +21,25 @@ from route_api.tests.utils import add_test_mesh_to_db
 
 class TestOptimiseRoute(TestCase):
     def setUp(self):
+        self.start_point_name = "start point"
+        self.end_point_name = "end point"
         self.mesh = add_test_mesh_to_db()
         self.route = Route.objects.create(
-            start_lat=1.1, start_lon=1.1, end_lat=8.9, end_lon=8.9, mesh=self.mesh
+            start_lat=1.1, start_lon=1.1, end_lat=8.9, end_lon=8.9, mesh=self.mesh,
+            start_name=self.start_point_name,
+            end_name=self.end_point_name,
         )
 
     def test_optimise_route(self):
         """optimise_route should return a dictionary"""
         route_json = optimise_route(self.route.id)
         assert isinstance(route_json, list)
+        assert route_json[0][0]["features"][0]["properties"]["from"] == self.start_point_name
+        assert route_json[0][0]["features"][0]["properties"]["to"] == self.end_point_name
+
+        route = Route.objects.get(id=self.route.id)
+        assert route.json == route_json
+        assert isinstance(route.json_unsmoothed, list)
 
     def test_out_of_mesh_error(self):
         """Test that out of mesh locations causes error to be returned"""
