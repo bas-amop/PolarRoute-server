@@ -10,21 +10,22 @@ import time
 
 
 class Location:
-    def __init__(self, lat: float, lon: float):
+    def __init__(self, lat: float, lon: float, name: str = None):
         self.lat = lat
         self.lon = lon
+        self.name = name
 
 
 STANDARD_LOCATIONS = {
-    "bird": Location(-54.025, -38.044),
-    "falklands": Location(-51.731, -57.706),
-    "halley": Location(-75.059, -25.840),
-    "rothera": Location(-67.764, -68.02),
-    "kep": Location(-54.220, -36.433),
-    "signy": Location(-60.720, -45.480),
-    "nyalesund": Location(78.929, 11.928),
-    "harwich": Location(51.949, 1.255),
-    "rosyth": Location(56.017, -3.440),
+    "bird": Location(-54.025, -38.044, "bird"),
+    "falklands": Location(-51.731, -57.706, "falklands"),
+    "halley": Location(-75.059, -25.840, "halley"),
+    "rothera": Location(-67.764, -68.02, "rothera"),
+    "kep": Location(-54.220, -36.433, "kep"),
+    "signy": Location(-60.720, -45.480, "signy"),
+    "nyalesund": Location(78.929, 11.928, "nyalesund"),
+    "harwich": Location(51.949, 1.255, "harwich"),
+    "rosyth": Location(56.017, -3.440, "rosyth"),
 }
 
 
@@ -95,15 +96,13 @@ def request_route(
         {"Host": url, "Content-Type": "application/json"},
         json.dumps(
             {
-                "start": {
-                    "latitude": start.lat,
-                    "longitude": start.lon,
-                },
-                "end": {
-                    "latitude": end.lat,
-                    "longitude": end.lon,
-                },
-            }
+                "start_lat": start.lat,
+                "start_lon": start.lon,
+                "end_lat": end.lat,
+                "end_lon": end.lon,
+                "start_name": start.name,
+                "end_name": end.name,
+            },
         ),
     )
 
@@ -156,7 +155,7 @@ def request_route(
 def parse_location(location: str) -> tuple:
     """
     Takes a location either as the name of a standard location or latitude,longitude separated by a comma, e.g. -56.7,-65.01
-    Returns a tuple of format (float, float) representing latitude and longitude coordinates of a location.
+    Returns a Location object.
     """
     pattern = r"[+-]?([0-9]*[.])?[0-9]+,[+-]?([0-9]*[.])?[0-9]+"
     if location in STANDARD_LOCATIONS.keys():
