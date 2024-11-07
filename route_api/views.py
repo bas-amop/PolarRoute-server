@@ -72,10 +72,10 @@ class RouteView(LoggingMixin, GenericAPIView):
         data = request.data
 
         # TODO validate request JSON
-        start_lat = data["start"]["latitude"]
-        start_lon = data["start"]["longitude"]
-        end_lat = data["end"]["latitude"]
-        end_lon = data["end"]["longitude"]
+        start_lat = data["start_lat"]
+        start_lon = data["start_lon"]
+        end_lat = data["end_lat"]
+        end_lon = data["end_lon"]
 
         force_recalculate = data.get("force_recalculate", False)
 

@@ -63,29 +63,25 @@ components:
     route-request:
       type: object
       properties:
-        start:
-          type: object
-          properties:
-            latitude:
-              type: number
-              format: double
-            longitude:
-              type: number
-              format: double
-        end:
-          type: object
-          properties:
-            latitude:
-              type: number
-              format: double
-            longitude:
-              type: number
-              format: double
+        start_lat:
+          type: number
+          format: double
+        start_lon:
+          type: number
+          format: double
+        end_lat:
+          type: number
+          format: double
+        end_lon:
+          type: number
+          format: double
         force_recalculate:
           type: boolean
       required:
-      - start
-      - end
+      - start_lat
+      - start_lon
+      - end_lat
+      - end_lon
     route-request-response:
       type: object
       properties:
