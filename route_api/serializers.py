@@ -11,6 +11,8 @@ class RouteSerializer(serializers.ModelSerializer):
             "start_lon",
             "end_lat",
             "end_lon",
+            "start_name",
+            "end_name",
             "json",
             "json_unsmoothed",
             "polar_route_version",

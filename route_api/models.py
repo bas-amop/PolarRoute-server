@@ -32,6 +32,8 @@ class Route(models.Model):
     start_lon = models.FloatField()
     end_lat = models.FloatField()
     end_lon = models.FloatField()
+    start_name = models.CharField(max_length=100, null=True)
+    end_name = models.CharField(max_length=100, null=True)
     json = models.JSONField(null=True)
     json_unsmoothed = models.JSONField(null=True)
     polar_route_version = models.CharField(max_length=60, null=True)

@@ -76,6 +76,8 @@ class RouteView(LoggingMixin, GenericAPIView):
         start_lon = data["start_lon"]
         end_lat = data["end_lat"]
         end_lon = data["end_lon"]
+        start_name = data.get("start_name", None)
+        end_name = data.get("end_name", None)
 
         force_recalculate = data.get("force_recalculate", False)
 
@@ -122,6 +124,8 @@ class RouteView(LoggingMixin, GenericAPIView):
             end_lat=end_lat,
             end_lon=end_lon,
             mesh=mesh,
+            start_name=start_name,
+            end_name=end_name,
         )
 
         # Start the task calculation

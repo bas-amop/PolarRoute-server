@@ -77,6 +77,10 @@ components:
           format: double
         force_recalculate:
           type: boolean
+        start_name:
+          type: string
+        end_name:
+          type: string
       required:
       - start_lat
       - start_lon
