@@ -168,11 +168,6 @@ class RouteView(LoggingMixin, GenericAPIView):
 
         data.update(RouteSerializer(job.route).data)
 
-        if status != "SUCCESS" or job.route.json_unsmoothed is not None:
-            # don't include the route json if it isn't available yet
-            data.pop("json")
-            data.pop("polar_route_version")
-
         if status == "FAILURE":
             data.update({"error": job.route.info})
 
