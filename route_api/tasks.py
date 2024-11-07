@@ -44,7 +44,7 @@ def optimise_route(
 
     if mesh.created.date() < datetime.now().date():
         route.info = {
-            "info": f"Latest available mesh from f{datetime.strftime(mesh.created, '%Y/%m/%d %H:%M%S')}"
+            "info": f"Latest available mesh from {datetime.strftime(mesh.created, '%Y/%m/%d %H:%M%S')}"
         }
 
     # convert waypoints into pandas dataframe for PolarRoute
@@ -91,11 +91,12 @@ def optimise_route(
             logger.info(f"Route smoothing {i+1}/{len(route_planners)} complete.")
             smoothed_routes.append(extract_geojson_routes(rp.to_json()))
 
-        # Update the database
-        route.json = smoothed_routes
-        route.calculated = timezone.now()
-        route.polar_route_version = polar_route.__version__
-        route.save()
+            # Update the database
+            route.json = smoothed_routes
+            route.calculated = timezone.now()
+            route.polar_route_version = polar_route.__version__
+            route.save()
+
         return smoothed_routes
 
     except Exception as e:
