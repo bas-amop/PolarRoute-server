@@ -85,7 +85,10 @@ class RouteView(LoggingMixin, GenericAPIView):
 
         if mesh is None:
             return Response(
-                data={"error": "No suitable mesh available.", "status": "FAILURE"},
+                data={
+                    "info": {"error": {"No suitable mesh available."}},
+                    "status": "FAILURE",
+                },
                 headers={"Content-Type": "application/json"},
                 status=rest_framework.status.HTTP_200_OK,
             )
@@ -100,7 +103,9 @@ class RouteView(LoggingMixin, GenericAPIView):
                 existing_job = existing_route.job_set.latest("datetime")
                 response_data.update(
                     {
-                        "meta": "Pre-existing route found and returned. To force new calculation, include 'force_recalculate': true in POST request.",
+                        "info": {
+                            "info": "Pre-existing route found and returned. To force new calculation, include 'force_recalculate': true in POST request."
+                        },
                         "id": str(existing_job.id),
                         "status-url": reverse(
                             "route", args=[existing_job.id], request=request
