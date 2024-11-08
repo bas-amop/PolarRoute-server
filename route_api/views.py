@@ -85,9 +85,9 @@ class RouteView(LoggingMixin, GenericAPIView):
 
         if mesh is None:
             return Response(
-                data={"error": "No suitable mesh available."},
+                data={"error": "No suitable mesh available.", "status": "FAILURE"},
                 headers={"Content-Type": "application/json"},
-                status=rest_framework.status.HTTP_204_NO_CONTENT,
+                status=rest_framework.status.HTTP_200_OK,
             )
         # TODO Future: calculate an up to date mesh if none available
 
