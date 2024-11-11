@@ -130,6 +130,11 @@ stop-swagger: ## Stop swagger-ui docker container
 	@docker stop ${SWAGGER_CONTAINER}
 	@docker rm ${SWAGGER_CONTAINER}
 
+.PHONY: build
+build: ## Build package
+	@echo "+ $@"
+	@python -m build
+
 .PHONY: help
 help:
 	@echo "Note: Remember to activate your virtual environment (if used)."

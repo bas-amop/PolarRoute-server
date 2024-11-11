@@ -57,6 +57,9 @@ dev = [
 prod = [
     "gunicorn"
 ]
+build = [
+    "build"
+]
 
 [tool.ruff]
 exclude = ["route_api/tests/*"]
