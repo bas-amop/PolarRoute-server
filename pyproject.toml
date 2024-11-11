@@ -10,7 +10,7 @@ authors = [
 description = "Backend server for serving PolarRoute and MeshiPhi assets and managing their calcuation using Django & Celery."
 readme = "README.md"
 license = {file = "LICENSE"}
-dynamic = ["version"]
+version = "0.0.1"
 requires-python = ">= 3.11"
 dependencies = [
     "celery",
@@ -66,3 +66,10 @@ exclude = ["route_api/tests/*"]
     "F403", # allow from .. import * in settings modules
     "F405", # allow defined in * imports in settings modules
     ] 
+
+[tool.versioneer]
+VCS = "git"
+style = "pep440"
+versionfile_source = "polarrouteserver/_version.py"
+versionfile_build = "polarrouteserver/_version.py"
+tag_prefix = ""
