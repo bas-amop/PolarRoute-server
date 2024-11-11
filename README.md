@@ -23,6 +23,13 @@ For development, also install and use the development tools:
 1. `pip install -r requirements.dev.txt`
 1. `pre-commit install`
 
+### Config Files
+To deploy with development or production settings a corresponding `development.yaml` or `production.yaml` file must be present in the `config/` directory.
+
+In the `config/` directory you will find a template config file, `template.yaml`, the deployment config file should match the fields in the template.
+
+### Production Deployment
+
 
 ## Making requests using the demo tool
 
@@ -71,3 +78,4 @@ The utility will then request the route's status every `120` seconds.
 The HTTP response from each request will be printed to stdout.
 
 Once the route is available it will be returned, or if 10 attempts to get the route have passed, the utility will stop.
+
