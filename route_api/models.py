@@ -21,6 +21,12 @@ class Mesh(models.Model):
     json = models.JSONField(null=True)
     name = models.CharField(max_length=50, null=True)
 
+    @property
+    def size(self) -> float:
+        """Computes a metric for the size of a mesh."""
+
+        return abs(self.lat_max - self.lat_min) * abs(self.lon_max - self.lon_min)
+
 
 class Route(models.Model):
     requested = models.DateTimeField(default=timezone.now)
