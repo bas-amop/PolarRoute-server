@@ -23,10 +23,21 @@ For development, also install and use the development tools:
 1. `pip install -r requirements.dev.txt`
 1. `pre-commit install`
 
-### Config Files
-To deploy with development or production settings a corresponding `development.yaml` or `production.yaml` file must be present in the `config/` directory.
+### Configuration
+
+Configuration may either be achieved with config files or environment variables.
+
+
+To deploy with development or production settings a corresponding `development.yaml` or `production.yaml` file can be present in the `config/` directory.
 
 In the `config/` directory you will find a template config file, `template.yaml`, the deployment config file should match the fields in the template.
+
+Alternatively, set the appropriate environment variables.
+
+Below the names of `ENVIRONMENT_VARIABLES` and equivalent keys in yaml config files are listed.
+
+- `POLARROUTE_MESH_DIR`/"mesh_dir" - absolute path to directory where mesh files and mesh metadata files will be made available (this location is periodically checked in production and new files ingested into the database based on the metadata file)
+- `POLARROUTE_ALLOWED_HOSTS`/"allowed_hosts" - list/array of IP addresses or hostnames allowed for the server.
 
 ### Production Deployment
 For production, the following are required:
