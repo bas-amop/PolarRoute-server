@@ -29,7 +29,12 @@ To deploy with development or production settings a corresponding `development.y
 In the `config/` directory you will find a template config file, `template.yaml`, the deployment config file should match the fields in the template.
 
 ### Production Deployment
+For production, the following are required:
++ Access to a RabbitMQ server, (can use `make start-rabbitmq` to start one in a docker container)
++ Celery and celery beat servers running,
++ WSGI server, e.g. Gunicorn.
 
+For serving with Gunicorn, run `make start-django-server` to serve with WSGI and production settings.
 
 ## Making requests using the demo tool
 
