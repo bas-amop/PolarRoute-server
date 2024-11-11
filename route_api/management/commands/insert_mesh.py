@@ -5,6 +5,7 @@ import json
 from typing import Any
 
 from django.core.management.base import BaseCommand, CommandError, CommandParser
+from django.utils import timezone
 
 from route_api.models import Mesh
 
@@ -36,10 +37,15 @@ class Command(BaseCommand):
                 md5=md5,
                 defaults={
                     "name": filepath.split("/")[-1],
-                    "created": datetime.strptime(
+                    "valid_date_start": datetime.strptime(
+                        mesh_json["config"]["mesh_info"]["region"]["start_time"],
+                        "%Y-%m-%d",
+                    ),
+                    "valid_date_end": datetime.strptime(
                         mesh_json["config"]["mesh_info"]["region"]["end_time"],
                         "%Y-%m-%d",
                     ),
+                    "created:": timezone.now(),
                     "json": mesh_json,
                     "meshiphi_version": "not found",
                     "lat_min": mesh_json["config"]["mesh_info"]["region"]["lat_min"],

@@ -165,8 +165,18 @@ class TestImportNewMeshes(TestCase):
         for filename in self.mesh_filenames:
             with gzip.open(Path(settings.MESH_DIR, filename+".gz"), 'wb') as f:
                 f.write(json.dumps({
-                    "mesh": "dummy_data"
-                }).encode('utf-8'))
+                "config": {
+                    "mesh_info": {
+                        "region": {
+                            "lat_min": -90,
+                            "lat_max": -45,
+                            "long_min": -175,
+                            "long_max": 175,
+                            "start_time": "2024-08-04",
+                            "end_time": "2024-08-06",
+                            "cell_width": 5.0,
+                            "cell_height": 2.5
+            }}}}).encode('utf-8'))
 
     def tearDown(self):
         # cleanup files created for testing

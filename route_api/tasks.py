@@ -149,6 +149,12 @@ def import_new_meshes(self):
             md5=record["md5"],
             defaults={
                 "name": mesh_filename,
+                "valid_date_start": datetime.strptime(
+                    mesh_json["config"]["mesh_info"]["region"]["start_time"], "%Y-%m-%d"
+                ),
+                "valid_date_end": datetime.strptime(
+                    mesh_json["config"]["mesh_info"]["region"]["end_time"], "%Y-%m-%d"
+                ),
                 "created": datetime.strptime(record["created"], "%Y%m%dT%H%M%S"),
                 "json": mesh_json,
                 "meshiphi_version": record["meshiphi"],

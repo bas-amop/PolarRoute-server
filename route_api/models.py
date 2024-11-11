@@ -13,6 +13,8 @@ class Mesh(models.Model):
     id = models.BigAutoField(primary_key=True)
     meshiphi_version = models.CharField(max_length=60, null=True)
     md5 = models.CharField(max_length=64)
+    valid_date_start = models.DateField()
+    valid_date_end = models.DateField()
     created = models.DateTimeField()
     lat_min = models.FloatField()
     lat_max = models.FloatField()
