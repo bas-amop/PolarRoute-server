@@ -8,7 +8,7 @@ from .base import *
 
 DEBUG = False
 
-with open(Path("config", "staging.yaml"), "r") as f:
+with open(Path("config", "production.yaml"), "r") as f:
     config = yaml.load(f, Loader=yaml.Loader)
 
 MESH_PATH = config.get("mesh_path")
