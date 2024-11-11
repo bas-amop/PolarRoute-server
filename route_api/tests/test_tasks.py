@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import gzip
 import hashlib
 import json
@@ -62,7 +62,7 @@ class TestOptimiseRoute(TestCase):
 
     def test_stale_mesh_warning(self):
         # make the created date on the mesh older than today for this test
-        self.mesh.created = datetime.now().date() - timedelta(days=1)
+        self.mesh.created = datetime.now().replace(tzinfo=timezone.utc) - timedelta(days=1)
         self.mesh.save()
         _ = optimise_route(self.route.id)
         route = Route.objects.get(id=self.route.id)

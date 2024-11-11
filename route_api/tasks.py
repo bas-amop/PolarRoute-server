@@ -1,5 +1,5 @@
 import copy
-from datetime import datetime
+import datetime
 import gzip
 import json
 from pathlib import Path
@@ -42,9 +42,9 @@ def optimise_route(
     route = Route.objects.get(id=route_id)
     mesh = route.mesh
 
-    if mesh.created.date() < datetime.now().date():
+    if mesh.created.date() < datetime.datetime.now().date():
         route.info = {
-            "info": f"Latest available mesh from {datetime.strftime(mesh.created, '%Y/%m/%d %H:%M%S')}"
+            "info": f"Latest available mesh from {datetime.datetime.strftime(mesh.created, '%Y/%m/%d %H:%M%S')}"
         }
 
     # convert waypoints into pandas dataframe for PolarRoute
@@ -149,13 +149,15 @@ def import_new_meshes(self):
             md5=record["md5"],
             defaults={
                 "name": mesh_filename,
-                "valid_date_start": datetime.strptime(
+                "valid_date_start": datetime.datetime.strptime(
                     mesh_json["config"]["mesh_info"]["region"]["start_time"], "%Y-%m-%d"
-                ),
-                "valid_date_end": datetime.strptime(
+                ).replace(tzinfo=datetime.timezone.utc),
+                "valid_date_end": datetime.datetime.strptime(
                     mesh_json["config"]["mesh_info"]["region"]["end_time"], "%Y-%m-%d"
-                ),
-                "created": datetime.strptime(record["created"], "%Y%m%dT%H%M%S"),
+                ).replace(tzinfo=datetime.timezone.utc),
+                "created": datetime.datetime.strptime(
+                    record["created"], "%Y%m%dT%H%M%S"
+                ).replace(tzinfo=datetime.timezone.utc),
                 "json": mesh_json,
                 "meshiphi_version": record["meshiphi"],
                 "lat_min": record["latlong"]["latmin"],
