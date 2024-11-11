@@ -1,6 +1,0 @@
-django-cors-headers
-pre-commit
-pytest
-pytest-celery
-pytest-django
-ruff

@@ -1,0 +1,68 @@
+[build-system]
+requires = ["setuptools >= 61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "polarrouteserver"
+authors = [
+  {name = "David Wilby", email = "dalby@bas.ac.uk"},
+]
+description = "Backend server for serving PolarRoute and MeshiPhi assets and managing their calcuation using Django & Celery."
+readme = "README.md"
+license = {file = "LICENSE"}
+dynamic = ["version"]
+requires-python = ">= 3.11"
+dependencies = [
+    "celery",
+    "Django~=5",
+    "django-celery-beat",
+    "django-celery-results",
+    "django-cors-headers",
+    "django-rest-framework",
+    "haversine",
+    "polar-route==1.0.0",
+    "pyyaml",
+    "SQLAlchemy",
+]
+
+[project.urls]
+Homepage = "https://github.com/antarctica/PolarRoute-server"
+Repository = "https://github.com/antarctica/PolarRoute-server.git"
+Issues = "https://github.com/antarctica/PolarRoute-server/issues"
+
+[tool.setuptools.packages.find]
+where = ["polarrouteserver", "route_api"]
+
+[tool.setuptools.package-data]
+polarrouteserver = [
+    "Makefile",
+    "schema.yml",
+    "config/template.yaml",
+    "demo.py"
+]
+
+[tool.setuptools.exclude-package-data]
+polarrouteserver = [
+    "*.sqlite3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pre-commit",
+    "pytest",
+    "pytest-celery",
+    "pytest-django",
+    "ruff",
+]
+prod = [
+    "gunicorn"
+]
+
+[tool.ruff]
+exclude = ["route_api/tests/*"]
+
+[tool.ruff.lint.per-file-ignores]
+"polarrouteserver/settings/*" = [
+    "F403", # allow from .. import * in settings modules
+    "F405", # allow defined in * imports in settings modules
+    ] 
