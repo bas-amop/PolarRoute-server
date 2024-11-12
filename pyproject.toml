@@ -69,3 +69,8 @@ exclude = ["route_api/tests/*"]
     "F403", # allow from .. import * in settings modules
     "F405", # allow defined in * imports in settings modules
     ] 
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "polarrouteserver.settings.test"
+addopts = "--create-db"
+filterwarnings =  "error::RuntimeWarning" # turn RuntimeWarnings into errors/test failures
