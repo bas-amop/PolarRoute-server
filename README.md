@@ -14,7 +14,7 @@ PolarRouteServer can be installed from GitHub using `pip`.
 ### For development
 
 Depends on:
-+ python ~3.11
++ python >=3.11
 + [docker](https://docs.docker.com/get-docker/) for running rabbitmq (in development)
 + [Make](https://www.gnu.org/software/make/)
 
