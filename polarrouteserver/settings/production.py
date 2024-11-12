@@ -1,3 +1,4 @@
+import logging
 import os
 from pathlib import Path
 import yaml
@@ -6,15 +7,31 @@ from celery.schedules import crontab
 
 from .base import *
 
+logger = logging.getLogger(__name__)
+
 DEBUG = False
 
-with open(Path("config", "staging.yaml"), "r") as f:
-    config = yaml.load(f, Loader=yaml.Loader)
+try:
+    with open(Path("config", "production.yaml"), "r") as f:
+        config = yaml.load(f, Loader=yaml.Loader)
 
-MESH_PATH = config.get("mesh_path")
-MESH_DIR = config.get("mesh_dir")
+    MESH_PATH = config.get("mesh_path", None)
+    MESH_DIR = config.get("mesh_dir", None)
+except FileNotFoundError:
+    logger.info(
+        "No config file found. Falling back on defaults or environment variables."
+    )
+    MESH_PATH = os.getenv("POLARROUTE_MESH_PATH")
+    MESH_DIR = os.getenv("POLARROUTE_MESH_DIR")
 
-ALLOWED_HOSTS.extend(config.get("allowed_hosts"))
+if MESH_DIR is None:
+    logger.warning(
+        "MESH_DIR not set, this is required to ingest new meshes into database.\n\
+                   No new meshes will be automatically ingested."
+    )
+
+if os.getenv("POLARROUTE_ALLOWED_HOSTS") is not None:
+    ALLOWED_HOSTS.extend(os.getenv("POLARROUTE_ALLOWED_HOSTS"))
 
 CELERY_BROKER_URL = config.get("celery_broker_url")
 

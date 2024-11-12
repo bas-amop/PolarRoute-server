@@ -1,4 +1,4 @@
-mesh_path: "./amsr_southern_SDA.vessel.json"
+mesh_dir: "./example_mesh_data/"
 
 allowed_hosts:
 - '0.0.0.0'

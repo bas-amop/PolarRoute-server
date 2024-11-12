@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import gzip
 import hashlib
 import json
@@ -15,9 +15,9 @@ import pytest
 import yaml
 
 from polarrouteserver.celery import app
-from route_api.models import Mesh, Route
-from route_api.tasks import import_new_meshes, optimise_route
-from route_api.tests.utils import add_test_mesh_to_db
+from polarrouteserver.route_api.models import Mesh, Route
+from polarrouteserver.route_api.tasks import import_new_meshes, optimise_route
+from polarrouteserver.route_api.tests.utils import add_test_mesh_to_db
 
 class TestOptimiseRoute(TestCase):
     def setUp(self):
@@ -62,7 +62,7 @@ class TestOptimiseRoute(TestCase):
 
     def test_stale_mesh_warning(self):
         # make the created date on the mesh older than today for this test
-        self.mesh.created = datetime.now().date() - timedelta(days=1)
+        self.mesh.created = datetime.now().replace(tzinfo=timezone.utc) - timedelta(days=1)
         self.mesh.save()
         _ = optimise_route(self.route.id)
         route = Route.objects.get(id=self.route.id)
@@ -165,8 +165,18 @@ class TestImportNewMeshes(TestCase):
         for filename in self.mesh_filenames:
             with gzip.open(Path(settings.MESH_DIR, filename+".gz"), 'wb') as f:
                 f.write(json.dumps({
-                    "mesh": "dummy_data"
-                }).encode('utf-8'))
+                "config": {
+                    "mesh_info": {
+                        "region": {
+                            "lat_min": -90,
+                            "lat_max": -45,
+                            "long_min": -175,
+                            "long_max": 175,
+                            "start_time": "2024-08-04",
+                            "end_time": "2024-08-06",
+                            "cell_width": 5.0,
+                            "cell_height": 2.5
+            }}}}).encode('utf-8'))
 
     def tearDown(self):
         # cleanup files created for testing

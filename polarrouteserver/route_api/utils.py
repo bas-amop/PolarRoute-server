@@ -3,7 +3,7 @@ import logging
 from django.conf import settings
 import haversine
 
-from route_api.models import Mesh, Route
+from .models import Mesh, Route
 
 logger = logging.getLogger(__name__)
 
@@ -19,21 +19,28 @@ def select_mesh(
     """
 
     try:
-        return (
-            Mesh.objects.filter(
-                lat_min__lte=start_lat,
-                lat_max__gte=start_lat,
-                lon_min__lte=start_lon,
-                lon_max__gte=start_lon,
-            )
-            .filter(
-                lat_min__lte=end_lat,
-                lat_max__gte=end_lat,
-                lon_min__lte=end_lon,
-                lon_max__gte=end_lon,
-            )
-            .latest("created")
+        # get meshes which contain both start and end points
+        containing_meshes = Mesh.objects.filter(
+            lat_min__lte=start_lat,
+            lat_max__gte=start_lat,
+            lon_min__lte=start_lon,
+            lon_max__gte=start_lon,
+        ).filter(
+            lat_min__lte=end_lat,
+            lat_max__gte=end_lat,
+            lon_min__lte=end_lon,
+            lon_max__gte=end_lon,
         )
+
+        # get the date of the most recently created mesh
+        latest_date = containing_meshes.latest("created").created
+
+        # get all valid meshes from that creation date
+        valid_meshes = containing_meshes.filter(created=latest_date)
+
+        # return the smallest
+        return sorted(valid_meshes, key=lambda mesh: mesh.size)[0]
+
     except Mesh.DoesNotExist:
         return None
 

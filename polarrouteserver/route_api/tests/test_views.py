@@ -7,10 +7,9 @@ from django.test import TestCase
 from rest_framework.test import APIRequestFactory
 import pytest
 
-from route_api.views import RouteView, RecentRoutesView
-from route_api.models import Job, Route
-
-from route_api.tests.utils import add_test_mesh_to_db
+from polarrouteserver.route_api.views import RouteView, RecentRoutesView
+from polarrouteserver.route_api.models import Job, Route
+from polarrouteserver.route_api.tests.utils import add_test_mesh_to_db
 
 
 class TestRouteRequest(TestCase):
@@ -20,8 +19,10 @@ class TestRouteRequest(TestCase):
 
     def test_request_route(self):
         data = {
-            "start": {"latitude": 0.0, "longitude": 0.0},
-            "end": {"latitude": 1.0, "longitude": 1.0},
+            "start_lat": 0.0,
+            "start_lon": 0.0,
+            "end_lat": 1.0,
+            "end_lon": 1.0,
         }
 
         request = self.factory.post("/api/route/", data=data, format="json")
@@ -79,7 +80,7 @@ class TestRouteStatus:
         self.setUp()
 
         with patch(
-            "route_api.views.AsyncResult.state", new_callable=PropertyMock
+            "polarrouteserver.route_api.views.AsyncResult.state", new_callable=PropertyMock
         ) as mock_job_status:
             mock_job_status.return_value = celery.states.SUCCESS
 
@@ -111,8 +112,10 @@ class TestRouteStatus:
         lon_max = mesh["config"]["mesh_info"]["region"]["long_max"]
 
         data = {
-            "start": {"latitude": lat_min-5, "longitude": lon_min-5},
-            "end": {"latitude": abs(lat_max-lat_min)/2, "longitude": abs(lon_max-lon_min)/2},
+            "start_lat": lat_min-5,
+            "start_lon": lon_min-5,
+            "end_lat": abs(lat_max-lat_min)/2,
+            "end_lon": abs(lon_max-lon_min)/2,
         }
 
         # make route request
@@ -125,8 +128,8 @@ class TestRouteStatus:
         except AssertionError:
             pass
 
-        assert post_response.status_code == 204
-        assert post_response.data["error"] == "No suitable mesh available."
+        assert post_response.status_code == 200
+        assert post_response.data["info"]["error"] == "No suitable mesh available."
 
     
     def test_cancel_route(self):

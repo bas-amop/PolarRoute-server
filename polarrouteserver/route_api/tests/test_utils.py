@@ -6,9 +6,9 @@ from django.test import TestCase
 from django.utils import timezone
 from haversine import inverse_haversine, Unit, Direction
 
-from route_api.models import Mesh, Route
-from route_api.utils import route_exists, select_mesh
-from route_api.tests.utils import add_test_mesh_to_db
+from polarrouteserver.route_api.models import Mesh, Route
+from polarrouteserver.route_api.utils import route_exists, select_mesh
+from polarrouteserver.route_api.tests.utils import add_test_mesh_to_db
 
 class TestRouteExists(TestCase):
     "Test function for checking for existing routes"
@@ -138,7 +138,9 @@ class TestSelectMesh(TestCase):
             name = "southern_test_mesh.vessel.json",
             md5 = hashlib.md5("dummy_hashable_string".encode('utf-8')).hexdigest(),
             meshiphi_version = "2.1.13",
-            created = datetime.datetime.now(),
+            valid_date_start = timezone.now().date() - datetime.timedelta(days=3),
+            valid_date_end = timezone.now().date(),
+            created = datetime.datetime.now(datetime.timezone.utc),
             lat_min =  -80.0,
             lat_max =  -40.0,
             lon_min = -110.0,
@@ -153,9 +155,34 @@ class TestSelectMesh(TestCase):
             end_lon   = -110
         ) == self.southern_mesh
 
+        # test that when no containing mesh available, the result is None
         assert select_mesh(
             start_lat = -90,
             start_lon = -55,
             end_lat   = -80,
             end_lon   = -110
         ) == None
+
+    def test_smallest_mesh(self):
+        self.smaller_mesh = Mesh.objects.create(
+            name = "southern_test_mesh.vessel.json",
+            md5 = hashlib.md5("dummy_hashable_string".encode('utf-8')).hexdigest(),
+            meshiphi_version = "2.1.13",
+            valid_date_start = timezone.now().date() - datetime.timedelta(days=3),
+            valid_date_end = timezone.now().date(),
+            created = datetime.datetime.now(datetime.timezone.utc),
+            lat_min =  -80.0,
+            lat_max =  -56.0,
+            lon_min = -115.0,
+            lon_max =    0.0,
+        )
+
+        # check that we've actually made a smaller mesh
+        assert self.smaller_mesh.size < self.southern_mesh.size
+
+        assert select_mesh(
+            start_lat = -60,
+            start_lon = -55,
+            end_lat   = -80,
+            end_lon   = -110
+        ) == self.smaller_mesh

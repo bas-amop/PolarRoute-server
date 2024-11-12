@@ -1,9 +1,0 @@
-celery
-Django>=5
-django-celery-beat
-django-celery-results
-django-rest-framework
-haversine
-polar-route==1.0.0
-pyyaml
-SQLAlchemy

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from route_api.models import Route
+from .models import Route
 
 
 class RouteSerializer(serializers.ModelSerializer):
