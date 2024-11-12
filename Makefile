@@ -14,32 +14,26 @@ endef
 export BROWSER_PYSCRIPT
 BROWSER := python -c "$$BROWSER_PYSCRIPT"
 
-# .PHONY: clean-coverage
-# clean-coverage: ## Remove coverage reports
-# 	@echo "+ $@"
-# 	@rm -rf htmlcov/
-# 	@rm -rf .coverage
-# 	@rm -rf coverage.xml
+clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
 
-.PHONY: clean-pytest
-clean-pytest: ## Remove pytest cache
-	@echo "+ $@"
-	@rm -rf .pytest_cache/
+clean-build: ## remove build artifacts
+	rm -fr build/
+	rm -fr dist/
+	rm -fr .eggs/
+	find . -name '*.egg-info' -exec rm -fr {} +
+	find . -name '*.egg' -exec rm -f {} +
 
-.PHONY: clean-docs-build
-clean-docs-build: ## Remove local docs
-	@echo "+ $@"
-	@rm -rf docs/_build
+clean-pyc: ## remove Python file artifacts
+	find . -name '*.pyc' -exec rm -f {} +
+	find . -name '*.pyo' -exec rm -f {} +
+	find . -name '*~' -exec rm -f {} +
+	find . -name '__pycache__' -exec rm -fr {} +
 
-.PHONY: clean-pyc
-clean-pyc: ## Remove Python file artifacts
-	@echo "+ $@"
-	@find . -type d -name '__pycache__' -exec rm -rf {} +
-	@find . -type f -name '*.py[co]' -exec rm -f {} +
-	@find . -name '*~' -exec rm -f {} +
-
-.PHONY: clean ## Remove all file artifacts
-clean: clean-build clean-pyc clean-pytest clean-docs-build
+clean-test: ## remove test and coverage artifacts
+	rm -fr .tox/
+	rm -f .coverage
+	rm -fr htmlcov/
+	rm -fr .pytest_cache
 
 .PHONY: lint
 lint: ## Check code style
