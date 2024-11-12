@@ -26,6 +26,8 @@ Depends on:
 For development, also install and use the development tools:
 1. `pre-commit install`
 
+A number of helpful development tools are made available through the `Makefile`, to see a description of each of these commands, run `make` (with no arguments) from the top-level of this directory.
+
 ### Configuration
 
 Configuration may either be achieved with config files or environment variables.
@@ -76,7 +78,7 @@ Only meshes which are not present in the database will be inserted. Uniqueness i
 
 ## Making requests using the demo tool
 
-A demo script is available in this repo (`./demo.py`) to be used as a utility for making route requests.
+A demo script is available in this repo (`polarrouteserver/demo.py`) to be used as a utility for making route requests.
 
 To obtain, either:
 + Clone this whole repo [as above](#for-development)
@@ -85,10 +87,15 @@ To obtain, either:
 To run, you'll just need python 3.11 installed.
 
 ### Usage
-Help for the utility can be printed out by running `python demo.py --help`
+Help for the utility can be printed out by running `python demo.py --help`.
+
+Alternatively, if you have the package installed, a command named `request_route` is made available.
 
 ```sh
+$ request_route --help
+# OR
 $ python demo.py --help
+
 usage: demo.py [-h] [-u URL] -s [START] -e [END] [-d [DELAY]] [-f] [-o [OUTPUT]]
 
 Requests a route from polarRouteServer, repeating the request for status until the route is available. Specify start and end points by coordinates or from one of the standard locations: ['bird', 'falklands',
