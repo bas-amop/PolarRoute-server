@@ -1,6 +1,7 @@
 import copy
 import datetime
 import gzip
+import hashlib
 import json
 from pathlib import Path
 import os
@@ -141,12 +142,27 @@ def import_new_meshes(self):
         mesh_filename = record["filepath"].split("/")[-1]
 
         # load in the mesh json
-        with gzip.open(Path(settings.MESH_DIR, mesh_filename + ".gz"), "rb") as f:
-            mesh_json = json.load(f)
+        try:
+            zipped_filename = mesh_filename + ".gz"
+            with gzip.open(Path(settings.MESH_DIR, zipped_filename), "rb") as f:
+                mesh_json = json.load(f)
+        except FileNotFoundError:
+            logger.warning(f"{zipped_filename} not found. Skipping.")
+            continue
+
+        md5 = hashlib.md5(str(mesh_json).encode("utf-8")).hexdigest()
+        if md5 != record["md5"]:
+            logger.warning(f"Mesh file md5: {md5}\n\
+                           does not match\n\
+                           Metadata md5: {record['md5']}\n\
+                           Skipping.")
+            # if md5 hash from metadata file does not match that of the file itself,
+            # there may have been a filename clash, skip this one.
+            continue
 
         # create an entry in the database
         mesh, created = Mesh.objects.get_or_create(
-            md5=record["md5"],
+            md5=md5,
             defaults={
                 "name": mesh_filename,
                 "valid_date_start": datetime.datetime.strptime(
