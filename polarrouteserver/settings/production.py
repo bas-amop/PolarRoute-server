@@ -30,7 +30,8 @@ if MESH_DIR is None:
                    No new meshes will be automatically ingested."
     )
 
-ALLOWED_HOSTS.extend(os.getenv("POLARROUTE_ALLOWED_HOSTS"))
+if os.getenv("POLARROUTE_ALLOWED_HOSTS") is not None:
+    ALLOWED_HOSTS.extend(os.getenv("POLARROUTE_ALLOWED_HOSTS"))
 
 CELERY_BROKER_URL = config.get("celery_broker_url")
 
