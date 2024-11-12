@@ -69,10 +69,3 @@ exclude = ["route_api/tests/*"]
     "F403", # allow from .. import * in settings modules
     "F405", # allow defined in * imports in settings modules
     ] 
-
-[tool.versioneer]
-VCS = "git"
-style = "pep440"
-versionfile_source = "polarrouteserver/_version.py"
-versionfile_build = "polarrouteserver/_version.py"
-tag_prefix = ""
