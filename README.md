@@ -64,6 +64,16 @@ $ django-admin dbshell # open the database's command line interface
 
 To see more commands, run `django-admin --help`.
 
+In addition a custom command is available to manually insert new meshes into the database from file:
+
+```shell
+$ django-admin insert_mesh <Mesh file or list of files>
+```
+
+`insert_mesh` takes a filename or list of filepaths containing meshes either as `.vessel.json` format or gzipped vessel mesh files.
+
+Only meshes which are not present in the database will be inserted. Uniqueness is based on the md5 hash of the unzipped vessel mesh file.
+
 ## Making requests using the demo tool
 
 A demo script is available in this repo (`./demo.py`) to be used as a utility for making route requests.
