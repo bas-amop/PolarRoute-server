@@ -7,20 +7,23 @@ implemented using Django, Celery and Django REST framework.
 
 ## Setup/installation
 
+PolarRouteServer can be installed from GitHub using `pip`.
+
+1. Inside a virtual environment (e.g. venv, conda, etc.) run `pip install git+https://github.com/antarctica/PolarRoute-server`
+
 ### For development
 
 Depends on:
-+ python 3.11
++ python ~3.11
 + [docker](https://docs.docker.com/get-docker/) for running rabbitmq (in development)
 + [Make](https://www.gnu.org/software/make/)
 
 1. Clone this repository and create and activate a python virtual environment of your choice.
-1. Inside a virtual environment or machine: `pip install -r requirements.txt`
+1. Inside a virtual environment or machine: `pip install -e .[dev]`
 1. Before first use, create the database by running `make migrate`
 1. To start all of the services needed for the dev deployment run: `make serve-dev` (which sets the `DJANGO_SETTINGS_MODULE` environment variable and spins up celery, rabbitmq in a docker container, and the Django development server)
 
 For development, also install and use the development tools:
-1. `pip install -r requirements.dev.txt`
 1. `pre-commit install`
 
 ### Configuration
@@ -46,6 +49,20 @@ For production, the following are required:
 + WSGI server, e.g. Gunicorn.
 
 For serving with Gunicorn, run `make start-django-server` to serve with WSGI and production settings.
+
+### Management of a deployment
+
+All of the commands used for administration of a Django project are available post-installation via the `django-admin` command.
+
+Of particular interest in production are:
+
+```shell
+$ django-admin makemigrations # create new migrations files based on changes to models
+$ django-admin migrate # apply new migrations files to alter the database
+$ django-admin dbshell # open the database's command line interface
+```
+
+To see more commands, run `django-admin --help`.
 
 ## Making requests using the demo tool
 
