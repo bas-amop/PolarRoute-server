@@ -1,6 +1,6 @@
 import datetime, hashlib, json
 
-from route_api.models import Mesh
+from polarrouteserver.route_api.models import Mesh
 
 from django.conf import settings
 from django.utils import timezone

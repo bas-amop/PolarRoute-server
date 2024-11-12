@@ -225,7 +225,7 @@ def parse_args():
     return parser.parse_args()
 
 
-if __name__ == "__main__":
+def main():
     args = parse_args()
     route = request_route(
         args.url,
@@ -243,3 +243,7 @@ if __name__ == "__main__":
         args.output.write(json.dumps(route, indent=4))
     else:
         print(route)
+
+
+if __name__ == "__main__":
+    main()

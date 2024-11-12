@@ -7,10 +7,9 @@ from django.test import TestCase
 from rest_framework.test import APIRequestFactory
 import pytest
 
-from route_api.views import RouteView, RecentRoutesView
-from route_api.models import Job, Route
-
-from route_api.tests.utils import add_test_mesh_to_db
+from polarrouteserver.route_api.views import RouteView, RecentRoutesView
+from polarrouteserver.route_api.models import Job, Route
+from polarrouteserver.route_api.tests.utils import add_test_mesh_to_db
 
 
 class TestRouteRequest(TestCase):
@@ -81,7 +80,7 @@ class TestRouteStatus:
         self.setUp()
 
         with patch(
-            "route_api.views.AsyncResult.state", new_callable=PropertyMock
+            "polarrouteserver.route_api.views.AsyncResult.state", new_callable=PropertyMock
         ) as mock_job_status:
             mock_job_status.return_value = celery.states.SUCCESS
 

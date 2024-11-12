@@ -15,9 +15,9 @@ import pytest
 import yaml
 
 from polarrouteserver.celery import app
-from route_api.models import Mesh, Route
-from route_api.tasks import import_new_meshes, optimise_route
-from route_api.tests.utils import add_test_mesh_to_db
+from polarrouteserver.route_api.models import Mesh, Route
+from polarrouteserver.route_api.tasks import import_new_meshes, optimise_route
+from polarrouteserver.route_api.tests.utils import add_test_mesh_to_db
 
 class TestOptimiseRoute(TestCase):
     def setUp(self):

@@ -6,9 +6,9 @@ from django.test import TestCase
 from django.utils import timezone
 from haversine import inverse_haversine, Unit, Direction
 
-from route_api.models import Mesh, Route
-from route_api.utils import route_exists, select_mesh
-from route_api.tests.utils import add_test_mesh_to_db
+from polarrouteserver.route_api.models import Mesh, Route
+from polarrouteserver.route_api.utils import route_exists, select_mesh
+from polarrouteserver.route_api.tests.utils import add_test_mesh_to_db
 
 class TestRouteExists(TestCase):
     "Test function for checking for existing routes"

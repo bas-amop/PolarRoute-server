@@ -3,7 +3,7 @@ import logging
 from django.conf import settings
 import haversine
 
-from route_api.models import Mesh, Route
+from .models import Mesh, Route
 
 logger = logging.getLogger(__name__)
 

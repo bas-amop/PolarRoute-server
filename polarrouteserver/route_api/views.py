@@ -8,10 +8,10 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
 from polarrouteserver.celery import app
-from route_api.models import Job, Route
-from route_api.tasks import optimise_route
-from route_api.serializers import RouteSerializer
-from route_api.utils import route_exists, select_mesh
+from .models import Job, Route
+from .tasks import optimise_route
+from .serializers import RouteSerializer
+from .utils import route_exists, select_mesh
 
 logger = logging.getLogger(__name__)
 

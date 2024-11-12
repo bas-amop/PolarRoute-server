@@ -7,7 +7,7 @@ from typing import Any
 from django.core.management.base import BaseCommand, CommandError, CommandParser
 from django.utils import timezone
 
-from route_api.models import Mesh
+from polarrouteserver.route_api.models import Mesh
 
 
 class Command(BaseCommand):
