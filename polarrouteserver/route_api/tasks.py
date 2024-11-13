@@ -3,6 +3,7 @@ import datetime
 import gzip
 import json
 from pathlib import Path
+import tempfile
 import os
 
 from celery import states
@@ -19,6 +20,7 @@ import yaml
 
 from polarrouteserver.celery import app
 from .models import Mesh, Route
+from .utils import calculate_md5
 
 
 logger = get_task_logger(__name__)
@@ -141,12 +143,35 @@ def import_new_meshes(self):
         mesh_filename = record["filepath"].split("/")[-1]
 
         # load in the mesh json
-        with gzip.open(Path(settings.MESH_DIR, mesh_filename + ".gz"), "rb") as f:
-            mesh_json = json.load(f)
+        try:
+            zipped_filename = mesh_filename + ".gz"
+            with gzip.open(
+                Path(settings.MESH_DIR, zipped_filename), "rb"
+            ) as gzipped_mesh:
+                mesh_json = json.load(gzipped_mesh)
+        except FileNotFoundError:
+            logger.warning(f"{zipped_filename} not found. Skipping.")
+            continue
+
+        # write out the unzipped mesh to temp file
+        with tempfile.NamedTemporaryFile(mode="w", delete=False) as f:
+            json.dump(mesh_json, f)
+            tmp_unzipped_mesh_fp = f.name
+
+        # cross reference md5 hash from file record in metadata to actual file on disk
+        md5 = calculate_md5(tmp_unzipped_mesh_fp)
+        if md5 != record["md5"]:
+            raise UserWarning(f"Mesh file md5: {md5}\n\
+                           does not match\n\
+                           Metadata md5: {record['md5']}\n\
+                           Skipping.")
+            # if md5 hash from metadata file does not match that of the file itself,
+            # there may have been a filename clash, skip this one.
+            continue
 
         # create an entry in the database
         mesh, created = Mesh.objects.get_or_create(
-            md5=record["md5"],
+            md5=md5,
             defaults={
                 "name": mesh_filename,
                 "valid_date_start": datetime.datetime.strptime(
