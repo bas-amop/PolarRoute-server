@@ -5,10 +5,9 @@ import json
 import os
 from pathlib import Path
 import shutil
-from unittest.mock import patch, PropertyMock
+import warnings
 
 from celery.exceptions import Ignore
-from celery.result import AsyncResult
 from django.conf import settings
 from django.test import TestCase, TransactionTestCase
 import pytest
@@ -17,6 +16,7 @@ import yaml
 from polarrouteserver.celery import app
 from polarrouteserver.route_api.models import Mesh, Route
 from polarrouteserver.route_api.tasks import import_new_meshes, optimise_route
+from polarrouteserver.route_api.utils import calculate_md5
 from polarrouteserver.route_api.tests.utils import add_test_mesh_to_db
 
 class TestOptimiseRoute(TestCase):
@@ -122,6 +122,28 @@ class TestImportNewMeshes(TestCase):
 
         self.mesh_filenames = ["southern_test_mesh.vessel.json",
                                "central_test_mesh.vessel.json"]
+        
+        dummy_mesh_json = {
+                "config": {
+                    "mesh_info": {
+                        "region": {
+                            "lat_min": -90,
+                            "lat_max": -45,
+                            "long_min": -175,
+                            "long_max": 175,
+                            "start_time": "2024-08-04",
+                            "end_time": "2024-08-06",
+                            "cell_width": 5.0,
+                            "cell_height": 2.5
+            }}}}
+
+        for filename in self.mesh_filenames:
+            # write out gzipped file
+            with gzip.open(Path(settings.MESH_DIR, filename+".gz"), 'wb') as f:
+                f.write(json.dumps(dummy_mesh_json).encode('utf-8'))
+            # also write out non zipped file just for calclating md5
+            with open(Path(settings.MESH_DIR, filename), 'w') as f:
+                json.dump(dummy_mesh_json, f)
 
         # create minimal test metadata file
         self.metadata = {
@@ -130,7 +152,7 @@ class TestImportNewMeshes(TestCase):
                     "filepath": str(Path(settings.MESH_DIR, self.mesh_filenames[0])),
                     "created": "20241016T154603",
                     "size": 123456,
-                    "md5": hashlib.md5("dummy_hashable_string".encode('utf-8')).hexdigest(),
+                    "md5": calculate_md5(str(Path(settings.MESH_DIR, self.mesh_filenames[0]))),
                     "meshiphi": "2.1.13",
                     "latlong": {
                         "latmin": -80.0,
@@ -143,7 +165,7 @@ class TestImportNewMeshes(TestCase):
                     "filepath": str(Path(settings.MESH_DIR, self.mesh_filenames[1])),
                     "created": "20241016T155252",
                     "size": 123456,
-                    "md5": hashlib.md5("dummy_hashable_string2".encode('utf-8')).hexdigest(),
+                    "md5": calculate_md5(str(Path(settings.MESH_DIR, self.mesh_filenames[1]))),
                     "meshiphi": "2.1.13",
                     "latlong": {
                         "latmin": -60.0,
@@ -162,32 +184,19 @@ class TestImportNewMeshes(TestCase):
             with gzip.open(Path(settings.MESH_DIR, self.metadata_filename+".gz"), 'wb') as f_out:
                 shutil.copyfileobj(f_in, f_out)
 
-        for filename in self.mesh_filenames:
-            with gzip.open(Path(settings.MESH_DIR, filename+".gz"), 'wb') as f:
-                f.write(json.dumps({
-                "config": {
-                    "mesh_info": {
-                        "region": {
-                            "lat_min": -90,
-                            "lat_max": -45,
-                            "long_min": -175,
-                            "long_max": 175,
-                            "start_time": "2024-08-04",
-                            "end_time": "2024-08-06",
-                            "cell_width": 5.0,
-                            "cell_height": 2.5
-            }}}}).encode('utf-8'))
 
     def tearDown(self):
         # cleanup files created for testing
-        os.remove(Path(settings.MESH_DIR, self.metadata_filename))
         for filename in self.mesh_filenames + [self.metadata_filename]:
+            os.remove(Path(settings.MESH_DIR, filename))
             os.remove(Path(settings.MESH_DIR, filename+".gz"))
         
 
     def test_import_new_meshes(self):
         
-        meshes_added = import_new_meshes()
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", UserWarning)
+            meshes_added = import_new_meshes()
 
         for mesh in meshes_added:
             mesh_obj = Mesh.objects.get(id=mesh["id"])
