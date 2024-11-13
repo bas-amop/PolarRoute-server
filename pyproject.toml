@@ -32,7 +32,11 @@ Issues = "https://github.com/antarctica/PolarRoute-server/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["polarrouteserver", "polarrouteserver.route_api"]
+include = [
+	"polarrouteserver",
+	"polarrouteserver.route_api",
+	"polarrouteserver.settings"
+]
 exclude = ["polarrouteserver.route_api.tests*"]
 # namespaces = true
 
