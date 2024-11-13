@@ -10,27 +10,30 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
+import crypt
+import logging
 import os
+import uuid
+
 from pathlib import Path
+from celery.schedules import crontab
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
+logger = logging.getLogger(__name__)
 
+BASE_DIR = os.getenv("BASE_DIR", os.getcwd())
+MESH_PATH = os.getenv("POLARROUTE_MESH_PATH", os.path.join(".", "mesh.json"))
+MESH_DIR = os.getenv("POLARROUTE_MESH_DIR", os.path.join(".", "mesh"))
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-dutfial2$h()(2ivh5euo*t27*p3ukqso7f_-^&w831zq!oz-g"
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# NOTE: set this in production
+SECRET_KEY = os.getenv("SECRET_KEY", str(uuid.uuid4()))
+DEBUG = bool(os.getenv("DEBUG", "False"))
 
 ALLOWED_HOSTS = [
     "localhost",
     "0.0.0.0",
 ]
-
+if os.getenv("POLARROUTE_ALLOWED_HOSTS") is not None:
+    ALLOWED_HOSTS.extend(os.getenv("POLARROUTE_ALLOWED_HOSTS"))
 
 LOGGING = {
     "version": 1,
@@ -57,7 +60,6 @@ LOGGING = {
 }
 
 # Application definition
-
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -100,21 +102,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "polarrouteserver.wsgi.application"
 
-
-# Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
-
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
     }
 }
 
-
-# Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
@@ -130,55 +126,35 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
-
 LANGUAGE_CODE = "en-gb"
-
 TIME_ZONE = "UTC"
-
 USE_I18N = True
-
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
-
 STATIC_URL = "static/"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-
 # Celery settings
-
 CELERY_WORKER_HIJACK_ROOT_LOGGER = True
-
-CELERY_BROKER_URL = "amqp://guest:guest@localhost"
-# CELERY_BROKER_URL='amqp://localhost:5672',
-# CELERY_RESULT_BACKEND='db+postgresql+psycopg://postgres:polarroute@localhost:5432/polarrouteserver'
-
-CELERY_RESULT_BACKEND = "django-db"
-# celery setting.
-# CELERY_CACHE_BACKEND = "default"
-
-# django setting.
-# CACHES = {
-#     "default": {
-#         "BACKEND": "django.core.cache.backends.db.DatabaseCache",
-#         "LOCATION": "my_cache_table",
-#     }
-# }
-
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "amqp://guest:guest@localhost")
+CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "django-db")
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+CELERY_BEAT_SCHEDULE = {
+    "sample_task": {
+        "task": "route_api.tasks.import_new_meshes",
+        "schedule": crontab(minute="*/10"),
+    },
+}
 
-# Routing settings
+# Routing settings (TODO: hardcoded, can / should these be exposed elsewhere?)
 WAYPOINT_DISTANCE_TOLERANCE = 1  # Nautical Miles
-MESH_PATH = Path("./mesh.json")
 
 # For now, vessel config is used in the pipeline to calculate a vessel mesh
 # VESSEL_CONFIG =  {
