@@ -34,7 +34,7 @@ class Route(models.Model):
     requested = models.DateTimeField(default=timezone.now)
     calculated = models.DateTimeField(null=True)
     info = models.JSONField(null=True)
-    mesh = models.ForeignKey(Mesh, on_delete=models.DO_NOTHING, null=True)
+    mesh = models.ForeignKey(Mesh, on_delete=models.SET_NULL, null=True)
     start_lat = models.FloatField()
     start_lon = models.FloatField()
     end_lat = models.FloatField()
@@ -54,7 +54,7 @@ class Job(models.Model):
     )  # use uuids for primary keys to align with celery
 
     datetime = models.DateTimeField(default=timezone.now)
-    route = models.ForeignKey(Route, on_delete=models.DO_NOTHING)
+    route = models.ForeignKey(Route, on_delete=models.SET_NULL, null=True)
 
     @property
     def status(self):
