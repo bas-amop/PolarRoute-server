@@ -113,6 +113,10 @@ stop-rabbitmq: ## Stop rabbitmq docker container
 export DJANGO_SETTINGS_MODULE=polarrouteserver.settings.development
 serve-dev: start-rabbitmq start-celery start-dev-server ## Run all the components for serving a development instance.
 
+.PHONY: stop-serve-dev
+export DJANGO_SETTINGS_MODULE=polarrouteserver.settings.development
+stop-serve-dev: stop-rabbitmq stop-celery stop-dev-server # stop all dev serve components (rabbitmq, celery, devserver)
+
 .PHONY: start-swagger
 start-swagger: ## Start swagger-ui container with API schema
 	@echo "+ $@"
