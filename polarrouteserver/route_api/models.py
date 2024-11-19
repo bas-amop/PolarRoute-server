@@ -29,6 +29,9 @@ class Mesh(models.Model):
 
         return abs(self.lat_max - self.lat_min) * abs(self.lon_max - self.lon_min)
 
+    class Meta:
+        verbose_name_plural = "Meshes"
+
 
 class Route(models.Model):
     requested = models.DateTimeField(default=timezone.now)
