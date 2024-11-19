@@ -39,7 +39,6 @@ exclude = ["polarrouteserver.route_api.tests*"]
 polarrouteserver = [
     "Makefile",
     "schema.yml",
-    "config/template.yaml",
     "demo.py"
 ]
 
