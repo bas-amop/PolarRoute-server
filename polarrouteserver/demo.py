@@ -71,21 +71,23 @@ def request_route(
     end: Location,
     status_update_delay: int = 30,
     num_requests: int = 10,
+    force_recalculation: bool = False,
 ) -> str:
     """Requests a route from polarRouteServer, repeating the request for status until the route is available.
 
     Args:
-        url (str): _description_
-        start (Location): _description_
-        end (Location): _description_
-        status_update_delay (int, optional): _description_. Defaults to 10.
-        num_requests (int, optional): _description_. Defaults to 10.
+        url (str): Base URL to send request to.
+        start (Location): Start location of route
+        end (Location): End location of route
+        status_update_delay (int, optional): Delay in seconds between each status request. Defaults to 10.
+        num_requests (int, optional): Max number of status requests before giving up. Defaults to 10.
+        force_recalculation (bool, optional): Force recalculation of an already existing route. Default: False.
 
     Raises:
-        Exception: _description_
+        Exception: If no status URL is returned.
 
     Returns:
-        str: _description_
+        str: JSON response of route request.
     """
 
     # make route request
@@ -102,6 +104,7 @@ def request_route(
                 "end_lon": end.lon,
                 "start_name": start.name,
                 "end_name": end.name,
+                "force_recalculate": force_recalculation,
             },
         ),
     )
@@ -208,6 +211,14 @@ def parse_args():
         default=30,
     )
     parser.add_argument(
+        "-n",
+        "--requests",
+        type=int,
+        nargs="?",
+        help="(integer) number of status requests to make before stopping. Default: 10",
+        default=30,
+    )
+    parser.add_argument(
         "-f",
         "--force",
         action="store_true",
@@ -232,6 +243,7 @@ def main():
         parse_location(args.start),
         parse_location(args.end),
         status_update_delay=args.delay,
+        force_recalculation=args.force,
     )
 
     if route is None:
@@ -239,7 +251,7 @@ def main():
         sys.exit(1)
 
     if args.output is not None:
-        print(f"Writing out route reponse to {args.output}")
+        print(f"Writing out route response to {args.output}")
         args.output.write(json.dumps(route, indent=4))
     else:
         print(route)
