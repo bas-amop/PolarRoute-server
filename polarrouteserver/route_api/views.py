@@ -100,18 +100,30 @@ class RouteView(LoggingMixin, GenericAPIView):
             if not force_recalculate:
                 logger.info(f"Existing route found: {existing_route}")
                 response_data = RouteSerializer(existing_route).data
-                existing_job = existing_route.job_set.latest("datetime")
-                response_data.update(
-                    {
-                        "info": {
-                            "info": "Pre-existing route found and returned. To force new calculation, include 'force_recalculate': true in POST request."
-                        },
-                        "id": str(existing_job.id),
-                        "status-url": reverse(
-                            "route", args=[existing_job.id], request=request
-                        ),
-                    }
-                )
+                if existing_route.job_set.count() > 0:
+                    existing_job = existing_route.job_set.latest("datetime")
+
+                    response_data.update(
+                        {
+                            "info": {
+                                "info": "Pre-existing route found and returned. To force new calculation, include 'force_recalculate': true in POST request."
+                            },
+                            "id": str(existing_job.id),
+                            "status-url": reverse(
+                                "route", args=[existing_job.id], request=request
+                            ),
+                        }
+                    )
+
+                else:
+                    response_data.update(
+                        {
+                            "info": {
+                                "error": "Pre-existing route was found but there was an error.\
+                                To force new calculation, include 'force_recalculate': true in POST request."
+                            }
+                        }
+                    )
                 return Response(
                     data=response_data,
                     headers={"Content-Type": "application/json"},
