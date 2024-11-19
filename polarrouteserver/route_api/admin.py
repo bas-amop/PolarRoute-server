@@ -8,22 +8,66 @@ class RouteAdmin(admin.ModelAdmin):
         "id",
         "display_start",
         "display_end",
-        "start_name",
-        "end_name",
         "requested",
         "calculated",
+        "job_id",
+        "mesh_id",
+        "info",
     ]
 
     def display_start(self, obj):
-        return f"({obj.start_lat},{obj.start_lon})"
+        if obj.start_name:
+            return f"{obj.start_name} ({obj.start_lat},{obj.start_lon})"
+        else:
+            return f"({obj.start_lat},{obj.start_lon})"
 
     def display_end(self, obj):
-        return f"({obj.end_lat},{obj.end_lon})"
+        if obj.end_name:
+            return f"{obj.end_name} ({obj.end_lat},{obj.end_lon})"
+        else:
+            return f"({obj.end_lat},{obj.end_lon})"
+
+    def job_id(self, obj):
+        if obj.job_set.count() == 0:
+            return "-"
+        else:
+            job = obj.job_set.latest("datetime")
+            return f"{job.id}"
+
+    def mesh_id(self, obj):
+        if obj.mesh:
+            return f"{obj.mesh.id}"
 
     display_start.short_description = "Start (lat,lon)"
     display_end.short_description = "End (lat,lon)"
+    job_id.short_description = "Job ID (latest)"
+    mesh_id.short_description = "Mesh ID"
+
+
+class JobAdmin(admin.ModelAdmin):
+    list_display = [
+        "id",
+        "datetime",
+        "route",
+        "status",
+    ]
+
+
+class MeshAdmin(admin.ModelAdmin):
+    list_display = [
+        "id",
+        "valid_date_start",
+        "valid_date_end",
+        "created",
+        "lat_min",
+        "lat_max",
+        "lon_min",
+        "lon_max",
+        "name",
+        "size",
+    ]
 
 
 admin.site.register(Route, RouteAdmin)
-admin.site.register(Mesh)
-admin.site.register(Job)
+admin.site.register(Mesh, MeshAdmin)
+admin.site.register(Job, JobAdmin)
