@@ -67,7 +67,7 @@ build = [
 request_route = "polarrouteserver.demo:main"
 
 [tool.ruff]
-exclude = ["polarrouteserver/route_api/tests/*"]
+exclude = ["tests/*"]
 
 [tool.ruff.lint.per-file-ignores]
 "polarrouteserver/settings/*" = [

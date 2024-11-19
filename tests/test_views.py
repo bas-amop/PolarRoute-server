@@ -9,7 +9,7 @@ import pytest
 
 from polarrouteserver.route_api.views import RouteView, RecentRoutesView
 from polarrouteserver.route_api.models import Job, Route
-from polarrouteserver.route_api.tests.utils import add_test_mesh_to_db
+from .utils import add_test_mesh_to_db
 
 
 class TestRouteRequest(TestCase):
