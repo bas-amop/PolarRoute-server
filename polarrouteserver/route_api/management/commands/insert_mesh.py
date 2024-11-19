@@ -45,7 +45,7 @@ class Command(BaseCommand):
                         mesh_json["config"]["mesh_info"]["region"]["end_time"],
                         "%Y-%m-%d",
                     ),
-                    "created:": timezone.now(),
+                    "created": timezone.now(),
                     "json": mesh_json,
                     "meshiphi_version": "not found",
                     "lat_min": mesh_json["config"]["mesh_info"]["region"]["lat_min"],
