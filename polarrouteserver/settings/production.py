@@ -1,7 +1,4 @@
-import logging
-import os
 from pathlib import Path
-import yaml
 
 from celery.schedules import crontab
 
@@ -9,38 +6,18 @@ from .base import *
 
 logger = logging.getLogger(__name__)
 
-DEBUG = False
-
-try:
-    with open(Path("config", "production.yaml"), "r") as f:
-        config = yaml.load(f, Loader=yaml.Loader)
-
-    MESH_PATH = config.get("mesh_path", None)
-    MESH_DIR = config.get("mesh_dir", None)
-except FileNotFoundError:
-    logger.info(
-        "No config file found. Falling back on defaults or environment variables."
-    )
-    MESH_PATH = os.getenv("POLARROUTE_MESH_PATH")
-    MESH_DIR = os.getenv("POLARROUTE_MESH_DIR")
-
-if MESH_DIR is None:
-    logger.warning(
-        "MESH_DIR not set, this is required to ingest new meshes into database.\n\
+if not MESH_DIR:
+    raise UserWarning(
+        "POLARROUTE_MESH_DIR not set, this is required to ingest new meshes into database.\n\
                    No new meshes will be automatically ingested."
     )
-
-if os.getenv("POLARROUTE_ALLOWED_HOSTS") is not None:
-    ALLOWED_HOSTS.extend(os.getenv("POLARROUTE_ALLOWED_HOSTS"))
-
-CELERY_BROKER_URL = config.get("celery_broker_url")
-
-CELERY_BEAT_SCHEDULE = {
-    "sample_task": {
-        "task": "route_api.tasks.import_new_meshes",
-        "schedule": crontab(minute="*/10"),
-    },
-}
+else:
+    CELERY_BEAT_SCHEDULE = {
+        "sample_task": {
+            "task": "route_api.tasks.import_new_meshes",
+            "schedule": crontab(minute="*/10"),
+        },
+    }
 
 LOGGING = {
     "version": 1,
@@ -63,14 +40,17 @@ LOGGING = {
         "file": {
             "level": "DEBUG",
             "class": "logging.handlers.RotatingFileHandler",
-            "filename": Path(BASE_DIR, "logs", "django.log"),
+            "filename": os.path.join(
+                os.getenv("POLARROUTE_LOG_DIR", Path(BASE_DIR, "logs")),
+                "polarrouteserver.log",
+            ),
             "formatter": "verbose",
         },
     },
     "loggers": {
         "root": {
             "handlers": ["console", "file"],
-            "level": os.getenv("DJANGO_LOG_LEVEL", "INFO"),
+            "level": os.getenv("POLARROUTE_LOG_LEVEL", "INFO"),
             "propagate": True,
         },
     },

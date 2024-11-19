@@ -43,7 +43,7 @@ class TestOptimiseRoute(TestCase):
 
     def test_out_of_mesh_error(self):
         """Test that out of mesh locations causes error to be returned"""
-        with open(settings.MESH_PATH) as f:
+        with open(settings.TEST_MESH_PATH) as f:
             mesh = json.load(f)
         
         lat_min = mesh["config"]["mesh_info"]["region"]["lat_min"]
@@ -95,7 +95,7 @@ class TestTaskStatus(TransactionTestCase):
 
     def test_out_of_mesh_error_causes_task_failure(self):
         """Check that an example error (out of mesh) results in the task status being updated correctly."""
-        with open(settings.MESH_PATH) as f:
+        with open(settings.TEST_MESH_PATH) as f:
             mesh = json.load(f)
         
         lat_min = mesh["config"]["mesh_info"]["region"]["lat_min"]

@@ -7,7 +7,7 @@ from django.utils import timezone
 
 def add_test_mesh_to_db():
     """utility function to add a mesh to the test db"""
-    with open(settings.MESH_PATH, 'r') as f:
+    with open(settings.TEST_MESH_PATH, 'r') as f:
         file_contents = f.read().encode('utf-8')
         md5 = hashlib.md5(file_contents).hexdigest()
         mesh = json.loads(file_contents)

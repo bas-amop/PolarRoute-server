@@ -102,7 +102,7 @@ class TestRouteStatus:
 
         self.setUp()
         
-        with open(settings.MESH_PATH) as f:
+        with open(settings.TEST_MESH_PATH) as f:
             mesh = json.load(f)
         
         # Request a point that is out of mesh
