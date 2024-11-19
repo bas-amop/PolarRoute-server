@@ -30,19 +30,22 @@ A number of helpful development tools are made available through the `Makefile`,
 
 ### Configuration
 
-Configuration may either be achieved with config files or environment variables.
+Configuration of PolarRouteServer works with environment variables. You can either set these directly or from a `.env` file. An example `.env` file is included here as `env.example`.
 
+Environment variables used directly by the Django site are prefixed wit `POLARROUTE_` and those which configure Celery are prefixed with `CELERY_`.
 
-To deploy with development or production settings a corresponding `development.yaml` or `production.yaml` file can be present in the `config/` directory.
+- `POLARROUTE_MESH_DIR` - absolute path to directory where mesh files and mesh metadata files will be made available (this location is periodically checked in production and new files ingested into the database based on the metadata file). A `UserWarning` is raised in production if this is not set.
 
-In the `config/` directory you will find a template config file, `template.yaml`, the deployment config file should match the fields in the template.
+The following are inherited from Django and more information can be found on their effects via the [Django docs](https://docs.djangoproject.com/en/5.1/ref/settings/).
+- `POLARROUTE_DEBUG` - enables Django debug options, must be `False` in production (default: `False`)
+- `POLARROUTE_SECRET_KEY` - secret hash used for cookie signing etc. Must be set in production
+- `DJANGO_SETTINGS_MODULE` - sets the settings envrionment. Options: `polarrouteserver.settings.{production,development,test}` (Default: `polarrroutesserver.settings.production`)
+- `POLARROUTE_ALLOWED_HOSTS` - comma-separated (no spaces) list of IP addresses or hostnames allowed for the server.
+- `POLARROUTE_CORS_ALLOWED_ORIGINS` -  comma-separated (no spaces) list of IP addresses allowed for Cross Origin Site Requests. (See [django-cors-headers](https://pypi.org/project/django-cors-headers/) on PyPI for more.)
+- `CELERY_BROKER_URL` - URL for rabbitMQ message broker used by celery. (Default: `amqp://guest:guest@localhost`)
+- `POLARROUTE_LOG_LEVEL` - sets the logging level from standard log level options: INFO, DEBUG, ERROR, WARNING etc. (Default: `INFO`)
+- `POLARROUTE_LOG_DIR` - sets the output directory for logs. By default only used in production settings environment.
 
-Alternatively, set the appropriate environment variables.
-
-Below the names of `ENVIRONMENT_VARIABLES` and equivalent keys in yaml config files are listed.
-
-- `POLARROUTE_MESH_DIR`/"mesh_dir" - absolute path to directory where mesh files and mesh metadata files will be made available (this location is periodically checked in production and new files ingested into the database based on the metadata file)
-- `POLARROUTE_ALLOWED_HOSTS`/"allowed_hosts" - list/array of IP addresses or hostnames allowed for the server.
 
 ### Production Deployment
 For production, the following are required:

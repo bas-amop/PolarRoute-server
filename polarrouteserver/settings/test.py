@@ -2,7 +2,7 @@ from pathlib import Path
 
 from .base import *
 
-MESH_PATH = Path("tests", "fixtures", "test_vessel_mesh.json")
+TEST_MESH_PATH = Path("tests", "fixtures", "test_vessel_mesh.json")
 MESH_DIR = Path("tests", "fixtures")
 
 CELERY_BROKER_URL = "memory://"
