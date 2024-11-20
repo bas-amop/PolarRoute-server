@@ -10,7 +10,7 @@ authors = [
 description = "Backend server for serving PolarRoute and MeshiPhi assets and managing their calcuation using Django & Celery."
 readme = "README.md"
 license = {file = "LICENSE"}
-version = "0.0.1"
+version = "0.1.0"
 requires-python = ">= 3.11"
 dependencies = [
     "celery",
@@ -32,14 +32,12 @@ Issues = "https://github.com/antarctica/PolarRoute-server/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]
-exclude = ["polarrouteserver.route_api.tests*"]
-# namespaces = true
+exclude = ["tests*"]
 
 [tool.setuptools.package-data]
 polarrouteserver = [
     "Makefile",
     "schema.yml",
-    "demo.py"
 ]
 
 [tool.setuptools.exclude-package-data]
