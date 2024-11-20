@@ -83,7 +83,7 @@ def optimise_route(
                 f"Saving unsmoothed Dijkstra paths for {config['objective_function']}-optimised route."
             )
             if len(rp.routes_dijkstra) == 0:
-                raise ValueError("No routes found.")
+                raise ValueError("Inaccessible. No routes found.")
             unsmoothed_routes.append(extract_geojson_routes(rp.to_json()))
             route.json_unsmoothed = unsmoothed_routes
             route.calculated = timezone.now()
