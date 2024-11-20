@@ -42,7 +42,7 @@ def on_celery_setup_logging(**kwargs):
                 "class": "logging.FileHandler",
                 "filename": os.path.join(
                     os.getenv("POLARROUTE_LOG_DIR", Path(settings.BASE_DIR, "logs")),
-                    "polarrouteserver.log",
+                    "celery.log",
                 ),
                 "formatter": "default",
             },
