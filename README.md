@@ -2,8 +2,10 @@
 
 **Project status**: Under active development.
 
-A web server to manage requests for meshes and routes generated using the PolarRoute and MeshiPhi libraries,
+A web server to manage requests for meshes and routes generated using the [PolarRoute](https://github.com/antarctica/PolarRoute) and [MeshiPhi](https://github.com/antarctica/MeshiPhi/) libraries,
 implemented using Django, Celery and Django REST framework.
+
+It currently takes *vessel* meshes created using MeshiPhi and serves requests for routes, which are calculated using PolarRoute.
 
 ## Setup/installation
 
@@ -87,7 +89,13 @@ To obtain, either:
 + Clone this whole repo [as above](#for-development)
 + Download the file from its GitHub page here: https://github.com/antarctica/PolarRoute-server/blob/main/demo.py
 
-To run, you'll just need python 3.11 installed.
+This can be done with `wget` by running:
+
+```
+wget https://raw.githubusercontent.com/antarctica/PolarRoute-server/refs/heads/main/polarrouteserver/demo.py
+```
+
+To run, you'll just need python ~3.11 installed. Earlier versions of python may work, but are untested.
 
 ### Usage
 Help for the utility can be printed out by running `python demo.py --help`.
