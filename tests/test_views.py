@@ -55,8 +55,10 @@ class TestRouteStatus:
         self.factory = APIRequestFactory()
         mesh=add_test_mesh_to_db()
         self.route = Route.objects.create(
-            start_lat=0.0, start_lon=0.0, end_lat=0.0, end_lon=0.0, mesh=mesh
+            start_lat=1.1, start_lon=1.1, end_lat=2.0, end_lon=2.0, mesh=mesh
         )
+        from polarrouteserver.route_api.tasks import optimise_route
+        optimise_route(self.route.id)
 
     def test_get_status_pending(self):
 
@@ -95,8 +97,8 @@ class TestRouteStatus:
 
             assert response.status_code == 200
             assert response.data.get("status") == "SUCCESS"
-            assert "json_unsmoothed" in response.data.keys()
-            assert "json" in response.data.keys()
+            assert isinstance(response.data.get("json_unsmoothed"), list)
+            assert isinstance(response.data.get("json"), list)
 
     def test_request_out_of_mesh(self):
 
