@@ -36,10 +36,14 @@ class TestOptimiseRoute(TestCase):
         assert isinstance(route_json, list)
         assert route_json[0][0]["features"][0]["properties"]["from"] == self.start_point_name
         assert route_json[0][0]["features"][0]["properties"]["to"] == self.end_point_name
+        assert route_json[0][0]["features"][0]["properties"]["objective_function"] == "traveltime"
+        assert route_json[1][0]["features"][0]["properties"]["objective_function"] == "fuel"
 
         route = Route.objects.get(id=self.route.id)
         assert route.json == route_json
         assert isinstance(route.json_unsmoothed, list)
+        assert route.json_unsmoothed[0][0]["features"][0]["properties"]["objective_function"] == "traveltime"
+        assert route.json_unsmoothed[1][0]["features"][0]["properties"]["objective_function"] == "fuel"
 
     def test_out_of_mesh_error(self):
         """Test that out of mesh locations causes error to be returned"""

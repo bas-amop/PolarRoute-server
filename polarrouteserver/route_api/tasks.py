@@ -84,7 +84,11 @@ def optimise_route(
             )
             if len(rp.routes_dijkstra) == 0:
                 raise ValueError("Inaccessible. No routes found.")
-            unsmoothed_routes.append(extract_geojson_routes(rp.to_json()))
+            route_geojson = extract_geojson_routes(rp.to_json())
+            route_geojson[0]["features"][0]["properties"]["objective_function"] = (
+                config["objective_function"]
+            )
+            unsmoothed_routes.append(route_geojson)
             route.json_unsmoothed = unsmoothed_routes
             route.calculated = timezone.now()
             route.polar_route_version = polar_route.__version__
@@ -96,7 +100,11 @@ def optimise_route(
             rp.compute_smoothed_routes()
             # Save the smoothed route(s)
             logger.info(f"Route smoothing {i+1}/{len(route_planners)} complete.")
-            smoothed_routes.append(extract_geojson_routes(rp.to_json()))
+            route_geojson = extract_geojson_routes(rp.to_json())
+            route_geojson[0]["features"][0]["properties"]["objective_function"] = (
+                rp.config["objective_function"]
+            )
+            smoothed_routes.append(route_geojson)
 
             # Update the database
             route.json = smoothed_routes
