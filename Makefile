@@ -133,6 +133,14 @@ build: ## Build package
 	@echo "+ $@"
 	@python -m build
 
+.PHONY: release
+release: ## tag the HEAD commit and update version in pyproject.toml with the value of: "version=0.1.2", e.g. make release version=0.1.2
+	@echo "+ $@"
+	@sed -i "s/^version = \".*\"/version = \"$(version)\"/" pyproject.toml
+	@git add pyproject.toml
+	@git commit -m 'release version $(version)'
+	@git tag v$(version) HEAD
+
 .PHONY: help
 help:
 	@echo "Note: Remember to activate your virtual environment (if used)."
