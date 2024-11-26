@@ -35,6 +35,29 @@ For development, also install and use the development tools:
 
 A number of helpful development tools are made available through the `Makefile`, to see a description of each of these commands, run `make` (with no arguments) from the top-level of this directory.
 
+#### Using docker compose
+
+Optionally, use [docker compose](https://docs.docker.com/compose/install/) for development deployment to orchestrate celery and rabbitmq alongside the django development server.
+
+Clone this repository and run `docker compose up` to build and start the services.
+
+**Note**: In development, meshes are not automatically ingested into the database. Follow these steps to add a mesh to the database.
+
+1. Make a local directory structure with `mkdir -p data/mesh` and copy a vessel mesh file from MeshiPhi into `./data/mesh`, which is bind-mounted into the app container.
+1. Run `docker compose exec app /bin/bash` to open a shell inside the running app container.
+2. Run `django-admin insert_mesh /usr/src/app/data/mesh/<MESH FILENAME>` to insert the mesh into the database manually.
+
+Test that the app is working using the demo tool [as described below](#making-requests-using-the-demo-tool). The URL of the service should be `localhost:8000`.
+
+The django development server supports hot reloading and the source code is bind-mounted into the container, so changes should be reflected in the running app. Any changes to `polarrouteserver.route_api.models.py` will necessitate a migration to the database. To create and run migrations, run:
+
+```
+docker compose exec app django-admin makemigrations
+docker compose exec app django-admin migrate
+```
+
+Optionally, Swagger can be used to serve an API schema. This is not started by default, but can be enabled by started `docker compose` with the `--profile swagger` option, e.g. `docker compose --profile swagger up -d` - the swagger UI will be served at `localhost:80/swagger`.
+
 ### Configuration
 
 Configuration of PolarRouteServer works with environment variables. You can either set these directly or from a `.env` file. An example `.env` file is included here as `env.example`.

@@ -1,0 +1,47 @@
+services:
+  app:
+    build: .
+    ports:
+      - 8000:8000
+    environment:
+      DJANGO_SETTINGS_MODULE: polarrouteserver.settings.development
+      CELERY_BROKER_URL: amqp://guest:guest@rabbitmq
+      POLARROUTE_MESH_DIR: /usr/src/app/mesh
+    entrypoint: /usr/src/app/entrypoint.sh
+    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+    volumes:
+      - ./manage.py:/usr/src/app/manage.py
+      - ./polarrouteserver:/usr/src/app/polarrouteserver
+      - ./data/mesh:/usr/src/app/data/mesh
+      - ./db.sqlite3:/usr/src/app/db.sqlite3
+    depends_on: 
+      - celery
+
+  celery:
+    build: .
+    environment:
+      DJANGO_SETTINGS_MODULE: polarrouteserver.settings.development
+      CELERY_BROKER_URL: amqp://guest:guest@rabbitmq
+    command: ["celery", "-A", "polarrouteserver", "worker", "--loglevel=info"]
+    volumes:
+      - ./polarrouteserver:/usr/src/app/polarrouteserver
+      - ./db.sqlite3:/usr/src/app/db.sqlite3
+    depends_on:
+      - rabbitmq
+
+  rabbitmq:
+    image: rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
+
+  swagger:
+    profiles: ['swagger']
+    image: swaggerapi/swagger-ui
+    ports:
+      - "80:8080"
+    environment:
+      - SWAGGER_JSON=/app/schema.yml
+      - BASE_URL=/swagger
+    volumes:
+      - ./schema.yml:/app/schema.yml
