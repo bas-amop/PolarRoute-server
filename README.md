@@ -13,7 +13,10 @@ It currently takes *vessel* meshes created using MeshiPhi and serves requests fo
 
 PolarRouteServer can be installed from GitHub using `pip`.
 
-1. Inside a virtual environment (e.g. venv, conda, etc.) run `pip install git+https://github.com/antarctica/PolarRoute-server`
++ Inside a virtual environment (e.g. venv, conda, etc.) run `pip install git+https://github.com/antarctica/PolarRoute-server`
+  + To install a specific version append the tag, e.g. `pip intall git+https://github.com/antarctica/PolarRoute-server@v1.2.0`
+
+Alternatively, clone this repository and install from source with `pip install -e .`
 
 ### For development
 
