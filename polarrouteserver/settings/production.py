@@ -55,3 +55,35 @@ LOGGING = {
         },
     },
 }
+
+
+CELERY_LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "default": {
+            "format": "%(asctime)s%(process)d/%(thread)d%(name)s%(funcName)s %(lineno)s%(levelname)s%(message)s",
+            "datefmt": "%Y/%m/%d %H:%M:%S",
+        }
+    },
+    "handlers": {
+        "celery": {
+            "level": "INFO",
+            "class": "logging.FileHandler",
+            "filename": os.path.join(
+                os.getenv("POLARROUTE_LOG_DIR", Path(BASE_DIR, "logs")),
+                "celery.log",
+            ),
+            "formatter": "default",
+        },
+        "default": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "default",
+        },
+    },
+    "loggers": {
+        "celery": {"handlers": ["celery"], "level": "INFO", "propagate": False},
+    },
+    "root": {"handlers": ["default"], "level": "DEBUG"},
+}

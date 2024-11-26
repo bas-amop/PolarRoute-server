@@ -51,6 +51,27 @@ LOGGING = {
     },
 }
 
+CELERY_LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "simple": {
+            "format": "{levelname} {message}",
+            "style": "{",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        },
+    },
+    "loggers": {
+        "celery": {"handlers": ["celery"], "level": "INFO", "propagate": False},
+    },
+    "root": {"handlers": ["default"], "level": "DEBUG"},
+}
+
 # Application definition
 INSTALLED_APPS = [
     "django.contrib.admin",
