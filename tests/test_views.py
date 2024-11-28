@@ -17,6 +17,23 @@ class TestRouteRequest(TestCase):
         add_test_mesh_to_db()
         self.factory = APIRequestFactory()
 
+    def test_custom_mesh_id(self):
+        """Test that non-existent mesh id results in correct error message."""
+
+        data = {
+            "start_lat": 0.0,
+            "start_lon": 0.0,
+            "end_lat": 1.0,
+            "end_lon": 1.0,
+            "mesh_id": 999
+        }
+
+        request = self.factory.post("/api/route/", data=data, format="json")
+
+        response = RouteView.as_view()(request)
+
+        self.assertEqual(response.status_code, 400)
+
     def test_request_route(self):
         data = {
             "start_lat": 0.0,

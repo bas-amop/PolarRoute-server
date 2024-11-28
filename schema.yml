@@ -81,6 +81,8 @@ components:
           type: string
         end_name:
           type: string
+        mesh_id:
+          type: integer
       required:
       - start_lat
       - start_lon

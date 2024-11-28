@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
 from polarrouteserver.celery import app
-from .models import Job, Route
+from .models import Job, Route, Mesh
 from .tasks import optimise_route
 from .serializers import RouteSerializer
 from .utils import route_exists, select_mesh
@@ -78,10 +78,25 @@ class RouteView(LoggingMixin, GenericAPIView):
         end_lon = data["end_lon"]
         start_name = data.get("start_name", None)
         end_name = data.get("end_name", None)
-
+        custom_mesh_id = data.get("mesh_id", None)
         force_recalculate = data.get("force_recalculate", False)
 
-        mesh = select_mesh(start_lat, start_lon, end_lat, end_lon)
+        if custom_mesh_id:
+            try:
+                mesh = Mesh.objects.get(id=custom_mesh_id)
+            except Mesh.DoesNotExist:
+                msg = f"Mesh id {custom_mesh_id} requested. Does not exist."
+                logger.info(msg)
+                return Response(
+                    data={
+                        "info": {"error": msg},
+                        "status": "FAILURE",
+                    },
+                    headers={"Content-Type": "application/json"},
+                    status=rest_framework.status.HTTP_400_BAD_REQUEST,
+                )
+        else:
+            mesh = select_mesh(start_lat, start_lon, end_lat, end_lon)
 
         if mesh is None:
             return Response(
