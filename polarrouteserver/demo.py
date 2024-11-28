@@ -72,6 +72,7 @@ def request_route(
     status_update_delay: int = 30,
     num_requests: int = 10,
     force_recalculation: bool = False,
+    mesh_id: int = None,
 ) -> str:
     """Requests a route from polarRouteServer, repeating the request for status until the route is available.
 
@@ -105,6 +106,7 @@ def request_route(
                 "start_name": start.name,
                 "end_name": end.name,
                 "force_recalculate": force_recalculation,
+                "mesh_id": mesh_id,
             },
         ),
     )
@@ -217,6 +219,13 @@ def parse_args():
         nargs="?",
         help="(integer) number of status requests to make before stopping. Default: 10",
         default=30,
+    )
+    parser.add_argument(
+        "-m",
+        "--meshid",
+        type=int,
+        nargs="?",
+        help="(integer) Custom mesh ID.",
     )
     parser.add_argument(
         "-f",
