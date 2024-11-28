@@ -83,6 +83,7 @@ class RouteView(LoggingMixin, GenericAPIView):
 
         if custom_mesh_id:
             try:
+                logger.info(f"Got custom mesh id {custom_mesh_id} in request.")
                 mesh = Mesh.objects.get(id=custom_mesh_id)
             except Mesh.DoesNotExist:
                 msg = f"Mesh id {custom_mesh_id} requested. Does not exist."
@@ -93,7 +94,7 @@ class RouteView(LoggingMixin, GenericAPIView):
                         "status": "FAILURE",
                     },
                     headers={"Content-Type": "application/json"},
-                    status=rest_framework.status.HTTP_400_BAD_REQUEST,
+                    status=rest_framework.status.HTTP_202_ACCEPTED,
                 )
         else:
             mesh = select_mesh(start_lat, start_lon, end_lat, end_lon)
