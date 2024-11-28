@@ -13,6 +13,7 @@ class RouteAdmin(admin.ModelAdmin):
         "job_id",
         "mesh_id",
         "info",
+        "polar_route_version",
     ]
 
     def display_start(self, obj):
