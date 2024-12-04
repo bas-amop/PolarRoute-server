@@ -87,3 +87,5 @@ CELERY_LOGGING = {
     },
     "root": {"handlers": ["default"], "level": "DEBUG"},
 }
+
+STATIC_ROOT = os.getenv("POLARROUTE_STATIC_ROOT", None)

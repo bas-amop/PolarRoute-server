@@ -75,6 +75,7 @@ The following are inherited from Django and more information can be found on the
 - `CELERY_BROKER_URL` - URL for rabbitMQ message broker used by celery. (Default: `amqp://guest:guest@localhost`)
 - `POLARROUTE_LOG_LEVEL` - sets the logging level from standard log level options: INFO, DEBUG, ERROR, WARNING etc. (Default: `INFO`)
 - `POLARROUTE_LOG_DIR` - sets the output directory for logs. By default only used in production settings environment.
+- `POLARROUTE_STATIC_ROOT` - the path to directory used for static file serving in production, e.g. `"/var/www/example.com/static/"` (Default: `None`) Note this is only used for the admin panel in this application.
 
 
 ### Production Deployment
