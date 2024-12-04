@@ -10,6 +10,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 import logging
 import os
+import secrets
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +18,7 @@ BASE_DIR = os.getenv("POLARROUTE_BASE_DIR", os.getcwd())
 MESH_DIR = os.getenv("POLARROUTE_MESH_DIR", None)
 
 # NOTE: set this in production
-SECRET_KEY = os.getenv("POLARROUTE_SECRET_KEY", "")
+SECRET_KEY = os.getenv("POLARROUTE_SECRET_KEY", secrets.token_hex(100))
 DEBUG = os.getenv("POLARROUTE_DEBUG", "False").lower() == "True"
 
 ALLOWED_HOSTS = [
@@ -86,12 +87,10 @@ INSTALLED_APPS = [
     "corsheaders",
 ]
 
-CORS_ALLOWED_ORIGINS = os.getenv(
-    "POLARROUTE_CORS_ALLOWED_ORIGINS",
-    [
-        "http://localhost:9000",
-    ],
-)
+CORS_ALLOWED_ORIGINS = ["http://localhost:8000"]
+if os.getenv("POLARROUTE_CORS_ALLOWED_ORIGINS", None) is not None:
+    CORS_ALLOWED_ORIGINS.extend(os.getenv("POLARROUTE_CORS_ALLOWED_ORIGINS").split(","))
+
 CORS_ALLOW_METHODS = ("DELETE", "GET", "POST", "OPTIONS")
 
 MIDDLEWARE = [

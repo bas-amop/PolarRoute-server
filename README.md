@@ -68,7 +68,7 @@ Environment variables used directly by the Django site are prefixed wit `POLARRO
 
 The following are inherited from Django and more information can be found on their effects via the [Django docs](https://docs.djangoproject.com/en/5.1/ref/settings/).
 - `POLARROUTE_DEBUG` - enables Django debug options, must be `False` in production (default: `False`)
-- `POLARROUTE_SECRET_KEY` - secret hash used for cookie signing etc. Must be set in production
+- `POLARROUTE_SECRET_KEY` - secret hash used for cookie signing etc. Must be set in production. A random key is generated if one is not set.
 - `DJANGO_SETTINGS_MODULE` - sets the settings envrionment. Options: `polarrouteserver.settings.{production,development,test}` (Default: `polarrroutesserver.settings.production`)
 - `POLARROUTE_ALLOWED_HOSTS` - comma-separated (no spaces) list of IP addresses or hostnames allowed for the server.
 - `POLARROUTE_CORS_ALLOWED_ORIGINS` -  comma-separated (no spaces) list of IP addresses allowed for Cross Origin Site Requests. (See [django-cors-headers](https://pypi.org/project/django-cors-headers/) on PyPI for more.)
