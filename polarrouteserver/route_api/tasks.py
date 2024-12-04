@@ -25,7 +25,6 @@ from .utils import calculate_md5
 
 logger = get_task_logger(__name__)
 
-
 @app.task(bind=True)
 def optimise_route(
     self,

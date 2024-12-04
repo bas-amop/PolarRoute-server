@@ -13,8 +13,8 @@ if not MESH_DIR:
     )
 else:
     CELERY_BEAT_SCHEDULE = {
-        "sample_task": {
-            "task": "route_api.tasks.import_new_meshes",
+        "import_meshes": {
+            "task": "polarrouteserver.route_api.tasks.import_new_meshes",
             "schedule": crontab(minute="*/10"),
         },
     }
