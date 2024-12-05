@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import tempfile
 import os
+import re
 
 from celery import states
 from celery.exceptions import Ignore
@@ -22,8 +23,10 @@ from polarrouteserver.celery import app
 from .models import Mesh, Route
 from .utils import calculate_md5
 
+VESSEL_MESH_FILENAME_PATTERN = re.compile(r"vessel_?.*\.json$")
 
 logger = get_task_logger(__name__)
+
 
 @app.task(bind=True)
 def optimise_route(
@@ -145,7 +148,7 @@ def import_new_meshes(self):
     meshes_added = []
     for record in metadata["records"]:
         # we only want the vessel json files
-        if not record["filepath"].endswith(".vessel.json"):
+        if not bool(re.search(VESSEL_MESH_FILENAME_PATTERN, record["filepath"])):
             continue
 
         # extract the filename from the filepath

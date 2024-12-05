@@ -124,10 +124,10 @@ class TestImportNewMeshes(TestCase):
         self.metadata_filename = "upload_metadata_test.yaml"
         self.metadata_filepath = Path(settings.MESH_DIR, self.metadata_filename)
 
-        self.mesh_filenames = ["southern_test_mesh.vessel.json",
+        self.mesh_filenames = ["southern_test_mesh.vessel_20240807T091201.json",
                                "central_test_mesh.vessel.json"]
         
-        dummy_mesh_json = {
+        dummy_mesh_json = [{
                 "config": {
                     "mesh_info": {
                         "region": {
@@ -139,15 +139,28 @@ class TestImportNewMeshes(TestCase):
                             "end_time": "2024-08-06",
                             "cell_width": 5.0,
                             "cell_height": 2.5
-            }}}}
+            }}}},
+            {
+                "config": {
+                    "mesh_info": {
+                        "region": {
+                            "lat_min": -60,
+                            "lat_max": 65,
+                            "long_min": -85,
+                            "long_max": 10,
+                            "start_time": "2024-08-04",
+                            "end_time": "2024-08-06",
+                            "cell_width": 5.0,
+                            "cell_height": 2.5
+            }}}}]
 
-        for filename in self.mesh_filenames:
+        for i, filename in enumerate(self.mesh_filenames):
             # write out gzipped file
             with gzip.open(Path(settings.MESH_DIR, filename+".gz"), 'wb') as f:
-                f.write(json.dumps(dummy_mesh_json).encode('utf-8'))
+                f.write(json.dumps(dummy_mesh_json[i]).encode('utf-8'))
             # also write out non zipped file just for calclating md5
             with open(Path(settings.MESH_DIR, filename), 'w') as f:
-                json.dump(dummy_mesh_json, f)
+                json.dump(dummy_mesh_json[i], f)
 
         # create minimal test metadata file
         self.metadata = {
@@ -201,6 +214,8 @@ class TestImportNewMeshes(TestCase):
         with warnings.catch_warnings():
             warnings.simplefilter("error", UserWarning)
             meshes_added = import_new_meshes()
+
+        assert len(meshes_added) ==  len(self.mesh_filenames)
 
         for mesh in meshes_added:
             mesh_obj = Mesh.objects.get(id=mesh["id"])
