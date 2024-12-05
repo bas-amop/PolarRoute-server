@@ -1,5 +1,6 @@
 import hashlib
 import logging
+from typing import Union
 
 from django.conf import settings
 import haversine
@@ -14,7 +15,7 @@ def select_mesh(
     start_lon: float,
     end_lat: float,
     end_lon: float,
-) -> Mesh | None:
+) -> Union[Mesh, None]:
     """Find the most suitable mesh from the database for a given set of start and end coordinates.
     Returns either a Mesh object or None.
     """
@@ -52,7 +53,7 @@ def route_exists(
     start_lon: float,
     end_lat: float,
     end_lon: float,
-) -> Route | None:
+) -> Union[Route, None]:
     """Check if a route of given parameters has already been calculated.
     Return None if not and the route object if it has.
     """
@@ -89,7 +90,7 @@ def _closest_route_in_tolerance(
     end_lat: float,
     end_lon: float,
     tolerance_nm: float = settings.WAYPOINT_DISTANCE_TOLERANCE,
-) -> Route | None:
+) -> Union[Route, None]:
     """Takes a list of routes and returns the closest if any are within tolerance, or None."""
 
     def point_within_tolerance(point_1: tuple, point_2: tuple) -> bool:
