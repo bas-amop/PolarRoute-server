@@ -13,4 +13,10 @@ from django.core.wsgi import get_wsgi_application
 
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "polarrouteserver.settings.production")
 
-application = get_wsgi_application()
+def application(environ, start_response):
+    # pass the WSGI environment variables on through to os.environ
+    for key in environ:
+        if key.startswith(("POLARROUTE_", "DJANGO_", "CELERY_")):
+            os.environ[key] = environ[key]
+    return get_wsgi_application()(environ, start_response)
+
