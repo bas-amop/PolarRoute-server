@@ -142,7 +142,9 @@ def import_new_meshes(self):
     latest_metadata_file = max(file_list, key=os.path.getctime)
 
     # load in the metadata
-    logger.info(f"Loading metadata file from {os.path.join(settings.MESH_DIR,latest_metadata_file)}")
+    logger.info(
+        f"Loading metadata file from {os.path.join(settings.MESH_DIR,latest_metadata_file)}"
+    )
     with gzip.open(latest_metadata_file, "rb") as f:
         metadata = yaml.load(f.read(), Loader=yaml.Loader)
 
@@ -167,10 +169,10 @@ def import_new_meshes(self):
             continue
 
         # write out the unzipped mesh to temp file
-        with tempfile.NamedTemporaryFile(mode="w", delete=True) as f:
-            json.dump(mesh_json, f, indent=4)
-            tmp_unzipped_mesh_fp = f.name
-            md5 = calculate_md5(tmp_unzipped_mesh_fp)
+        tfile = tempfile.NamedTemporaryFile(mode="w+", delete=False)
+        json.dump(mesh_json, tfile, indent=4)
+        tfile.flush()
+        md5 = calculate_md5(tfile.name)
 
         # cross reference md5 hash from file record in metadata to actual file on disk
         if md5 != record["md5"]:

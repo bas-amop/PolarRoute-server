@@ -160,7 +160,7 @@ class TestImportNewMeshes(TestCase):
                 f.write(json.dumps(dummy_mesh_json[i]).encode('utf-8'))
             # also write out non zipped file just for calclating md5
             with open(Path(settings.MESH_DIR, filename), 'w') as f:
-                json.dump(dummy_mesh_json[i], f)
+                json.dump(dummy_mesh_json[i], f, indent=4)
 
         # create minimal test metadata file
         self.metadata = {
