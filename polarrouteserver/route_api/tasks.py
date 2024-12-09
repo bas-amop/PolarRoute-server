@@ -138,10 +138,11 @@ def import_new_meshes(self):
     if len(file_list) == 0:
         msg = "Upload metadata file not found."
         logger.error(msg)
-        raise FileNotFoundError(msg)
+        return
     latest_metadata_file = max(file_list, key=os.path.getctime)
 
     # load in the metadata
+    logger.info(f"Loading metadata file from {os.path.join(settings.MESH_DIR,latest_metadata_file)}")
     with gzip.open(latest_metadata_file, "rb") as f:
         metadata = yaml.load(f.read(), Loader=yaml.Loader)
 
@@ -166,14 +167,14 @@ def import_new_meshes(self):
             continue
 
         # write out the unzipped mesh to temp file
-        with tempfile.NamedTemporaryFile(mode="w", delete=False) as f:
-            json.dump(mesh_json, f)
+        with tempfile.NamedTemporaryFile(mode="w", delete=True) as f:
+            json.dump(mesh_json, f, indent=4)
             tmp_unzipped_mesh_fp = f.name
+            md5 = calculate_md5(tmp_unzipped_mesh_fp)
 
         # cross reference md5 hash from file record in metadata to actual file on disk
-        md5 = calculate_md5(tmp_unzipped_mesh_fp)
         if md5 != record["md5"]:
-            raise UserWarning(f"Mesh file md5: {md5}\n\
+            logger.warning(f"Mesh file md5: {md5}\n\
                            does not match\n\
                            Metadata md5: {record['md5']}\n\
                            Skipping.")
