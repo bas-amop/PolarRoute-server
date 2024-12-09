@@ -169,7 +169,7 @@ def import_new_meshes(self):
             continue
 
         # write out the unzipped mesh to temp file
-        tfile = tempfile.NamedTemporaryFile(mode="w+", delete=False)
+        tfile = tempfile.NamedTemporaryFile(mode="w+", delete=True)
         json.dump(mesh_json, tfile, indent=4)
         tfile.flush()
         md5 = calculate_md5(tfile.name)
