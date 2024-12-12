@@ -64,7 +64,8 @@ Configuration of PolarRouteServer works with environment variables. You can eith
 
 Environment variables used directly by the Django site are prefixed wit `POLARROUTE_` and those which configure Celery are prefixed with `CELERY_`.
 
-- `POLARROUTE_MESH_DIR` - absolute path to directory where mesh files and mesh metadata files will be made available (this location is periodically checked in production and new files ingested into the database based on the metadata file). A `UserWarning` is raised in production if this is not set.
+- `POLARROUTE_MESH_DIR` - absolute path to directory where mesh files will be made available (this location is periodically checked in production and new files ingested into the database based on the metadata file). A warning is logged in production if this is not set.
+- `POLARROUTE_MESH_METADATA_DIR` - as above, absolute path to directory where mesh metadata files will be made available. If this is not set, the value of `POLARROUTE_MESH_DIR` is used and a warning to this effect is logged.
 
 The following are inherited from Django and more information can be found on their effects via the [Django docs](https://docs.djangoproject.com/en/5.1/ref/settings/).
 - `POLARROUTE_DEBUG` - enables Django debug options, must be `False` in production (default: `False`)
