@@ -35,10 +35,10 @@ def select_mesh(
         )
 
         # get the date of the most recently created mesh
-        latest_date = containing_meshes.latest("created").created
+        latest_date = containing_meshes.latest("created").created.date()
 
         # get all valid meshes from that creation date
-        valid_meshes = containing_meshes.filter(created=latest_date)
+        valid_meshes = containing_meshes.filter(created__date=latest_date)
 
         # return the smallest
         return sorted(valid_meshes, key=lambda mesh: mesh.size)[0]

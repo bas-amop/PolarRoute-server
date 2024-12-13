@@ -164,8 +164,8 @@ class TestSelectMesh(TestCase):
         ) == None
 
     def test_smallest_mesh(self):
-        self.smaller_mesh = Mesh.objects.create(
-            name = "southern_test_mesh.vessel.json",
+        self.smallest_mesh = Mesh.objects.create(
+            name = "smallest_test_mesh.vessel.json",
             md5 = hashlib.md5("dummy_hashable_string".encode('utf-8')).hexdigest(),
             meshiphi_version = "2.1.13",
             valid_date_start = timezone.now().date() - datetime.timedelta(days=3),
@@ -177,12 +177,26 @@ class TestSelectMesh(TestCase):
             lon_max =    0.0,
         )
 
+        self.smaller_mesh = Mesh.objects.create(
+            name = "smaller_test_mesh.vessel.json",
+            md5 = hashlib.md5("dummy_hashable_string".encode('utf-8')).hexdigest(),
+            meshiphi_version = "2.1.13",
+            valid_date_start = timezone.now().date() - datetime.timedelta(days=3),
+            valid_date_end = timezone.now().date(),
+            created = datetime.datetime.now(datetime.timezone.utc),
+            lat_min =  -85.0,
+            lat_max =  -60.0,
+            lon_min = -117.0,
+            lon_max =    0.0,
+        )
+
         # check that we've actually made a smaller mesh
         assert self.smaller_mesh.size < self.southern_mesh.size
+        assert self.smallest_mesh.size < self.smaller_mesh.size
 
         assert select_mesh(
             start_lat = -60,
             start_lon = -55,
             end_lat   = -80,
             end_lon   = -110
-        ) == self.smaller_mesh
+        ) == self.smallest_mesh
