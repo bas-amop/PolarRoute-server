@@ -128,10 +128,13 @@ def optimise_route(
 def import_new_meshes(self):
     """Look for new meshes and insert them into the database."""
 
+    if settings.MESH_METADATA_DIR is None:
+        raise ValueError("MESH_METADATA_DIR has not been set.")
+
     # find the latest metadata file
-    files = os.listdir(settings.MESH_DIR)
+    files = os.listdir(settings.MESH_METADATA_DIR)
     file_list = [
-        os.path.join(settings.MESH_DIR, file)
+        os.path.join(settings.MESH_METADATA_DIR, file)
         for file in files
         if file.startswith("upload_metadata_") and file.endswith(".yaml.gz")
     ]
@@ -143,7 +146,7 @@ def import_new_meshes(self):
 
     # load in the metadata
     logger.info(
-        f"Loading metadata file from {os.path.join(settings.MESH_DIR,latest_metadata_file)}"
+        f"Loading metadata file from {os.path.join(settings.MESH_METADATA_DIR,latest_metadata_file)}"
     )
     with gzip.open(latest_metadata_file, "rb") as f:
         metadata = yaml.load(f.read(), Loader=yaml.Loader)

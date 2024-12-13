@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 BASE_DIR = os.getenv("POLARROUTE_BASE_DIR", os.getcwd())
 MESH_DIR = os.getenv("POLARROUTE_MESH_DIR", None)
+MESH_METADATA_DIR = os.getenv("POLARROUTE_MESH_METADATA_DIR", None)
 
 # NOTE: set this in production
 SECRET_KEY = os.getenv("POLARROUTE_SECRET_KEY", secrets.token_hex(100))
