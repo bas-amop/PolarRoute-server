@@ -5,8 +5,11 @@ import http.client
 import json
 import pprint
 import re
+import os
 import sys
 import time
+
+os.environ["DJANGO_SETTINGS_MODULE"] = "polarrouteserver.settings.development"
 
 
 class Location:
@@ -51,7 +54,7 @@ def make_request(
 
     print(sending_str)
 
-    conn = http.client.HTTPConnection(url)
+    conn = get_connection(url)
     conn.request(
         type,
         endpoint,
@@ -63,6 +66,17 @@ def make_request(
     print(f"Response: {response.status} {response.reason}")
 
     return json.loads(response.read()), response.status
+
+
+def get_connection(url: str) -> http.client:
+    """Take a user-provided URL string, returns an http.client connection object."""
+
+    if url.startswith("https://"):
+        return http.client.HTTPSConnection(url.replace("https://", ""))
+    elif url.startswith("http://"):
+        return http.client.HTTPConnection(url.replace("http://", ""))
+    else:
+        return http.client.HTTPConnection(url)
 
 
 def request_route(
@@ -193,7 +207,7 @@ def parse_args():
         "--start",
         type=str,
         nargs="?",
-        help="Start location either as the name of a standard location or latitude,longitude separated by a comma, e.g. -56.7,-65.01",
+        help="Start location either as the name of a standard location or latitude,longitude separated by a comma, e.g. -s-56.7,-65.01 Note that values starting with a minus (-) should use the single-letter form and omit the space.",
         required=True,
     )
     parser.add_argument(
@@ -201,7 +215,7 @@ def parse_args():
         "--end",
         type=str,
         nargs="?",
-        help="End location either as the name of a standard location or latitude,longitude separated by a comma, e.g. -56.7,-65.01",
+        help="End location either as the name of a standard location or latitude,longitude separated by a comma, e.g. -e-56.7,-65.01 Note that values starting with a minus (-) should use the single-letter form and omit the space.",
         required=True,
     )
     parser.add_argument(
