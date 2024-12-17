@@ -44,7 +44,7 @@ LOGGING = {
             "formatter": "simple",
         },
         "file": {
-            "level": "DEBUG",
+            "level": os.getenv("POLARROUTE_LOG_LEVEL", "INFO"),
             "class": "logging.handlers.RotatingFileHandler",
             "filename": os.path.join(
                 os.getenv("POLARROUTE_LOG_DIR", Path(BASE_DIR, "logs")),
