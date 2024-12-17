@@ -238,8 +238,14 @@ class RecentRoutesView(LoggingMixin, GenericAPIView):
         # only get today's routes
         routes_today = Route.objects.filter(requested__date=datetime.now().date())
         response_data = []
+        logger.debug(f"Found {len(routes_today)} routes today.")
         for route in routes_today:
-            job = route.job_set.latest("datetime")
+            logger.debug(f"{route.id}")
+            try:
+                job = route.job_set.latest("datetime")
+            except Job.DoesNotExist:
+                logger.debug(f"Job does not exist for route {route.id}")
+                continue
 
             result = AsyncResult(id=str(job.id), app=app)
             status = result.state
