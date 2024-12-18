@@ -2,6 +2,8 @@ from django.contrib import admin
 
 from .models import Route, Mesh, Job
 
+LIST_PER_PAGE = 20
+
 
 class RouteAdmin(admin.ModelAdmin):
     list_display = [
@@ -16,6 +18,25 @@ class RouteAdmin(admin.ModelAdmin):
         "polar_route_version",
     ]
     ordering = ("-requested",)
+
+    def get_queryset(self, request):
+        # Load only the fields necessary for the changelist view
+        queryset = super().get_queryset(request)
+        return queryset.only(
+            "id",
+            "start_lat",
+            "start_lon",
+            "end_lat",
+            "end_lat",
+            "requested",
+            "calculated",
+            "job",
+            "mesh_id",
+            "info",
+            "polar_route_version",
+        )
+
+    list_select_related = ("mesh",)
 
     def display_start(self, obj):
         if obj.start_name:
