@@ -58,6 +58,7 @@ class Command(BaseCommand):
             if created:
                 self.stdout.write(
                     self.style.SUCCESS(f"Mesh inserted: name: {mesh.name} \nmd5: {mesh.md5} \
+                            \nid: {mesh.id} \
                             \ncreated: {mesh.created} \
                             \nlat: {mesh.lat_min}:{mesh.lat_max}\
                             \nlon: {mesh.lon_min}:{mesh.lon_max}")
