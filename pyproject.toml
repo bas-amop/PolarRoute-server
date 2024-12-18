@@ -21,6 +21,7 @@ dependencies = [
     "django-rest-framework",
     "haversine",
     "polar-route==1.0.0",
+    "psycopg>=3",
     "pyyaml",
     "SQLAlchemy",
 ]
