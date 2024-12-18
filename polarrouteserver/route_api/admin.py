@@ -15,6 +15,7 @@ class RouteAdmin(admin.ModelAdmin):
         "info",
         "polar_route_version",
     ]
+    ordering = ("-requested",)
 
     def display_start(self, obj):
         if obj.start_name:
@@ -52,6 +53,7 @@ class JobAdmin(admin.ModelAdmin):
         "route",
         "status",
     ]
+    ordering = ("-datetime",)
 
 
 class MeshAdmin(admin.ModelAdmin):
@@ -67,6 +69,7 @@ class MeshAdmin(admin.ModelAdmin):
         "name",
         "size",
     ]
+    ordering = ("-created",)
 
 
 admin.site.register(Route, RouteAdmin)
