@@ -20,7 +20,7 @@ from polar_route.utils import extract_geojson_routes
 import yaml
 
 from polarrouteserver.celery import app
-from .models import Mesh, Route
+from .models import Job, Mesh, Route
 from .utils import calculate_md5
 
 VESSEL_MESH_FILENAME_PATTERN = re.compile(r"vessel_?.*\.json$")
@@ -32,6 +32,7 @@ logger = get_task_logger(__name__)
 def optimise_route(
     self,
     route_id: int,
+    backup_mesh_ids: list[int] = None,
 ) -> dict:
     """
     Use PolarRoute to calculate optimal route from Route database object and mesh.
@@ -39,12 +40,17 @@ def optimise_route(
 
     Params:
         route_id(int): id of record in Route database table
+        backup_mesh_ids list(int): list of database ids of backup meshes to try in order of priority
 
     Returns:
         dict: route geojson as dictionary
     """
     route = Route.objects.get(id=route_id)
     mesh = route.mesh
+    logger.info(f"Running optimisation for route {route.id}")
+    logger.info(f"Using mesh {mesh.id}")
+    if backup_mesh_ids:
+        logger.info(f"Also got backup mesh ids {backup_mesh_ids}")
 
     if mesh.created.date() < datetime.datetime.now().date():
         route.info = {
@@ -117,11 +123,25 @@ def optimise_route(
         return smoothed_routes
 
     except Exception as e:
-        logger.error(e)
-        self.update_state(state=states.FAILURE)
-        route.info = {"error": f"{e}"}
-        route.save()
-        raise Ignore()
+        # this is awful, polar route should raise a custom error class
+        if "Inaccessible. No routes found" in e.args[0] and len(backup_mesh_ids) > 0:
+            # if route is inaccesible in the mesh, try again if backup meshes are provided
+            logger.info(f"No routes found on mesh {mesh.id}, trying with next mesh(es) {backup_mesh_ids[]}")
+            route.info = {"info": "Route inaccessible on mesh, trying next mesh."}
+            route.mesh = Mesh.objects.get(id=backup_mesh_ids[0])
+            route.save()
+            task = optimise_route.delay(route.id, backup_mesh_ids[1:])
+            _ = Job.objects.create(
+                id=task.id,
+                route=route,
+            )
+            raise Ignore()
+        else:
+            logger.error(e)
+            self.update_state(state=states.FAILURE)
+            route.info = {"error": f"{e}"}
+            route.save()
+            raise Ignore()
 
 
 @app.task(bind=True)

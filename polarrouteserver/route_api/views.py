@@ -84,7 +84,7 @@ class RouteView(LoggingMixin, GenericAPIView):
         if custom_mesh_id:
             try:
                 logger.info(f"Got custom mesh id {custom_mesh_id} in request.")
-                mesh = Mesh.objects.get(id=custom_mesh_id)
+                meshes = [Mesh.objects.get(id=custom_mesh_id)]
             except Mesh.DoesNotExist:
                 msg = f"Mesh id {custom_mesh_id} requested. Does not exist."
                 logger.info(msg)
@@ -97,9 +97,11 @@ class RouteView(LoggingMixin, GenericAPIView):
                     status=rest_framework.status.HTTP_202_ACCEPTED,
                 )
         else:
-            mesh = select_mesh(start_lat, start_lon, end_lat, end_lon)
+            meshes = select_mesh(start_lat, start_lon, end_lat, end_lon)
 
-        if mesh is None:
+        logger.debug(f"Using meshes: {[mesh.id for mesh in meshes]}")
+
+        if meshes is None:
             return Response(
                 data={
                     "info": {"error": "No suitable mesh available."},
@@ -110,7 +112,7 @@ class RouteView(LoggingMixin, GenericAPIView):
             )
         # TODO Future: calculate an up to date mesh if none available
 
-        existing_route = route_exists(mesh, start_lat, start_lon, end_lat, end_lon)
+        existing_route = route_exists(meshes, start_lat, start_lon, end_lat, end_lon)
 
         if existing_route is not None:
             if not force_recalculate:
@@ -150,19 +152,23 @@ class RouteView(LoggingMixin, GenericAPIView):
                     f"Found existing route(s) but got force_recalculate={force_recalculate}, beginning recalculation."
                 )
 
+        logger.debug(f"Using mesh {meshes[0].id} as primary mesh with {[mesh.id for mesh in meshes[1:]]} as backup.")
+
         # Create route in database
         route = Route.objects.create(
             start_lat=start_lat,
             start_lon=start_lon,
             end_lat=end_lat,
             end_lon=end_lon,
-            mesh=mesh,
+            mesh=meshes[0],
             start_name=start_name,
             end_name=end_name,
         )
 
         # Start the task calculation
-        task = optimise_route.delay(route.id)
+        task = optimise_route.delay(
+            route.id, backup_mesh_ids=[mesh.id for mesh in meshes[1:]]
+        )
 
         # Create database record representing the calculation job
         job = Job.objects.create(

@@ -36,7 +36,7 @@ class TestRouteExists(TestCase):
         "Test case where exact requested route exists"
 
         route = route_exists(
-            self.mesh.id,
+            self.mesh,
             start_lat=self.start_lat,
             start_lon=self.start_lon,
             end_lat=self.end_lat,
@@ -48,7 +48,7 @@ class TestRouteExists(TestCase):
         "Test case where no similar route exists"
 
         route = route_exists(
-            self.mesh.id,
+            self.mesh,
             start_lat=0,
             start_lon=0,
             end_lat=0,
@@ -84,7 +84,7 @@ class TestRouteExists(TestCase):
         )
 
         route = route_exists(
-            self.mesh.id,
+            self.mesh,
             start_lat=self.start_lat,
             start_lon=self.start_lon,
             end_lat=self.end_lat,
@@ -121,7 +121,7 @@ class TestRouteExists(TestCase):
 
         # search for route with no exact match
         route = route_exists(
-            self.mesh.id,
+            self.mesh,
             start_lat=self.start_lat,
             start_lon=self.start_lon,
             end_lat=self.end_lat,
@@ -153,7 +153,7 @@ class TestSelectMesh(TestCase):
             start_lon = -55,
             end_lat   = -80,
             end_lon   = -110
-        ) == self.southern_mesh
+        ) == [self.southern_mesh]
 
         # test that when no containing mesh available, the result is None
         assert select_mesh(
@@ -199,4 +199,4 @@ class TestSelectMesh(TestCase):
             start_lon = -55,
             end_lat   = -80,
             end_lon   = -110
-        ) == self.smallest_mesh
+        ) == [self.smallest_mesh, self.smaller_mesh, self.southern_mesh]
