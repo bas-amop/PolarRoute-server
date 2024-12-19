@@ -21,7 +21,7 @@ class Mesh(models.Model):
     lon_min = models.FloatField()
     lon_max = models.FloatField()
     json = models.JSONField(null=True)
-    name = models.CharField(max_length=50, null=True)
+    name = models.CharField(max_length=150, null=True)
 
     @property
     def size(self) -> float:
