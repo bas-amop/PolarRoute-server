@@ -6,8 +6,10 @@ import json
 import pprint
 import re
 import os
+import ssl
 import sys
 import time
+from urllib import request, parse
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "polarrouteserver.settings.development"
 
@@ -54,29 +56,14 @@ def make_request(
 
     print(sending_str)
 
-    conn = get_connection(url)
-    conn.request(
-        type,
-        endpoint,
-        headers=headers,
-        body=body,
-    )
-    response = conn.getresponse()
+    # data = parse.urlencode(body).encode("utf-8") if body else None
+    req =  request.Request(url+endpoint, data=body, headers=headers)
+    unverified_context = ssl._create_unverified_context()
+    response = request.urlopen(req, context=unverified_context)
 
     print(f"Response: {response.status} {response.reason}")
 
     return json.loads(response.read()), response.status
-
-
-def get_connection(url: str) -> http.client:
-    """Take a user-provided URL string, returns an http.client connection object."""
-
-    if url.startswith("https://"):
-        return http.client.HTTPSConnection(url.replace("https://", ""))
-    elif url.startswith("http://"):
-        return http.client.HTTPConnection(url.replace("http://", ""))
-    else:
-        return http.client.HTTPConnection(url)
 
 
 def request_route(
@@ -110,7 +97,7 @@ def request_route(
         "POST",
         url,
         "/api/route",
-        {"Host": url, "Content-Type": "application/json"},
+        {"Content-Type": "application/json"},
         json.dumps(
             {
                 "start_lat": start.lat,
@@ -122,7 +109,7 @@ def request_route(
                 "force_recalculate": force_recalculation,
                 "mesh_id": mesh_id,
             },
-        ),
+        ).encode("utf-8"),
     )
 
     print(pprint.pprint(response_body))
@@ -154,7 +141,7 @@ def request_route(
             "GET",
             url,
             f"/api/route/{id}",
-            headers={"Host": url, "Content-Type": "application/json"},
+            headers={"Content-Type": "application/json"},
         )
 
         print(f"Route calculation {response_body.get('status')}.")
