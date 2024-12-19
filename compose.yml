@@ -7,26 +7,44 @@ services:
       DJANGO_SETTINGS_MODULE: polarrouteserver.settings.development
       CELERY_BROKER_URL: amqp://guest:guest@rabbitmq
       POLARROUTE_MESH_DIR: /usr/src/app/mesh
+      POLARROUTE_DB_HOST: db
+      POLARROUTE_DB_PORT: 5432
     entrypoint: /usr/src/app/entrypoint.sh
     command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
     volumes:
       - ./manage.py:/usr/src/app/manage.py
       - ./polarrouteserver:/usr/src/app/polarrouteserver
       - ./data/mesh:/usr/src/app/data/mesh
-      - ./db.sqlite3:/usr/src/app/db.sqlite3
-    depends_on: 
+    depends_on:
+      - db 
       - celery
+
+  db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: polarroute
+      POSTGRES_PASSWORD: polarroute
+      POSTGRES_DB: polarroute
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
 
   celery:
     build: .
     environment:
       DJANGO_SETTINGS_MODULE: polarrouteserver.settings.development
       CELERY_BROKER_URL: amqp://guest:guest@rabbitmq
+      POLARROUTE_MESH_DIR: /usr/src/app/mesh
+      POLARROUTE_DB_HOST: db
+      POLARROUTE_DB_PORT: 5432
     command: ["celery", "-A", "polarrouteserver", "worker", "--loglevel=info"]
     volumes:
       - ./polarrouteserver:/usr/src/app/polarrouteserver
-      - ./db.sqlite3:/usr/src/app/db.sqlite3
     depends_on:
+      - db
       - rabbitmq
 
   rabbitmq:

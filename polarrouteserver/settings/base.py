@@ -125,11 +125,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "polarrouteserver.wsgi.application"
 
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv("POLARROUTE_DB_NAME", "polarroute"),
+        "USER": os.getenv("POLARROUTE_DB_USER", "polarroute"),
+        "PASSWORD": os.getenv("POLARROUTE_DB_PASSWORD", "polarroute"),
+        "HOST": os.getenv("POLARROUTE_DB_HOST", "127.0.0.1"),
+        "PORT": os.getenv("POLARROUTE_DB_PORT", 5432),
     }
 }
 

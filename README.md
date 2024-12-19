@@ -35,9 +35,9 @@ For development, also install and use the development tools:
 
 A number of helpful development tools are made available through the `Makefile`, to see a description of each of these commands, run `make` (with no arguments) from the top-level of this directory.
 
-#### Using docker compose
+#### Using docker compose (recommended)
 
-Optionally, use [docker compose](https://docs.docker.com/compose/install/) for development deployment to orchestrate celery and rabbitmq alongside the django development server.
+Use [docker compose](https://docs.docker.com/compose/install/) for development deployment to orchestrate celery and rabbitmq alongside the django development server.
 
 Clone this repository and run `docker compose up` to build and start the services.
 
@@ -78,6 +78,12 @@ The following are inherited from Django and more information can be found on the
 - `POLARROUTE_LOG_DIR` - sets the output directory for logs. By default only used in production settings environment.
 - `POLARROUTE_STATIC_ROOT` - the path to directory used for static file serving in production, e.g. `"/var/www/example.com/static/"` (Default: `None`) Note this is only used for the admin panel in this application.
 
+Database settings:
+- `POLARROUTE_DB_NAME` - postgres database name (default: polarroute)
+- `POLARROUTE_DB_USER` - postgres database user (default: polarroute)
+- `POLARROUTE_DB_PASSWORD` - postgres database password (default: polarroute)
+- `POLARROUTE_DB_HOST` - postgres database host (default: 127.0.0.1)
+- `POLARROUTE_DB_PORT` - postgres database port (default: 5432)
 
 ### Production Deployment
 For production, the following are required:
