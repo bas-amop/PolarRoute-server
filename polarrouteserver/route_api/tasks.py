@@ -32,6 +32,7 @@ logger = get_task_logger(__name__)
 def optimise_route(
     self,
     route_id: int,
+    backup_mesh_ids: list[int] = None,
 ) -> dict:
     """
     Use PolarRoute to calculate optimal route from Route database object and mesh.
@@ -39,6 +40,7 @@ def optimise_route(
 
     Params:
         route_id(int): id of record in Route database table
+        backup_mesh_ids list(int): list of database ids of backup meshes to try in order of priority
 
     Returns:
         dict: route geojson as dictionary

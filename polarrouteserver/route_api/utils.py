@@ -15,9 +15,9 @@ def select_mesh(
     start_lon: float,
     end_lat: float,
     end_lon: float,
-) -> Union[Mesh, None]:
+) -> Union[list[Mesh], None]:
     """Find the most suitable mesh from the database for a given set of start and end coordinates.
-    Returns either a Mesh object or None.
+    Returns either a list of Mesh objects or None.
     """
 
     try:
@@ -41,46 +41,52 @@ def select_mesh(
         valid_meshes = containing_meshes.filter(created__date=latest_date)
 
         # return the smallest
-        return sorted(valid_meshes, key=lambda mesh: mesh.size)[0]
+        return sorted(valid_meshes, key=lambda mesh: mesh.size)
 
     except Mesh.DoesNotExist:
         return None
 
 
 def route_exists(
-    mesh: Mesh,
+    meshes: Union[Mesh, list[Mesh]],
     start_lat: float,
     start_lon: float,
     end_lat: float,
     end_lon: float,
 ) -> Union[Route, None]:
     """Check if a route of given parameters has already been calculated.
+    Works through list of meshes in order, returns first matching route
     Return None if not and the route object if it has.
     """
 
-    same_mesh_routes = Route.objects.filter(mesh=mesh)
+    if isinstance(meshes, Mesh):
+        meshes = [meshes]
 
-    # if there are none return None
-    if len(same_mesh_routes) == 0:
-        return None
-    else:
-        exact_routes = same_mesh_routes.filter(
-            start_lat=start_lat,
-            start_lon=start_lon,
-            end_lat=end_lat,
-            end_lon=end_lon,
-        )
+    for mesh in meshes:
+        same_mesh_routes = Route.objects.filter(mesh=mesh)
 
-        if len(exact_routes) == 1:
-            return exact_routes[0]
-        elif len(exact_routes) > 1:
-            # TODO if multiple matching routes exist, which to return?
-            return exact_routes[0]
+        # if there are none return None
+        if len(same_mesh_routes) == 0:
+            continue
         else:
-            # if no exact routes, look for any that are close enough
-            return _closest_route_in_tolerance(
-                same_mesh_routes, start_lat, start_lon, end_lat, end_lon
+            exact_routes = same_mesh_routes.filter(
+                start_lat=start_lat,
+                start_lon=start_lon,
+                end_lat=end_lat,
+                end_lon=end_lon,
             )
+
+            if len(exact_routes) == 1:
+                return exact_routes[0]
+            elif len(exact_routes) > 1:
+                # TODO if multiple matching routes exist, which to return?
+                return exact_routes[0]
+            else:
+                # if no exact routes, look for any that are close enough
+                return _closest_route_in_tolerance(
+                    same_mesh_routes, start_lat, start_lon, end_lat, end_lon
+                )
+    return None
 
 
 def _closest_route_in_tolerance(

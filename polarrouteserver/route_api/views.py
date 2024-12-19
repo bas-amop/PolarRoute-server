@@ -84,7 +84,7 @@ class RouteView(LoggingMixin, GenericAPIView):
         if custom_mesh_id:
             try:
                 logger.info(f"Got custom mesh id {custom_mesh_id} in request.")
-                mesh = Mesh.objects.get(id=custom_mesh_id)
+                meshes = [Mesh.objects.get(id=custom_mesh_id)]
             except Mesh.DoesNotExist:
                 msg = f"Mesh id {custom_mesh_id} requested. Does not exist."
                 logger.info(msg)
@@ -97,9 +97,9 @@ class RouteView(LoggingMixin, GenericAPIView):
                     status=rest_framework.status.HTTP_202_ACCEPTED,
                 )
         else:
-            mesh = select_mesh(start_lat, start_lon, end_lat, end_lon)
+            meshes = select_mesh(start_lat, start_lon, end_lat, end_lon)
 
-        if mesh is None:
+        if meshes is None:
             return Response(
                 data={
                     "info": {"error": "No suitable mesh available."},
@@ -110,7 +110,7 @@ class RouteView(LoggingMixin, GenericAPIView):
             )
         # TODO Future: calculate an up to date mesh if none available
 
-        existing_route = route_exists(mesh, start_lat, start_lon, end_lat, end_lon)
+        existing_route = route_exists(meshes, start_lat, start_lon, end_lat, end_lon)
 
         if existing_route is not None:
             if not force_recalculate:
@@ -156,7 +156,7 @@ class RouteView(LoggingMixin, GenericAPIView):
             start_lon=start_lon,
             end_lat=end_lat,
             end_lon=end_lon,
-            mesh=mesh,
+            mesh=meshes[0],
             start_name=start_name,
             end_name=end_name,
         )
