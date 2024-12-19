@@ -11,3 +11,10 @@ CELERY_RESULT_BACKEND = "db+sqlite:///results.sqlite"
 CELERY_TASK_ALWAYS_EAGER = True
 CELERY_TASK_STORE_EAGER_RESULT = True
 CELERY_TASK_EAGER_PROPAGATES = True
+
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
+    }
+}
