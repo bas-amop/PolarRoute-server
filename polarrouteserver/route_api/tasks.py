@@ -20,7 +20,7 @@ from polar_route.utils import extract_geojson_routes
 import yaml
 
 from polarrouteserver.celery import app
-from .models import Mesh, Route
+from .models import Job, Mesh, Route
 from .utils import calculate_md5
 
 VESSEL_MESH_FILENAME_PATTERN = re.compile(r"vessel_?.*\.json$")
@@ -119,11 +119,24 @@ def optimise_route(
         return smoothed_routes
 
     except Exception as e:
-        logger.error(e)
-        self.update_state(state=states.FAILURE)
-        route.info = {"error": f"{e}"}
-        route.save()
-        raise Ignore()
+        # this is awful, polar route should raise a custom error class
+        if "no Dijkstra routes created" in e.args[0] and len(backup_mesh_ids) > 0:
+            # if route is inaccesible in the mesh, try again if backup meshes are provided
+            route.info.update({"info": "Route inaccessible on mesh, trying next mesh."})
+            route.mesh = Mesh.objects.get(id=backup_mesh_ids[0])
+            route.save()
+            task = optimise_route.delay(route.id, backup_mesh_ids[1:])
+            _ = Job.objects.create(
+                id=task.id,
+                route=route,
+            )
+            raise Ignore()
+        else:
+            logger.error(e)
+            self.update_state(state=states.FAILURE)
+            route.info = {"error": f"{e}"}
+            route.save()
+            raise Ignore()
 
 
 @app.task(bind=True)
