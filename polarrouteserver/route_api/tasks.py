@@ -47,6 +47,10 @@ def optimise_route(
     """
     route = Route.objects.get(id=route_id)
     mesh = route.mesh
+    logger.info(f"Running optimisation for route {route.id}")
+    logger.info(f"Using mesh {mesh.id}")
+    if backup_mesh_ids:
+        logger.info(f"Also got backup mesh ids {backup_mesh_ids}")
 
     if mesh.created.date() < datetime.datetime.now().date():
         route.info = {
@@ -120,9 +124,10 @@ def optimise_route(
 
     except Exception as e:
         # this is awful, polar route should raise a custom error class
-        if "no Dijkstra routes created" in e.args[0] and len(backup_mesh_ids) > 0:
+        if "Inaccessible. No routes found" in e.args[0] and len(backup_mesh_ids) > 0:
             # if route is inaccesible in the mesh, try again if backup meshes are provided
-            route.info.update({"info": "Route inaccessible on mesh, trying next mesh."})
+            logger.info(f"No routes found on mesh {mesh.id}, trying with next mesh(es) {backup_mesh_ids[]}")
+            route.info = {"info": "Route inaccessible on mesh, trying next mesh."}
             route.mesh = Mesh.objects.get(id=backup_mesh_ids[0])
             route.save()
             task = optimise_route.delay(route.id, backup_mesh_ids[1:])

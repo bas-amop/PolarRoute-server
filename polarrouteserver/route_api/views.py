@@ -99,6 +99,8 @@ class RouteView(LoggingMixin, GenericAPIView):
         else:
             meshes = select_mesh(start_lat, start_lon, end_lat, end_lon)
 
+        logger.debug(f"Using meshes: {[mesh.id for mesh in meshes]}")
+
         if meshes is None:
             return Response(
                 data={
@@ -149,6 +151,8 @@ class RouteView(LoggingMixin, GenericAPIView):
                 logger.info(
                     f"Found existing route(s) but got force_recalculate={force_recalculate}, beginning recalculation."
                 )
+
+        logger.debug(f"Using mesh {meshes[0].id} as primary mesh with {[mesh.id for mesh in meshes[1:]]} as backup.")
 
         # Create route in database
         route = Route.objects.create(
