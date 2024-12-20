@@ -9,7 +9,7 @@ import os
 import ssl
 import sys
 import time
-from urllib import request, parse
+from urllib import request
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "polarrouteserver.settings.development"
 
@@ -57,7 +57,7 @@ def make_request(
     print(sending_str)
 
     # data = parse.urlencode(body).encode("utf-8") if body else None
-    req =  request.Request(url+endpoint, data=body, headers=headers)
+    req = request.Request(url + endpoint, data=body, headers=headers)
     unverified_context = ssl._create_unverified_context()
     response = request.urlopen(req, context=unverified_context)
 
@@ -254,6 +254,7 @@ def main():
         parse_location(args.end),
         status_update_delay=args.delay,
         force_recalculation=args.force,
+        mesh_id=args.meshid,
     )
 
     if route is None:
