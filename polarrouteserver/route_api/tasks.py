@@ -126,7 +126,9 @@ def optimise_route(
         # this is awful, polar route should raise a custom error class
         if "Inaccessible. No routes found" in e.args[0] and len(backup_mesh_ids) > 0:
             # if route is inaccesible in the mesh, try again if backup meshes are provided
-            logger.info(f"No routes found on mesh {mesh.id}, trying with next mesh(es) {backup_mesh_ids}")
+            logger.info(
+                f"No routes found on mesh {mesh.id}, trying with next mesh(es) {backup_mesh_ids}"
+            )
             route.info = {"info": "Route inaccessible on mesh, trying next mesh."}
             route.mesh = Mesh.objects.get(id=backup_mesh_ids[0])
             route.save()
@@ -189,6 +191,11 @@ def import_new_meshes(self):
                 mesh_json = json.load(gzipped_mesh)
         except FileNotFoundError:
             logger.warning(f"{zipped_filename} not found. Skipping.")
+            continue
+        except PermissionError:
+            logger.warning(
+                f"Can't read {zipped_filename} due to permission error. File may still be transferring. Skipping."
+            )
             continue
 
         # write out the unzipped mesh to temp file
