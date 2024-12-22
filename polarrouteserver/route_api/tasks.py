@@ -123,6 +123,8 @@ def optimise_route(
         return smoothed_routes
 
     except Exception as e:
+        logger.error(e)
+        self.update_state(state=states.FAILURE)
         # this is awful, polar route should raise a custom error class
         if "Inaccessible. No routes found" in e.args[0] and len(backup_mesh_ids) > 0:
             # if route is inaccesible in the mesh, try again if backup meshes are provided
@@ -139,8 +141,6 @@ def optimise_route(
             )
             raise Ignore()
         else:
-            logger.error(e)
-            self.update_state(state=states.FAILURE)
             route.info = {"error": f"{e}"}
             route.save()
             raise Ignore()
