@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Route
+from .models import Mesh, Route
 
 
 class RouteSerializer(serializers.ModelSerializer):
@@ -17,6 +17,7 @@ class RouteSerializer(serializers.ModelSerializer):
             "json_unsmoothed",
             "polar_route_version",
             "info",
+            "mesh",
         ]
 
     def to_representation(self, instance):
@@ -58,3 +59,14 @@ class RouteSerializer(serializers.ModelSerializer):
                 data["json"].extend(unsmoothed[key])
 
         return data
+
+
+class ModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Mesh
+        fields = [
+            "id",
+        ]
+
+    def to_representation(self, instance):
+        return super().to_representation(instance)

@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: polarRouteServer
-  version: 0.0.1
+  version: 0.2.0
   description: Backend server for serving PolarRoute and MeshiPhi assets
 paths:
   /api/route:
@@ -58,6 +58,25 @@ paths:
       responses:
         '204':
           description: No response body
+  /api/mesh/{id}:
+     get:
+      operationId: api_mesh_get
+      description: Get mesh.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mesh-response'
+          description: ''
 components:
   schemas:
     route-request:
@@ -113,4 +132,14 @@ components:
           type: string
           nullable: true
           maxLength: 60
+
+    mesh-response:
+      type: object
+      properties:
+        id: 
+          type: integer
+        json: 
+          type: object
+        geojson: 
+          type: object
 
