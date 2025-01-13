@@ -7,7 +7,7 @@ from django.test import TestCase
 from rest_framework.test import APIRequestFactory
 import pytest
 
-from polarrouteserver.route_api.views import RouteView, RecentRoutesView
+from polarrouteserver.route_api.views import MeshView, RouteView, RecentRoutesView
 from polarrouteserver.route_api.models import Job, Route
 from .utils import add_test_mesh_to_db
 
@@ -167,11 +167,8 @@ class TestRouteStatus:
 
         assert response.status_code == 202
 
-@pytest.mark.usefixtures("celery_app","celery_worker", "celery_enable_logging")
-@pytest.mark.django_db
-class TestRecentRoutes:
+class TestGetRecentRoutesAndMesh(TestCase):
 
-    pytestmark = pytest.mark.django_db
 
     def setUp(self):
         self.factory = APIRequestFactory()
@@ -187,11 +184,19 @@ class TestRecentRoutes:
     
     def test_recent_routes_request(self):
 
-        self.setUp()
-
         request = self.factory.get(f"/api/recent_routes/")
 
         response = RecentRoutesView.as_view()(request)
 
         assert response.status_code == 200
         assert len(response.data) == 2
+
+    def test_mesh_get(self):
+
+        request = self.factory.get(f"/api/mesh/{self.mesh.id}")
+
+        response = MeshView.as_view()(request, self.mesh.id)
+
+        assert response.status_code == 200
+        assert response.data.get("json") is not None
+        assert response.data.get("geojson") is not None

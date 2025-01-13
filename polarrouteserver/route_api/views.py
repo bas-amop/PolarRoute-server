@@ -2,6 +2,7 @@ from datetime import datetime
 import logging
 
 from celery.result import AsyncResult
+from meshiphi.mesh_generation.environment_mesh import EnvironmentMesh
 import rest_framework.status
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
@@ -271,4 +272,34 @@ class RecentRoutesView(LoggingMixin, GenericAPIView):
             response_data,
             headers={"Content-Type": "application/json"},
             status=rest_framework.status.HTTP_200_OK,
+        )
+
+
+class MeshView(LoggingMixin, GenericAPIView):
+    def get(self, request, id):
+        logger.info(
+            f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
+        )
+
+        data = {}
+
+        try:
+            mesh = Mesh.objects.get(id=id)
+            data.update(
+                dict(
+                    id=mesh.id,
+                    json=mesh.json,
+                    geojson=EnvironmentMesh.load_from_json(mesh.json).to_geojson(),
+                )
+            )
+
+            status = rest_framework.status.HTTP_200_OK
+
+        except Mesh.DoesNotExist:
+            status = rest_framework.status.HTTP_204_NO_CONTENT
+
+        return Response(
+            data,
+            headers={"Content-Type": "application/json"},
+            status=status,
         )
