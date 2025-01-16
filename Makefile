@@ -46,6 +46,11 @@ test: ## Run tests quickly with the default Python
 	@echo "+ $@"
 	@pytest
 
+.PHONY: cov-badge
+test: ## Generate the coverage badge from .coverage file
+	@echo "+ $@"
+	@coverage-badge -o coverage.svg
+
 # .PHONY: docs
 # docs: ## Generate Sphinx HTML documentation, including API docs
 # 	@echo "+ $@"
