@@ -51,7 +51,7 @@ dev = [
     "pre-commit",
     "pytest",
     "pytest-celery",
-    "pytest-cov",
+    # "pytest-cov",
     "pytest-django",
     "ruff",
 ]
@@ -79,7 +79,7 @@ exclude = ["tests/*"]
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "polarrouteserver.settings.test"
-addopts = "--create-db --cov=polarrouteserver"
+addopts = "--create-db"
 filterwarnings =  "error::RuntimeWarning" # turn RuntimeWarnings into errors/test failures
 testpaths = [
     "tests"

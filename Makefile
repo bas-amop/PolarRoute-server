@@ -46,8 +46,14 @@ test: ## Run tests quickly with the default Python
 	@echo "+ $@"
 	@pytest
 
+.PHONY: test-cov
+test-cov: export DJANGO_SETTINGS_MODULE = polarrouteserver.settings.test
+test-cov: ## Run tests quickly with the default Python
+	@echo "+ $@"
+	@pytest --cov=polarrouteserver
+
 .PHONY: cov-badge
-test: ## Generate the coverage badge from .coverage file
+cov-badge: ## Generate the coverage badge from .coverage file
 	@echo "+ $@"
 	@coverage-badge -o coverage.svg
 
