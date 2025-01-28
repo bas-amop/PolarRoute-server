@@ -79,6 +79,7 @@ INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
+    "django.contrib.gis",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
@@ -127,7 +128,7 @@ WSGI_APPLICATION = "polarrouteserver.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
+        "ENGINE": "django.contrib.gis.db.backends.postgis",
         "NAME": os.getenv("POLARROUTE_DB_NAME", "polarroute"),
         "USER": os.getenv("POLARROUTE_DB_USER", "polarroute"),
         "PASSWORD": os.getenv("POLARROUTE_DB_PASSWORD", "polarroute"),

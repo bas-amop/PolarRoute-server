@@ -6,10 +6,14 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV DJANGO_SETTINGS_MODULE=polarrouteserver.settings.development
 
-# Install GDAL - used by Fiona
+# Install GDAL, GEOS, PROJ - used by Fiona and GeoDjango
 RUN apt-get update && apt-get install -y \
     gdal-bin \
     libgdal-dev \
+    geos-bin \
+    libgeos++-dev \
+    proj-bin \
+    postgresql postgis python3-psycopg \
     && rm -rf /var/lib/apt/lists/*
 
 ENV GDAL_CONFIG=/usr/bin/gdal-config

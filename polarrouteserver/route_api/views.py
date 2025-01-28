@@ -2,17 +2,18 @@ from datetime import datetime
 import logging
 
 from celery.result import AsyncResult
-from meshiphi.mesh_generation.environment_mesh import EnvironmentMesh
 import rest_framework.status
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
+from vectortiles.views import MVTView
 
 from polarrouteserver.celery import app
 from .models import Job, Route, Mesh
 from .tasks import optimise_route
 from .serializers import RouteSerializer
 from .utils import route_exists, select_mesh
+from .vector_layers import MeshVectorLayer
 
 logger = logging.getLogger(__name__)
 
@@ -289,7 +290,7 @@ class MeshView(LoggingMixin, GenericAPIView):
                 dict(
                     id=mesh.id,
                     json=mesh.json,
-                    geojson=EnvironmentMesh.load_from_json(mesh.json).to_geojson(),
+                    geojson=mesh.geojson,
                 )
             )
 
@@ -303,3 +304,7 @@ class MeshView(LoggingMixin, GenericAPIView):
             headers={"Content-Type": "application/json"},
             status=status,
         )
+
+
+class MeshTileView(MVTView):
+    layer_classes = [MeshVectorLayer]

@@ -1,10 +1,13 @@
 import logging
 
 from celery.result import AsyncResult
-from django.db import models
+from django.contrib.gis.db import models
+from django.contrib.gis.geos import MultiPolygon, GEOSGeometry
 from django.utils import timezone
 
+from meshiphi.mesh_generation.environment_mesh import EnvironmentMesh
 from polarrouteserver.celery import app
+
 
 logger = logging.getLogger(__name__)
 
@@ -22,12 +25,39 @@ class Mesh(models.Model):
     lon_max = models.FloatField()
     json = models.JSONField(null=True)
     name = models.CharField(max_length=150, null=True)
+    _geom = models.MultiPolygonField(srid=4326, null=True)
 
     @property
     def size(self) -> float:
         """Computes a metric for the size of a mesh."""
 
         return abs(self.lat_max - self.lat_min) * abs(self.lon_max - self.lon_min)
+
+    @property
+    def geojson(self) -> dict:
+        """Returns Mesh as GeoJSON"""
+
+        return EnvironmentMesh.load_from_json(self.json).to_geojson()
+    
+    @property
+    def geom(self):
+        """Getter for geom property."""
+        if not self._geom:
+            self.set_geom_from_geojson()
+        return self._geom
+            
+
+    def set_geom_from_geojson(self) -> None:
+        data = self.geojson
+        polygons = []
+        for feature in data['features']:
+
+            polygon = GEOSGeometry(str(feature['geometry']))
+            polygons.append(polygon)
+
+        self._geom = MultiPolygon(polygons, srid=4326)
+        self.save()
+
 
     class Meta:
         verbose_name_plural = "Meshes"

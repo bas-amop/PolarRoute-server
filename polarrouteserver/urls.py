@@ -30,4 +30,9 @@ urlpatterns = [
     ),  # url for retrieving routes (get)
     path("api/recent_routes", views.RecentRoutesView.as_view(), name="recent_routes"),
     path("api/mesh/<int:id>", views.MeshView.as_view(), name="mesh"),
+    path(
+        "api/mesh/<int:pk>/tile/<int:z>/<int:x>/<int:y>",
+        views.MeshTileView.as_view(),
+        name="mesh-tile",
+    ),
 ]
