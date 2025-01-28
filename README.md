@@ -3,6 +3,7 @@
 ![Dev Status](https://img.shields.io/badge/Status-Active-green)
 [![GitHub Tag](https://img.shields.io/github/v/tag/antarctica/PolarRoute-server?filter=v*.*.*&label=latest%20release)](https://github.com/antarctica/PolarRoute-server/tags)
 [![GitHub License](https://img.shields.io/github/license/antarctica/PolarRoute-server)](https://github.com/antarctica/PolarRoute-server/blob/main/LICENSE)
+![](coverage.svg)
 
 A web server to manage requests for meshes and routes generated using the [PolarRoute](https://github.com/antarctica/PolarRoute) and [MeshiPhi](https://github.com/antarctica/MeshiPhi/) libraries,
 implemented using Django, Celery and Django REST framework.

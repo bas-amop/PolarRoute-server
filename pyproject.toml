@@ -51,6 +51,7 @@ dev = [
     "pre-commit",
     "pytest",
     "pytest-celery",
+    # "pytest-cov",
     "pytest-django",
     "ruff",
 ]
@@ -59,6 +60,9 @@ prod = [
 ]
 build = [
     "build"
+]
+cov-badge = [
+    "coverage-badge"
 ]
 
 [project.scripts]
@@ -80,3 +84,14 @@ filterwarnings =  "error::RuntimeWarning" # turn RuntimeWarnings into errors/tes
 testpaths = [
     "tests"
 ]
+
+[tool.coverage.run]
+branch = true
+omit = [
+    "polarrouteserver/settings/*",
+    "polarrouteserver/route_api/migrations/*",
+    "polarrouteserver/asgi.py",
+    "polarrouteserver/demo.py",
+    "polarrouteserver/urls.py",
+    "polarrouteserver/wsgi.py",
+    ]
