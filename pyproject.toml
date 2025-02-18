@@ -63,6 +63,7 @@ docs = [
     "mkdocs-autoapi",
     "mkdocs-include-markdown-plugin",
     "mkdocstrings[python]",
+    "mkdocs-render-swagger-plugin",
 ]
 build = [
     "build"

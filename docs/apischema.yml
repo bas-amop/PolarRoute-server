@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: polarRouteServer
+  title: PolarRoute-Server
   version: 0.2.0
   description: Backend server for serving PolarRoute and MeshiPhi assets
 paths:

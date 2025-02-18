@@ -20,13 +20,15 @@ plugins:
         - "tests/*"
       autoapi_file_patterns:
         - "*.py"
-      autoapi_add_nav_entry: API Reference
+      autoapi_add_nav_entry: Python Package API Reference
   - include-markdown:
       rewrite_relative_urls: true
+  - render_swagger
 nav:
   - Home: index.md
   - getting-started.md
-  - development.md
   - requesting-routes.md
-  - configuration.md
   - deployment.md
+  - configuration.md
+  - development.md
+  - API Reference: api.md

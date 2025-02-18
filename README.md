@@ -6,7 +6,7 @@
 ![](coverage.svg)
 
 A web server to manage requests for meshes and routes generated using the [PolarRoute](https://github.com/bas-amop/PolarRoute) and [MeshiPhi](https://github.com/bas-amop/MeshiPhi/) libraries,
-implemented using Django, Celery and Django REST framework.
+implemented using [Django](https://www.djangoproject.com/), [Celery](https://docs.celeryq.dev/) and [Django REST framework](https://www.django-rest-framework.org/).
 
 It currently takes *vessel* meshes created using MeshiPhi and serves requests for routes, which are calculated using PolarRoute.
 
@@ -15,28 +15,10 @@ It currently takes *vessel* meshes created using MeshiPhi and serves requests fo
 PolarRouteServer can be installed from GitHub using `pip`.
 
 + Inside a virtual environment (e.g. venv, conda, etc.) run `pip install git+https://github.com/bas-amop/PolarRoute-server`
-  + To install a specific version append the tag, e.g. `pip intall git+https://github.com/bas-amop/PolarRoute-server@v0.1.2`
+  + To install a specific version append the tag, e.g. `pip intall git+https://github.com/bas-amop/PolarRoute-server@v0.1.6`
+  + Alternatively, clone this repository with git and install from source with `pip install -e .`
 
-Alternatively, clone this repository and install from source with `pip install -e .`
-
-### For development
-
-Depends on:
-+ python >=3.11
-+ [docker](https://docs.docker.com/get-docker/) for running rabbitmq (in development)
-+ [Make](https://www.gnu.org/software/make/)
-
-1. Clone this repository and create and activate a python virtual environment of your choice.
-1. Inside a virtual environment or machine: `pip install -e .[dev]`
-1. Before first use, create the database by running `make migrate`
-1. To start all of the services needed for the dev deployment run: `make serve-dev` (which sets the `DJANGO_SETTINGS_MODULE` environment variable and spins up celery, rabbitmq in a docker container, and the Django development server)
-
-For development, also install and use the development tools:
-1. `pre-commit install`
-
-A number of helpful development tools are made available through the `Makefile`, to see a description of each of these commands, run `make` (with no arguments) from the top-level of this directory.
-
-#### Using docker compose (recommended)
+## Quickstart using docker compose (recommended)
 
 Use [docker compose](https://docs.docker.com/compose/install/) for development deployment to orchestrate celery and rabbitmq alongside the django development server.
 
