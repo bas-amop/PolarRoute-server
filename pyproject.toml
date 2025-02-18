@@ -27,9 +27,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/antarctica/PolarRoute-server"
-Repository = "https://github.com/antarctica/PolarRoute-server.git"
-Issues = "https://github.com/antarctica/PolarRoute-server/issues"
+Homepage = "https://github.com/bas-amop/PolarRoute-server"
+Repository = "https://github.com/bas-amop/PolarRoute-server.git"
+Issues = "https://github.com/bas-amop/PolarRoute-server/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]
@@ -57,6 +57,10 @@ dev = [
 ]
 prod = [
     "gunicorn"
+]
+docs = [
+    "mkdocs",
+    "mkdocs-include-markdown-plugin",
 ]
 build = [
     "build"

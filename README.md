@@ -1,11 +1,11 @@
-# PolarRoute Server
+# PolarRoute-Server
 
 ![Dev Status](https://img.shields.io/badge/Status-Active-green)
-[![GitHub Tag](https://img.shields.io/github/v/tag/antarctica/PolarRoute-server?filter=v*.*.*&label=latest%20release)](https://github.com/antarctica/PolarRoute-server/tags)
-[![GitHub License](https://img.shields.io/github/license/antarctica/PolarRoute-server)](https://github.com/antarctica/PolarRoute-server/blob/main/LICENSE)
+[![GitHub Tag](https://img.shields.io/github/v/tag/bas-amop/PolarRoute-server?filter=v*.*.*&label=latest%20release)](https://github.com/bas-amop/PolarRoute-server/tags)
+[![GitHub License](https://img.shields.io/github/license/bas-amop/PolarRoute-server)](https://github.com/bas-amop/PolarRoute-server/blob/main/LICENSE)
 ![](coverage.svg)
 
-A web server to manage requests for meshes and routes generated using the [PolarRoute](https://github.com/antarctica/PolarRoute) and [MeshiPhi](https://github.com/antarctica/MeshiPhi/) libraries,
+A web server to manage requests for meshes and routes generated using the [PolarRoute](https://github.com/bas-amop/PolarRoute) and [MeshiPhi](https://github.com/bas-amop/MeshiPhi/) libraries,
 implemented using Django, Celery and Django REST framework.
 
 It currently takes *vessel* meshes created using MeshiPhi and serves requests for routes, which are calculated using PolarRoute.
@@ -14,8 +14,8 @@ It currently takes *vessel* meshes created using MeshiPhi and serves requests fo
 
 PolarRouteServer can be installed from GitHub using `pip`.
 
-+ Inside a virtual environment (e.g. venv, conda, etc.) run `pip install git+https://github.com/antarctica/PolarRoute-server`
-  + To install a specific version append the tag, e.g. `pip intall git+https://github.com/antarctica/PolarRoute-server@v0.1.2`
++ Inside a virtual environment (e.g. venv, conda, etc.) run `pip install git+https://github.com/bas-amop/PolarRoute-server`
+  + To install a specific version append the tag, e.g. `pip intall git+https://github.com/bas-amop/PolarRoute-server@v0.1.2`
 
 Alternatively, clone this repository and install from source with `pip install -e .`
 
@@ -124,12 +124,12 @@ A demo script is available in this repo (`polarrouteserver/demo.py`) to be used 
 
 To obtain, either:
 + Clone this whole repo [as above](#for-development)
-+ Download the file from its GitHub page here: https://github.com/antarctica/PolarRoute-server/blob/main/demo.py
++ Download the file from its GitHub page here: https://github.com/bas-amop/PolarRoute-server/blob/main/demo.py
 
 This can be done with `wget` by running:
 
 ```
-wget https://raw.githubusercontent.com/antarctica/PolarRoute-server/refs/heads/main/polarrouteserver/demo.py
+wget https://raw.githubusercontent.com/bas-amop/PolarRoute-server/refs/heads/main/polarrouteserver/demo.py
 ```
 
 To run, you'll just need python ~3.11 installed. Earlier versions of python may work, but are untested.
