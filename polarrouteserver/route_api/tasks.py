@@ -43,7 +43,7 @@ def optimise_route(
         backup_mesh_ids list: list of database ids of backup meshes to try in order of priority
 
     Returns:
-        dict: route geojson as dictionary
+        route geojson as dictionary
     """
     route = Route.objects.get(id=route_id)
     mesh = route.mesh
