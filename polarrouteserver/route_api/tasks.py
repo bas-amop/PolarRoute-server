@@ -39,8 +39,8 @@ def optimise_route(
     Saves Route in database and returns route geojson as dictionary.
 
     Params:
-        route_id(int): id of record in Route database table
-        backup_mesh_ids list(int): list of database ids of backup meshes to try in order of priority
+        route_id: id of record in Route database table
+        backup_mesh_ids list: list of database ids of backup meshes to try in order of priority
 
     Returns:
         dict: route geojson as dictionary
