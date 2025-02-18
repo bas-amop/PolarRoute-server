@@ -21,7 +21,7 @@ import yaml
 
 from polarrouteserver.celery import app
 from .models import Job, Mesh, Route
-from .utils import calculate_md5
+from .utils import calculate_md5, check_mesh_data
 
 VESSEL_MESH_FILENAME_PATTERN = re.compile(r"vessel_?.*\.json$")
 
@@ -52,10 +52,18 @@ def optimise_route(
     if backup_mesh_ids:
         logger.info(f"Also got backup mesh ids {backup_mesh_ids}")
 
+    # add warning on mesh date if older than today
     if mesh.created.date() < datetime.datetime.now().date():
         route.info = {
             "info": f"Latest available mesh from {datetime.datetime.strftime(mesh.created, '%Y/%m/%d %H:%M%S')}"
         }
+
+    data_warning_message = check_mesh_data(mesh)
+    if data_warning_message is not "":
+        if route.info is None:
+            route.info = {"info": data_warning_message}
+        else:
+            route.info["info"] = route.info["info"] + data_warning_message
 
     # convert waypoints into pandas dataframe for PolarRoute
     waypoints = pd.DataFrame(

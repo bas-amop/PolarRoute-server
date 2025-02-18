@@ -204,3 +204,18 @@ base_routeplanner_config = {
 }
 TRAVELTIME_CONFIG = base_routeplanner_config | {"objective_function": "traveltime"}
 FUEL_CONFIG = base_routeplanner_config | {"objective_function": "fuel"}
+
+# dictionary relating user-friendly name of data source with loader value used in vessel mesh json 
+EXPECTED_MESH_DATA_SOURCES = {
+    "bathymetry": "GEBCO",
+    "current": "duacs_current",
+    "sea ice concentration": "amsr",
+    "thickness": "thickness",
+    "density": "density",
+}
+
+# number of data files expected in data_sources.params.files related by loader name as above, no need to include any of length 1 or 0
+EXPECTED_MESH_DATA_FILES = {
+    "amsr": 3,
+    "duacs_current": 3,
+}
