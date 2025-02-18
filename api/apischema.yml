@@ -1,0 +1,188 @@
+openapi: 3.0.3
+info:
+  title: PolarRoute-Server
+  version: 0.2.0
+  description: Backend server for serving PolarRoute and MeshiPhi assets
+paths:
+  /api/route:
+    post:
+      operationId: api_route_request
+      description: Entry point for route requests
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/route-request'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/route-request-response'
+          description: ''
+  /api/route/{id}:
+    get:
+      operationId: api_route_retrieve
+      description: Return status of route calculation and route itself if complete.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/route-status-response'
+          description: ''
+    delete:
+      operationId: api_route_destroy
+      description: Cancel route calculation
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - api
+      responses:
+        '204':
+          description: No response body
+  /api/mesh/{id}:
+     get:
+      operationId: api_mesh_get
+      description: Get mesh.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - api
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/mesh-response'
+          description: ''
+  /api/evaluate_route:
+    post:
+      operationId: api_route_evaluation
+      description: Entry point for requests to evaluate a pre-existing GeoJSON route
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/route-evaluation-request'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/route-evaluation-response'
+          description: ''
+
+components:
+  schemas:
+    route-request:
+      type: object
+      properties:
+        start_lat:
+          type: number
+          format: double
+        start_lon:
+          type: number
+          format: double
+        end_lat:
+          type: number
+          format: double
+        end_lon:
+          type: number
+          format: double
+        force_recalculate:
+          type: boolean
+        start_name:
+          type: string
+        end_name:
+          type: string
+        mesh_id:
+          type: integer
+      required:
+      - start_lat
+      - start_lon
+      - end_lat
+      - end_lon
+    route-request-response:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          nullable: false
+        status-url:
+          type: string
+          format: url
+          nullable: false
+
+    route-status-response:
+      type: object
+      properties:
+        status:
+          type: string
+          nullable: false
+        json:
+          type: string
+          nullable: true
+        polar_route_version:
+          type: string
+          nullable: true
+          maxLength: 60
+
+    mesh-response:
+      type: object
+      properties:
+        id: 
+          type: integer
+        json: 
+          type: object
+        geojson: 
+          type: object
+    
+    route-evaluation-request:
+      type: object
+      properties:
+        route:
+          type: object
+        custom_mesh_id:
+          type: integer
+      required:
+      - route
+    
+    route-evaluation-response:
+      type: object
+      properties:
+        route:
+          type: object
+        fuel:
+          type: number
+        time_hours:
+          type: number
+        time_str:
+          type: string
+
+

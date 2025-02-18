@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Deployment - PolarRoute-Server</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Deployment";
+        var mkdocs_page_input_path = "deployment.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> PolarRoute-Server
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../getting-started/">Getting Started</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../requesting-routes/">Requesting Routes</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../how-polarroute-server-works/">How PolarRoute-server works</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Deployment</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#management-of-a-deployment">Management of a deployment</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../configuration/">Configuration</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../development/">Development</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../api/">API Reference</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Python Package API Reference</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../autoapi/polarrouteserver/">polarrouteserver</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../autoapi/polarrouteserver/demo/">demo</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../autoapi/polarrouteserver/route_api/">route_api</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" href="../autoapi/polarrouteserver/route_api/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../autoapi/polarrouteserver/route_api/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../autoapi/polarrouteserver/route_api/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../autoapi/polarrouteserver/route_api/utils/">utils</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../autoapi/polarrouteserver/route_api/views/">views</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">PolarRoute-Server</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Deployment</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/bas-amop/polarroute-server/edit/master/docs/deployment.md" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="deployment">Deployment</h1>
+<p>For production, the following are required:</p>
+<ul>
+<li>Access to a RabbitMQ server, (can use <code>make start-rabbitmq</code> to start one in a docker container)</li>
+<li>Celery and celery beat servers running,</li>
+<li>WSGI server, e.g. Gunicorn, mod_wsgi (httpd)</li>
+</ul>
+<p>For serving with Gunicorn, run <code>make start-django-server</code> to serve with WSGI and production settings.</p>
+<h2 id="management-of-a-deployment">Management of a deployment</h2>
+<p>All of the commands used for administration of a Django project are available post-installation via the <code>django-admin</code> command.</p>
+<p>Of particular interest in production are:</p>
+<pre><code class="language-shell">$ django-admin makemigrations # create new migrations files based on changes to models
+$ django-admin migrate # apply new migrations files to alter the database
+$ django-admin dbshell # open the database's command line interface
+</code></pre>
+<p>To see more commands, run <code>django-admin --help</code>.</p>
+<p>In addition a custom command is available to manually insert new meshes into the database from file:</p>
+<pre><code class="language-shell">$ django-admin insert_mesh &lt;Mesh file or list of files&gt;
+</code></pre>
+<p><code>insert_mesh</code> takes a filename or list of filepaths containing meshes either as <code>.vessel.json</code> format or gzipped vessel mesh files.</p>
+<p>Only meshes which are not present in the database will be inserted. Uniqueness is based on the md5 hash of the unzipped vessel mesh file.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../how-polarroute-server-works/" class="btn btn-neutral float-left" title="How PolarRoute-server works"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../configuration/" class="btn btn-neutral float-right" title="Configuration">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/bas-amop/polarroute-server/" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../how-polarroute-server-works/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../configuration/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

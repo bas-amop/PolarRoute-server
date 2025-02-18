@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../../../img/favicon.ico" />
+    <title>tasks - PolarRoute-Server</title>
+    <link rel="stylesheet" href="../../../../css/theme.css" />
+    <link rel="stylesheet" href="../../../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../../../assets/_mkdocstrings.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "tasks";
+        var mkdocs_page_input_path = "autoapi/polarrouteserver/route_api/tasks.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../../../.." class="icon icon-home"> PolarRoute-Server
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../getting-started/">Getting Started</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../requesting-routes/">Requesting Routes</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../how-polarroute-server-works/">How PolarRoute-server works</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../deployment/">Deployment</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../configuration/">Configuration</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../development/">Development</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../../../api/">API Reference</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Python Package API Reference</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="../../">polarrouteserver</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../../demo/">demo</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="../">route_api</a>
+    <ul class="current">
+                <li class="toctree-l3"><a class="reference internal" href="../models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3 current"><a class="reference internal current" href="#">tasks</a>
+    <ul class="current">
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../utils/">utils</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../views/">views</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../..">PolarRoute-Server</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Python Package API Reference</li>
+          <li class="breadcrumb-item"><a href="../../">polarrouteserver</a></li>
+          <li class="breadcrumb-item"><a href="../">route_api</a></li>
+      <li class="breadcrumb-item active">tasks</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/home/dalby/polarroute/server/polarrouteserver/route_api/tasks.py" class="icon icon-github"> Edit on GitHub</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <div class="doc doc-object doc-module">
+
+
+
+<a id="polarrouteserver.route_api.tasks"></a>
+    <div class="doc doc-contents first">
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="polarrouteserver.route_api.tasks.import_new_meshes" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">import_new_meshes</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Look for new meshes and insert them into the database.</p>
+
+            <details class="quote">
+              <summary>Source code in <code>polarrouteserver/route_api/tasks.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span>
+<span class="normal">209</span>
+<span class="normal">210</span>
+<span class="normal">211</span>
+<span class="normal">212</span>
+<span class="normal">213</span>
+<span class="normal">214</span>
+<span class="normal">215</span>
+<span class="normal">216</span>
+<span class="normal">217</span>
+<span class="normal">218</span>
+<span class="normal">219</span>
+<span class="normal">220</span>
+<span class="normal">221</span>
+<span class="normal">222</span>
+<span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
+<span class="normal">228</span>
+<span class="normal">229</span>
+<span class="normal">230</span>
+<span class="normal">231</span>
+<span class="normal">232</span>
+<span class="normal">233</span>
+<span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
+<span class="normal">239</span>
+<span class="normal">240</span>
+<span class="normal">241</span>
+<span class="normal">242</span>
+<span class="normal">243</span>
+<span class="normal">244</span>
+<span class="normal">245</span>
+<span class="normal">246</span>
+<span class="normal">247</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">bind</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">import_new_meshes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Look for new meshes and insert them into the database.&quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">MESH_METADATA_DIR</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;MESH_METADATA_DIR has not been set.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># find the latest metadata file</span>
+    <span class="n">files</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">MESH_METADATA_DIR</span><span class="p">)</span>
+    <span class="n">file_list</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">MESH_METADATA_DIR</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">files</span>
+        <span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;upload_metadata_&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">file</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.yaml.gz&quot;</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">file_list</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Upload metadata file not found.&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="n">latest_metadata_file</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">file_list</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">getctime</span><span class="p">)</span>
+
+    <span class="c1"># load in the metadata</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Loading metadata file from </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">MESH_METADATA_DIR</span><span class="p">,</span><span class="n">latest_metadata_file</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">latest_metadata_file</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">metadata</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">(),</span> <span class="n">Loader</span><span class="o">=</span><span class="n">yaml</span><span class="o">.</span><span class="n">Loader</span><span class="p">)</span>
+
+    <span class="n">meshes_added</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">record</span> <span class="ow">in</span> <span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;records&quot;</span><span class="p">]:</span>
+        <span class="c1"># we only want the vessel json files</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">VESSEL_MESH_FILENAME_PATTERN</span><span class="p">,</span> <span class="n">record</span><span class="p">[</span><span class="s2">&quot;filepath&quot;</span><span class="p">])):</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># extract the filename from the filepath</span>
+        <span class="n">mesh_filename</span> <span class="o">=</span> <span class="n">record</span><span class="p">[</span><span class="s2">&quot;filepath&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># load in the mesh json</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">zipped_filename</span> <span class="o">=</span> <span class="n">mesh_filename</span> <span class="o">+</span> <span class="s2">&quot;.gz&quot;</span>
+            <span class="k">with</span> <span class="n">gzip</span><span class="o">.</span><span class="n">open</span><span class="p">(</span>
+                <span class="n">Path</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">MESH_DIR</span><span class="p">,</span> <span class="n">zipped_filename</span><span class="p">),</span> <span class="s2">&quot;rb&quot;</span>
+            <span class="p">)</span> <span class="k">as</span> <span class="n">gzipped_mesh</span><span class="p">:</span>
+                <span class="n">mesh_json</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">gzipped_mesh</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">zipped_filename</span><span class="si">}</span><span class="s2"> not found. Skipping.&quot;</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="k">except</span> <span class="ne">PermissionError</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Can&#39;t read </span><span class="si">{</span><span class="n">zipped_filename</span><span class="si">}</span><span class="s2"> due to permission error. File may still be transferring. Skipping.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># write out the unzipped mesh to temp file</span>
+        <span class="n">tfile</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w+&quot;</span><span class="p">,</span> <span class="n">delete</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">mesh_json</span><span class="p">,</span> <span class="n">tfile</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+        <span class="n">tfile</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="n">md5</span> <span class="o">=</span> <span class="n">calculate_md5</span><span class="p">(</span><span class="n">tfile</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="c1"># cross reference md5 hash from file record in metadata to actual file on disk</span>
+        <span class="k">if</span> <span class="n">md5</span> <span class="o">!=</span> <span class="n">record</span><span class="p">[</span><span class="s2">&quot;md5&quot;</span><span class="p">]:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Mesh file md5: </span><span class="si">{</span><span class="n">md5</span><span class="si">}</span><span class="se">\n\</span>
+<span class="s2">                           does not match</span><span class="se">\n\</span>
+<span class="s2">                           Metadata md5: </span><span class="si">{</span><span class="n">record</span><span class="p">[</span><span class="s1">&#39;md5&#39;</span><span class="p">]</span><span class="si">}</span><span class="se">\n\</span>
+<span class="s2">                           Skipping.&quot;</span><span class="p">)</span>
+            <span class="c1"># if md5 hash from metadata file does not match that of the file itself,</span>
+            <span class="c1"># there may have been a filename clash, skip this one.</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># create an entry in the database</span>
+        <span class="n">mesh</span><span class="p">,</span> <span class="n">created</span> <span class="o">=</span> <span class="n">Mesh</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span>
+            <span class="n">md5</span><span class="o">=</span><span class="n">md5</span><span class="p">,</span>
+            <span class="n">defaults</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">mesh_filename</span><span class="p">,</span>
+                <span class="s2">&quot;valid_date_start&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span>
+                    <span class="n">mesh_json</span><span class="p">[</span><span class="s2">&quot;config&quot;</span><span class="p">][</span><span class="s2">&quot;mesh_info&quot;</span><span class="p">][</span><span class="s2">&quot;region&quot;</span><span class="p">][</span><span class="s2">&quot;start_time&quot;</span><span class="p">],</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">),</span>
+                <span class="s2">&quot;valid_date_end&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span>
+                    <span class="n">mesh_json</span><span class="p">[</span><span class="s2">&quot;config&quot;</span><span class="p">][</span><span class="s2">&quot;mesh_info&quot;</span><span class="p">][</span><span class="s2">&quot;region&quot;</span><span class="p">][</span><span class="s2">&quot;end_time&quot;</span><span class="p">],</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">&quot;</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">),</span>
+                <span class="s2">&quot;created&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span>
+                    <span class="n">record</span><span class="p">[</span><span class="s2">&quot;created&quot;</span><span class="p">],</span> <span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">T%H%M%S&quot;</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">tzinfo</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">),</span>
+                <span class="s2">&quot;json&quot;</span><span class="p">:</span> <span class="n">mesh_json</span><span class="p">,</span>
+                <span class="s2">&quot;meshiphi_version&quot;</span><span class="p">:</span> <span class="n">record</span><span class="p">[</span><span class="s2">&quot;meshiphi&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;lat_min&quot;</span><span class="p">:</span> <span class="n">record</span><span class="p">[</span><span class="s2">&quot;latlong&quot;</span><span class="p">][</span><span class="s2">&quot;latmin&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;lat_max&quot;</span><span class="p">:</span> <span class="n">record</span><span class="p">[</span><span class="s2">&quot;latlong&quot;</span><span class="p">][</span><span class="s2">&quot;latmax&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;lon_min&quot;</span><span class="p">:</span> <span class="n">record</span><span class="p">[</span><span class="s2">&quot;latlong&quot;</span><span class="p">][</span><span class="s2">&quot;lonmin&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;lon_max&quot;</span><span class="p">:</span> <span class="n">record</span><span class="p">[</span><span class="s2">&quot;latlong&quot;</span><span class="p">][</span><span class="s2">&quot;lonmax&quot;</span><span class="p">],</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">created</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Adding new mesh to database: </span><span class="si">{</span><span class="n">mesh</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">mesh</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">mesh</span><span class="o">.</span><span class="n">created</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="n">meshes_added</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">mesh</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="s2">&quot;md5&quot;</span><span class="p">:</span> <span class="n">record</span><span class="p">[</span><span class="s2">&quot;md5&quot;</span><span class="p">],</span> <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">mesh</span><span class="o">.</span><span class="n">name</span><span class="p">}</span>
+            <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">meshes_added</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h2 id="polarrouteserver.route_api.tasks.optimise_route" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">optimise_route</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">route_id</span><span class="p">,</span> <span class="n">backup_mesh_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></code>
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Use PolarRoute to calculate optimal route from Route database object and mesh.
+Saves Route in database and returns route geojson as dictionary.</p>
+
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Parameters:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+              <b><code>route_id</code></b>
+                  (<code>int</code>)
+              –
+              <div class="doc-md-description">
+                <p>id of record in Route database table</p>
+              </div>
+            </li>
+            <li>
+              <b><code>backup_mesh_ids</code></b>
+                  (<code>list</code>, default:
+                      <code>None</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>list of database ids of backup meshes to try in order of priority</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<table class="field-list">
+  <colgroup>
+    <col class="field-name" />
+    <col class="field-body" />
+  </colgroup>
+  <tbody valign="top">
+    <tr class="field">
+      <th class="field-name">Returns:</th>
+      <td class="field-body">
+        <ul class="first simple">
+            <li>
+                  <code>dict</code>
+              –
+              <div class="doc-md-description">
+                <p>route geojson as dictionary</p>
+              </div>
+            </li>
+        </ul>
+      </td>
+    </tr>
+  </tbody>
+</table>
+            <details class="quote">
+              <summary>Source code in <code>polarrouteserver/route_api/tasks.py</code></summary>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 31</span>
+<span class="normal"> 32</span>
+<span class="normal"> 33</span>
+<span class="normal"> 34</span>
+<span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">bind</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">optimise_route</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">route_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">backup_mesh_ids</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Use PolarRoute to calculate optimal route from Route database object and mesh.</span>
+<span class="sd">    Saves Route in database and returns route geojson as dictionary.</span>
+
+<span class="sd">    Params:</span>
+<span class="sd">        route_id: id of record in Route database table</span>
+<span class="sd">        backup_mesh_ids list: list of database ids of backup meshes to try in order of priority</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        route geojson as dictionary</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">route</span> <span class="o">=</span> <span class="n">Route</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">route_id</span><span class="p">)</span>
+    <span class="n">mesh</span> <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">mesh</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Running optimisation for route </span><span class="si">{</span><span class="n">route</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using mesh </span><span class="si">{</span><span class="n">mesh</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">backup_mesh_ids</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Also got backup mesh ids </span><span class="si">{</span><span class="n">backup_mesh_ids</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">mesh</span><span class="o">.</span><span class="n">created</span><span class="o">.</span><span class="n">date</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">():</span>
+        <span class="n">route</span><span class="o">.</span><span class="n">info</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;info&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Latest available mesh from </span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">created</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;%Y/%m/</span><span class="si">%d</span><span class="s1"> %H:%M%S&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">}</span>
+
+    <span class="c1"># convert waypoints into pandas dataframe for PolarRoute</span>
+    <span class="n">waypoints</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;Name&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s2">&quot;Start&quot;</span> <span class="k">if</span> <span class="n">route</span><span class="o">.</span><span class="n">start_name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">route</span><span class="o">.</span><span class="n">start_name</span><span class="p">,</span>
+                <span class="s2">&quot;End&quot;</span> <span class="k">if</span> <span class="n">route</span><span class="o">.</span><span class="n">end_name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">route</span><span class="o">.</span><span class="n">end_name</span><span class="p">,</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;Lat&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">route</span><span class="o">.</span><span class="n">start_lat</span><span class="p">,</span> <span class="n">route</span><span class="o">.</span><span class="n">end_lat</span><span class="p">],</span>
+            <span class="s2">&quot;Long&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">route</span><span class="o">.</span><span class="n">start_lon</span><span class="p">,</span> <span class="n">route</span><span class="o">.</span><span class="n">end_lon</span><span class="p">],</span>
+            <span class="s2">&quot;Source&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">],</span>
+            <span class="s2">&quot;Destination&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="s2">&quot;X&quot;</span><span class="p">],</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">unsmoothed_routes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">route_planners</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">configs</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">settings</span><span class="o">.</span><span class="n">TRAVELTIME_CONFIG</span><span class="p">,</span>
+            <span class="n">settings</span><span class="o">.</span><span class="n">FUEL_CONFIG</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">config</span> <span class="ow">in</span> <span class="n">configs</span><span class="p">:</span>
+            <span class="n">rp</span> <span class="o">=</span> <span class="n">RoutePlanner</span><span class="p">(</span><span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">json</span><span class="p">),</span> <span class="n">config</span><span class="p">)</span>
+
+            <span class="c1"># Calculate optimal dijkstra path between waypoints</span>
+            <span class="n">rp</span><span class="o">.</span><span class="n">compute_routes</span><span class="p">(</span><span class="n">waypoints</span><span class="p">)</span>
+
+            <span class="n">route_planners</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rp</span><span class="p">)</span>
+
+            <span class="c1"># save the initial unsmoothed route</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Saving unsmoothed Dijkstra paths for </span><span class="si">{</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;objective_function&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">-optimised route.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rp</span><span class="o">.</span><span class="n">routes_dijkstra</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Inaccessible. No routes found.&quot;</span><span class="p">)</span>
+            <span class="n">route_geojson</span> <span class="o">=</span> <span class="n">extract_geojson_routes</span><span class="p">(</span><span class="n">rp</span><span class="o">.</span><span class="n">to_json</span><span class="p">())</span>
+            <span class="n">route_geojson</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;features&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;properties&quot;</span><span class="p">][</span><span class="s2">&quot;objective_function&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">config</span><span class="p">[</span><span class="s2">&quot;objective_function&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">unsmoothed_routes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">route_geojson</span><span class="p">)</span>
+            <span class="n">route</span><span class="o">.</span><span class="n">json_unsmoothed</span> <span class="o">=</span> <span class="n">unsmoothed_routes</span>
+            <span class="n">route</span><span class="o">.</span><span class="n">calculated</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+            <span class="n">route</span><span class="o">.</span><span class="n">polar_route_version</span> <span class="o">=</span> <span class="n">polar_route</span><span class="o">.</span><span class="n">__version__</span>
+            <span class="n">route</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+        <span class="n">smoothed_routes</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">rp</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">route_planners</span><span class="p">):</span>
+            <span class="c1"># Smooth the dijkstra routes</span>
+            <span class="n">rp</span><span class="o">.</span><span class="n">compute_smoothed_routes</span><span class="p">()</span>
+            <span class="c1"># Save the smoothed route(s)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Route smoothing </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">route_planners</span><span class="p">)</span><span class="si">}</span><span class="s2"> complete.&quot;</span><span class="p">)</span>
+            <span class="n">route_geojson</span> <span class="o">=</span> <span class="n">extract_geojson_routes</span><span class="p">(</span><span class="n">rp</span><span class="o">.</span><span class="n">to_json</span><span class="p">())</span>
+            <span class="n">route_geojson</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;features&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;properties&quot;</span><span class="p">][</span><span class="s2">&quot;objective_function&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">rp</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;objective_function&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">smoothed_routes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">route_geojson</span><span class="p">)</span>
+
+            <span class="c1"># Update the database</span>
+            <span class="n">route</span><span class="o">.</span><span class="n">json</span> <span class="o">=</span> <span class="n">smoothed_routes</span>
+            <span class="n">route</span><span class="o">.</span><span class="n">calculated</span> <span class="o">=</span> <span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+            <span class="n">route</span><span class="o">.</span><span class="n">polar_route_version</span> <span class="o">=</span> <span class="n">polar_route</span><span class="o">.</span><span class="n">__version__</span>
+            <span class="n">route</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">smoothed_routes</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_state</span><span class="p">(</span><span class="n">state</span><span class="o">=</span><span class="n">states</span><span class="o">.</span><span class="n">FAILURE</span><span class="p">)</span>
+        <span class="c1"># this is awful, polar route should raise a custom error class</span>
+        <span class="k">if</span> <span class="s2">&quot;Inaccessible. No routes found&quot;</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">backup_mesh_ids</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># if route is inaccesible in the mesh, try again if backup meshes are provided</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;No routes found on mesh </span><span class="si">{</span><span class="n">mesh</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">, trying with next mesh(es) </span><span class="si">{</span><span class="n">backup_mesh_ids</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="n">route</span><span class="o">.</span><span class="n">info</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;info&quot;</span><span class="p">:</span> <span class="s2">&quot;Route inaccessible on mesh, trying next mesh.&quot;</span><span class="p">}</span>
+            <span class="n">route</span><span class="o">.</span><span class="n">mesh</span> <span class="o">=</span> <span class="n">Mesh</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">backup_mesh_ids</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">route</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="n">task</span> <span class="o">=</span> <span class="n">optimise_route</span><span class="o">.</span><span class="n">delay</span><span class="p">(</span><span class="n">route</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">backup_mesh_ids</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">Job</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+                <span class="nb">id</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+                <span class="n">route</span><span class="o">=</span><span class="n">route</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="n">Ignore</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">route</span><span class="o">.</span><span class="n">info</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">}</span>
+            <span class="n">route</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+            <span class="k">raise</span> <span class="n">Ignore</span><span class="p">()</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../serializers/" class="btn btn-neutral float-left" title="serializers"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../utils/" class="btn btn-neutral float-right" title="utils">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+        <span>
+          <a href="https://github.com/bas-amop/polarroute-server/" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
+        </span>
+    
+    
+      <span><a href="../serializers/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../utils/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../../../..";</script>
+    <script src="../../../../js/theme_extra.js"></script>
+    <script src="../../../../js/theme.js"></script>
+      <script src="../../../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
