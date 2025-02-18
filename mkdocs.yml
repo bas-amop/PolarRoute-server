@@ -24,6 +24,8 @@ plugins:
   - include-markdown:
       rewrite_relative_urls: true
   - render_swagger
+markdown_extensions: 
+  - attr_list
 nav:
   - Home: index.md
   - getting-started.md
