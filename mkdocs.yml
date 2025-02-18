@@ -1,0 +1,32 @@
+site_name: PolarRoute-Server
+repo_url: https://github.com/bas-amop/polarroute-server/
+theme: readthedocs
+plugins: 
+  - search
+  - mkdocstrings
+  - mkdocs-autoapi:
+      autoapi_ignore:
+        - "manage.py"
+        - "polarrouteserver/settings/*"
+        - "polarrouteserver/route_api/apps.py"
+        - "polarrouteserver/route_api/management/*"
+        - "polarrouteserver/route_api/management/commands/*"
+        - "polarrouteserver/route_api/migrations/*"
+        - "polarrouteserver/route_api/admin.py"
+        - "polarrouteserver/asgi.py"
+        - "polarrouteserver/celery.py"
+        - "polarrouteserver/urls.py"
+        - "polarrouteserver/wsgi.py"
+        - "tests/*"
+      autoapi_file_patterns:
+        - "*.py"
+      autoapi_add_nav_entry: API Reference
+  - include-markdown:
+      rewrite_relative_urls: true
+nav:
+  - Home: index.md
+  - getting-started.md
+  - development.md
+  - requesting-routes.md
+  - configuration.md
+  - deployment.md

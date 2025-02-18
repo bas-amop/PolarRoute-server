@@ -60,7 +60,9 @@ prod = [
 ]
 docs = [
     "mkdocs",
+    "mkdocs-autoapi",
     "mkdocs-include-markdown-plugin",
+    "mkdocstrings[python]",
 ]
 build = [
     "build"
