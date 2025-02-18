@@ -6,7 +6,7 @@ A demo script is available in this repo (`polarrouteserver/demo.py`) to be used 
 
 To obtain, either:
 
-+ Clone this whole repo [as above](#for-development)
++ Clone this whole repo
 + Download the file from its GitHub page here: https://github.com/bas-amop/PolarRoute-server/blob/main/demo.py
 
 This can be done with `wget` by running:
