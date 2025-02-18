@@ -57,16 +57,16 @@ cov-badge: ## Generate the coverage badge from .coverage file
 	@echo "+ $@"
 	@coverage-badge -o coverage.svg
 
-# .PHONY: docs
-# docs: ## Generate Sphinx HTML documentation, including API docs
-# 	@echo "+ $@"
-# 	@tox -e docs
-# 	@$(BROWSER) docs/_build/html/index.html
+.PHONY: build-docs
+build-docs: ## Generate mkdocs HTML documentation
+	@echo "+ $@"
+	@mkdocs build
+	@$(BROWSER) site/index.html
 
-# .PHONY: servedocs
-# servedocs: ## Rebuild docs automatically
-# 	@echo "+ $@"
-# 	@tox -e servedocs
+.PHONY: serve-docs
+serve-docs: ## Serve docs locally
+	@echo "+ $@"
+	@mkdocs serve
 
 .PHONY: migrate
 migrate: ## Apply database migrations (or create for first time)
