@@ -158,10 +158,13 @@ def request_route(
     return None
 
 
-def parse_location(location: str) -> tuple:
+def parse_location(location: str) -> Location:
     """
-    Takes a location either as the name of a standard location or latitude,longitude separated by a comma, e.g. -56.7,-65.01
-    Returns a Location object.
+    Args:
+     location (str): a location either as the name of a standard location or latitude,longitude separated by a comma, e.g. -56.7,-65.01
+    
+    Returns:
+        a Location object
     """
     pattern = r"[+-]?([0-9]*[.])?[0-9]+,[+-]?([0-9]*[.])?[0-9]+"
     if location in STANDARD_LOCATIONS.keys():
