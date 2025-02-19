@@ -1,6 +1,6 @@
 # Requesting Routes
 
-## Using the in-built demo utility
+## Using the in-built demo utility (simplest)
 
 A demo script is available in this repo (`polarrouteserver/demo.py`) to be used as a utility for making route requests.
 
@@ -59,3 +59,18 @@ The utility will then request the route's status every `120` seconds.
 The HTTP response from each request will be printed to stdout.
 
 Once the route is available it will be returned, or if 10 attempts to get the route have passed, the utility will stop.
+
+## By making HTTP requests
+
+For details on the API, see the [API reference page](api.md).
+
+To request a route, make a POST request to the `/api/route` endpoint, for example the following using CURL
+
+```
+curl --header "Content-Type: application/json" \
+  --request POST \
+  --data '{"start_lat":"43.21","start_lon":"43.21", "end_lat":"43.21","end_lon":"43.21"}' \
+  http://localhost:8000/api/route
+```
+
+This will return a `status-url` where you can request the status of the route calculation using a GET request, when the route is ready the same URL will return the route in the response.
