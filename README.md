@@ -1,6 +1,7 @@
 # PolarRoute-Server
 
 ![Dev Status](https://img.shields.io/badge/Status-Active-green)
+[![Documentation](https://img.shields.io/badge/Documentation-blue)](https://bas-amop.github.io/PolarRoute-server/)
 [![GitHub Tag](https://img.shields.io/github/v/tag/bas-amop/PolarRoute-server?filter=v*.*.*&label=latest%20release)](https://github.com/bas-amop/PolarRoute-server/tags)
 [![GitHub License](https://img.shields.io/github/license/bas-amop/PolarRoute-server)](https://github.com/bas-amop/PolarRoute-server/blob/main/LICENSE)
 ![](./coverage.svg)
