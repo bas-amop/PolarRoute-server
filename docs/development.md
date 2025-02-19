@@ -21,6 +21,12 @@ A number of helpful development tools are made available through the `Makefile`,
 
 Version numbers should be used in tagging commits on the `main` branch and reflected in the `pyproject.toml` file and should be of the form `v0.1.7` using the semantic versioning convention.
 
+## Building & deploying the documentation
+
+Run `make build-docs` to build the docs to the `./site` directory.
+
+Then run `make deploy-docs` to deploy to the `gh-pages` branch of the repository. You must have write access to the repo.
+
 ## Making changes to the API
 
 The API is documented in `./docs/apischema.yml` using the OpenAPI 3.0 standard (formerly known as swagger).

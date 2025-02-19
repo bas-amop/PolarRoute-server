@@ -68,6 +68,11 @@ serve-docs: ## Serve docs locally
 	@echo "+ $@"
 	@mkdocs serve
 
+.PHONY: deploy-docs
+deploy-docs: ## Deploy docs to github pages
+	@echo "+ $@"
+	@mkdocs gh-deploy
+
 .PHONY: migrate
 migrate: ## Apply database migrations (or create for first time)
 	@echo "+ $@"
