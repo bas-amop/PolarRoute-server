@@ -282,8 +282,8 @@ class TestMeshDataMessage(TestCase):
             {"loader": "GEBCO", "params": {"files": ["1"]}},
             {"loader": "amsr", "params": {"files": ["1", "2", "3"]}},
             {"loader": "duacs_current", "params": {"files": ["1", "2", "3"]}},
-            {"loader": "thickness"},
-            {"loader": "density"},
+            {"loader": "thickness", "params": {"files": [""]}},
+            {"loader": "density", "params": {"files": [""]}},
         ]
         assert check_mesh_data(mesh) == ""
 
@@ -292,18 +292,18 @@ class TestMeshDataMessage(TestCase):
         mesh.json['config']['mesh_info']['data_sources'] = [
             {"loader": "amsr", "params": {"files": ["1", "2", "3"]}},
             {"loader": "duacs_current", "params": {"files": ["1", "2", "3"]}},
-            {"loader": "thickness"},
-            {"loader": "density"},
+            {"loader": "thickness", "params": {"files": [""]}},
+            {"loader": "density", "params": {"files": [""]}},
         ]
         assert check_mesh_data(mesh) == "No bathymetry data available for this mesh.\n"
 
     def test_unexpected_data_length_message(self):
         mesh = add_test_mesh_to_db()
         mesh.json['config']['mesh_info']['data_sources'] = [
-            {"loader": "GEBCO"},
+            {"loader": "GEBCO", "params": {"files": ["1"]}},
             {"loader": "amsr", "params": {"files": ["1", "2"]}},
             {"loader": "duacs_current", "params": {"files": ["1", "2", "3"]}},
-            {"loader": "thickness"},
-            {"loader": "density"},
+            {"loader": "thickness", "params": {"files": [""]}},
+            {"loader": "density", "params": {"files": [""]}},
         ]
         assert check_mesh_data(mesh) == "2 of expected 3 days' data available for sea ice concentration.\n"

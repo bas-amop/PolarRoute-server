@@ -267,7 +267,7 @@ def check_mesh_data(mesh: Mesh) -> str:
         # check for unexpected number of data files
         data_source_num_expected_files = expected_num_data_files.get(data_loader, None)
         if data_source_num_expected_files is not None:
-            actual_num_files = len(data_source[0]["params"]["files"])
+            actual_num_files = len([f for f in data_source[0]["params"]["files"] if f!=""]) # number of files removing empty strings
             if actual_num_files != data_source_num_expected_files:
                 message += f"{actual_num_files} of expected {data_source_num_expected_files} days' data available for {data_type}.\n"
 

@@ -216,6 +216,9 @@ EXPECTED_MESH_DATA_SOURCES = {
 
 # number of data files expected in data_sources.params.files related by loader name as above, no need to include any of length 1 or 0
 EXPECTED_MESH_DATA_FILES = {
-    "amsr": 3,
+    "GEBCO": 1,
     "duacs_current": 3,
+    "amsr": 3,
+    "thickness": 0,
+    "density": 0,
 }
