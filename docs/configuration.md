@@ -1,11 +1,15 @@
 # Configuration
 
-Configuration of PolarRouteServer works with environment variables. You can either set these directly or from a `.env` file. An example `.env` file is included here as `env.example`.
+Configuration of PolarRouteServer works with environment variables. You can either set these directly or from a `.env` file. An example `.env` file is included in the repo as `env.example`.
 
 Environment variables used directly by the Django site are prefixed wit `POLARROUTE_` and those which configure Celery are prefixed with `CELERY_`.
 
+## Mesh settings
+
 - `POLARROUTE_MESH_DIR` - absolute path to directory where mesh files will be made available (this location is periodically checked in production and new files ingested into the database based on the metadata file). A warning is logged in production if this is not set.
 - `POLARROUTE_MESH_METADATA_DIR` - as above, absolute path to directory where mesh metadata files will be made available. If this is not set, the value of `POLARROUTE_MESH_DIR` is used and a warning to this effect is logged.
+
+## Django settings
 
 The following are inherited from Django and more information can be found on their effects via the [Django docs](https://docs.djangoproject.com/en/5.1/ref/settings/).
 
@@ -19,7 +23,7 @@ The following are inherited from Django and more information can be found on the
 - `POLARROUTE_LOG_DIR` - sets the output directory for logs. By default only used in production settings environment.
 - `POLARROUTE_STATIC_ROOT` - the path to directory used for static file serving in production, e.g. `"/var/www/example.com/static/"` (Default: `None`) Note this is only used for the admin panel in this application.
 
-Database settings:
+## Database settings
 
 - `POLARROUTE_DB_NAME` - postgres database name (default: `polarroute`)
 - `POLARROUTE_DB_USER` - postgres database user (default: `polarroute`)
