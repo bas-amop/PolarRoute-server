@@ -30,6 +30,7 @@ nav:
   - Home: index.md
   - getting-started.md
   - requesting-routes.md
+  - how-polarroute-server-works.md
   - deployment.md
   - configuration.md
   - development.md
