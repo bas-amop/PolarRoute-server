@@ -234,7 +234,14 @@ def select_mesh_for_route_evaluation(route: dict) -> Union[list[Mesh], None]:
 
     
 def check_mesh_data(mesh: Mesh) -> str:
-    """Check a mesh object for missing data sources. Return a warning message as a string."""
+    """Check a mesh object for missing data sources. 
+
+    Args:
+        mesh (Mesh): mesh object to evaluate.
+    
+    Returns:
+        A user-friendly warning message as a string.
+    """
 
     message = ""
 
