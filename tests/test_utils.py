@@ -14,6 +14,8 @@ import pytest
 from polarrouteserver.route_api.models import Mesh, Job, Route
 from polarrouteserver.route_api.utils import evaluate_route, route_exists, select_mesh, select_mesh_for_route_evaluation
 
+from polarrouteserver.route_api.models import Mesh, Route
+from polarrouteserver.route_api.utils import check_mesh_data, route_exists, select_mesh
 from .utils import add_test_mesh_to_db
 
 class TestRouteExists(TestCase):
@@ -270,3 +272,38 @@ def test_evaluate_route():
 
     result = evaluate_route(route_json, mesh[0])
     assert isinstance(result, dict)
+
+
+class TestMeshDataMessage(TestCase):
+
+    def test_no_missing_data_message(self):
+        mesh = add_test_mesh_to_db()
+        mesh.json['config']['mesh_info']['data_sources'] = [
+            {"loader": "GEBCO", "params": {"files": ["1"]}},
+            {"loader": "amsr", "params": {"files": ["1", "2", "3"]}},
+            {"loader": "duacs_current", "params": {"files": ["1", "2", "3"]}},
+            {"loader": "thickness", "params": {"files": [""]}},
+            {"loader": "density", "params": {"files": [""]}},
+        ]
+        assert check_mesh_data(mesh) == ""
+
+    def test_missing_data_message(self):
+        mesh = add_test_mesh_to_db()
+        mesh.json['config']['mesh_info']['data_sources'] = [
+            {"loader": "amsr", "params": {"files": ["1", "2", "3"]}},
+            {"loader": "duacs_current", "params": {"files": ["1", "2", "3"]}},
+            {"loader": "thickness", "params": {"files": [""]}},
+            {"loader": "density", "params": {"files": [""]}},
+        ]
+        assert check_mesh_data(mesh) == "No bathymetry data available for this mesh.\n"
+
+    def test_unexpected_data_length_message(self):
+        mesh = add_test_mesh_to_db()
+        mesh.json['config']['mesh_info']['data_sources'] = [
+            {"loader": "GEBCO", "params": {"files": ["1"]}},
+            {"loader": "amsr", "params": {"files": ["1", "2"]}},
+            {"loader": "duacs_current", "params": {"files": ["1", "2", "3"]}},
+            {"loader": "thickness", "params": {"files": [""]}},
+            {"loader": "density", "params": {"files": [""]}},
+        ]
+        assert check_mesh_data(mesh) == "2 of expected 3 days' data available for sea ice concentration.\n"
