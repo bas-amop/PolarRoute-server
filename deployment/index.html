@@ -45,10 +45,6 @@
                 </li>
               </ul>
               <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../getting-started/">Getting Started</a>
-                </li>
-              </ul>
-              <ul>
                 <li class="toctree-l1"><a class="reference internal" href="../requesting-routes/">Requesting Routes</a>
                 </li>
               </ul>
@@ -59,7 +55,21 @@
               <ul class="current">
                 <li class="toctree-l1 current"><a class="reference internal current" href="#">Deployment</a>
     <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#configuration">Configuration</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#setting-up-the-database">Setting up the database</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#create-a-superuser-in-the-database">Create a superuser in the database</a>
+    </li>
     <li class="toctree-l2"><a class="reference internal" href="#management-of-a-deployment">Management of a deployment</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#configuring-a-web-server">Configuring a web server</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#configuring-mod_wsgi">Configuring mod_wsgi</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#collecting-static-files">Collecting static files</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#other-recommendations">Other recommendations</a>
     </li>
     </ul>
                 </li>
@@ -124,15 +134,28 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="deployment">Deployment</h1>
-<p>For production, the following are required:</p>
+<p>For a production deployment, the following are required:</p>
 <ul>
-<li>Access to a RabbitMQ server, (can use <code>make start-rabbitmq</code> to start one in a docker container)</li>
+<li>WSGI server, e.g. Gunicorn, mod_wsgi (httpd),</li>
+<li><a href="https://www.postgresql.org/">PostgreSQL</a> database</li>
 <li>Celery and celery beat servers running,</li>
-<li>WSGI server, e.g. Gunicorn, mod_wsgi (httpd)</li>
+<li>Access to a RabbitMQ server,</li>
 </ul>
-<p>For serving with Gunicorn, run <code>make start-django-server</code> to serve with WSGI and production settings.</p>
+<h2 id="configuration">Configuration</h2>
+<p>Configuration of PolarRouteServer works with environment variables, these are covered in <a href="../configuration/">Configuration</a> in detail.</p>
+<p>It is up to you how you choose to set these environment variables in your deployment.</p>
+<h2 id="setting-up-the-database">Setting up the database</h2>
+<p>Assuming you have a running PostgreSQL database and that the environment variables are set, particularly all of the database connection settings and <code>DJANGO_SETTINGS_MODULE</code> run:</p>
+<pre><code class="language-shell">$ django-admin migrate
+</code></pre>
+<p>to build the database.</p>
+<h2 id="create-a-superuser-in-the-database">Create a superuser in the database</h2>
+<p>Run the following and follow the prompts.</p>
+<pre><code class="language-shell">$ django-admin createsuperuser
+</code></pre>
 <h2 id="management-of-a-deployment">Management of a deployment</h2>
-<p>All of the commands used for administration of a Django project are available post-installation via the <code>django-admin</code> command.</p>
+<p>All of the commands used for administration of a Django project are available post-installation via the <code>django-admin</code> command. Note that the envrionment variables used will need to be set in the session which you're running these commands.</p>
+<p>Note that the same commands can be run by running <code>python manage.py</code> where <code>manage.py</code> is the file contained in the top level of the repository.</p>
 <p>Of particular interest in production are:</p>
 <pre><code class="language-shell">$ django-admin makemigrations # create new migrations files based on changes to models
 $ django-admin migrate # apply new migrations files to alter the database
@@ -144,6 +167,77 @@ $ django-admin dbshell # open the database's command line interface
 </code></pre>
 <p><code>insert_mesh</code> takes a filename or list of filepaths containing meshes either as <code>.vessel.json</code> format or gzipped vessel mesh files.</p>
 <p>Only meshes which are not present in the database will be inserted. Uniqueness is based on the md5 hash of the unzipped vessel mesh file.</p>
+<h2 id="configuring-a-web-server">Configuring a web server</h2>
+<p>PolarRoute-server can be served similarly to any other Django application, see <a href="https://docs.djangoproject.com/en/5.1/howto/deployment/">Django docs for more information</a>. Or see the instructions for httpd/mod_wsgi below.</p>
+<h2 id="configuring-mod_wsgi">Configuring mod_wsgi</h2>
+<p>If you are using mod_wsgi to serve PolarRoute-server under httpd, a typical <code>.conf</code> file may look something like:</p>
+<pre><code>&lt;VirtualHost *:443&gt;
+ServerName polarroute.myserver.com
+DocumentRoot /path/to/my/polarrouteserver/
+LogLevel info
+SSLEngine on
+SSLCertificateFile /local/certs/myserver.com.pem
+
+    PassEnv DJANGO_SETTINGS_MODULE
+    PassEnv POLARROUTE_MESH_DIR
+    PassEnv POLARROUTE_MESH_METADATA_DIR
+    PassEnv POLARROUTE_ALLOWED_HOSTS
+    PassEnv POLARROUTE_CORS_ALLOWED_ORIGINS
+    PassEnv POLARROUTE_STATIC_ROOT
+    PassEnv CELERY_BROKER_URL
+    PassEnv CELERYD_CHDIR
+    PassEnv POLARROUTE_DEBUG
+    PassEnv POLARROUTE_LOG_DIR
+    PassEnv POLARROUTE_BASE_DIR
+    PassEnv POLARROUTE_LOG_LEVEL
+
+    PassEnv POLARROUTE_DB_NAME
+    PassEnv POLARROUTE_DB_USER
+    PassEnv POLARROUTE_DB_PASSWORD
+    PassEnv POLARROUTE_DB_HOST
+
+WSGIDaemonProcess polarroute.myserver.com user=wsgi group=wsgi threads=5 python-home=/path/to/my/python/home python-path=/path/to/my/python/path
+WSGIProcessGroup polarroute.myserver.com
+WSGIApplicationGroup %{GLOBAL}
+WSGIScriptAlias / /path/to/my/polarrouteserver//wsgi.py
+Alias /static /var/www/polarroute.myserver.com/static
+CustomLog /var/log/httpd/access_log.polarroute.myserver.com combined
+ErrorLog /var/log/httpd/error_log.polarroute.myserver.com
+
+&lt;Location /&gt;
+Require all granted
+&lt;/Location&gt;
+&lt;/VirtualHost&gt;
+
+&lt;Directory &quot;/path/to/my/polarrouteserver/&quot;&gt;
+AllowOverride All
+Options -Indexes
+Require all granted
+WSGIScriptReloading On
+WSGIProcessGroup polarroute.myserver.com
+WSGIApplicationGroup %{GLOBAL}
+
+&lt;/Directory&gt;
+
+&lt;Directory /var/www/polarroute.myserver.com/static/&gt;
+Order allow,deny
+Allow from all
+&lt;/Directory&gt;
+
+</code></pre>
+<h2 id="collecting-static-files">Collecting static files</h2>
+<p>PolarRoute-server itself has no static files since it is a headless server, however it does make use of Django's <code>/admin</code> endpoint as a database management dashboard. For this to work, we need to create a static file location, e.g. <code>/var/www/polarroute.{{ hostname }}/static</code> and run the following commands (noting to use the correct path to your static file location):</p>
+<pre><code class="language-shell">export DJANGO_SETTINGS_MODULE=polarrouteserver.settings.production
+export POLARROUTE_STATIC_ROOT=/var/www/polarroute.myserver.com/static/
+django-admin collecstatic
+</code></pre>
+<p>This only needs to be run once.</p>
+<h2 id="other-recommendations">Other recommendations</h2>
+<p>It is also recommended to do the following in a deployment:</p>
+<ul>
+<li>Add polarrouteserver and celery logs to logrotate - logfiles are written from polarrouteserver and celery to files in <code>POLARROUTE_LOG_DIR</code>, it is prudent to add these to a log rotation utility such as logrotate.</li>
+<li>Manage Celery, Celerybeat and rabbitmq under systemd.</li>
+</ul>
               
             </div>
           </div><footer>

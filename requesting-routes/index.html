@@ -44,18 +44,16 @@
                 <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
                 </li>
               </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../getting-started/">Getting Started</a>
-                </li>
-              </ul>
               <ul class="current">
                 <li class="toctree-l1 current"><a class="reference internal current" href="#">Requesting Routes</a>
     <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#using-the-in-built-demo-utility">Using the in-built demo utility</a>
+    <li class="toctree-l2"><a class="reference internal" href="#using-the-in-built-demo-utility-simplest">Using the in-built demo utility (simplest)</a>
         <ul>
     <li class="toctree-l3"><a class="reference internal" href="#usage">Usage</a>
     </li>
         </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#by-making-http-requests">By making HTTP requests</a>
     </li>
     </ul>
                 </li>
@@ -128,7 +126,7 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="requesting-routes">Requesting Routes</h1>
-<h2 id="using-the-in-built-demo-utility">Using the in-built demo utility</h2>
+<h2 id="using-the-in-built-demo-utility-simplest">Using the in-built demo utility (simplest)</h2>
 <p>A demo script is available in this repo (<code>polarrouteserver/demo.py</code>) to be used as a utility for making route requests.</p>
 <p>To obtain, either:</p>
 <ul>
@@ -171,11 +169,20 @@ options:
 <p>The utility will then request the route's status every <code>120</code> seconds.</p>
 <p>The HTTP response from each request will be printed to stdout.</p>
 <p>Once the route is available it will be returned, or if 10 attempts to get the route have passed, the utility will stop.</p>
+<h2 id="by-making-http-requests">By making HTTP requests</h2>
+<p>For details on the API, see the <a href="../api/">API reference page</a>.</p>
+<p>To request a route, make a POST request to the <code>/api/route</code> endpoint, for example the following using CURL</p>
+<pre><code>curl --header &quot;Content-Type: application/json&quot; \
+  --request POST \
+  --data '{&quot;start_lat&quot;:&quot;43.21&quot;,&quot;start_lon&quot;:&quot;43.21&quot;, &quot;end_lat&quot;:&quot;43.21&quot;,&quot;end_lon&quot;:&quot;43.21&quot;}' \
+  http://localhost:8000/api/route
+</code></pre>
+<p>This will return a <code>status-url</code> where you can request the status of the route calculation using a GET request, when the route is ready the same URL will return the route in the response.</p>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../getting-started/" class="btn btn-neutral float-left" title="Getting Started"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href=".." class="btn btn-neutral float-left" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
         <a href="../how-polarroute-server-works/" class="btn btn-neutral float-right" title="How PolarRoute-server works">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
@@ -203,7 +210,7 @@ options:
         </span>
     
     
-      <span><a href="../getting-started/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href=".." style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
       <span><a href="../how-polarroute-server-works/" style="color: #fcfcfc">Next &raquo;</a></span>

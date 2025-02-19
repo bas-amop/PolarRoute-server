@@ -45,10 +45,6 @@
                 </li>
               </ul>
               <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../getting-started/">Getting Started</a>
-                </li>
-              </ul>
-              <ul>
                 <li class="toctree-l1"><a class="reference internal" href="../requesting-routes/">Requesting Routes</a>
                 </li>
               </ul>
@@ -63,6 +59,12 @@
               <ul class="current">
                 <li class="toctree-l1 current"><a class="reference internal current" href="#">Configuration</a>
     <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#mesh-settings">Mesh settings</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#django-settings">Django settings</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#database-settings">Database settings</a>
+    </li>
     </ul>
                 </li>
               </ul>
@@ -122,12 +124,14 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="configuration">Configuration</h1>
-<p>Configuration of PolarRouteServer works with environment variables. You can either set these directly or from a <code>.env</code> file. An example <code>.env</code> file is included here as <code>env.example</code>.</p>
+<p>Configuration of PolarRouteServer works with environment variables. You can either set these directly or from a <code>.env</code> file. An example <code>.env</code> file is included in the repo as <code>env.example</code>.</p>
 <p>Environment variables used directly by the Django site are prefixed wit <code>POLARROUTE_</code> and those which configure Celery are prefixed with <code>CELERY_</code>.</p>
+<h2 id="mesh-settings">Mesh settings</h2>
 <ul>
 <li><code>POLARROUTE_MESH_DIR</code> - absolute path to directory where mesh files will be made available (this location is periodically checked in production and new files ingested into the database based on the metadata file). A warning is logged in production if this is not set.</li>
 <li><code>POLARROUTE_MESH_METADATA_DIR</code> - as above, absolute path to directory where mesh metadata files will be made available. If this is not set, the value of <code>POLARROUTE_MESH_DIR</code> is used and a warning to this effect is logged.</li>
 </ul>
+<h2 id="django-settings">Django settings</h2>
 <p>The following are inherited from Django and more information can be found on their effects via the <a href="https://docs.djangoproject.com/en/5.1/ref/settings/">Django docs</a>.</p>
 <ul>
 <li><code>POLARROUTE_DEBUG</code> - enables Django debug options, must be <code>False</code> in production (default: <code>False</code>)</li>
@@ -140,7 +144,7 @@
 <li><code>POLARROUTE_LOG_DIR</code> - sets the output directory for logs. By default only used in production settings environment.</li>
 <li><code>POLARROUTE_STATIC_ROOT</code> - the path to directory used for static file serving in production, e.g. <code>"/var/www/example.com/static/"</code> (Default: <code>None</code>) Note this is only used for the admin panel in this application.</li>
 </ul>
-<p>Database settings:</p>
+<h2 id="database-settings">Database settings</h2>
 <ul>
 <li><code>POLARROUTE_DB_NAME</code> - postgres database name (default: <code>polarroute</code>)</li>
 <li><code>POLARROUTE_DB_USER</code> - postgres database user (default: <code>polarroute</code>)</li>

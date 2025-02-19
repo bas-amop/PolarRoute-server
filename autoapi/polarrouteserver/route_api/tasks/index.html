@@ -45,10 +45,6 @@
                 </li>
               </ul>
               <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../../../../getting-started/">Getting Started</a>
-                </li>
-              </ul>
-              <ul>
                 <li class="toctree-l1"><a class="reference internal" href="../../../../requesting-routes/">Requesting Routes</a>
                 </li>
               </ul>
@@ -163,15 +159,7 @@
 
             <details class="quote">
               <summary>Source code in <code>polarrouteserver/route_api/tasks.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">149</span>
-<span class="normal">150</span>
-<span class="normal">151</span>
-<span class="normal">152</span>
-<span class="normal">153</span>
-<span class="normal">154</span>
-<span class="normal">155</span>
-<span class="normal">156</span>
-<span class="normal">157</span>
+              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">157</span>
 <span class="normal">158</span>
 <span class="normal">159</span>
 <span class="normal">160</span>
@@ -261,7 +249,15 @@
 <span class="normal">244</span>
 <span class="normal">245</span>
 <span class="normal">246</span>
-<span class="normal">247</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">bind</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="normal">247</span>
+<span class="normal">248</span>
+<span class="normal">249</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">bind</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">import_new_meshes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Look for new meshes and insert them into the database.&quot;&quot;&quot;</span>
 
@@ -554,7 +550,15 @@ Saves Route in database and returns route geojson as dictionary.</p>
 <span class="normal">143</span>
 <span class="normal">144</span>
 <span class="normal">145</span>
-<span class="normal">146</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">bind</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">task</span><span class="p">(</span><span class="n">bind</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">optimise_route</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">route_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
@@ -578,10 +582,18 @@ Saves Route in database and returns route geojson as dictionary.</p>
     <span class="k">if</span> <span class="n">backup_mesh_ids</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Also got backup mesh ids </span><span class="si">{</span><span class="n">backup_mesh_ids</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
+    <span class="c1"># add warning on mesh date if older than today</span>
     <span class="k">if</span> <span class="n">mesh</span><span class="o">.</span><span class="n">created</span><span class="o">.</span><span class="n">date</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">():</span>
         <span class="n">route</span><span class="o">.</span><span class="n">info</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;info&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Latest available mesh from </span><span class="si">{</span><span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">created</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;%Y/%m/</span><span class="si">%d</span><span class="s1"> %H:%M%S&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">}</span>
+
+    <span class="n">data_warning_message</span> <span class="o">=</span> <span class="n">check_mesh_data</span><span class="p">(</span><span class="n">mesh</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">data_warning_message</span> <span class="ow">is</span> <span class="ow">not</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">route</span><span class="o">.</span><span class="n">info</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">route</span><span class="o">.</span><span class="n">info</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;info&quot;</span><span class="p">:</span> <span class="n">data_warning_message</span><span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">route</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s2">&quot;info&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">info</span><span class="p">[</span><span class="s2">&quot;info&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">data_warning_message</span>
 
     <span class="c1"># convert waypoints into pandas dataframe for PolarRoute</span>
     <span class="n">waypoints</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
