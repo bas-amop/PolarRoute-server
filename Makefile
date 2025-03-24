@@ -136,7 +136,8 @@ stop-serve-dev: stop-rabbitmq stop-celery stop-dev-server # stop all dev serve c
 .PHONY: start-swagger
 start-swagger: ## Start swagger-ui container with API schema
 	@echo "+ $@"
-	@docker run -p 80:8080 -e SWAGGER_JSON=/schema.yml -v ${PWD}/docs/apischema.yml:/schema.yml --name ${SWAGGER_CONTAINER} swaggerapi/swagger-ui
+	@docker run -d -p 80:8080 -e SWAGGER_JSON=/schema.yml -v ${PWD}/docs/apischema.yml:/schema.yml --name ${SWAGGER_CONTAINER} swaggerapi/swagger-ui
+	@python -m webbrowser localhost:80
 
 .PHONY: stop-swagger
 stop-swagger: ## Stop swagger-ui docker container
