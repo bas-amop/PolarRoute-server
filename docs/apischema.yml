@@ -58,6 +58,21 @@ paths:
       responses:
         '204':
           description: No response body
+  /api/recent_routes:
+    get:
+      operationId: api_recent_routes
+      description: Return routes calculated within the last day.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/route-status-response'
+          description: ''
+      tags:
+      - api
   /api/mesh/{id}:
      get:
       operationId: api_mesh_get
