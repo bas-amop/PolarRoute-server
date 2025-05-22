@@ -7,16 +7,18 @@ from .base import *
 logger = logging.getLogger(__name__)
 
 if MESH_DIR is None:
-    logger.warning(
-        "POLARROUTE_MESH_DIR or POLARROUTE_MESH_METADATA_DIR not set, both are required to ingest new meshes into database.\n\
-                   No new meshes will be automatically ingested."
-    )
+    pass
+    # disabling these warnings in settings modules until we can resolve https://github.com/bas-amop/PolarRoute-server/issues/49
+    # logger.warning(
+    #     "POLARROUTE_MESH_DIR or POLARROUTE_MESH_METADATA_DIR not set, both are required to ingest new meshes into database.\n\
+    #                No new meshes will be automatically ingested."
+    # )
 else:
     if MESH_METADATA_DIR is None:
         MESH_METADATA_DIR = MESH_DIR
-        logger.warning(
-            f"POLARROUTE_MESH_METADATA_DIR not set. Using POLARROUTE_MESH_DIR as POLARROUTE_MESH_METADATA_DIR: {MESH_DIR}"
-        )
+        # logger.warning(
+        #     f"POLARROUTE_MESH_METADATA_DIR not set. Using POLARROUTE_MESH_DIR as POLARROUTE_MESH_METADATA_DIR: {MESH_DIR}"
+        # )
 
     CELERY_BEAT_SCHEDULE = {
         "import_meshes": {
