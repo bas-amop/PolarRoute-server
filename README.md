@@ -10,7 +10,7 @@
 A web server to manage requests for meshes and routes generated using the [PolarRoute](https://github.com/bas-amop/PolarRoute) and [MeshiPhi](https://github.com/bas-amop/MeshiPhi/) libraries,
 implemented using [Django](https://www.djangoproject.com/), [Celery](https://docs.celeryq.dev/) and [Django REST framework](https://www.django-rest-framework.org/).
 
-It currently takes *vessel* meshes created using MeshiPhi and serves requests for routes, which are calculated using PolarRoute.
+It currently takes *vessel* meshes created using MeshiPhi or [PolarRoute-pipeline](https://github.com/bas-amop/PolarRoute-pipeline) and serves requests for routes, which are calculated using PolarRoute.
 
 ## Setup/installation
 
@@ -28,7 +28,7 @@ Clone this repository and run `docker compose up` to build and start the service
 
 **Note**: In development, meshes are not automatically ingested into the database. Follow these steps to add a mesh to the database.
 
-1. Make a local directory structure with `mkdir -p data/mesh` and copy a vessel mesh file from MeshiPhi into `./data/mesh`, which is bind-mounted into the app container.
+1. Make a local directory structure with `mkdir -p data/mesh` (if it has not been created by `docker compose`) and copy a vessel mesh file from MeshiPhi or PolarRoute-pipeline into `./data/mesh`, which is bind-mounted into the app container.
 1. Run `docker compose exec app /bin/bash` to open a shell inside the running app container.
 2. Run `django-admin insert_mesh /usr/src/app/data/mesh/<MESH FILENAME>` to insert the mesh into the database manually.
 
