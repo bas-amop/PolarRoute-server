@@ -17,7 +17,7 @@ It currently takes *vessel* meshes created using MeshiPhi and serves requests fo
 PolarRouteServer can be installed from GitHub using `pip`.
 
 + Inside a virtual environment (e.g. venv, conda, etc.) run `pip install git+https://github.com/bas-amop/PolarRoute-server`
-  + To install a specific version append the tag, e.g. `pip intall git+https://github.com/bas-amop/PolarRoute-server@v0.1.6`
+  + To install a specific version append the tag, e.g. `pip install git+https://github.com/bas-amop/PolarRoute-server@v0.1.6`
   + Alternatively, clone this repository with git and install from source with `pip install -e .`
 
 ## Quickstart using docker compose (recommended)
