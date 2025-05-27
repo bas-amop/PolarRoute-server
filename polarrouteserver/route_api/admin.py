@@ -49,7 +49,8 @@ class RouteAdmin(admin.ModelAdmin):
         return f"{obj.prefetched_jobs[0].id}"
 
     def mesh_id(self, obj):
-        return str(obj.mesh.id) if obj.mesh else "-"
+        if obj.mesh:
+            return f"{obj.mesh.id}"
 
     display_start.short_description = "Start (lat,lon)"
     display_end.short_description = "End (lat,lon)"
