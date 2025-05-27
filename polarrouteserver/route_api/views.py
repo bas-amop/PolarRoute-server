@@ -341,10 +341,14 @@ class EvaluateRouteView(LoggingMixin, GenericAPIView):
         else:
             meshes = select_mesh_for_route_evaluation(route_json)
 
+        response_data = {"polarrouteserver-version": polarrouteserver_version}
+
         result_dict = evaluate_route(route_json, meshes[0])
 
+        response_data.update(result_dict)
+
         return Response(
-            result_dict,
+            response_data,
             headers={"Content-Type": "application/json"},
             status=rest_framework.status.HTTP_200_OK,
         )
