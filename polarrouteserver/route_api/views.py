@@ -1,4 +1,5 @@
 from datetime import datetime
+import importlib.metadata
 import logging
 
 from celery.result import AsyncResult
@@ -136,6 +137,9 @@ class RouteView(LoggingMixin, GenericAPIView):
                             "status-url": reverse(
                                 "route", args=[existing_job.id], request=request
                             ),
+                            "polarrouteserver-version": importlib.metadata.version(
+                                "polarrouteserver"
+                            ),
                         }
                     )
 
@@ -189,6 +193,7 @@ class RouteView(LoggingMixin, GenericAPIView):
             "id": job.id,
             # url to request status of requested route
             "status-url": reverse("route", args=[job.id], request=request),
+            "polarrouteserver-version": importlib.metadata.version("polarrouteserver"),
         }
 
         return Response(
