@@ -8,6 +8,7 @@ from rest_framework.test import APIRequestFactory
 import importlib.metadata
 import pytest
 
+from polarrouteserver import __version__ as polarrouteserver_version
 from polarrouteserver.route_api.views import EvaluateRouteView, MeshView, RouteView, RecentRoutesView
 from polarrouteserver.route_api.models import Job, Route
 from .utils import add_test_mesh_to_db
@@ -55,7 +56,6 @@ class TestRouteRequest(TestCase):
 
         # Test that the correct polarrouteserver version number is returned
         # in the response
-        polarrouteserver_version = importlib.metadata.version("polarrouteserver")
         assert response.data.get("polarrouteserver-version") == polarrouteserver_version
 
         # Test that requesting the same route doesn't start a new job.
