@@ -170,10 +170,16 @@ components:
           type: string
           nullable: true
           maxLength: 60
+        polarrouteserver-version:
+          type: string
+          nullable: false
 
     mesh-response:
       type: object
       properties:
+        polarrouteserver-version:
+          type: string
+          nullable: false
         id: 
           type: integer
         json: 
