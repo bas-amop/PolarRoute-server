@@ -47,6 +47,6 @@ Pre-fixed by `polarroute-server-`, the four services/containers are:
 * `celery-*`: Celery.
 * `app-*`: The Django server running PolarRoute-server's route API.
 
-Certain actions may rely on just a single service to be running, for example `make migrate` requires `polarroute-server-db-1` to be running. However, in practice, you will always be
+Certain actions may rely on just a single service to be running, for example `make migrate` requires `polarroute-server-db-1` to be running. However, in practice, you will always be running all four containers at the same time.
 
 Configurations for `docker compose up`'s execution are set in `compose.yml`.
