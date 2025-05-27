@@ -153,6 +153,9 @@ components:
           type: string
           format: url
           nullable: false
+        polarrouteserver-version:
+          type: string
+          nullable: false
 
     route-status-response:
       type: object
