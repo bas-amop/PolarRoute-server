@@ -23,6 +23,12 @@ $ django-admin migrate
 
 to build the database.
 
+When running this for the first time, you may need to point to your `DJANGO_SETTINGS_MODULE`:
+
+```shell
+export DJANGO_SETTINGS_MODULE=polarrouteserver.settings.development
+```
+
 ## Create a superuser in the database
 
 Run the following and follow the prompts.
