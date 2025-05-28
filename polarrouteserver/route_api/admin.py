@@ -21,12 +21,13 @@ class RouteAdmin(admin.ModelAdmin):
     list_select_related = ("mesh",)
 
     def get_queryset(self, request):
-        # Prefetch the latest job
+        # Just select mesh, ie the ForeignKey
         queryset = super().get_queryset(request).select_related("mesh")
 
-        job_qs = Job.objects.order_by("-datetime")
+        # Use prefetch to get the jobs with a single query
+        job_queryset = Job.objects.order_by("-datetime")
         queryset = queryset.prefetch_related(
-            Prefetch("job_set", queryset=job_qs, to_attr="prefetched_jobs")
+            Prefetch("job_set", queryset=job_queryset, to_attr="prefetched_jobs")
         )
 
         return queryset
