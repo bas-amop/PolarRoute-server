@@ -31,5 +31,3 @@ jobs:
       uses: MishaKav/pytest-coverage-comment@main
       with:
           pytest-coverage-path: ./pytest-coverage.txt
-    
-    - uses: astral-sh/ruff-action@v3
