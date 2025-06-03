@@ -6,7 +6,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  test:
 
     runs-on: ubuntu-latest
     strategy:
@@ -23,7 +23,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        python -m pip install .[tests,cov]
+        python -m pip install .[dev,cov]
     - name: Test with pytest
       run: |
         pytest --cov=polarrouteserver | tee pytest-coverage.txt
