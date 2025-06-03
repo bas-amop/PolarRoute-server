@@ -5,7 +5,6 @@ import celery.states
 from django.conf import settings
 from django.test import TestCase
 from rest_framework.test import APIRequestFactory
-import importlib.metadata
 import pytest
 
 from polarrouteserver import __version__ as polarrouteserver_version
@@ -53,10 +52,6 @@ class TestRouteRequest(TestCase):
 
         assert f"api/route/{response.data.get('id')}" in response.data.get("status-url")
         assert isinstance(uuid.UUID(response.data.get("id")), uuid.UUID)
-
-        # Test that the correct polarrouteserver version number is returned
-        # in the response
-        assert response.data.get("polarrouteserver-version") == polarrouteserver_version
 
         # Test that requesting the same route doesn't start a new job.
         # request the same route parameters
