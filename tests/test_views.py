@@ -7,6 +7,7 @@ from django.test import TestCase
 from rest_framework.test import APIRequestFactory
 import pytest
 
+from polarrouteserver import __version__ as polarrouteserver_version
 from polarrouteserver.route_api.views import EvaluateRouteView, MeshView, RouteView, RecentRoutesView
 from polarrouteserver.route_api.models import Job, Route
 from .utils import add_test_mesh_to_db
@@ -52,12 +53,14 @@ class TestRouteRequest(TestCase):
         assert f"api/route/{response.data.get('id')}" in response.data.get("status-url")
         assert isinstance(uuid.UUID(response.data.get("id")), uuid.UUID)
 
-    
         # Test that requesting the same route doesn't start a new job.
         # request the same route parameters
         request = self.factory.post("/api/route/", data=data, format="json")
         response2 = RouteView.as_view()(request)
         assert response.data.get('id') == response2.data.get('id')
+        assert response.data.get("polarrouteserver-version") == response2.data.get(
+            "polarrouteserver-version"
+        )
         assert f"api/route/{response.data.get('id')}" in response2.data.get("status-url")
 
     def test_evaluate_route(self):

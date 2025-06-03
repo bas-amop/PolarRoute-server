@@ -153,6 +153,9 @@ components:
           type: string
           format: url
           nullable: false
+        polarrouteserver-version:
+          type: string
+          nullable: false
 
     route-status-response:
       type: object
@@ -167,10 +170,16 @@ components:
           type: string
           nullable: true
           maxLength: 60
+        polarrouteserver-version:
+          type: string
+          nullable: false
 
     mesh-response:
       type: object
       properties:
+        polarrouteserver-version:
+          type: string
+          nullable: false
         id: 
           type: integer
         json: 
@@ -191,6 +200,9 @@ components:
     route-evaluation-response:
       type: object
       properties:
+        polarrouteserver-version:
+          type: string
+          nullable: false
         route:
           type: object
         fuel:

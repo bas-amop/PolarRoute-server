@@ -8,7 +8,9 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
+from polarrouteserver import __version__ as polarrouteserver_version
 from polarrouteserver.celery import app
+
 from .models import Job, Route, Mesh
 from .tasks import optimise_route
 from .serializers import RouteSerializer
@@ -136,6 +138,7 @@ class RouteView(LoggingMixin, GenericAPIView):
                             "status-url": reverse(
                                 "route", args=[existing_job.id], request=request
                             ),
+                            "polarrouteserver-version": polarrouteserver_version,
                         }
                     )
 
@@ -189,6 +192,7 @@ class RouteView(LoggingMixin, GenericAPIView):
             "id": job.id,
             # url to request status of requested route
             "status-url": reverse("route", args=[job.id], request=request),
+            "polarrouteserver-version": polarrouteserver_version,
         }
 
         return Response(
@@ -211,7 +215,11 @@ class RouteView(LoggingMixin, GenericAPIView):
         result = AsyncResult(id=str(id), app=app)
         status = result.state
 
-        data = {"id": str(id), "status": status}
+        data = {
+            "id": str(id),
+            "status": status,
+            "polarrouteserver-version": polarrouteserver_version,
+        }
 
         data.update(RouteSerializer(job.route).data)
 
@@ -264,7 +272,11 @@ class RecentRoutesView(LoggingMixin, GenericAPIView):
             result = AsyncResult(id=str(job.id), app=app)
             status = result.state
 
-            data = {"id": str(job.id), "status": status}
+            data = {
+                "id": str(job.id),
+                "status": status,
+                "polarrouteserver-version": polarrouteserver_version,
+            }
 
             data.update(RouteSerializer(route).data)
 
@@ -286,7 +298,7 @@ class MeshView(LoggingMixin, GenericAPIView):
             f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
         )
 
-        data = {}
+        data = {"polarrouteserver-version": polarrouteserver_version}
 
         try:
             mesh = Mesh.objects.get(id=id)
@@ -329,10 +341,14 @@ class EvaluateRouteView(LoggingMixin, GenericAPIView):
         else:
             meshes = select_mesh_for_route_evaluation(route_json)
 
+        response_data = {"polarrouteserver-version": polarrouteserver_version}
+
         result_dict = evaluate_route(route_json, meshes[0])
 
+        response_data.update(result_dict)
+
         return Response(
-            result_dict,
+            response_data,
             headers={"Content-Type": "application/json"},
             status=rest_framework.status.HTTP_200_OK,
         )
