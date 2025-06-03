@@ -51,7 +51,6 @@ dev = [
     "pre-commit",
     "pytest",
     "pytest-celery",
-    # "pytest-cov",
     "pytest-django",
     "ruff",
 ]
@@ -67,6 +66,9 @@ docs = [
 ]
 build = [
     "build"
+]
+cov = [
+    "pytest-cov"
 ]
 cov-badge = [
     "coverage-badge"
