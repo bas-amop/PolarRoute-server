@@ -1,6 +1,6 @@
 import django
+
 django.setup()
 
-from . import apps
-# from . import models
-from . import tasks
+from . import apps  # noqa
+from . import tasks  # noqa

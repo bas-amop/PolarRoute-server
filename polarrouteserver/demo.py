@@ -162,7 +162,7 @@ def parse_location(location: str) -> Location:
     """
     Args:
      location (str): a location either as the name of a standard location or latitude,longitude separated by a comma, e.g. -56.7,-65.01
-    
+
     Returns:
         a Location object
     """

@@ -205,7 +205,7 @@ base_routeplanner_config = {
 TRAVELTIME_CONFIG = base_routeplanner_config | {"objective_function": "traveltime"}
 FUEL_CONFIG = base_routeplanner_config | {"objective_function": "fuel"}
 
-# dictionary relating user-friendly name of data source with loader value used in vessel mesh json 
+# dictionary relating user-friendly name of data source with loader value used in vessel mesh json
 EXPECTED_MESH_DATA_SOURCES = {
     "bathymetry": "GEBCO",
     "current": "duacs_current",

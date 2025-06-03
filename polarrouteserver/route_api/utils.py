@@ -232,32 +232,32 @@ def select_mesh_for_route_evaluation(route: dict) -> Union[list[Mesh], None]:
 
     return select_mesh(min(lats), min(lons), max(lats), max(lons))
 
-    
+
 def check_mesh_data(mesh: Mesh) -> str:
-    """Check a mesh object for missing data sources. 
+    """Check a mesh object for missing data sources.
 
     Args:
         mesh (Mesh): mesh object to evaluate.
-    
+
     Returns:
         A user-friendly warning message as a string.
     """
 
     message = ""
 
-    mesh_data_sources = mesh.json['config']['mesh_info'].get('data_sources', None)
+    mesh_data_sources = mesh.json["config"]["mesh_info"].get("data_sources", None)
 
     # check for completely absent data sources
     if mesh_data_sources is None:
         message = "Mesh has no data sources."
         return message
-    
+
     expected_sources = settings.EXPECTED_MESH_DATA_SOURCES
     expected_num_data_files = settings.EXPECTED_MESH_DATA_FILES
 
     for data_type, data_loader in expected_sources.items():
         # check for missing individual data sources
-        data_source = [d for d in mesh_data_sources if d["loader"]==data_loader]
+        data_source = [d for d in mesh_data_sources if d["loader"] == data_loader]
         if len(data_source) == 0:
             message += f"No {data_type} data available for this mesh.\n"
 
@@ -267,7 +267,9 @@ def check_mesh_data(mesh: Mesh) -> str:
         # check for unexpected number of data files
         data_source_num_expected_files = expected_num_data_files.get(data_loader, None)
         if data_source_num_expected_files is not None:
-            actual_num_files = len([f for f in data_source[0]["params"]["files"] if f!=""]) # number of files removing empty strings
+            actual_num_files = len(
+                [f for f in data_source[0]["params"]["files"] if f != ""]
+            )  # number of files removing empty strings
             if actual_num_files != data_source_num_expected_files:
                 message += f"{actual_num_files} of expected {data_source_num_expected_files} days' data available for {data_type}.\n"
 
