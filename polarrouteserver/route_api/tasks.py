@@ -59,7 +59,7 @@ def optimise_route(
         }
 
     data_warning_message = check_mesh_data(mesh)
-    if data_warning_message is not "":
+    if data_warning_message != "":
         if route.info is None:
             route.info = {"info": data_warning_message}
         else:
@@ -115,7 +115,7 @@ def optimise_route(
             # Smooth the dijkstra routes
             rp.compute_smoothed_routes()
             # Save the smoothed route(s)
-            logger.info(f"Route smoothing {i+1}/{len(route_planners)} complete.")
+            logger.info(f"Route smoothing {i + 1}/{len(route_planners)} complete.")
             route_geojson = extract_geojson_routes(rp.to_json())
             route_geojson[0]["features"][0]["properties"]["objective_function"] = (
                 rp.config["objective_function"]
@@ -176,7 +176,7 @@ def import_new_meshes(self):
 
     # load in the metadata
     logger.info(
-        f"Loading metadata file from {os.path.join(settings.MESH_METADATA_DIR,latest_metadata_file)}"
+        f"Loading metadata file from {os.path.join(settings.MESH_METADATA_DIR, latest_metadata_file)}"
     )
     with gzip.open(latest_metadata_file, "rb") as f:
         metadata = yaml.load(f.read(), Loader=yaml.Loader)
@@ -214,10 +214,12 @@ def import_new_meshes(self):
 
         # cross reference md5 hash from file record in metadata to actual file on disk
         if md5 != record["md5"]:
-            logger.warning(f"Mesh file md5: {md5}\n\
+            logger.warning(
+                f"Mesh file md5: {md5}\n\
                            does not match\n\
                            Metadata md5: {record['md5']}\n\
-                           Skipping.")
+                           Skipping."
+            )
             # if md5 hash from metadata file does not match that of the file itself,
             # there may have been a filename clash, skip this one.
             continue

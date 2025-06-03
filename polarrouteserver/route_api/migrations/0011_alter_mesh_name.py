@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('route_api', '0010_alter_mesh_options'),
+        ("route_api", "0010_alter_mesh_options"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='mesh',
-            name='name',
+            model_name="mesh",
+            name="name",
             field=models.CharField(max_length=150, null=True),
         ),
     ]
