@@ -5,6 +5,7 @@
 [![Documentation](https://img.shields.io/badge/Documentation-blue)](https://bas-amop.github.io/PolarRoute-server/)
 [![GitHub Tag](https://img.shields.io/github/v/tag/bas-amop/PolarRoute-server?filter=v*.*.*&label=latest%20release)](https://github.com/bas-amop/PolarRoute-server/tags)
 [![GitHub License](https://img.shields.io/github/license/bas-amop/PolarRoute-server)](https://github.com/bas-amop/PolarRoute-server/blob/main/LICENSE)
+[![Test Status](https://img.shields.io/github/actions/workflow/status/bas-amop/polarroute-server/tests.yml?branch=main&event=push&label=tests)](https://github.com/bas-amop/PolarRoute-server/actions/workflows/tests.yml)
 
 A web server to manage requests for meshes and routes generated using the [PolarRoute](https://github.com/bas-amop/PolarRoute) and [MeshiPhi](https://github.com/bas-amop/MeshiPhi/) libraries,
 implemented using [Django](https://www.djangoproject.com/), [Celery](https://docs.celeryq.dev/) and [Django REST framework](https://www.django-rest-framework.org/).
