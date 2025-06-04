@@ -23,9 +23,10 @@ Version numbers should be used in tagging commits on the `main` branch and refle
 
 ## Building & deploying the documentation
 
-Run `make build-docs` to build the docs to the `./site` directory.
+The documentation should build automatically on pushes to `main` using GitHub actions, if you want to build and deploy the docs manually, follow these steps:
 
-Then run `make deploy-docs` to deploy to the `gh-pages` branch of the repository. You must have write access to the repo.
+* Run `make build-docs` to build the docs to the `./site` directory.
+* Then run `make deploy-docs` to deploy to the `gh-pages` branch of the repository. You must have write access to the repo.
 
 ## Making changes to the API
 
