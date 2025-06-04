@@ -112,7 +112,7 @@
           <li class="breadcrumb-item"><a href="../">route_api</a></li>
       <li class="breadcrumb-item active">serializers</li>
     <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/home/dalby/polarroute/server/polarrouteserver/route_api/serializers.py" class="icon icon-github"> Edit on GitHub</a>
+          <a href="https://github.com/home/runner/work/PolarRoute-server/PolarRoute-server/polarrouteserver/route_api/serializers.py" class="icon icon-github"> Edit on GitHub</a>
     </li>
   </ul>
   <hr/>
@@ -126,6 +126,7 @@
 
 <a id="polarrouteserver.route_api.serializers"></a>
     <div class="doc doc-contents first">
+
 
 
 
@@ -164,120 +165,65 @@
 
 
 
+
               <details class="quote">
                 <summary>Source code in <code>polarrouteserver/route_api/serializers.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 6</span>
-<span class="normal"> 7</span>
-<span class="normal"> 8</span>
-<span class="normal"> 9</span>
-<span class="normal">10</span>
-<span class="normal">11</span>
-<span class="normal">12</span>
-<span class="normal">13</span>
-<span class="normal">14</span>
-<span class="normal">15</span>
-<span class="normal">16</span>
-<span class="normal">17</span>
-<span class="normal">18</span>
-<span class="normal">19</span>
-<span class="normal">20</span>
-<span class="normal">21</span>
-<span class="normal">22</span>
-<span class="normal">23</span>
-<span class="normal">24</span>
-<span class="normal">25</span>
-<span class="normal">26</span>
-<span class="normal">27</span>
-<span class="normal">28</span>
-<span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
-<span class="normal">38</span>
-<span class="normal">39</span>
-<span class="normal">40</span>
-<span class="normal">41</span>
-<span class="normal">42</span>
-<span class="normal">43</span>
-<span class="normal">44</span>
-<span class="normal">45</span>
-<span class="normal">46</span>
-<span class="normal">47</span>
-<span class="normal">48</span>
-<span class="normal">49</span>
-<span class="normal">50</span>
-<span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
-<span class="normal">55</span>
-<span class="normal">56</span>
-<span class="normal">57</span>
-<span class="normal">58</span>
-<span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">RouteSerializer</span><span class="p">(</span><span class="n">serializers</span><span class="o">.</span><span class="n">ModelSerializer</span><span class="p">):</span>
-    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
-        <span class="n">model</span> <span class="o">=</span> <span class="n">Route</span>
-        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="s2">&quot;start_lat&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;start_lon&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;end_lat&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;end_lon&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;start_name&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;end_name&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;json&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;json_unsmoothed&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;polar_route_version&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;info&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mesh&quot;</span><span class="p">,</span>
-        <span class="p">]</span>
+                <pre class="highlight"><code class="language-python">class RouteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Route
+        fields = [
+            "start_lat",
+            "start_lon",
+            "end_lat",
+            "end_lon",
+            "start_name",
+            "end_name",
+            "json",
+            "json_unsmoothed",
+            "polar_route_version",
+            "info",
+            "mesh",
+        ]
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_representation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns unsmoothed routes if available when smoothed routes have failed.&quot;&quot;&quot;</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">to_representation</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+    def to_representation(self, instance):
+        """Returns unsmoothed routes if available when smoothed routes have failed."""
+        data = super().to_representation(instance)
 
-        <span class="n">smoothed</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">unsmoothed</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;json&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;traveltime&quot;</span><span class="p">,</span> <span class="s2">&quot;fuel&quot;</span><span class="p">):</span>
-            <span class="n">smoothed</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="p">[</span>
-                    <span class="n">x</span>
-                    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;json&quot;</span><span class="p">]</span>
-                    <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;features&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;properties&quot;</span><span class="p">][</span><span class="s2">&quot;objective_function&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">key</span>
-                <span class="p">]</span>
-                <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;json&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-                <span class="k">else</span> <span class="p">[]</span>
-            <span class="p">)</span>
-            <span class="n">unsmoothed</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="p">[</span>
-                    <span class="n">x</span>
-                    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;json_unsmoothed&quot;</span><span class="p">]</span>
-                    <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;features&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;properties&quot;</span><span class="p">][</span><span class="s2">&quot;objective_function&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">key</span>
-                <span class="p">]</span>
-                <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;json_unsmoothed&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-                <span class="k">else</span> <span class="p">[]</span>
-            <span class="p">)</span>
+        smoothed = {}
+        unsmoothed = {}
+        data["json"] = []
+        for key in ("traveltime", "fuel"):
+            smoothed[key] = (
+                [
+                    x
+                    for x in data["json"]
+                    if x[0]["features"][0]["properties"]["objective_function"] == key
+                ]
+                if data["json"] is not None
+                else []
+            )
+            unsmoothed[key] = (
+                [
+                    x
+                    for x in data["json_unsmoothed"]
+                    if x[0]["features"][0]["properties"]["objective_function"] == key
+                ]
+                if data["json_unsmoothed"] is not None
+                else []
+            )
 
-            <span class="c1"># if there is no smoothed route available, use unsmoothed in its place</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">smoothed</span><span class="p">[</span><span class="n">key</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">unsmoothed</span><span class="p">[</span><span class="n">key</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">data</span><span class="p">[</span><span class="s2">&quot;json&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">unsmoothed</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
-                <span class="n">data</span><span class="p">[</span><span class="s2">&quot;info&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Smoothing failed for </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">-optimisation, returning unsmoothed route.&quot;</span>
-                <span class="p">}</span>
-            <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">smoothed</span><span class="p">[</span><span class="n">key</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">unsmoothed</span><span class="p">[</span><span class="n">key</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">data</span><span class="p">[</span><span class="s2">&quot;info&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;No routes available for </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">-optimisation.&quot;</span><span class="p">}</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">data</span><span class="p">[</span><span class="s2">&quot;json&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">unsmoothed</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+            # if there is no smoothed route available, use unsmoothed in its place
+            if len(smoothed[key]) == 0 and len(unsmoothed[key]) == 1:
+                data["json"].extend(unsmoothed[key])
+                data["info"] = {
+                    "error": f"Smoothing failed for {key}-optimisation, returning unsmoothed route."
+                }
+            elif len(smoothed[key]) == 0 and len(unsmoothed[key]) == 0:
+                data["info"] = {"error": f"No routes available for {key}-optimisation."}
+            else:
+                data["json"].extend(unsmoothed[key])
 
-        <span class="k">return</span> <span class="n">data</span>
-</code></pre></div></td></tr></table></div>
+        return data</code></pre>
               </details>
 
 
@@ -296,7 +242,7 @@
 
 
 <h3 id="polarrouteserver.route_api.serializers.RouteSerializer.to_representation" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">to_representation</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span></code>
+            <code class="highlight language-python">to_representation(instance)</code>
 
 </h3>
 
@@ -305,86 +251,48 @@
 
         <p>Returns unsmoothed routes if available when smoothed routes have failed.</p>
 
+
             <details class="quote">
               <summary>Source code in <code>polarrouteserver/route_api/serializers.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">23</span>
-<span class="normal">24</span>
-<span class="normal">25</span>
-<span class="normal">26</span>
-<span class="normal">27</span>
-<span class="normal">28</span>
-<span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
-<span class="normal">38</span>
-<span class="normal">39</span>
-<span class="normal">40</span>
-<span class="normal">41</span>
-<span class="normal">42</span>
-<span class="normal">43</span>
-<span class="normal">44</span>
-<span class="normal">45</span>
-<span class="normal">46</span>
-<span class="normal">47</span>
-<span class="normal">48</span>
-<span class="normal">49</span>
-<span class="normal">50</span>
-<span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
-<span class="normal">55</span>
-<span class="normal">56</span>
-<span class="normal">57</span>
-<span class="normal">58</span>
-<span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">to_representation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Returns unsmoothed routes if available when smoothed routes have failed.&quot;&quot;&quot;</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">to_representation</span><span class="p">(</span><span class="n">instance</span><span class="p">)</span>
+              <pre class="highlight"><code class="language-python">def to_representation(self, instance):
+    """Returns unsmoothed routes if available when smoothed routes have failed."""
+    data = super().to_representation(instance)
 
-    <span class="n">smoothed</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">unsmoothed</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;json&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;traveltime&quot;</span><span class="p">,</span> <span class="s2">&quot;fuel&quot;</span><span class="p">):</span>
-        <span class="n">smoothed</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="p">[</span>
-                <span class="n">x</span>
-                <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;json&quot;</span><span class="p">]</span>
-                <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;features&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;properties&quot;</span><span class="p">][</span><span class="s2">&quot;objective_function&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">key</span>
-            <span class="p">]</span>
-            <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;json&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="k">else</span> <span class="p">[]</span>
-        <span class="p">)</span>
-        <span class="n">unsmoothed</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="p">[</span>
-                <span class="n">x</span>
-                <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;json_unsmoothed&quot;</span><span class="p">]</span>
-                <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;features&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;properties&quot;</span><span class="p">][</span><span class="s2">&quot;objective_function&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">key</span>
-            <span class="p">]</span>
-            <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;json_unsmoothed&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="k">else</span> <span class="p">[]</span>
-        <span class="p">)</span>
+    smoothed = {}
+    unsmoothed = {}
+    data["json"] = []
+    for key in ("traveltime", "fuel"):
+        smoothed[key] = (
+            [
+                x
+                for x in data["json"]
+                if x[0]["features"][0]["properties"]["objective_function"] == key
+            ]
+            if data["json"] is not None
+            else []
+        )
+        unsmoothed[key] = (
+            [
+                x
+                for x in data["json_unsmoothed"]
+                if x[0]["features"][0]["properties"]["objective_function"] == key
+            ]
+            if data["json_unsmoothed"] is not None
+            else []
+        )
 
-        <span class="c1"># if there is no smoothed route available, use unsmoothed in its place</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">smoothed</span><span class="p">[</span><span class="n">key</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">unsmoothed</span><span class="p">[</span><span class="n">key</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;json&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">unsmoothed</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
-            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;info&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Smoothing failed for </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">-optimisation, returning unsmoothed route.&quot;</span>
-            <span class="p">}</span>
-        <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">smoothed</span><span class="p">[</span><span class="n">key</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">unsmoothed</span><span class="p">[</span><span class="n">key</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;info&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;No routes available for </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">-optimisation.&quot;</span><span class="p">}</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;json&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">unsmoothed</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+        # if there is no smoothed route available, use unsmoothed in its place
+        if len(smoothed[key]) == 0 and len(unsmoothed[key]) == 1:
+            data["json"].extend(unsmoothed[key])
+            data["info"] = {
+                "error": f"Smoothing failed for {key}-optimisation, returning unsmoothed route."
+            }
+        elif len(smoothed[key]) == 0 and len(unsmoothed[key]) == 0:
+            data["info"] = {"error": f"No routes available for {key}-optimisation."}
+        else:
+            data["json"].extend(unsmoothed[key])
 
-    <span class="k">return</span> <span class="n">data</span>
-</code></pre></div></td></tr></table></div>
+    return data</code></pre>
             </details>
     </div>
 

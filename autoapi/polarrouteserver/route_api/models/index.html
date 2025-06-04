@@ -112,7 +112,7 @@
           <li class="breadcrumb-item"><a href="../">route_api</a></li>
       <li class="breadcrumb-item active">models</li>
     <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/home/dalby/polarroute/server/polarrouteserver/route_api/models.py" class="icon icon-github"> Edit on GitHub</a>
+          <a href="https://github.com/home/runner/work/PolarRoute-server/PolarRoute-server/polarrouteserver/route_api/models.py" class="icon icon-github"> Edit on GitHub</a>
     </li>
   </ul>
   <hr/>
@@ -126,6 +126,7 @@
 
 <a id="polarrouteserver.route_api.models"></a>
     <div class="doc doc-contents first">
+
 
 
 
@@ -166,36 +167,23 @@
 
 
 
+
               <details class="quote">
                 <summary>Source code in <code>polarrouteserver/route_api/models.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
-<span class="normal">55</span>
-<span class="normal">56</span>
-<span class="normal">57</span>
-<span class="normal">58</span>
-<span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span>
-<span class="normal">62</span>
-<span class="normal">63</span>
-<span class="normal">64</span>
-<span class="normal">65</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Job</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
-    <span class="s2">&quot;Route or mesh calculation jobs&quot;</span>
+                <pre class="highlight"><code class="language-python">class Job(models.Model):
+    "Route or mesh calculation jobs"
 
-    <span class="nb">id</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">UUIDField</span><span class="p">(</span>
-        <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span>
-    <span class="p">)</span>  <span class="c1"># use uuids for primary keys to align with celery</span>
+    id = models.UUIDField(
+        primary_key=True
+    )  # use uuids for primary keys to align with celery
 
-    <span class="n">datetime</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">now</span><span class="p">)</span>
-    <span class="n">route</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">ForeignKey</span><span class="p">(</span><span class="n">Route</span><span class="p">,</span> <span class="n">on_delete</span><span class="o">=</span><span class="n">models</span><span class="o">.</span><span class="n">SET_NULL</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    datetime = models.DateTimeField(default=timezone.now)
+    route = models.ForeignKey(Route, on_delete=models.SET_NULL, null=True)
 
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">AsyncResult</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">app</span><span class="o">=</span><span class="n">app</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">state</span>
-</code></pre></div></td></tr></table></div>
+    @property
+    def status(self):
+        result = AsyncResult(self.id, app=app)
+        return result.state</code></pre>
               </details>
 
 
@@ -239,52 +227,31 @@
 
 
 
+
               <details class="quote">
                 <summary>Source code in <code>polarrouteserver/route_api/models.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">12</span>
-<span class="normal">13</span>
-<span class="normal">14</span>
-<span class="normal">15</span>
-<span class="normal">16</span>
-<span class="normal">17</span>
-<span class="normal">18</span>
-<span class="normal">19</span>
-<span class="normal">20</span>
-<span class="normal">21</span>
-<span class="normal">22</span>
-<span class="normal">23</span>
-<span class="normal">24</span>
-<span class="normal">25</span>
-<span class="normal">26</span>
-<span class="normal">27</span>
-<span class="normal">28</span>
-<span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Mesh</span><span class="p">(</span><span class="n">models</span><span class="o">.</span><span class="n">Model</span><span class="p">):</span>
-    <span class="nb">id</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">BigAutoField</span><span class="p">(</span><span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">meshiphi_version</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">md5</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">64</span><span class="p">)</span>
-    <span class="n">valid_date_start</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">()</span>
-    <span class="n">valid_date_end</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateField</span><span class="p">()</span>
-    <span class="n">created</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">DateTimeField</span><span class="p">()</span>
-    <span class="n">lat_min</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">FloatField</span><span class="p">()</span>
-    <span class="n">lat_max</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">FloatField</span><span class="p">()</span>
-    <span class="n">lon_min</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">FloatField</span><span class="p">()</span>
-    <span class="n">lon_max</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">FloatField</span><span class="p">()</span>
-    <span class="n">json</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">JSONField</span><span class="p">(</span><span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="n">name</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">CharField</span><span class="p">(</span><span class="n">max_length</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span> <span class="n">null</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <pre class="highlight"><code class="language-python">class Mesh(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    meshiphi_version = models.CharField(max_length=60, null=True)
+    md5 = models.CharField(max_length=64)
+    valid_date_start = models.DateField()
+    valid_date_end = models.DateField()
+    created = models.DateTimeField()
+    lat_min = models.FloatField()
+    lat_max = models.FloatField()
+    lon_min = models.FloatField()
+    lon_max = models.FloatField()
+    json = models.JSONField(null=True)
+    name = models.CharField(max_length=150, null=True)
 
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Computes a metric for the size of a mesh.&quot;&quot;&quot;</span>
+    @property
+    def size(self) -&gt; float:
+        """Computes a metric for the size of a mesh."""
 
-        <span class="k">return</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lat_max</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">lat_min</span><span class="p">)</span> <span class="o">*</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lon_max</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">lon_min</span><span class="p">)</span>
+        return abs(self.lat_max - self.lat_min) * abs(self.lon_max - self.lon_min)
 
-    <span class="k">class</span><span class="w"> </span><span class="nc">Meta</span><span class="p">:</span>
-        <span class="n">verbose_name_plural</span> <span class="o">=</span> <span class="s2">&quot;Meshes&quot;</span>
-</code></pre></div></td></tr></table></div>
+    class Meta:
+        verbose_name_plural = "Meshes"</code></pre>
               </details>
 
 
@@ -302,7 +269,7 @@
 
 
 <h3 id="polarrouteserver.route_api.models.Mesh.size" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">size</span></code>
+            <code class="highlight language-python">size</code>
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-property"><code>property</code></small>
@@ -314,6 +281,7 @@
     <div class="doc doc-contents ">
 
         <p>Computes a metric for the size of a mesh.</p>
+
     </div>
 
 </div>

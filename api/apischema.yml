@@ -58,6 +58,21 @@ paths:
       responses:
         '204':
           description: No response body
+  /api/recent_routes:
+    get:
+      operationId: api_recent_routes
+      description: Return routes calculated within the last day.
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/route-status-response'
+          description: ''
+      tags:
+      - api
   /api/mesh/{id}:
      get:
       operationId: api_mesh_get
@@ -138,6 +153,9 @@ components:
           type: string
           format: url
           nullable: false
+        polarrouteserver-version:
+          type: string
+          nullable: false
 
     route-status-response:
       type: object
@@ -152,10 +170,16 @@ components:
           type: string
           nullable: true
           maxLength: 60
+        polarrouteserver-version:
+          type: string
+          nullable: false
 
     mesh-response:
       type: object
       properties:
+        polarrouteserver-version:
+          type: string
+          nullable: false
         id: 
           type: integer
         json: 
@@ -176,6 +200,9 @@ components:
     route-evaluation-response:
       type: object
       properties:
+        polarrouteserver-version:
+          type: string
+          nullable: false
         route:
           type: object
         fuel:

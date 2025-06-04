@@ -128,16 +128,15 @@
 <a href="https://github.com/bas-amop/PolarRoute-server"><img alt="Static Badge" src="https://img.shields.io/badge/GitHub_repo-black?logo=github" /></a>
 <a href="https://bas-amop.github.io/PolarRoute-server/"><img alt="Documentation" src="https://img.shields.io/badge/Documentation-blue" /></a>
 <a href="https://github.com/bas-amop/PolarRoute-server/tags"><img alt="GitHub Tag" src="https://img.shields.io/github/v/tag/bas-amop/PolarRoute-server?filter=v*.*.*&amp;label=latest%20release" /></a>
-<a href="https://github.com/bas-amop/PolarRoute-server/blob/main/LICENSE"><img alt="GitHub License" src="https://img.shields.io/github/license/bas-amop/PolarRoute-server" /></a>
-<img alt="" src="../coverage.svg" /></p>
+<a href="https://github.com/bas-amop/PolarRoute-server/blob/main/LICENSE"><img alt="GitHub License" src="https://img.shields.io/github/license/bas-amop/PolarRoute-server" /></a></p>
 <p>A web server to manage requests for meshes and routes generated using the <a href="https://github.com/bas-amop/PolarRoute">PolarRoute</a> and <a href="https://github.com/bas-amop/MeshiPhi/">MeshiPhi</a> libraries,
 implemented using <a href="https://www.djangoproject.com/">Django</a>, <a href="https://docs.celeryq.dev/">Celery</a> and <a href="https://www.django-rest-framework.org/">Django REST framework</a>.</p>
-<p>It currently takes <em>vessel</em> meshes created using MeshiPhi and serves requests for routes, which are calculated using PolarRoute.</p>
+<p>It currently takes <em>vessel</em> meshes created using MeshiPhi or <a href="https://github.com/bas-amop/PolarRoute-pipeline">PolarRoute-pipeline</a> and serves requests for routes, which are calculated using PolarRoute.</p>
 <h2 id="setupinstallation">Setup/installation</h2>
 <p>PolarRouteServer can be installed from GitHub using <code>pip</code>.</p>
 <ul>
 <li>Inside a virtual environment (e.g. venv, conda, etc.) run <code>pip install git+https://github.com/bas-amop/PolarRoute-server</code></li>
-<li>To install a specific version append the tag, e.g. <code>pip intall git+https://github.com/bas-amop/PolarRoute-server@v0.1.6</code></li>
+<li>To install a specific version append the tag, e.g. <code>pip install git+https://github.com/bas-amop/PolarRoute-server@v0.1.6</code></li>
 <li>Alternatively, clone this repository with git and install from source with <code>pip install -e .</code></li>
 </ul>
 <h2 id="quickstart-using-docker-compose-recommended">Quickstart using docker compose (recommended)</h2>
@@ -145,7 +144,7 @@ implemented using <a href="https://www.djangoproject.com/">Django</a>, <a href="
 <p>Clone this repository and run <code>docker compose up</code> to build and start the services.</p>
 <p><strong>Note</strong>: In development, meshes are not automatically ingested into the database. Follow these steps to add a mesh to the database.</p>
 <ol>
-<li>Make a local directory structure with <code>mkdir -p data/mesh</code> and copy a vessel mesh file from MeshiPhi into <code>./data/mesh</code>, which is bind-mounted into the app container.</li>
+<li>Make a local directory structure with <code>mkdir -p data/mesh</code> (if it has not been created by <code>docker compose</code>) and copy a vessel mesh file from MeshiPhi or PolarRoute-pipeline into <code>./data/mesh</code>, which is bind-mounted into the app container.</li>
 <li>Run <code>docker compose exec app /bin/bash</code> to open a shell inside the running app container.</li>
 <li>Run <code>django-admin insert_mesh /usr/src/app/data/mesh/&lt;MESH FILENAME&gt;</code> to insert the mesh into the database manually.</li>
 </ol>
@@ -209,5 +208,5 @@ docker compose exec app django-admin migrate
 
 <!--
 MkDocs version : 1.6.1
-Build Date UTC : 2025-02-19 16:59:14.090726+00:00
+Build Date UTC : 2025-06-04 15:17:47.765659+00:00
 -->

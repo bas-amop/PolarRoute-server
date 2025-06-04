@@ -142,8 +142,11 @@
 <h2 id="releaseversioning">Release/Versioning</h2>
 <p>Version numbers should be used in tagging commits on the <code>main</code> branch and reflected in the <code>pyproject.toml</code> file and should be of the form <code>v0.1.7</code> using the semantic versioning convention.</p>
 <h2 id="building-deploying-the-documentation">Building &amp; deploying the documentation</h2>
-<p>Run <code>make build-docs</code> to build the docs to the <code>./site</code> directory.</p>
-<p>Then run <code>make deploy-docs</code> to deploy to the <code>gh-pages</code> branch of the repository. You must have write access to the repo.</p>
+<p>The documentation should build automatically on pushes to <code>main</code> using GitHub actions, if you want to build and deploy the docs manually, follow these steps:</p>
+<ul>
+<li>Run <code>make build-docs</code> to build the docs to the <code>./site</code> directory.</li>
+<li>Then run <code>make deploy-docs</code> to deploy to the <code>gh-pages</code> branch of the repository. You must have write access to the repo.</li>
+</ul>
 <h2 id="making-changes-to-the-api">Making changes to the API</h2>
 <p>The API is documented in <code>./docs/apischema.yml</code> using the OpenAPI 3.0 standard (formerly known as swagger).</p>
 <p>Any changes to the Web API should be <strong>manually</strong> reflected in the schema. These can be checked by building the docs and checking the <a href="../api/">API reference page</a> or serving using swagger (<code>make start-swagger</code>).</p>

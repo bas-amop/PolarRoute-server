@@ -112,7 +112,7 @@
           <li class="breadcrumb-item"><a href="../">route_api</a></li>
       <li class="breadcrumb-item active">views</li>
     <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/home/dalby/polarroute/server/polarrouteserver/route_api/views.py" class="icon icon-github"> Edit on GitHub</a>
+          <a href="https://github.com/home/runner/work/PolarRoute-server/PolarRoute-server/polarrouteserver/route_api/views.py" class="icon icon-github"> Edit on GitHub</a>
     </li>
   </ul>
   <hr/>
@@ -126,6 +126,7 @@
 
 <a id="polarrouteserver.route_api.views"></a>
     <div class="doc doc-contents first">
+
 
 
 
@@ -164,90 +165,50 @@
 
 
 
+
               <details class="quote">
                 <summary>Source code in <code>polarrouteserver/route_api/views.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">25</span>
-<span class="normal">26</span>
-<span class="normal">27</span>
-<span class="normal">28</span>
-<span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
-<span class="normal">38</span>
-<span class="normal">39</span>
-<span class="normal">40</span>
-<span class="normal">41</span>
-<span class="normal">42</span>
-<span class="normal">43</span>
-<span class="normal">44</span>
-<span class="normal">45</span>
-<span class="normal">46</span>
-<span class="normal">47</span>
-<span class="normal">48</span>
-<span class="normal">49</span>
-<span class="normal">50</span>
-<span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
-<span class="normal">55</span>
-<span class="normal">56</span>
-<span class="normal">57</span>
-<span class="normal">58</span>
-<span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span>
-<span class="normal">62</span>
-<span class="normal">63</span>
-<span class="normal">64</span>
-<span class="normal">65</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">LoggingMixin</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Provides full logging of requests and responses</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+                <pre class="highlight"><code class="language-python">class LoggingMixin:
+    """
+    Provides full logging of requests and responses
+    """
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;django.request&quot;</span><span class="p">)</span>
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.logger = logging.getLogger("django.request")
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">initial</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="p">{</span>
-                    <span class="s2">&quot;request&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
-                    <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="p">,</span>
-                    <span class="s2">&quot;endpoint&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">path</span><span class="p">,</span>
-                    <span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">,</span>
-                    <span class="s2">&quot;ip_address&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;REMOTE_ADDR&quot;</span><span class="p">),</span>
-                    <span class="s2">&quot;user_agent&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;HTTP_USER_AGENT&quot;</span><span class="p">),</span>
-                <span class="p">}</span>
-            <span class="p">)</span>
-        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Error logging request data&quot;</span><span class="p">)</span>
+    def initial(self, request, *args, **kwargs):
+        try:
+            self.logger.debug(
+                {
+                    "request": request.data,
+                    "method": request.method,
+                    "endpoint": request.path,
+                    "user": request.user.username,
+                    "ip_address": request.META.get("REMOTE_ADDR"),
+                    "user_agent": request.META.get("HTTP_USER_AGENT"),
+                }
+            )
+        except Exception:
+            self.logger.exception("Error logging request data")
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">initial</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        super().initial(request, *args, **kwargs)
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">finalize_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="p">{</span>
-                    <span class="s2">&quot;response&quot;</span><span class="p">:</span> <span class="n">response</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
-                    <span class="s2">&quot;status_code&quot;</span><span class="p">:</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span><span class="p">,</span>
-                    <span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">user</span><span class="o">.</span><span class="n">username</span><span class="p">,</span>
-                    <span class="s2">&quot;ip_address&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;REMOTE_ADDR&quot;</span><span class="p">),</span>
-                    <span class="s2">&quot;user_agent&quot;</span><span class="p">:</span> <span class="n">request</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;HTTP_USER_AGENT&quot;</span><span class="p">),</span>
-                <span class="p">}</span>
-            <span class="p">)</span>
-        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Error logging response data&quot;</span><span class="p">)</span>
+    def finalize_response(self, request, response, *args, **kwargs):
+        try:
+            self.logger.debug(
+                {
+                    "response": response.data,
+                    "status_code": response.status_code,
+                    "user": request.user.username,
+                    "ip_address": request.META.get("REMOTE_ADDR"),
+                    "user_agent": request.META.get("HTTP_USER_AGENT"),
+                }
+            )
+        except Exception:
+            self.logger.exception("Error logging response data")
 
-        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">finalize_response</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</code></pre></div></td></tr></table></div>
+        return super().finalize_response(request, response, *args, **kwargs)</code></pre>
               </details>
 
 
@@ -283,7 +244,8 @@
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="polarrouteserver.route_api.views.LoggingMixin" href="#polarrouteserver.route_api.views.LoggingMixin">LoggingMixin</a></code>, <code><span title="rest_framework.generics.GenericAPIView">GenericAPIView</span></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="LoggingMixin (polarrouteserver.route_api.views.LoggingMixin)" href="#polarrouteserver.route_api.views.LoggingMixin">LoggingMixin</a></code>, <code><span title="rest_framework.generics.GenericAPIView">GenericAPIView</span></code></p>
+
 
 
 
@@ -293,80 +255,47 @@
 
               <details class="quote">
                 <summary>Source code in <code>polarrouteserver/route_api/views.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">244</span>
-<span class="normal">245</span>
-<span class="normal">246</span>
-<span class="normal">247</span>
-<span class="normal">248</span>
-<span class="normal">249</span>
-<span class="normal">250</span>
-<span class="normal">251</span>
-<span class="normal">252</span>
-<span class="normal">253</span>
-<span class="normal">254</span>
-<span class="normal">255</span>
-<span class="normal">256</span>
-<span class="normal">257</span>
-<span class="normal">258</span>
-<span class="normal">259</span>
-<span class="normal">260</span>
-<span class="normal">261</span>
-<span class="normal">262</span>
-<span class="normal">263</span>
-<span class="normal">264</span>
-<span class="normal">265</span>
-<span class="normal">266</span>
-<span class="normal">267</span>
-<span class="normal">268</span>
-<span class="normal">269</span>
-<span class="normal">270</span>
-<span class="normal">271</span>
-<span class="normal">272</span>
-<span class="normal">273</span>
-<span class="normal">274</span>
-<span class="normal">275</span>
-<span class="normal">276</span>
-<span class="normal">277</span>
-<span class="normal">278</span>
-<span class="normal">279</span>
-<span class="normal">280</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">RecentRoutesView</span><span class="p">(</span><span class="n">LoggingMixin</span><span class="p">,</span> <span class="n">GenericAPIView</span><span class="p">):</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get recent routes&quot;&quot;&quot;</span>
+                <pre class="highlight"><code class="language-python">class RecentRoutesView(LoggingMixin, GenericAPIView):
+    def get(self, request):
+        """Get recent routes"""
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2"> from </span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;REMOTE_ADDR&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="p">)</span>
+        logger.info(
+            f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
+        )
 
-        <span class="c1"># only get today&#39;s routes</span>
-        <span class="n">routes_today</span> <span class="o">=</span> <span class="n">Route</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">requested__date</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">())</span>
-        <span class="n">response_data</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">routes_today</span><span class="p">)</span><span class="si">}</span><span class="s2"> routes today.&quot;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">route</span> <span class="ow">in</span> <span class="n">routes_today</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">route</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">job</span> <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">job_set</span><span class="o">.</span><span class="n">latest</span><span class="p">(</span><span class="s2">&quot;datetime&quot;</span><span class="p">)</span>
-            <span class="k">except</span> <span class="n">Job</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Job does not exist for route </span><span class="si">{</span><span class="n">route</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="k">continue</span>
+        # only get today's routes
+        routes_today = Route.objects.filter(requested__date=datetime.now().date())
+        response_data = []
+        logger.debug(f"Found {len(routes_today)} routes today.")
+        for route in routes_today:
+            logger.debug(f"{route.id}")
+            try:
+                job = route.job_set.latest("datetime")
+            except Job.DoesNotExist:
+                logger.debug(f"Job does not exist for route {route.id}")
+                continue
 
-            <span class="n">result</span> <span class="o">=</span> <span class="n">AsyncResult</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">job</span><span class="o">.</span><span class="n">id</span><span class="p">),</span> <span class="n">app</span><span class="o">=</span><span class="n">app</span><span class="p">)</span>
-            <span class="n">status</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">state</span>
+            result = AsyncResult(id=str(job.id), app=app)
+            status = result.state
 
-            <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">job</span><span class="o">.</span><span class="n">id</span><span class="p">),</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="n">status</span><span class="p">}</span>
+            data = {
+                "id": str(job.id),
+                "status": status,
+                "polarrouteserver-version": polarrouteserver_version,
+            }
 
-            <span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">RouteSerializer</span><span class="p">(</span><span class="n">route</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+            data.update(RouteSerializer(route).data)
 
-            <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;FAILURE&quot;</span><span class="p">:</span>
-                <span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="n">route</span><span class="o">.</span><span class="n">info</span><span class="p">})</span>
+            if status == "FAILURE":
+                data.update({"error": route.info})
 
-            <span class="n">response_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            response_data.append(data)
 
-        <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
-            <span class="n">response_data</span><span class="p">,</span>
-            <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">},</span>
-            <span class="n">status</span><span class="o">=</span><span class="n">rest_framework</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_200_OK</span><span class="p">,</span>
-        <span class="p">)</span>
-</code></pre></div></td></tr></table></div>
+        return Response(
+            response_data,
+            headers={"Content-Type": "application/json"},
+            status=rest_framework.status.HTTP_200_OK,
+        )</code></pre>
               </details>
 
 
@@ -385,7 +314,7 @@
 
 
 <h3 id="polarrouteserver.route_api.views.RecentRoutesView.get" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">get</span><span class="p">(</span><span class="n">request</span><span class="p">)</span></code>
+            <code class="highlight language-python">get(request)</code>
 
 </h3>
 
@@ -394,80 +323,49 @@
 
         <p>Get recent routes</p>
 
+
             <details class="quote">
               <summary>Source code in <code>polarrouteserver/route_api/views.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">245</span>
-<span class="normal">246</span>
-<span class="normal">247</span>
-<span class="normal">248</span>
-<span class="normal">249</span>
-<span class="normal">250</span>
-<span class="normal">251</span>
-<span class="normal">252</span>
-<span class="normal">253</span>
-<span class="normal">254</span>
-<span class="normal">255</span>
-<span class="normal">256</span>
-<span class="normal">257</span>
-<span class="normal">258</span>
-<span class="normal">259</span>
-<span class="normal">260</span>
-<span class="normal">261</span>
-<span class="normal">262</span>
-<span class="normal">263</span>
-<span class="normal">264</span>
-<span class="normal">265</span>
-<span class="normal">266</span>
-<span class="normal">267</span>
-<span class="normal">268</span>
-<span class="normal">269</span>
-<span class="normal">270</span>
-<span class="normal">271</span>
-<span class="normal">272</span>
-<span class="normal">273</span>
-<span class="normal">274</span>
-<span class="normal">275</span>
-<span class="normal">276</span>
-<span class="normal">277</span>
-<span class="normal">278</span>
-<span class="normal">279</span>
-<span class="normal">280</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get recent routes&quot;&quot;&quot;</span>
+              <pre class="highlight"><code class="language-python">def get(self, request):
+    """Get recent routes"""
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2"> from </span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;REMOTE_ADDR&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-    <span class="p">)</span>
+    logger.info(
+        f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
+    )
 
-    <span class="c1"># only get today&#39;s routes</span>
-    <span class="n">routes_today</span> <span class="o">=</span> <span class="n">Route</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span><span class="n">requested__date</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">())</span>
-    <span class="n">response_data</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">routes_today</span><span class="p">)</span><span class="si">}</span><span class="s2"> routes today.&quot;</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">route</span> <span class="ow">in</span> <span class="n">routes_today</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">route</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">job</span> <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">job_set</span><span class="o">.</span><span class="n">latest</span><span class="p">(</span><span class="s2">&quot;datetime&quot;</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">Job</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Job does not exist for route </span><span class="si">{</span><span class="n">route</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">continue</span>
+    # only get today's routes
+    routes_today = Route.objects.filter(requested__date=datetime.now().date())
+    response_data = []
+    logger.debug(f"Found {len(routes_today)} routes today.")
+    for route in routes_today:
+        logger.debug(f"{route.id}")
+        try:
+            job = route.job_set.latest("datetime")
+        except Job.DoesNotExist:
+            logger.debug(f"Job does not exist for route {route.id}")
+            continue
 
-        <span class="n">result</span> <span class="o">=</span> <span class="n">AsyncResult</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">job</span><span class="o">.</span><span class="n">id</span><span class="p">),</span> <span class="n">app</span><span class="o">=</span><span class="n">app</span><span class="p">)</span>
-        <span class="n">status</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">state</span>
+        result = AsyncResult(id=str(job.id), app=app)
+        status = result.state
 
-        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">job</span><span class="o">.</span><span class="n">id</span><span class="p">),</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="n">status</span><span class="p">}</span>
+        data = {
+            "id": str(job.id),
+            "status": status,
+            "polarrouteserver-version": polarrouteserver_version,
+        }
 
-        <span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">RouteSerializer</span><span class="p">(</span><span class="n">route</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        data.update(RouteSerializer(route).data)
 
-        <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;FAILURE&quot;</span><span class="p">:</span>
-            <span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="n">route</span><span class="o">.</span><span class="n">info</span><span class="p">})</span>
+        if status == "FAILURE":
+            data.update({"error": route.info})
 
-        <span class="n">response_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        response_data.append(data)
 
-    <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
-        <span class="n">response_data</span><span class="p">,</span>
-        <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">},</span>
-        <span class="n">status</span><span class="o">=</span><span class="n">rest_framework</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_200_OK</span><span class="p">,</span>
-    <span class="p">)</span>
-</code></pre></div></td></tr></table></div>
+    return Response(
+        response_data,
+        headers={"Content-Type": "application/json"},
+        status=rest_framework.status.HTTP_200_OK,
+    )</code></pre>
             </details>
     </div>
 
@@ -494,7 +392,8 @@
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="polarrouteserver.route_api.views.LoggingMixin" href="#polarrouteserver.route_api.views.LoggingMixin">LoggingMixin</a></code>, <code><span title="rest_framework.generics.GenericAPIView">GenericAPIView</span></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="LoggingMixin (polarrouteserver.route_api.views.LoggingMixin)" href="#polarrouteserver.route_api.views.LoggingMixin">LoggingMixin</a></code>, <code><span title="rest_framework.generics.GenericAPIView">GenericAPIView</span></code></p>
+
 
 
 
@@ -504,354 +403,186 @@
 
               <details class="quote">
                 <summary>Source code in <code>polarrouteserver/route_api/views.py</code></summary>
-                <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 68</span>
-<span class="normal"> 69</span>
-<span class="normal"> 70</span>
-<span class="normal"> 71</span>
-<span class="normal"> 72</span>
-<span class="normal"> 73</span>
-<span class="normal"> 74</span>
-<span class="normal"> 75</span>
-<span class="normal"> 76</span>
-<span class="normal"> 77</span>
-<span class="normal"> 78</span>
-<span class="normal"> 79</span>
-<span class="normal"> 80</span>
-<span class="normal"> 81</span>
-<span class="normal"> 82</span>
-<span class="normal"> 83</span>
-<span class="normal"> 84</span>
-<span class="normal"> 85</span>
-<span class="normal"> 86</span>
-<span class="normal"> 87</span>
-<span class="normal"> 88</span>
-<span class="normal"> 89</span>
-<span class="normal"> 90</span>
-<span class="normal"> 91</span>
-<span class="normal"> 92</span>
-<span class="normal"> 93</span>
-<span class="normal"> 94</span>
-<span class="normal"> 95</span>
-<span class="normal"> 96</span>
-<span class="normal"> 97</span>
-<span class="normal"> 98</span>
-<span class="normal"> 99</span>
-<span class="normal">100</span>
-<span class="normal">101</span>
-<span class="normal">102</span>
-<span class="normal">103</span>
-<span class="normal">104</span>
-<span class="normal">105</span>
-<span class="normal">106</span>
-<span class="normal">107</span>
-<span class="normal">108</span>
-<span class="normal">109</span>
-<span class="normal">110</span>
-<span class="normal">111</span>
-<span class="normal">112</span>
-<span class="normal">113</span>
-<span class="normal">114</span>
-<span class="normal">115</span>
-<span class="normal">116</span>
-<span class="normal">117</span>
-<span class="normal">118</span>
-<span class="normal">119</span>
-<span class="normal">120</span>
-<span class="normal">121</span>
-<span class="normal">122</span>
-<span class="normal">123</span>
-<span class="normal">124</span>
-<span class="normal">125</span>
-<span class="normal">126</span>
-<span class="normal">127</span>
-<span class="normal">128</span>
-<span class="normal">129</span>
-<span class="normal">130</span>
-<span class="normal">131</span>
-<span class="normal">132</span>
-<span class="normal">133</span>
-<span class="normal">134</span>
-<span class="normal">135</span>
-<span class="normal">136</span>
-<span class="normal">137</span>
-<span class="normal">138</span>
-<span class="normal">139</span>
-<span class="normal">140</span>
-<span class="normal">141</span>
-<span class="normal">142</span>
-<span class="normal">143</span>
-<span class="normal">144</span>
-<span class="normal">145</span>
-<span class="normal">146</span>
-<span class="normal">147</span>
-<span class="normal">148</span>
-<span class="normal">149</span>
-<span class="normal">150</span>
-<span class="normal">151</span>
-<span class="normal">152</span>
-<span class="normal">153</span>
-<span class="normal">154</span>
-<span class="normal">155</span>
-<span class="normal">156</span>
-<span class="normal">157</span>
-<span class="normal">158</span>
-<span class="normal">159</span>
-<span class="normal">160</span>
-<span class="normal">161</span>
-<span class="normal">162</span>
-<span class="normal">163</span>
-<span class="normal">164</span>
-<span class="normal">165</span>
-<span class="normal">166</span>
-<span class="normal">167</span>
-<span class="normal">168</span>
-<span class="normal">169</span>
-<span class="normal">170</span>
-<span class="normal">171</span>
-<span class="normal">172</span>
-<span class="normal">173</span>
-<span class="normal">174</span>
-<span class="normal">175</span>
-<span class="normal">176</span>
-<span class="normal">177</span>
-<span class="normal">178</span>
-<span class="normal">179</span>
-<span class="normal">180</span>
-<span class="normal">181</span>
-<span class="normal">182</span>
-<span class="normal">183</span>
-<span class="normal">184</span>
-<span class="normal">185</span>
-<span class="normal">186</span>
-<span class="normal">187</span>
-<span class="normal">188</span>
-<span class="normal">189</span>
-<span class="normal">190</span>
-<span class="normal">191</span>
-<span class="normal">192</span>
-<span class="normal">193</span>
-<span class="normal">194</span>
-<span class="normal">195</span>
-<span class="normal">196</span>
-<span class="normal">197</span>
-<span class="normal">198</span>
-<span class="normal">199</span>
-<span class="normal">200</span>
-<span class="normal">201</span>
-<span class="normal">202</span>
-<span class="normal">203</span>
-<span class="normal">204</span>
-<span class="normal">205</span>
-<span class="normal">206</span>
-<span class="normal">207</span>
-<span class="normal">208</span>
-<span class="normal">209</span>
-<span class="normal">210</span>
-<span class="normal">211</span>
-<span class="normal">212</span>
-<span class="normal">213</span>
-<span class="normal">214</span>
-<span class="normal">215</span>
-<span class="normal">216</span>
-<span class="normal">217</span>
-<span class="normal">218</span>
-<span class="normal">219</span>
-<span class="normal">220</span>
-<span class="normal">221</span>
-<span class="normal">222</span>
-<span class="normal">223</span>
-<span class="normal">224</span>
-<span class="normal">225</span>
-<span class="normal">226</span>
-<span class="normal">227</span>
-<span class="normal">228</span>
-<span class="normal">229</span>
-<span class="normal">230</span>
-<span class="normal">231</span>
-<span class="normal">232</span>
-<span class="normal">233</span>
-<span class="normal">234</span>
-<span class="normal">235</span>
-<span class="normal">236</span>
-<span class="normal">237</span>
-<span class="normal">238</span>
-<span class="normal">239</span>
-<span class="normal">240</span>
-<span class="normal">241</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">RouteView</span><span class="p">(</span><span class="n">LoggingMixin</span><span class="p">,</span> <span class="n">GenericAPIView</span><span class="p">):</span>
-    <span class="n">serializer_class</span> <span class="o">=</span> <span class="n">RouteSerializer</span>
+                <pre class="highlight"><code class="language-python">class RouteView(LoggingMixin, GenericAPIView):
+    serializer_class = RouteSerializer
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Entry point for route requests&quot;&quot;&quot;</span>
+    def post(self, request):
+        """Entry point for route requests"""
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2"> from </span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;REMOTE_ADDR&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="p">)</span>
+        logger.info(
+            f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}: {request.data}"
+        )
 
-        <span class="n">data</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span>
+        data = request.data
 
-        <span class="c1"># TODO validate request JSON</span>
-        <span class="n">start_lat</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;start_lat&quot;</span><span class="p">]</span>
-        <span class="n">start_lon</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;start_lon&quot;</span><span class="p">]</span>
-        <span class="n">end_lat</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;end_lat&quot;</span><span class="p">]</span>
-        <span class="n">end_lon</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;end_lon&quot;</span><span class="p">]</span>
-        <span class="n">start_name</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;start_name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="n">end_name</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;end_name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="n">custom_mesh_id</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mesh_id&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="n">force_recalculate</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;force_recalculate&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        # TODO validate request JSON
+        start_lat = data["start_lat"]
+        start_lon = data["start_lon"]
+        end_lat = data["end_lat"]
+        end_lon = data["end_lon"]
+        start_name = data.get("start_name", None)
+        end_name = data.get("end_name", None)
+        custom_mesh_id = data.get("mesh_id", None)
+        force_recalculate = data.get("force_recalculate", False)
 
-        <span class="k">if</span> <span class="n">custom_mesh_id</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Got custom mesh id </span><span class="si">{</span><span class="n">custom_mesh_id</span><span class="si">}</span><span class="s2"> in request.&quot;</span><span class="p">)</span>
-                <span class="n">meshes</span> <span class="o">=</span> <span class="p">[</span><span class="n">Mesh</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">custom_mesh_id</span><span class="p">)]</span>
-            <span class="k">except</span> <span class="n">Mesh</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
-                <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Mesh id </span><span class="si">{</span><span class="n">custom_mesh_id</span><span class="si">}</span><span class="s2"> requested. Does not exist.&quot;</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-                <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
-                    <span class="n">data</span><span class="o">=</span><span class="p">{</span>
-                        <span class="s2">&quot;info&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="n">msg</span><span class="p">},</span>
-                        <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;FAILURE&quot;</span><span class="p">,</span>
-                    <span class="p">},</span>
-                    <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">},</span>
-                    <span class="n">status</span><span class="o">=</span><span class="n">rest_framework</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_202_ACCEPTED</span><span class="p">,</span>
-                <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">meshes</span> <span class="o">=</span> <span class="n">select_mesh</span><span class="p">(</span><span class="n">start_lat</span><span class="p">,</span> <span class="n">start_lon</span><span class="p">,</span> <span class="n">end_lat</span><span class="p">,</span> <span class="n">end_lon</span><span class="p">)</span>
+        if custom_mesh_id:
+            try:
+                logger.info(f"Got custom mesh id {custom_mesh_id} in request.")
+                meshes = [Mesh.objects.get(id=custom_mesh_id)]
+            except Mesh.DoesNotExist:
+                msg = f"Mesh id {custom_mesh_id} requested. Does not exist."
+                logger.info(msg)
+                return Response(
+                    data={
+                        "info": {"error": msg},
+                        "status": "FAILURE",
+                    },
+                    headers={"Content-Type": "application/json"},
+                    status=rest_framework.status.HTTP_202_ACCEPTED,
+                )
+        else:
+            meshes = select_mesh(start_lat, start_lon, end_lat, end_lon)
 
-        <span class="k">if</span> <span class="n">meshes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
-                <span class="n">data</span><span class="o">=</span><span class="p">{</span>
-                    <span class="s2">&quot;info&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;No suitable mesh available.&quot;</span><span class="p">},</span>
-                    <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;FAILURE&quot;</span><span class="p">,</span>
-                <span class="p">},</span>
-                <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">},</span>
-                <span class="n">status</span><span class="o">=</span><span class="n">rest_framework</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_200_OK</span><span class="p">,</span>
-            <span class="p">)</span>
+        if meshes is None:
+            return Response(
+                data={
+                    "info": {"error": "No suitable mesh available."},
+                    "status": "FAILURE",
+                },
+                headers={"Content-Type": "application/json"},
+                status=rest_framework.status.HTTP_200_OK,
+            )
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using meshes: </span><span class="si">{</span><span class="p">[</span><span class="n">mesh</span><span class="o">.</span><span class="n">id</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">mesh</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">meshes</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="c1"># TODO Future: calculate an up to date mesh if none available</span>
+        logger.debug(f"Using meshes: {[mesh.id for mesh in meshes]}")
+        # TODO Future: calculate an up to date mesh if none available
 
-        <span class="n">existing_route</span> <span class="o">=</span> <span class="n">route_exists</span><span class="p">(</span><span class="n">meshes</span><span class="p">,</span> <span class="n">start_lat</span><span class="p">,</span> <span class="n">start_lon</span><span class="p">,</span> <span class="n">end_lat</span><span class="p">,</span> <span class="n">end_lon</span><span class="p">)</span>
+        existing_route = route_exists(meshes, start_lat, start_lon, end_lat, end_lon)
 
-        <span class="k">if</span> <span class="n">existing_route</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">force_recalculate</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Existing route found: </span><span class="si">{</span><span class="n">existing_route</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="n">response_data</span> <span class="o">=</span> <span class="n">RouteSerializer</span><span class="p">(</span><span class="n">existing_route</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>
-                <span class="k">if</span> <span class="n">existing_route</span><span class="o">.</span><span class="n">job_set</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="n">existing_job</span> <span class="o">=</span> <span class="n">existing_route</span><span class="o">.</span><span class="n">job_set</span><span class="o">.</span><span class="n">latest</span><span class="p">(</span><span class="s2">&quot;datetime&quot;</span><span class="p">)</span>
+        if existing_route is not None:
+            if not force_recalculate:
+                logger.info(f"Existing route found: {existing_route}")
+                response_data = RouteSerializer(existing_route).data
+                if existing_route.job_set.count() &gt; 0:
+                    existing_job = existing_route.job_set.latest("datetime")
 
-                    <span class="n">response_data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-                        <span class="p">{</span>
-                            <span class="s2">&quot;info&quot;</span><span class="p">:</span> <span class="p">{</span>
-                                <span class="s2">&quot;info&quot;</span><span class="p">:</span> <span class="s2">&quot;Pre-existing route found and returned. To force new calculation, include &#39;force_recalculate&#39;: true in POST request.&quot;</span>
-                            <span class="p">},</span>
-                            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">existing_job</span><span class="o">.</span><span class="n">id</span><span class="p">),</span>
-                            <span class="s2">&quot;status-url&quot;</span><span class="p">:</span> <span class="n">reverse</span><span class="p">(</span>
-                                <span class="s2">&quot;route&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">existing_job</span><span class="o">.</span><span class="n">id</span><span class="p">],</span> <span class="n">request</span><span class="o">=</span><span class="n">request</span>
-                            <span class="p">),</span>
-                        <span class="p">}</span>
-                    <span class="p">)</span>
+                    response_data.update(
+                        {
+                            "info": {
+                                "info": "Pre-existing route found and returned. To force new calculation, include 'force_recalculate': true in POST request."
+                            },
+                            "id": str(existing_job.id),
+                            "status-url": reverse(
+                                "route", args=[existing_job.id], request=request
+                            ),
+                            "polarrouteserver-version": polarrouteserver_version,
+                        }
+                    )
 
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">response_data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-                        <span class="p">{</span>
-                            <span class="s2">&quot;info&quot;</span><span class="p">:</span> <span class="p">{</span>
-                                <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Pre-existing route was found but there was an error.</span><span class="se">\</span>
-<span class="s2">                                To force new calculation, include &#39;force_recalculate&#39;: true in POST request.&quot;</span>
-                            <span class="p">}</span>
-                        <span class="p">}</span>
-                    <span class="p">)</span>
-                <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
-                    <span class="n">data</span><span class="o">=</span><span class="n">response_data</span><span class="p">,</span>
-                    <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">},</span>
-                    <span class="n">status</span><span class="o">=</span><span class="n">rest_framework</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_202_ACCEPTED</span><span class="p">,</span>
-                <span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Found existing route(s) but got force_recalculate=</span><span class="si">{</span><span class="n">force_recalculate</span><span class="si">}</span><span class="s2">, beginning recalculation.&quot;</span>
-                <span class="p">)</span>
+                else:
+                    response_data.update(
+                        {
+                            "info": {
+                                "error": "Pre-existing route was found but there was an error.\
+                                To force new calculation, include 'force_recalculate': true in POST request."
+                            }
+                        }
+                    )
+                return Response(
+                    data=response_data,
+                    headers={"Content-Type": "application/json"},
+                    status=rest_framework.status.HTTP_202_ACCEPTED,
+                )
+            else:
+                logger.info(
+                    f"Found existing route(s) but got force_recalculate={force_recalculate}, beginning recalculation."
+                )
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Using mesh </span><span class="si">{</span><span class="n">meshes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> as primary mesh with </span><span class="si">{</span><span class="p">[</span><span class="n">mesh</span><span class="o">.</span><span class="n">id</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">mesh</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">meshes</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span><span class="si">}</span><span class="s2"> as backup.&quot;</span>
-        <span class="p">)</span>
+        logger.debug(
+            f"Using mesh {meshes[0].id} as primary mesh with {[mesh.id for mesh in meshes[1:]]} as backup."
+        )
 
-        <span class="c1"># Create route in database</span>
-        <span class="n">route</span> <span class="o">=</span> <span class="n">Route</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
-            <span class="n">start_lat</span><span class="o">=</span><span class="n">start_lat</span><span class="p">,</span>
-            <span class="n">start_lon</span><span class="o">=</span><span class="n">start_lon</span><span class="p">,</span>
-            <span class="n">end_lat</span><span class="o">=</span><span class="n">end_lat</span><span class="p">,</span>
-            <span class="n">end_lon</span><span class="o">=</span><span class="n">end_lon</span><span class="p">,</span>
-            <span class="n">mesh</span><span class="o">=</span><span class="n">meshes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-            <span class="n">start_name</span><span class="o">=</span><span class="n">start_name</span><span class="p">,</span>
-            <span class="n">end_name</span><span class="o">=</span><span class="n">end_name</span><span class="p">,</span>
-        <span class="p">)</span>
+        # Create route in database
+        route = Route.objects.create(
+            start_lat=start_lat,
+            start_lon=start_lon,
+            end_lat=end_lat,
+            end_lon=end_lon,
+            mesh=meshes[0],
+            start_name=start_name,
+            end_name=end_name,
+        )
 
-        <span class="c1"># Start the task calculation</span>
-        <span class="n">task</span> <span class="o">=</span> <span class="n">optimise_route</span><span class="o">.</span><span class="n">delay</span><span class="p">(</span>
-            <span class="n">route</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">backup_mesh_ids</span><span class="o">=</span><span class="p">[</span><span class="n">mesh</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">mesh</span> <span class="ow">in</span> <span class="n">meshes</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
-        <span class="p">)</span>
+        # Start the task calculation
+        task = optimise_route.delay(
+            route.id, backup_mesh_ids=[mesh.id for mesh in meshes[1:]]
+        )
 
-        <span class="c1"># Create database record representing the calculation job</span>
-        <span class="n">job</span> <span class="o">=</span> <span class="n">Job</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
-            <span class="nb">id</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
-            <span class="n">route</span><span class="o">=</span><span class="n">route</span><span class="p">,</span>
-        <span class="p">)</span>
+        # Create database record representing the calculation job
+        job = Job.objects.create(
+            id=task.id,
+            route=route,
+        )
 
-        <span class="c1"># Prepare response data</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">job</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
-            <span class="c1"># url to request status of requested route</span>
-            <span class="s2">&quot;status-url&quot;</span><span class="p">:</span> <span class="n">reverse</span><span class="p">(</span><span class="s2">&quot;route&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">job</span><span class="o">.</span><span class="n">id</span><span class="p">],</span> <span class="n">request</span><span class="o">=</span><span class="n">request</span><span class="p">),</span>
-        <span class="p">}</span>
+        # Prepare response data
+        data = {
+            "id": job.id,
+            # url to request status of requested route
+            "status-url": reverse("route", args=[job.id], request=request),
+            "polarrouteserver-version": polarrouteserver_version,
+        }
 
-        <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
-            <span class="n">data</span><span class="p">,</span>
-            <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">},</span>
-            <span class="n">status</span><span class="o">=</span><span class="n">rest_framework</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_202_ACCEPTED</span><span class="p">,</span>
-        <span class="p">)</span>
+        return Response(
+            data,
+            headers={"Content-Type": "application/json"},
+            status=rest_framework.status.HTTP_202_ACCEPTED,
+        )
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
-        <span class="s2">&quot;Return status of route calculation and route itself if complete.&quot;</span>
+    def get(self, request, id):
+        "Return status of route calculation and route itself if complete."
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2"> from </span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;REMOTE_ADDR&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="p">)</span>
+        logger.info(
+            f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
+        )
 
-        <span class="c1"># update job with latest state</span>
-        <span class="n">job</span> <span class="o">=</span> <span class="n">Job</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">)</span>
+        # update job with latest state
+        job = Job.objects.get(id=id)
 
-        <span class="c1"># status = job.status</span>
-        <span class="n">result</span> <span class="o">=</span> <span class="n">AsyncResult</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="p">),</span> <span class="n">app</span><span class="o">=</span><span class="n">app</span><span class="p">)</span>
-        <span class="n">status</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">state</span>
+        # status = job.status
+        result = AsyncResult(id=str(id), app=app)
+        status = result.state
 
-        <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="p">),</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="n">status</span><span class="p">}</span>
+        data = {
+            "id": str(id),
+            "status": status,
+            "polarrouteserver-version": polarrouteserver_version,
+        }
 
-        <span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">RouteSerializer</span><span class="p">(</span><span class="n">job</span><span class="o">.</span><span class="n">route</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        data.update(RouteSerializer(job.route).data)
 
-        <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;FAILURE&quot;</span><span class="p">:</span>
-            <span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="n">job</span><span class="o">.</span><span class="n">route</span><span class="o">.</span><span class="n">info</span><span class="p">})</span>
+        if status == "FAILURE":
+            data.update({"error": job.route.info})
 
-        <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
-            <span class="n">data</span><span class="p">,</span>
-            <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">},</span>
-            <span class="n">status</span><span class="o">=</span><span class="n">rest_framework</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_200_OK</span><span class="p">,</span>
-        <span class="p">)</span>
+        return Response(
+            data,
+            headers={"Content-Type": "application/json"},
+            status=rest_framework.status.HTTP_200_OK,
+        )
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Cancel route calculation&quot;&quot;&quot;</span>
+    def delete(self, request, id):
+        """Cancel route calculation"""
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2"> from </span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;REMOTE_ADDR&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="p">)</span>
+        logger.info(
+            f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
+        )
 
-        <span class="n">result</span> <span class="o">=</span> <span class="n">AsyncResult</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="p">),</span> <span class="n">app</span><span class="o">=</span><span class="n">app</span><span class="p">)</span>
-        <span class="n">result</span><span class="o">.</span><span class="n">revoke</span><span class="p">()</span>
+        result = AsyncResult(id=str(id), app=app)
+        result.revoke()
 
-        <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
-            <span class="p">{},</span>
-            <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">},</span>
-            <span class="n">status</span><span class="o">=</span><span class="n">rest_framework</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_202_ACCEPTED</span><span class="p">,</span>
-        <span class="p">)</span>
-</code></pre></div></td></tr></table></div>
+        return Response(
+            {},
+            headers={"Content-Type": "application/json"},
+            status=rest_framework.status.HTTP_202_ACCEPTED,
+        )</code></pre>
               </details>
 
 
@@ -870,7 +601,7 @@
 
 
 <h3 id="polarrouteserver.route_api.views.RouteView.delete" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">delete</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="nb">id</span><span class="p">)</span></code>
+            <code class="highlight language-python">delete(request, id)</code>
 
 </h3>
 
@@ -879,38 +610,24 @@
 
         <p>Cancel route calculation</p>
 
+
             <details class="quote">
               <summary>Source code in <code>polarrouteserver/route_api/views.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">227</span>
-<span class="normal">228</span>
-<span class="normal">229</span>
-<span class="normal">230</span>
-<span class="normal">231</span>
-<span class="normal">232</span>
-<span class="normal">233</span>
-<span class="normal">234</span>
-<span class="normal">235</span>
-<span class="normal">236</span>
-<span class="normal">237</span>
-<span class="normal">238</span>
-<span class="normal">239</span>
-<span class="normal">240</span>
-<span class="normal">241</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Cancel route calculation&quot;&quot;&quot;</span>
+              <pre class="highlight"><code class="language-python">def delete(self, request, id):
+    """Cancel route calculation"""
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2"> from </span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;REMOTE_ADDR&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-    <span class="p">)</span>
+    logger.info(
+        f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
+    )
 
-    <span class="n">result</span> <span class="o">=</span> <span class="n">AsyncResult</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="p">),</span> <span class="n">app</span><span class="o">=</span><span class="n">app</span><span class="p">)</span>
-    <span class="n">result</span><span class="o">.</span><span class="n">revoke</span><span class="p">()</span>
+    result = AsyncResult(id=str(id), app=app)
+    result.revoke()
 
-    <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
-        <span class="p">{},</span>
-        <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">},</span>
-        <span class="n">status</span><span class="o">=</span><span class="n">rest_framework</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_202_ACCEPTED</span><span class="p">,</span>
-    <span class="p">)</span>
-</code></pre></div></td></tr></table></div>
+    return Response(
+        {},
+        headers={"Content-Type": "application/json"},
+        status=rest_framework.status.HTTP_202_ACCEPTED,
+    )</code></pre>
             </details>
     </div>
 
@@ -920,7 +637,7 @@
 
 
 <h3 id="polarrouteserver.route_api.views.RouteView.get" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">get</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="nb">id</span><span class="p">)</span></code>
+            <code class="highlight language-python">get(request, id)</code>
 
 </h3>
 
@@ -929,60 +646,39 @@
 
         <p>Return status of route calculation and route itself if complete.</p>
 
+
             <details class="quote">
               <summary>Source code in <code>polarrouteserver/route_api/views.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">200</span>
-<span class="normal">201</span>
-<span class="normal">202</span>
-<span class="normal">203</span>
-<span class="normal">204</span>
-<span class="normal">205</span>
-<span class="normal">206</span>
-<span class="normal">207</span>
-<span class="normal">208</span>
-<span class="normal">209</span>
-<span class="normal">210</span>
-<span class="normal">211</span>
-<span class="normal">212</span>
-<span class="normal">213</span>
-<span class="normal">214</span>
-<span class="normal">215</span>
-<span class="normal">216</span>
-<span class="normal">217</span>
-<span class="normal">218</span>
-<span class="normal">219</span>
-<span class="normal">220</span>
-<span class="normal">221</span>
-<span class="normal">222</span>
-<span class="normal">223</span>
-<span class="normal">224</span>
-<span class="normal">225</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
-    <span class="s2">&quot;Return status of route calculation and route itself if complete.&quot;</span>
+              <pre class="highlight"><code class="language-python">def get(self, request, id):
+    "Return status of route calculation and route itself if complete."
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2"> from </span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;REMOTE_ADDR&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-    <span class="p">)</span>
+    logger.info(
+        f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
+    )
 
-    <span class="c1"># update job with latest state</span>
-    <span class="n">job</span> <span class="o">=</span> <span class="n">Job</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">id</span><span class="p">)</span>
+    # update job with latest state
+    job = Job.objects.get(id=id)
 
-    <span class="c1"># status = job.status</span>
-    <span class="n">result</span> <span class="o">=</span> <span class="n">AsyncResult</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="p">),</span> <span class="n">app</span><span class="o">=</span><span class="n">app</span><span class="p">)</span>
-    <span class="n">status</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">state</span>
+    # status = job.status
+    result = AsyncResult(id=str(id), app=app)
+    status = result.state
 
-    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="p">),</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="n">status</span><span class="p">}</span>
+    data = {
+        "id": str(id),
+        "status": status,
+        "polarrouteserver-version": polarrouteserver_version,
+    }
 
-    <span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">RouteSerializer</span><span class="p">(</span><span class="n">job</span><span class="o">.</span><span class="n">route</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+    data.update(RouteSerializer(job.route).data)
 
-    <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;FAILURE&quot;</span><span class="p">:</span>
-        <span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="n">job</span><span class="o">.</span><span class="n">route</span><span class="o">.</span><span class="n">info</span><span class="p">})</span>
+    if status == "FAILURE":
+        data.update({"error": job.route.info})
 
-    <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
-        <span class="n">data</span><span class="p">,</span>
-        <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">},</span>
-        <span class="n">status</span><span class="o">=</span><span class="n">rest_framework</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_200_OK</span><span class="p">,</span>
-    <span class="p">)</span>
-</code></pre></div></td></tr></table></div>
+    return Response(
+        data,
+        headers={"Content-Type": "application/json"},
+        status=rest_framework.status.HTTP_200_OK,
+    )</code></pre>
             </details>
     </div>
 
@@ -992,7 +688,7 @@
 
 
 <h3 id="polarrouteserver.route_api.views.RouteView.post" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">post</span><span class="p">(</span><span class="n">request</span><span class="p">)</span></code>
+            <code class="highlight language-python">post(request)</code>
 
 </h3>
 
@@ -1001,264 +697,139 @@
 
         <p>Entry point for route requests</p>
 
+
             <details class="quote">
               <summary>Source code in <code>polarrouteserver/route_api/views.py</code></summary>
-              <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 71</span>
-<span class="normal"> 72</span>
-<span class="normal"> 73</span>
-<span class="normal"> 74</span>
-<span class="normal"> 75</span>
-<span class="normal"> 76</span>
-<span class="normal"> 77</span>
-<span class="normal"> 78</span>
-<span class="normal"> 79</span>
-<span class="normal"> 80</span>
-<span class="normal"> 81</span>
-<span class="normal"> 82</span>
-<span class="normal"> 83</span>
-<span class="normal"> 84</span>
-<span class="normal"> 85</span>
-<span class="normal"> 86</span>
-<span class="normal"> 87</span>
-<span class="normal"> 88</span>
-<span class="normal"> 89</span>
-<span class="normal"> 90</span>
-<span class="normal"> 91</span>
-<span class="normal"> 92</span>
-<span class="normal"> 93</span>
-<span class="normal"> 94</span>
-<span class="normal"> 95</span>
-<span class="normal"> 96</span>
-<span class="normal"> 97</span>
-<span class="normal"> 98</span>
-<span class="normal"> 99</span>
-<span class="normal">100</span>
-<span class="normal">101</span>
-<span class="normal">102</span>
-<span class="normal">103</span>
-<span class="normal">104</span>
-<span class="normal">105</span>
-<span class="normal">106</span>
-<span class="normal">107</span>
-<span class="normal">108</span>
-<span class="normal">109</span>
-<span class="normal">110</span>
-<span class="normal">111</span>
-<span class="normal">112</span>
-<span class="normal">113</span>
-<span class="normal">114</span>
-<span class="normal">115</span>
-<span class="normal">116</span>
-<span class="normal">117</span>
-<span class="normal">118</span>
-<span class="normal">119</span>
-<span class="normal">120</span>
-<span class="normal">121</span>
-<span class="normal">122</span>
-<span class="normal">123</span>
-<span class="normal">124</span>
-<span class="normal">125</span>
-<span class="normal">126</span>
-<span class="normal">127</span>
-<span class="normal">128</span>
-<span class="normal">129</span>
-<span class="normal">130</span>
-<span class="normal">131</span>
-<span class="normal">132</span>
-<span class="normal">133</span>
-<span class="normal">134</span>
-<span class="normal">135</span>
-<span class="normal">136</span>
-<span class="normal">137</span>
-<span class="normal">138</span>
-<span class="normal">139</span>
-<span class="normal">140</span>
-<span class="normal">141</span>
-<span class="normal">142</span>
-<span class="normal">143</span>
-<span class="normal">144</span>
-<span class="normal">145</span>
-<span class="normal">146</span>
-<span class="normal">147</span>
-<span class="normal">148</span>
-<span class="normal">149</span>
-<span class="normal">150</span>
-<span class="normal">151</span>
-<span class="normal">152</span>
-<span class="normal">153</span>
-<span class="normal">154</span>
-<span class="normal">155</span>
-<span class="normal">156</span>
-<span class="normal">157</span>
-<span class="normal">158</span>
-<span class="normal">159</span>
-<span class="normal">160</span>
-<span class="normal">161</span>
-<span class="normal">162</span>
-<span class="normal">163</span>
-<span class="normal">164</span>
-<span class="normal">165</span>
-<span class="normal">166</span>
-<span class="normal">167</span>
-<span class="normal">168</span>
-<span class="normal">169</span>
-<span class="normal">170</span>
-<span class="normal">171</span>
-<span class="normal">172</span>
-<span class="normal">173</span>
-<span class="normal">174</span>
-<span class="normal">175</span>
-<span class="normal">176</span>
-<span class="normal">177</span>
-<span class="normal">178</span>
-<span class="normal">179</span>
-<span class="normal">180</span>
-<span class="normal">181</span>
-<span class="normal">182</span>
-<span class="normal">183</span>
-<span class="normal">184</span>
-<span class="normal">185</span>
-<span class="normal">186</span>
-<span class="normal">187</span>
-<span class="normal">188</span>
-<span class="normal">189</span>
-<span class="normal">190</span>
-<span class="normal">191</span>
-<span class="normal">192</span>
-<span class="normal">193</span>
-<span class="normal">194</span>
-<span class="normal">195</span>
-<span class="normal">196</span>
-<span class="normal">197</span>
-<span class="normal">198</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">post</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">request</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Entry point for route requests&quot;&quot;&quot;</span>
+              <pre class="highlight"><code class="language-python">def post(self, request):
+    """Entry point for route requests"""
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">path</span><span class="si">}</span><span class="s2"> from </span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">META</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;REMOTE_ADDR&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">request</span><span class="o">.</span><span class="n">data</span><span class="si">}</span><span class="s2">&quot;</span>
-    <span class="p">)</span>
+    logger.info(
+        f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}: {request.data}"
+    )
 
-    <span class="n">data</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">data</span>
+    data = request.data
 
-    <span class="c1"># TODO validate request JSON</span>
-    <span class="n">start_lat</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;start_lat&quot;</span><span class="p">]</span>
-    <span class="n">start_lon</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;start_lon&quot;</span><span class="p">]</span>
-    <span class="n">end_lat</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;end_lat&quot;</span><span class="p">]</span>
-    <span class="n">end_lon</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;end_lon&quot;</span><span class="p">]</span>
-    <span class="n">start_name</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;start_name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="n">end_name</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;end_name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="n">custom_mesh_id</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mesh_id&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="n">force_recalculate</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;force_recalculate&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    # TODO validate request JSON
+    start_lat = data["start_lat"]
+    start_lon = data["start_lon"]
+    end_lat = data["end_lat"]
+    end_lon = data["end_lon"]
+    start_name = data.get("start_name", None)
+    end_name = data.get("end_name", None)
+    custom_mesh_id = data.get("mesh_id", None)
+    force_recalculate = data.get("force_recalculate", False)
 
-    <span class="k">if</span> <span class="n">custom_mesh_id</span><span class="p">:</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Got custom mesh id </span><span class="si">{</span><span class="n">custom_mesh_id</span><span class="si">}</span><span class="s2"> in request.&quot;</span><span class="p">)</span>
-            <span class="n">meshes</span> <span class="o">=</span> <span class="p">[</span><span class="n">Mesh</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">custom_mesh_id</span><span class="p">)]</span>
-        <span class="k">except</span> <span class="n">Mesh</span><span class="o">.</span><span class="n">DoesNotExist</span><span class="p">:</span>
-            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Mesh id </span><span class="si">{</span><span class="n">custom_mesh_id</span><span class="si">}</span><span class="s2"> requested. Does not exist.&quot;</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
-                <span class="n">data</span><span class="o">=</span><span class="p">{</span>
-                    <span class="s2">&quot;info&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="n">msg</span><span class="p">},</span>
-                    <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;FAILURE&quot;</span><span class="p">,</span>
-                <span class="p">},</span>
-                <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">},</span>
-                <span class="n">status</span><span class="o">=</span><span class="n">rest_framework</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_202_ACCEPTED</span><span class="p">,</span>
-            <span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">meshes</span> <span class="o">=</span> <span class="n">select_mesh</span><span class="p">(</span><span class="n">start_lat</span><span class="p">,</span> <span class="n">start_lon</span><span class="p">,</span> <span class="n">end_lat</span><span class="p">,</span> <span class="n">end_lon</span><span class="p">)</span>
+    if custom_mesh_id:
+        try:
+            logger.info(f"Got custom mesh id {custom_mesh_id} in request.")
+            meshes = [Mesh.objects.get(id=custom_mesh_id)]
+        except Mesh.DoesNotExist:
+            msg = f"Mesh id {custom_mesh_id} requested. Does not exist."
+            logger.info(msg)
+            return Response(
+                data={
+                    "info": {"error": msg},
+                    "status": "FAILURE",
+                },
+                headers={"Content-Type": "application/json"},
+                status=rest_framework.status.HTTP_202_ACCEPTED,
+            )
+    else:
+        meshes = select_mesh(start_lat, start_lon, end_lat, end_lon)
 
-    <span class="k">if</span> <span class="n">meshes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
-            <span class="n">data</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;info&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;No suitable mesh available.&quot;</span><span class="p">},</span>
-                <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;FAILURE&quot;</span><span class="p">,</span>
-            <span class="p">},</span>
-            <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">},</span>
-            <span class="n">status</span><span class="o">=</span><span class="n">rest_framework</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_200_OK</span><span class="p">,</span>
-        <span class="p">)</span>
+    if meshes is None:
+        return Response(
+            data={
+                "info": {"error": "No suitable mesh available."},
+                "status": "FAILURE",
+            },
+            headers={"Content-Type": "application/json"},
+            status=rest_framework.status.HTTP_200_OK,
+        )
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using meshes: </span><span class="si">{</span><span class="p">[</span><span class="n">mesh</span><span class="o">.</span><span class="n">id</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">mesh</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">meshes</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="c1"># TODO Future: calculate an up to date mesh if none available</span>
+    logger.debug(f"Using meshes: {[mesh.id for mesh in meshes]}")
+    # TODO Future: calculate an up to date mesh if none available
 
-    <span class="n">existing_route</span> <span class="o">=</span> <span class="n">route_exists</span><span class="p">(</span><span class="n">meshes</span><span class="p">,</span> <span class="n">start_lat</span><span class="p">,</span> <span class="n">start_lon</span><span class="p">,</span> <span class="n">end_lat</span><span class="p">,</span> <span class="n">end_lon</span><span class="p">)</span>
+    existing_route = route_exists(meshes, start_lat, start_lon, end_lat, end_lon)
 
-    <span class="k">if</span> <span class="n">existing_route</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">force_recalculate</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Existing route found: </span><span class="si">{</span><span class="n">existing_route</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">response_data</span> <span class="o">=</span> <span class="n">RouteSerializer</span><span class="p">(</span><span class="n">existing_route</span><span class="p">)</span><span class="o">.</span><span class="n">data</span>
-            <span class="k">if</span> <span class="n">existing_route</span><span class="o">.</span><span class="n">job_set</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">existing_job</span> <span class="o">=</span> <span class="n">existing_route</span><span class="o">.</span><span class="n">job_set</span><span class="o">.</span><span class="n">latest</span><span class="p">(</span><span class="s2">&quot;datetime&quot;</span><span class="p">)</span>
+    if existing_route is not None:
+        if not force_recalculate:
+            logger.info(f"Existing route found: {existing_route}")
+            response_data = RouteSerializer(existing_route).data
+            if existing_route.job_set.count() &gt; 0:
+                existing_job = existing_route.job_set.latest("datetime")
 
-                <span class="n">response_data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-                    <span class="p">{</span>
-                        <span class="s2">&quot;info&quot;</span><span class="p">:</span> <span class="p">{</span>
-                            <span class="s2">&quot;info&quot;</span><span class="p">:</span> <span class="s2">&quot;Pre-existing route found and returned. To force new calculation, include &#39;force_recalculate&#39;: true in POST request.&quot;</span>
-                        <span class="p">},</span>
-                        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">existing_job</span><span class="o">.</span><span class="n">id</span><span class="p">),</span>
-                        <span class="s2">&quot;status-url&quot;</span><span class="p">:</span> <span class="n">reverse</span><span class="p">(</span>
-                            <span class="s2">&quot;route&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">existing_job</span><span class="o">.</span><span class="n">id</span><span class="p">],</span> <span class="n">request</span><span class="o">=</span><span class="n">request</span>
-                        <span class="p">),</span>
-                    <span class="p">}</span>
-                <span class="p">)</span>
+                response_data.update(
+                    {
+                        "info": {
+                            "info": "Pre-existing route found and returned. To force new calculation, include 'force_recalculate': true in POST request."
+                        },
+                        "id": str(existing_job.id),
+                        "status-url": reverse(
+                            "route", args=[existing_job.id], request=request
+                        ),
+                        "polarrouteserver-version": polarrouteserver_version,
+                    }
+                )
 
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">response_data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-                    <span class="p">{</span>
-                        <span class="s2">&quot;info&quot;</span><span class="p">:</span> <span class="p">{</span>
-                            <span class="s2">&quot;error&quot;</span><span class="p">:</span> <span class="s2">&quot;Pre-existing route was found but there was an error.</span><span class="se">\</span>
-<span class="s2">                            To force new calculation, include &#39;force_recalculate&#39;: true in POST request.&quot;</span>
-                        <span class="p">}</span>
-                    <span class="p">}</span>
-                <span class="p">)</span>
-            <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
-                <span class="n">data</span><span class="o">=</span><span class="n">response_data</span><span class="p">,</span>
-                <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">},</span>
-                <span class="n">status</span><span class="o">=</span><span class="n">rest_framework</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_202_ACCEPTED</span><span class="p">,</span>
-            <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Found existing route(s) but got force_recalculate=</span><span class="si">{</span><span class="n">force_recalculate</span><span class="si">}</span><span class="s2">, beginning recalculation.&quot;</span>
-            <span class="p">)</span>
+            else:
+                response_data.update(
+                    {
+                        "info": {
+                            "error": "Pre-existing route was found but there was an error.\
+                            To force new calculation, include 'force_recalculate': true in POST request."
+                        }
+                    }
+                )
+            return Response(
+                data=response_data,
+                headers={"Content-Type": "application/json"},
+                status=rest_framework.status.HTTP_202_ACCEPTED,
+            )
+        else:
+            logger.info(
+                f"Found existing route(s) but got force_recalculate={force_recalculate}, beginning recalculation."
+            )
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Using mesh </span><span class="si">{</span><span class="n">meshes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2"> as primary mesh with </span><span class="si">{</span><span class="p">[</span><span class="n">mesh</span><span class="o">.</span><span class="n">id</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">mesh</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">meshes</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span><span class="si">}</span><span class="s2"> as backup.&quot;</span>
-    <span class="p">)</span>
+    logger.debug(
+        f"Using mesh {meshes[0].id} as primary mesh with {[mesh.id for mesh in meshes[1:]]} as backup."
+    )
 
-    <span class="c1"># Create route in database</span>
-    <span class="n">route</span> <span class="o">=</span> <span class="n">Route</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
-        <span class="n">start_lat</span><span class="o">=</span><span class="n">start_lat</span><span class="p">,</span>
-        <span class="n">start_lon</span><span class="o">=</span><span class="n">start_lon</span><span class="p">,</span>
-        <span class="n">end_lat</span><span class="o">=</span><span class="n">end_lat</span><span class="p">,</span>
-        <span class="n">end_lon</span><span class="o">=</span><span class="n">end_lon</span><span class="p">,</span>
-        <span class="n">mesh</span><span class="o">=</span><span class="n">meshes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="n">start_name</span><span class="o">=</span><span class="n">start_name</span><span class="p">,</span>
-        <span class="n">end_name</span><span class="o">=</span><span class="n">end_name</span><span class="p">,</span>
-    <span class="p">)</span>
+    # Create route in database
+    route = Route.objects.create(
+        start_lat=start_lat,
+        start_lon=start_lon,
+        end_lat=end_lat,
+        end_lon=end_lon,
+        mesh=meshes[0],
+        start_name=start_name,
+        end_name=end_name,
+    )
 
-    <span class="c1"># Start the task calculation</span>
-    <span class="n">task</span> <span class="o">=</span> <span class="n">optimise_route</span><span class="o">.</span><span class="n">delay</span><span class="p">(</span>
-        <span class="n">route</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">backup_mesh_ids</span><span class="o">=</span><span class="p">[</span><span class="n">mesh</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">mesh</span> <span class="ow">in</span> <span class="n">meshes</span><span class="p">[</span><span class="mi">1</span><span class="p">:]]</span>
-    <span class="p">)</span>
+    # Start the task calculation
+    task = optimise_route.delay(
+        route.id, backup_mesh_ids=[mesh.id for mesh in meshes[1:]]
+    )
 
-    <span class="c1"># Create database record representing the calculation job</span>
-    <span class="n">job</span> <span class="o">=</span> <span class="n">Job</span><span class="o">.</span><span class="n">objects</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
-        <span class="nb">id</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
-        <span class="n">route</span><span class="o">=</span><span class="n">route</span><span class="p">,</span>
-    <span class="p">)</span>
+    # Create database record representing the calculation job
+    job = Job.objects.create(
+        id=task.id,
+        route=route,
+    )
 
-    <span class="c1"># Prepare response data</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">job</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
-        <span class="c1"># url to request status of requested route</span>
-        <span class="s2">&quot;status-url&quot;</span><span class="p">:</span> <span class="n">reverse</span><span class="p">(</span><span class="s2">&quot;route&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">[</span><span class="n">job</span><span class="o">.</span><span class="n">id</span><span class="p">],</span> <span class="n">request</span><span class="o">=</span><span class="n">request</span><span class="p">),</span>
-    <span class="p">}</span>
+    # Prepare response data
+    data = {
+        "id": job.id,
+        # url to request status of requested route
+        "status-url": reverse("route", args=[job.id], request=request),
+        "polarrouteserver-version": polarrouteserver_version,
+    }
 
-    <span class="k">return</span> <span class="n">Response</span><span class="p">(</span>
-        <span class="n">data</span><span class="p">,</span>
-        <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Content-Type&quot;</span><span class="p">:</span> <span class="s2">&quot;application/json&quot;</span><span class="p">},</span>
-        <span class="n">status</span><span class="o">=</span><span class="n">rest_framework</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">HTTP_202_ACCEPTED</span><span class="p">,</span>
-    <span class="p">)</span>
-</code></pre></div></td></tr></table></div>
+    return Response(
+        data,
+        headers={"Content-Type": "application/json"},
+        status=rest_framework.status.HTTP_202_ACCEPTED,
+    )</code></pre>
             </details>
     </div>
 
