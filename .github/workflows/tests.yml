@@ -2,8 +2,19 @@ name: Run tests and linting
 on:
   push:
     branches: [ "main" ]
+    paths-ignore:
+      - "docs/**"
+      - "mkdocs.yml"
+      - "README.md"
+      - "LICENSE"
+
   pull_request:
     branches: [ "main" ]
+    paths-ignore:
+      - "docs/**"
+      - "mkdocs.yml"
+      - "README.md"
+      - "LICENSE"
   workflow_dispatch:
 
 jobs:
