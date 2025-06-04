@@ -125,7 +125,7 @@
     <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
       <li class="breadcrumb-item active">Deployment</li>
     <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/bas-amop/polarroute-server/edit/master/docs/deployment.md" class="icon icon-github"> Edit on GitHub</a>
+          <a href="https://github.com/bas-amop/polarroute-server/edit/main/docs/deployment.md" class="icon icon-github"> Edit on GitHub</a>
     </li>
   </ul>
   <hr/>
@@ -149,6 +149,9 @@
 <pre><code class="language-shell">$ django-admin migrate
 </code></pre>
 <p>to build the database.</p>
+<p>When running this for the first time, you may need to point to your <code>DJANGO_SETTINGS_MODULE</code>:</p>
+<pre><code class="language-shell">export DJANGO_SETTINGS_MODULE=polarrouteserver.settings.development
+</code></pre>
 <h2 id="create-a-superuser-in-the-database">Create a superuser in the database</h2>
 <p>Run the following and follow the prompts.</p>
 <pre><code class="language-shell">$ django-admin createsuperuser

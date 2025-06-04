@@ -69,6 +69,8 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#making-changes-to-the-api">Making changes to the API</a>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#docker-containers-and-compose-configuration">Docker containers and compose configuration</a>
+    </li>
     </ul>
                 </li>
               </ul>
@@ -115,7 +117,7 @@
     <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
       <li class="breadcrumb-item active">Development</li>
     <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/bas-amop/polarroute-server/edit/master/docs/development.md" class="icon icon-github"> Edit on GitHub</a>
+          <a href="https://github.com/bas-amop/polarroute-server/edit/main/docs/development.md" class="icon icon-github"> Edit on GitHub</a>
     </li>
   </ul>
   <hr/>
@@ -134,6 +136,7 @@
 <ol>
 <li>Clone the repository and create and activate a python virtual environment of your choice.</li>
 <li>Inside a virtual environment or machine: <code>pip install -e .[dev]</code></li>
+<li>Make sure you have a running instance of the database, by running <code>docker compose up</code>, if it is not running already.</li>
 <li>Before first use, create the database by running <code>make migrate</code></li>
 <li>To start all of the services needed for the dev deployment run: <code>make serve-dev</code> (which sets the <code>DJANGO_SETTINGS_MODULE</code> environment variable and spins up celery, rabbitmq in a docker container, and the Django development server)</li>
 </ol>
@@ -150,6 +153,17 @@
 <h2 id="making-changes-to-the-api">Making changes to the API</h2>
 <p>The API is documented in <code>./docs/apischema.yml</code> using the OpenAPI 3.0 standard (formerly known as swagger).</p>
 <p>Any changes to the Web API should be <strong>manually</strong> reflected in the schema. These can be checked by building the docs and checking the <a href="../api/">API reference page</a> or serving using swagger (<code>make start-swagger</code>).</p>
+<h2 id="docker-containers-and-compose-configuration">Docker containers and compose configuration</h2>
+<p>PolarRoute-server relies on four different services, orchestrated by <a href="https://docs.docker.com/compose/install/">docker compose</a>, to each be running in their own docker container.</p>
+<p>As a user, you run a single <code>docker compose up</code> command to build and start these services.</p>
+<p>As a developer, it is useful to be aware of what exactly these containers are doing.</p>
+<p>Pre-fixed by <code>polarroute-server-</code>, the four services/containers are:
+* <code>db-*</code>: a PostgreSQL database.
+* <code>rabbitmq-*</code>: RabbitMQ.
+* <code>celery-*</code>: Celery.
+* <code>app-*</code>: The Django server running PolarRoute-server's route API.</p>
+<p>Certain actions may rely on just a single service to be running, for example <code>make migrate</code> requires <code>polarroute-server-db-1</code> to be running. However, in practice, you will always be running all four containers at the same time.</p>
+<p>Configurations for <code>docker compose up</code>'s execution are set in <code>compose.yml</code>.</p>
               
             </div>
           </div><footer>
