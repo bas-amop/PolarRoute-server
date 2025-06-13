@@ -33,22 +33,6 @@ class Mesh(models.Model):
         verbose_name_plural = "Meshes"
 
 
-class Route(models.Model):
-    requested = models.DateTimeField(default=timezone.now)
-    calculated = models.DateTimeField(null=True)
-    info = models.JSONField(null=True)
-    mesh = models.ForeignKey(Mesh, on_delete=models.SET_NULL, null=True)
-    start_lat = models.FloatField()
-    start_lon = models.FloatField()
-    end_lat = models.FloatField()
-    end_lon = models.FloatField()
-    start_name = models.CharField(max_length=100, null=True, blank=True, default=None)
-    end_name = models.CharField(max_length=100, null=True, blank=True, default=None)
-    json = models.JSONField(null=True)
-    json_unsmoothed = models.JSONField(null=True)
-    polar_route_version = models.CharField(max_length=60, null=True)
-
-
 class Vehicle(models.Model):
     # Required properties
     vessel_type = models.CharField(max_length=150, null=True, default=None, unique=True)
@@ -69,6 +53,22 @@ class Vehicle(models.Model):
     # Placeholder `created_by` may have future db relationship with users
     # e.g. models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     created_by = models.CharField(max_length=150, null=True)
+
+
+class Route(models.Model):
+    requested = models.DateTimeField(default=timezone.now)
+    calculated = models.DateTimeField(null=True)
+    info = models.JSONField(null=True)
+    mesh = models.ForeignKey(Mesh, on_delete=models.SET_NULL, null=True)
+    start_lat = models.FloatField()
+    start_lon = models.FloatField()
+    end_lat = models.FloatField()
+    end_lon = models.FloatField()
+    start_name = models.CharField(max_length=100, null=True, blank=True, default=None)
+    end_name = models.CharField(max_length=100, null=True, blank=True, default=None)
+    json = models.JSONField(null=True)
+    json_unsmoothed = models.JSONField(null=True)
+    polar_route_version = models.CharField(max_length=60, null=True)
 
 
 class Job(models.Model):
