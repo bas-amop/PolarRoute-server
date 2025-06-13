@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Mesh, Route
+from .models import Mesh, Route, Vehicle
 
 
 class RouteSerializer(serializers.ModelSerializer):
@@ -59,6 +59,24 @@ class RouteSerializer(serializers.ModelSerializer):
                 data["json"].extend(unsmoothed[key])
 
         return data
+
+
+class VehicleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Vehicle
+        fields = [
+            "vessel_type",
+            "max_speed",
+            "unit",
+            "max_ice_conc",
+            "min_depth",
+            "max_wave",
+            "excluded_zones",
+            "neighbour_splitting",
+            "beam",
+            "hull_type",
+            "force_limit",
+        ]
 
 
 class ModelSerializer(serializers.ModelSerializer):
