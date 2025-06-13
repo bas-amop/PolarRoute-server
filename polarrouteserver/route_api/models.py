@@ -49,7 +49,7 @@ class Route(models.Model):
     polar_route_version = models.CharField(max_length=60, null=True)
 
 
-class Vehicles(models.Model):
+class Vehicle(models.Model):
     # Required properties
     vessel_type = models.CharField(max_length=150, null=True, default=None, unique=True)
     max_speed = models.FloatField()
