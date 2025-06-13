@@ -50,14 +50,21 @@ class Route(models.Model):
 
 
 class Vehicles(models.Model):
-    vessel_type = models.CharField(max_length=150, null=True, default=None)
+    # Required properties
+    vessel_type = models.CharField(max_length=150, null=True, default=None, unique=True)
     max_speed = models.FloatField()
-    unit = models.CharField(max_length=100)
+    unit = models.CharField(max_length=150)
+    # Other properties defined in the schema
     max_ice_conc = models.FloatField(null=True)
     min_depth = models.FloatField(null=True)
     max_wave = models.FloatField(null=True)
     excluded_zones = models.JSONField(null=True)
     neighbour_splitting = models.BooleanField(null=True)
+    # Additional properties - SDA
+    beam = models.FloatField(null=True)
+    hull_type = models.CharField(null=True, max_length=150)
+    force_limit = models.FloatField(null=True)
+    # Django-related fields
     created = models.DateTimeField(null=True)
     # Placeholder `created_by` may have future db relationship with users
     # e.g. models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
