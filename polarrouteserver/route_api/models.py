@@ -49,6 +49,21 @@ class Route(models.Model):
     polar_route_version = models.CharField(max_length=60, null=True)
 
 
+class Vehicles(models.Model):
+    vessel_type = models.CharField(max_length=150, null=True, default=None)
+    max_speed = models.FloatField()
+    unit = models.CharField(max_length=100)
+    max_ice_conc = models.FloatField(null=True)
+    min_depth = models.FloatField(null=True)
+    max_wave = models.FloatField(null=True)
+    excluded_zones = models.JSONField(null=True)
+    neighbour_splitting = models.BooleanField(null=True)
+    created = models.DateTimeField(null=True)
+    # Placeholder `created_by` may have future db relationship with users
+    # e.g. models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    created_by = models.CharField(max_length=150, null=True)
+
+
 class Job(models.Model):
     "Route or mesh calculation jobs"
 
