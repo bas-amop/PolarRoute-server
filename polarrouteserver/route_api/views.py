@@ -11,9 +11,9 @@ from rest_framework.reverse import reverse
 from polarrouteserver import __version__ as polarrouteserver_version
 from polarrouteserver.celery import app
 
-from .models import Job, Route, Mesh
+from .models import Job, Vehicle, Route, Mesh
 from .tasks import optimise_route
-from .serializers import RouteSerializer
+from .serializers import VehicleSerializer, RouteSerializer
 from .utils import (
     evaluate_route,
     route_exists,
@@ -65,6 +65,59 @@ class LoggingMixin:
             self.logger.exception("Error logging response data")
 
         return super().finalize_response(request, response, *args, **kwargs)
+
+
+class VehicleView(LoggingMixin, GenericAPIView):
+    serializer_class = VehicleSerializer
+
+    def post(self, request):
+        """Entry point to create vehicles"""
+
+        logger.info(
+            f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}: {request.data}"
+        )
+
+        data = request.data
+
+        vessel_type = data["vessel_type"]
+        max_speed = data["max_speed"]
+        unit = data["unit"]
+        max_ice_conc = data["max_ice_conc", None]
+        min_depth = data["min_depth", None]
+        max_wave = data["max_wave", None]
+        excluded_zones = data["excluded_zones", None]
+        neighbour_splitting = data["neighbour_splitting", None]
+        beam = data["beam", None]
+        hull_type = data["hull_type", None]
+        force_limit = data["force_limit", None]
+
+        # Create vehicle in database
+        vehicle = Vehicle.objects.create(
+            vessel_type=vessel_type,
+            max_speed=max_speed,
+            unit=unit,
+            max_ice_conc=max_ice_conc,
+            min_depth=min_depth,
+            max_wave=max_wave,
+            excluded_zones=excluded_zones,
+            neighbour_splitting=neighbour_splitting,
+            beam=beam,
+            hull_type=hull_type,
+            force_limit=force_limit,
+        )
+
+        # Create logic if vehicle exists
+
+        # Logic for overwriting
+
+        # Prepare response data
+        data = {"vessel_type": vehicle.id}
+
+        return Response(
+            data,
+            headers={"Content-Type": "application/json"},
+            status=rest_framework.status.HTTP_202_ACCEPTED,
+        )
 
 
 class RouteView(LoggingMixin, GenericAPIView):
