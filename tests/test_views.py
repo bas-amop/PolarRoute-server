@@ -25,16 +25,18 @@ class TestVehicleRequest(TestCase):
     # Test vehicle is created successfully
     def test_create_update_vehicle(self, data=data):
         request = self.factory.post("/api/vehicle/", data=data, format="json")
-
         response = VehicleView.as_view()(request)
 
         self.assertEqual(response.status_code, 200)
 
         # Test creating a duplicate vehicle fails
-        request = self.factory.post("/api/vehicle/", data=data, format="json")
-        response = VehicleView.as_view()(request)
+        duplicate_request = self.factory.post("/api/vehicle/", data=data, format="json")
+        duplicate_response = VehicleView.as_view()(duplicate_request)
 
-        self.assertEqual(response.status_code, 406)
+        self.assertEqual(duplicate_response.status_code, 406)
+        self.assertIn(
+            "Pre-existing vehicle was found.", duplicate_response.data["info"]["error"]
+        )
 
         # Test force_properties allows for existing vessel_type to be updated
         data.update(
@@ -43,10 +45,14 @@ class TestVehicleRequest(TestCase):
             }
         )
 
-        request = self.factory.post("/api/vehicle/", data=data, format="json")
-        response = VehicleView.as_view()(request)
+        request_force = self.factory.post("/api/vehicle/", data=data, format="json")
+        response_force = VehicleView.as_view()(request_force)
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response_force.status_code, 200)
+
+        assert response.data.get("vessel_type") == response_force.data.get(
+            "vessel_type"
+        )
 
 
 class TestRouteRequest(TestCase):
