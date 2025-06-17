@@ -116,7 +116,7 @@ class VehicleView(LoggingMixin, GenericAPIView):
                         },
                     },
                     headers={"Content-Type": "application/json"},
-                    status=rest_framework.status.HTTP_202_ACCEPTED,
+                    status=rest_framework.status.HTTP_406_NOT_ACCEPTABLE,
                 )
 
             # If a user has specified force_properties, update using the queryset
