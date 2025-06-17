@@ -75,7 +75,7 @@ paths:
       - api
   /api/vehicle:
     post:
-      operationId: api_vehicle_create
+      operationId: api_vehicle_request
       description: Entry point creating vehicle
       tags:
       - api
@@ -83,20 +83,20 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/vehicle-create'
+              $ref: '#/components/schemas/vehicle-request'
         required: true
       responses:
         '202':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/vehicle-response'
+                $ref: '#/components/schemas/vehicle-request-response'
           description: ''
         '406':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/vehicle-response'
+                $ref: '#/components/schemas/vehicle-request-response'
           description: 'Duplicate vehicle created'     
   /api/mesh/{id}:
      get:
@@ -199,7 +199,7 @@ components:
           type: string
           nullable: false
     
-    vehicle-create:
+    vehicle-request:
       type: object
       properties:
         vessel_type:
@@ -237,7 +237,7 @@ components:
       - max_speed
       - unit
 
-    vehicle-response:
+    vehicle-request-response:
       type: object
       properties:
         vessel_type:
