@@ -100,8 +100,7 @@ class VehicleView(LoggingMixin, GenericAPIView):
 
         # If the vehicle exists, obtain it and return an error if user has not specified force_properties
         if vehicle_queryset.exists():
-            existing_vehicle = Vehicle.objects.get(vessel_type=vessel_type)
-            logger.info(f"Existing vehicle found: {existing_vehicle.vessel_type}")
+            logger.info(f"Existing vehicle found: {vessel_type}")
 
             if not force_properties:
                 return Response(
@@ -119,13 +118,11 @@ class VehicleView(LoggingMixin, GenericAPIView):
                     status=rest_framework.status.HTTP_406_NOT_ACCEPTABLE,
                 )
 
-            # If a user has specified force_properties, update using the queryset
+            # If a user has specified force_properties, update that vessel_type's properties
             vehicle_queryset.update(**vehicle_properties)
-            logger.info(
-                f"Updating properties for existing vehicle: {existing_vehicle.vessel_type}"
-            )
+            logger.info(f"Updating properties for existing vehicle: {vessel_type}")
 
-            response_data = {"vessel_type": existing_vehicle.vessel_type}
+            response_data = {"vessel_type": vessel_type}
 
         else:
             logger.info("Creating new vehicle:")
