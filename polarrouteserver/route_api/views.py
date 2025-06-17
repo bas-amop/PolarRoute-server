@@ -82,14 +82,14 @@ class VehicleView(LoggingMixin, GenericAPIView):
         vessel_type = data["vessel_type"]
         max_speed = data["max_speed"]
         unit = data["unit"]
-        max_ice_conc = data["max_ice_conc", None]
-        min_depth = data["min_depth", None]
-        max_wave = data["max_wave", None]
-        excluded_zones = data["excluded_zones", None]
-        neighbour_splitting = data["neighbour_splitting", None]
-        beam = data["beam", None]
-        hull_type = data["hull_type", None]
-        force_limit = data["force_limit", None]
+        max_ice_conc = data["max_ice_conc"]
+        min_depth = data.get("min_depth", None)
+        max_wave = data.get("max_wave", None)
+        excluded_zones = data.get("excluded_zones", None)
+        neighbour_splitting = data.get("neighbour_splitting", None)
+        beam = data.get("beam", None)
+        hull_type = data.get("hull_type", None)
+        force_limit = data.get("force_limit", None)
 
         # Create vehicle in database
         vehicle = Vehicle.objects.create(
