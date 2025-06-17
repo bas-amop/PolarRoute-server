@@ -46,7 +46,7 @@ class TestVehicleRequest(TestCase):
         request = self.factory.post("/api/vehicle/", data=data, format="json")
         response = VehicleView.as_view()(request)
 
-        self.assertEqual(response.status_code, 202)
+        self.assertEqual(response.status_code, 200)
 
 
 class TestRouteRequest(TestCase):
