@@ -78,43 +78,68 @@ class VehicleView(LoggingMixin, GenericAPIView):
         )
 
         data = request.data
-
         vessel_type = data["vessel_type"]
-        max_speed = data["max_speed"]
-        unit = data["unit"]
-        max_ice_conc = data["max_ice_conc"]
-        min_depth = data.get("min_depth", None)
-        max_wave = data.get("max_wave", None)
-        excluded_zones = data.get("excluded_zones", None)
-        neighbour_splitting = data.get("neighbour_splitting", None)
-        beam = data.get("beam", None)
-        hull_type = data.get("hull_type", None)
-        force_limit = data.get("force_limit", None)
+        force_properties = data.get("force_properties", None)
 
-        # Create vehicle in database
-        vehicle = Vehicle.objects.create(
-            vessel_type=vessel_type,
-            max_speed=max_speed,
-            unit=unit,
-            max_ice_conc=max_ice_conc,
-            min_depth=min_depth,
-            max_wave=max_wave,
-            excluded_zones=excluded_zones,
-            neighbour_splitting=neighbour_splitting,
-            beam=beam,
-            hull_type=hull_type,
-            force_limit=force_limit,
-        )
+        vehicle_properties = {
+            "max_speed": data["max_speed"],
+            "unit": data["unit"],
+            # Optional properties:
+            "max_ice_conc": data.get("max_ice_conc"),
+            "min_depth": data.get("min_depth"),
+            "max_wave": data.get("max_wave"),
+            "excluded_zones": data.get("excluded_zones"),
+            "neighbour_splitting": data.get("neighbour_splitting"),
+            "beam": data.get("beam"),
+            "hull_type": data.get("hull_type"),
+            "force_limit": data.get("force_limit"),
+        }
 
-        # Create logic if vehicle exists
+        # Check if vehicle exists already
+        vehicle_queryset = Vehicle.objects.filter(vessel_type=vessel_type)
 
-        # Logic for overwriting
+        # If the vehicle exists, obtain it and return an error if user has not specified force_properties
+        if vehicle_queryset.exists():
+            existing_vehicle = Vehicle.objects.get(vessel_type=vessel_type)
+            logger.info(f"Existing vehicle found: {existing_vehicle.vessel_type}")
 
-        # Prepare response data
-        data = {"vessel_type": vehicle.id}
+            if not force_properties:
+                return Response(
+                    data={
+                        **data,
+                        "info": {
+                            "error": (
+                                "Pre-existing vehicle was found. "
+                                "To force new properties on an existing vehicle, "
+                                "include 'force_properties': true in POST request."
+                            )
+                        },
+                    },
+                    headers={"Content-Type": "application/json"},
+                    status=rest_framework.status.HTTP_202_ACCEPTED,
+                )
+
+            # If a user has specified force_properties, update using the queryset
+            vehicle_queryset.update(**vehicle_properties)
+            logger.info(
+                f"Updating properties for existing vehicle: {existing_vehicle.vessel_type}"
+            )
+
+            response_data = {"vessel_type": existing_vehicle.vessel_type}
+
+        else:
+            logger.info("Creating new vehicle:")
+
+            # Create vehicle in database
+            vehicle = Vehicle.objects.create(
+                vessel_type=vessel_type, **vehicle_properties
+            )
+
+            # Prepare response data
+            response_data = {"vessel_type": vehicle.vessel_type}
 
         return Response(
-            data,
+            response_data,
             headers={"Content-Type": "application/json"},
             status=rest_framework.status.HTTP_202_ACCEPTED,
         )
