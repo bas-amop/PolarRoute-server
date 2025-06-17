@@ -138,7 +138,7 @@ class VehicleView(LoggingMixin, GenericAPIView):
         return Response(
             response_data,
             headers={"Content-Type": "application/json"},
-            status=rest_framework.status.HTTP_202_ACCEPTED,
+            status=rest_framework.status.HTTP_200_OK,
         )
 
 

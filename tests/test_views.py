@@ -28,7 +28,7 @@ class TestVehicleRequest(TestCase):
 
         response = VehicleView.as_view()(request)
 
-        self.assertEqual(response.status_code, 202)
+        self.assertEqual(response.status_code, 200)
 
         # Test creating a duplicate vehicle fails
         request = self.factory.post("/api/vehicle/", data=data, format="json")
