@@ -35,7 +35,9 @@ class Mesh(models.Model):
 
 class Vehicle(models.Model):
     # Required properties
-    vessel_type = models.CharField(max_length=150, null=True, default=None, unique=True)
+    vessel_type = models.CharField(
+        max_length=150, default=None, unique=True, primary_key=True
+    )
     max_speed = models.FloatField()
     unit = models.CharField(max_length=150)
     # Other properties defined in the schema
