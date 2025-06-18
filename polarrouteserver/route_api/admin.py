@@ -1,5 +1,5 @@
 from django.contrib import admin
-
+from django.db.models import Prefetch
 from .models import Route, Mesh, Job
 
 LIST_PER_PAGE = 20
@@ -18,25 +18,19 @@ class RouteAdmin(admin.ModelAdmin):
         "polar_route_version",
     ]
     ordering = ("-requested",)
+    list_select_related = ("mesh",)
 
     def get_queryset(self, request):
-        # Load only the fields necessary for the changelist view
-        queryset = super().get_queryset(request)
-        return queryset.only(
-            "id",
-            "start_lat",
-            "start_lon",
-            "end_lat",
-            "end_lat",
-            "requested",
-            "calculated",
-            "job",
-            "mesh_id",
-            "info",
-            "polar_route_version",
+        # Just select mesh, ie the ForeignKey
+        queryset = super().get_queryset(request).select_related("mesh")
+
+        # Use prefetch to get the jobs with a single query
+        job_queryset = Job.objects.order_by("-datetime")
+        queryset = queryset.prefetch_related(
+            Prefetch("job_set", queryset=job_queryset, to_attr="prefetched_jobs")
         )
 
-    list_select_related = ("mesh",)
+        return queryset
 
     def display_start(self, obj):
         if obj.start_name:
@@ -51,11 +45,9 @@ class RouteAdmin(admin.ModelAdmin):
             return f"({obj.end_lat},{obj.end_lon})"
 
     def job_id(self, obj):
-        if obj.job_set.count() == 0:
+        if not hasattr(obj, "prefetched_jobs") or not obj.prefetched_jobs:
             return "-"
-        else:
-            job = obj.job_set.latest("datetime")
-            return f"{job.id}"
+        return f"{obj.prefetched_jobs[0].id}"
 
     def mesh_id(self, obj):
         if obj.mesh:
