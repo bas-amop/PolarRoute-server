@@ -13,7 +13,7 @@ INTERNAL_IPS = [
 ]
 
 # required for correct INTERNAL_IPS setting in docker container
-import socket
+import socket #noqa
 
 hostname, _, ips = socket.gethostbyname_ex(socket.gethostname())
 INTERNAL_IPS += [".".join(ip.split(".")[:-1] + ["1"]) for ip in ips]
