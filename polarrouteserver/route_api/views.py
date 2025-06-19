@@ -11,9 +11,9 @@ from rest_framework.reverse import reverse
 from polarrouteserver import __version__ as polarrouteserver_version
 from polarrouteserver.celery import app
 
-from .models import Job, Route, Mesh
+from .models import Job, Vehicle, Route, Mesh
 from .tasks import optimise_route
-from .serializers import RouteSerializer
+from .serializers import VehicleSerializer, RouteSerializer
 from .utils import (
     evaluate_route,
     route_exists,
@@ -65,6 +65,81 @@ class LoggingMixin:
             self.logger.exception("Error logging response data")
 
         return super().finalize_response(request, response, *args, **kwargs)
+
+
+class VehicleView(LoggingMixin, GenericAPIView):
+    serializer_class = VehicleSerializer
+
+    def post(self, request):
+        """Entry point to create vehicles"""
+
+        logger.info(
+            f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}: {request.data}"
+        )
+
+        data = request.data
+        vessel_type = data["vessel_type"]
+        force_properties = data.get("force_properties", None)
+
+        vehicle_properties = {
+            "max_speed": data["max_speed"],
+            "unit": data["unit"],
+            # Optional properties:
+            "max_ice_conc": data.get("max_ice_conc"),
+            "min_depth": data.get("min_depth"),
+            "max_wave": data.get("max_wave"),
+            "excluded_zones": data.get("excluded_zones"),
+            "neighbour_splitting": data.get("neighbour_splitting"),
+            "beam": data.get("beam"),
+            "hull_type": data.get("hull_type"),
+            "force_limit": data.get("force_limit"),
+        }
+
+        # Check if vehicle exists already
+        vehicle_queryset = Vehicle.objects.filter(vessel_type=vessel_type)
+
+        # If the vehicle exists, obtain it and return an error if user has not specified force_properties
+        if vehicle_queryset.exists():
+            logger.info(f"Existing vehicle found: {vessel_type}")
+
+            if not force_properties:
+                return Response(
+                    data={
+                        **data,
+                        "info": {
+                            "error": (
+                                "Pre-existing vehicle was found. "
+                                "To force new properties on an existing vehicle, "
+                                "include 'force_properties': true in POST request."
+                            )
+                        },
+                    },
+                    headers={"Content-Type": "application/json"},
+                    status=rest_framework.status.HTTP_406_NOT_ACCEPTABLE,
+                )
+
+            # If a user has specified force_properties, update that vessel_type's properties
+            vehicle_queryset.update(**vehicle_properties)
+            logger.info(f"Updating properties for existing vehicle: {vessel_type}")
+
+            response_data = {"vessel_type": vessel_type}
+
+        else:
+            logger.info("Creating new vehicle:")
+
+            # Create vehicle in database
+            vehicle = Vehicle.objects.create(
+                vessel_type=vessel_type, **vehicle_properties
+            )
+
+            # Prepare response data
+            response_data = {"vessel_type": vehicle.vessel_type}
+
+        return Response(
+            response_data,
+            headers={"Content-Type": "application/json"},
+            status=rest_framework.status.HTTP_200_OK,
+        )
 
 
 class RouteView(LoggingMixin, GenericAPIView):

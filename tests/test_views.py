@@ -8,9 +8,51 @@ from rest_framework.test import APIRequestFactory
 import pytest
 
 from polarrouteserver import __version__ as polarrouteserver_version
-from polarrouteserver.route_api.views import EvaluateRouteView, MeshView, RouteView, RecentRoutesView
+from polarrouteserver.route_api.views import EvaluateRouteView, MeshView, VehicleView, RouteView, RecentRoutesView
 from polarrouteserver.route_api.models import Job, Route
 from .utils import add_test_mesh_to_db
+
+
+class TestVehicleRequest(TestCase):
+    with open(settings.TEST_VEHICLE_PATH) as fp:
+        vessel_config = json.load(fp)
+
+    data = dict(vessel_config)
+
+    def setUp(self):
+        self.factory = APIRequestFactory()
+
+    # Test vehicle is created successfully
+    def test_create_update_vehicle(self, data=data):
+        request = self.factory.post("/api/vehicle/", data=data, format="json")
+        response = VehicleView.as_view()(request)
+
+        self.assertEqual(response.status_code, 200)
+
+        # Test creating a duplicate vehicle fails
+        duplicate_request = self.factory.post("/api/vehicle/", data=data, format="json")
+        duplicate_response = VehicleView.as_view()(duplicate_request)
+
+        self.assertEqual(duplicate_response.status_code, 406)
+        self.assertIn(
+            "Pre-existing vehicle was found.", duplicate_response.data["info"]["error"]
+        )
+
+        # Test force_properties allows for existing vessel_type to be updated
+        data.update(
+            {
+                "force_properties":True
+            }
+        )
+
+        request_force = self.factory.post("/api/vehicle/", data=data, format="json")
+        response_force = VehicleView.as_view()(request_force)
+
+        self.assertEqual(response_force.status_code, 200)
+
+        assert response.data.get("vessel_type") == response_force.data.get(
+            "vessel_type"
+        )
 
 
 class TestRouteRequest(TestCase):
