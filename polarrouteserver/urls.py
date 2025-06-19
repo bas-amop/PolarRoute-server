@@ -16,7 +16,7 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
 
 from polarrouteserver.route_api import views
 
@@ -34,3 +34,10 @@ urlpatterns = [
         "api/evaluate_route", views.EvaluateRouteView.as_view(), name="evaluate_route"
     ),
 ]
+
+
+try:
+    from debug_toolbar.toolbar import debug_toolbar_urls
+    urlpatterns += debug_toolbar_urls()
+except:
+    pass
