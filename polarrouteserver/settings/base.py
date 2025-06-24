@@ -89,67 +89,6 @@ INSTALLED_APPS = [
     "corsheaders",
 ]
 
-if os.getenv("POLARROUTE_FRONTEND", True):
-    INSTALLED_APPS.append("django_plotly_dash.apps.DjangoPlotlyDashConfig")
-    X_FRAME_OPTIONS = 'SAMEORIGIN'
-
-
-    # See: https://django-plotly-dash.readthedocs.io/en/latest/configuration.html#configuration-options
-    PLOTLY_DASH = {
-
-        # Route used for the message pipe websocket connection
-        "ws_route" :   "dpd/ws/channel",
-
-        # Route used for direct http insertion of pipe messages
-        "http_route" : "dpd/views",
-
-        # Flag controlling existince of http poke endpoint
-        "http_poke_enabled" : True,
-
-        # Insert data for the demo when migrating
-        "insert_demo_migrations" : False,
-
-        # Timeout for caching of initial arguments in seconds
-        "cache_timeout_initial_arguments": 60,
-
-        # Name of view wrapping function
-        "view_decorator": None,
-
-        # Flag to control location of initial argument storage
-        "cache_arguments": True,
-
-        # Flag controlling local serving of assets
-        "serve_locally": False,
-    }
-
-    # Staticfiles finders for locating dash app assets and related files
-
-    STATICFILES_FINDERS = [
-
-        'django.contrib.staticfiles.finders.FileSystemFinder',
-        'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-
-        'django_plotly_dash.finders.DashAssetFinder',
-        'django_plotly_dash.finders.DashComponentFinder',
-        'django_plotly_dash.finders.DashAppDirectoryFinder',
-    ]
-
-    # Plotly components containing static content that should
-    # be handled by the Django staticfiles infrastructure
-
-    PLOTLY_COMPONENTS = [
-
-        # Common components (ie within dash itself) are automatically added
-
-        # django-plotly-dash components
-        'dpd_components',
-        # static support if serving local assets
-        # 'dpd_static_support',
-
-        # Other components, as needed
-        # 'dash_bootstrap_components',
-    ]
-
 CORS_ALLOWED_ORIGINS = ["http://localhost:8000"]
 if os.getenv("POLARROUTE_CORS_ALLOWED_ORIGINS", None) is not None:
     CORS_ALLOWED_ORIGINS.extend(os.getenv("POLARROUTE_CORS_ALLOWED_ORIGINS").split(","))
@@ -234,6 +173,68 @@ CELERY_WORKER_HIJACK_ROOT_LOGGER = True
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "amqp://guest:guest@localhost")
 CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "django-db")
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+
+
+if os.getenv("POLARROUTE_FRONTEND", True):
+    INSTALLED_APPS.append("django_plotly_dash.apps.DjangoPlotlyDashConfig")
+    MIDDLEWARE.append("django_plotly_dash.middleware.BaseMiddleware")
+    X_FRAME_OPTIONS = 'SAMEORIGIN'
+
+    # See: https://django-plotly-dash.readthedocs.io/en/latest/configuration.html#configuration-options
+    PLOTLY_DASH = {
+
+        # Route used for the message pipe websocket connection
+        "ws_route" :   "dpd/ws/channel",
+
+        # Route used for direct http insertion of pipe messages
+        "http_route" : "dpd/views",
+
+        # Flag controlling existince of http poke endpoint
+        "http_poke_enabled" : True,
+
+        # Insert data for the demo when migrating
+        "insert_demo_migrations" : False,
+
+        # Timeout for caching of initial arguments in seconds
+        "cache_timeout_initial_arguments": 60,
+
+        # Name of view wrapping function
+        "view_decorator": None,
+
+        # Flag to control location of initial argument storage
+        "cache_arguments": True,
+
+        # Flag controlling local serving of assets
+        "serve_locally": False,
+    }
+
+    # Staticfiles finders for locating dash app assets and related files
+
+    STATICFILES_FINDERS = [
+
+        'django.contrib.staticfiles.finders.FileSystemFinder',
+        'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+
+        'django_plotly_dash.finders.DashAssetFinder',
+        'django_plotly_dash.finders.DashComponentFinder',
+        'django_plotly_dash.finders.DashAppDirectoryFinder',
+    ]
+
+    # Plotly components containing static content that should
+    # be handled by the Django staticfiles infrastructure
+
+    PLOTLY_COMPONENTS = [
+
+        # Common components (ie within dash itself) are automatically added
+
+        # django-plotly-dash components
+        'dpd_components',
+        # static support if serving local assets
+        # 'dpd_static_support',
+
+        # Other components, as needed
+        # 'dash_bootstrap_components',
+    ]
 
 
 # Routing settings (TODO: hardcoded, can / should these be exposed elsewhere?)
