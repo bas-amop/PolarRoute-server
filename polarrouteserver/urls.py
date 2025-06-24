@@ -21,7 +21,7 @@ from django.urls import include, path
 from django.views.generic import TemplateView
 
 from polarrouteserver.route_api import views
-import polarrouteserver.dash
+import polarrouteserver.frontend
 
 urlpatterns = [
     path("admin/", admin.site.urls),
