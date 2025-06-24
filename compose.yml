@@ -9,6 +9,7 @@ services:
       POLARROUTE_MESH_DIR: /usr/src/app/mesh
       POLARROUTE_DB_HOST: db
       POLARROUTE_DB_PORT: 5432
+      POLARROUTE_FRONTEND: True
     entrypoint: /usr/src/app/entrypoint.sh
     command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
     volumes:

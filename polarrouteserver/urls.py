@@ -21,7 +21,6 @@ from django.urls import include, path
 from django.views.generic import TemplateView
 
 from polarrouteserver.route_api import views
-import polarrouteserver.frontend
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -39,6 +38,7 @@ urlpatterns = [
 ]
 
 if os.getenv("POLARROUTE_FRONTEND", True):
+    import polarrouteserver.frontend
     urlpatterns.extend([
         path('django_plotly_dash/', include('django_plotly_dash.urls')),
         path('', TemplateView.as_view(template_name='index.html'), name="frontend"),

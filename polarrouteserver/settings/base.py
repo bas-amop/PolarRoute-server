@@ -230,11 +230,18 @@ if os.getenv("POLARROUTE_FRONTEND", True):
         # django-plotly-dash components
         'dpd_components',
         # static support if serving local assets
-        # 'dpd_static_support',
+        'dpd_static_support',
 
         # Other components, as needed
-        # 'dash_bootstrap_components',
+        'dash_bootstrap_components',
+
+        'dash_leaflet',
     ]
+
+    MIDDLEWARE.extend([
+        'django_plotly_dash.middleware.BaseMiddleware',
+        'django_plotly_dash.middleware.ExternalRedirectionMiddleware',
+    ])
 
 
 # Routing settings (TODO: hardcoded, can / should these be exposed elsewhere?)
