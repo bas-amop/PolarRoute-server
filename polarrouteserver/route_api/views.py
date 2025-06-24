@@ -2,6 +2,7 @@ from datetime import datetime
 import logging
 
 from celery.result import AsyncResult
+from django.shortcuts import render
 from meshiphi.mesh_generation.environment_mesh import EnvironmentMesh
 import rest_framework.status
 from rest_framework.generics import GenericAPIView
@@ -352,3 +353,16 @@ class EvaluateRouteView(LoggingMixin, GenericAPIView):
             headers={"Content-Type": "application/json"},
             status=rest_framework.status.HTTP_200_OK,
         )
+
+
+def dash_example_1_view(request, template_name="index.html", **kwargs):
+    'Example view that inserts content into the dash context passed to the dash application'
+
+    context = {}
+
+    # create some context to send over to Dash:
+    dash_context = request.session.get("django_plotly_dash", dict())
+    dash_context['django_to_dash_context'] = "I am Dash receiving context from Django"
+    request.session['django_plotly_dash'] = dash_context
+
+    return render(request, template_name=template_name, context=context)

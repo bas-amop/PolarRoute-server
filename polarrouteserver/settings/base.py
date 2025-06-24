@@ -25,6 +25,7 @@ DEBUG = os.getenv("POLARROUTE_DEBUG", "False").lower() == "True"
 ALLOWED_HOSTS = [
     "localhost",
     "0.0.0.0",
+    "127.0.0.1",
 ]
 if os.getenv("POLARROUTE_ALLOWED_HOSTS", None) is not None:
     ALLOWED_HOSTS.extend(os.getenv("POLARROUTE_ALLOWED_HOSTS").split(","))
@@ -87,6 +88,10 @@ INSTALLED_APPS = [
     "polarrouteserver.route_api",
     "corsheaders",
 ]
+
+if os.getenv("POLARROUTE_FRONTEND", True):
+    INSTALLED_APPS.append("django_plotly_dash.apps.DjangoPlotlyDashConfig")
+    X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 CORS_ALLOWED_ORIGINS = ["http://localhost:8000"]
 if os.getenv("POLARROUTE_CORS_ALLOWED_ORIGINS", None) is not None:

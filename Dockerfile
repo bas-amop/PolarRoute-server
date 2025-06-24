@@ -23,4 +23,4 @@ COPY --chmod=775 entrypoint.sh .
 COPY pyproject.toml manage.py /usr/src/app/
 COPY polarrouteserver /usr/src/app/polarrouteserver
 
-RUN pip install .
+RUN pip install .[frontend]

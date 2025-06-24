@@ -22,6 +22,7 @@ The following are inherited from Django and more information can be found on the
 - `POLARROUTE_LOG_LEVEL` - sets the logging level from standard log level options: INFO, DEBUG, ERROR, WARNING etc. (Default: `INFO`)
 - `POLARROUTE_LOG_DIR` - sets the output directory for logs. By default only used in production settings environment.
 - `POLARROUTE_STATIC_ROOT` - the path to directory used for static file serving in production, e.g. `"/var/www/example.com/static/"` (Default: `None`) Note this is only used for the admin panel in this application.
+- `POLARROUTE_FRONTEND` - boolean switch to disable the frontend dashboard if, for instance, PolarRoute-server is being used exclusively as a headless app. Set to `False` to disable. (Default: `True`)
 
 ## Database settings
 
