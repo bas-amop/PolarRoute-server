@@ -235,6 +235,8 @@ if os.getenv("POLARROUTE_FRONTEND", True):
         # Other components, as needed
         'dash_bootstrap_components',
 
+        'dash_mantine_components',
+
         'dash_leaflet',
     ]
 
