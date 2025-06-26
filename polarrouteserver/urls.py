@@ -38,7 +38,7 @@ urlpatterns = [
 ]
 
 if os.getenv("POLARROUTE_FRONTEND", True):
-    import polarrouteserver.frontend
+    import polarrouteserver.frontend #noqa # some importing magic is required here to register the app or something
     urlpatterns.extend([
         path('django_plotly_dash/', include('django_plotly_dash.urls')),
         path('', TemplateView.as_view(template_name='index.html'), name="frontend"),
