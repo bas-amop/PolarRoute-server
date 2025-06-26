@@ -15,7 +15,7 @@ from copy import deepcopy
 
 default_sic_date = datetime.date.today() - datetime.timedelta(days=1)
 
-app = DjangoDash('PolarRoute')
+app = DjangoDash('PolarRoute', add_bootstrap_links=True)
 
 app.layout = html.Div(
     [
