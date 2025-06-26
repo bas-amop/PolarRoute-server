@@ -55,6 +55,8 @@ frontend = [
     "dash-mantine-components",
     "django-plotly-dash",
     "dpd-static-support",
+    "requests",
+    "whitenoise",
 ]
 dev = [
     "pre-commit",
