@@ -176,7 +176,10 @@ CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 
 
 if os.getenv("POLARROUTE_FRONTEND", True):
-    INSTALLED_APPS.append("django_plotly_dash.apps.DjangoPlotlyDashConfig")
+    INSTALLED_APPS.extend([
+        "django_plotly_dash.apps.DjangoPlotlyDashConfig",
+        "dpd_static_support",
+        ])
     MIDDLEWARE.append("django_plotly_dash.middleware.BaseMiddleware")
     X_FRAME_OPTIONS = 'SAMEORIGIN'
 
@@ -214,7 +217,6 @@ if os.getenv("POLARROUTE_FRONTEND", True):
 
         'django.contrib.staticfiles.finders.FileSystemFinder',
         'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-
         'django_plotly_dash.finders.DashAssetFinder',
         'django_plotly_dash.finders.DashComponentFinder',
         'django_plotly_dash.finders.DashAppDirectoryFinder',
@@ -237,12 +239,15 @@ if os.getenv("POLARROUTE_FRONTEND", True):
 
         'dash_mantine_components',
 
+        'dash_extensions',
+
         'dash_leaflet',
     ]
 
     MIDDLEWARE.extend([
         'django_plotly_dash.middleware.BaseMiddleware',
         'django_plotly_dash.middleware.ExternalRedirectionMiddleware',
+        "whitenoise.middleware.WhiteNoiseMiddleware",
     ])
 
 
