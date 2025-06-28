@@ -31,8 +31,7 @@ def server_url(request):
 
 
 app.layout = html.Div(
-    [
-        dbc.Spinner(color="primary"),
+    children=[
         dl.Map([
            dl.TileLayer(id="basemap", attribution=("© OpenStreetMap contributors"), zIndex=0,),
            dl.FullScreenControl(),
@@ -41,6 +40,8 @@ app.layout = html.Div(
         ], center=[-72, -67], zoom=4, style={"height": "80vh"}, id="map"),
         dcc.Slider(min=-30, max=0, step=1, value=0, id='amsr-date-slider', marks=None, tooltip={"placement": "top", "always_visible": False}),
         html.Span(id='slider-output-container'),
+        html.Div(id="recent-routes"),
+        dcc.Interval(id="recent-routes-interval", interval=30*1000),
     ],
 )
 
@@ -52,3 +53,34 @@ def update_amsr_overlay(slider_value):
     sic_date = (default_sic_date - datetime.timedelta(days=abs(slider_value)))
     return amsr_layer(sic_date)
 
+@app.callback(
+        Output("recent-routes", "children"),
+        Input("recent-routes-interval", "n_intervals"),
+)
+def update_recent_routes(_, **kwargs):
+    r = requests.get(server_url(kwargs["request"])+"/api/recent_routes")
+    result = r.json()
+
+    print(result)
+    
+    if len(result) == 0:
+        return [html.Span("No routes available. Try requesting one.")]
+    else:
+        table_header = [html.Thead(
+                        html.Tr([
+                            html.Th("Start"),
+                            html.Th("End"),
+                            html.Th("Status"),
+                            html.Th("Show"),
+                        ]))]
+        rows = []
+        for route in result:
+            rows.append(
+                html.Tr([
+                    html.Td(f"{route['start_name']} ({route['start_lat']}, {route['start_lon']})"),
+                    html.Td(f"{route['end_name']} ({route['end_lat']}, {route['end_lon']})"),
+                    html.Td(f"{route['status']}"),
+                    ]))
+        table_body = [html.Tbody(rows)]
+        print(table_body)
+        return dbc.Table(table_header + table_body, bordered=True, striped=True)
