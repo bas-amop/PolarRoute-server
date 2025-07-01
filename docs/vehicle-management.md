@@ -46,8 +46,8 @@ curl --header "Content-Type: application/json" \
       "hull_type": "slender",
       "force_limit": 96634.5,
       "max_ice_conc": 80,
-      "min_depth": 10 
-    "force_properties":"true"
+      "min_depth": 10,
+      "force_properties":"true"
     }' \
   http://localhost:8000/api/vehicle
 ```
