@@ -8,6 +8,7 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
+from polar_route.config_validation.config_validator import validate_vessel_config
 from polarrouteserver import __version__ as polarrouteserver_version
 from polarrouteserver.celery import app
 
@@ -78,22 +79,12 @@ class VehicleView(LoggingMixin, GenericAPIView):
         )
 
         data = request.data
-        vessel_type = data["vessel_type"]
-        force_properties = data.get("force_properties", None)
+        # Using Polarroute's built in validation to validate vessel config supplied
+        validate_vessel_config(data)
 
-        vehicle_properties = {
-            "max_speed": data["max_speed"],
-            "unit": data["unit"],
-            # Optional properties:
-            "max_ice_conc": data.get("max_ice_conc"),
-            "min_depth": data.get("min_depth"),
-            "max_wave": data.get("max_wave"),
-            "excluded_zones": data.get("excluded_zones"),
-            "neighbour_splitting": data.get("neighbour_splitting"),
-            "beam": data.get("beam"),
-            "hull_type": data.get("hull_type"),
-            "force_limit": data.get("force_limit"),
-        }
+        # Separate out vessel_type and force_properties for checking logic below
+        force_properties = data.get("force_properties", None)
+        vessel_type = data["vessel_type"]
 
         # Check if vehicle exists already
         vehicle_queryset = Vehicle.objects.filter(vessel_type=vessel_type)
@@ -119,6 +110,11 @@ class VehicleView(LoggingMixin, GenericAPIView):
                 )
 
             # If a user has specified force_properties, update that vessel_type's properties
+            # The vessel_type and force_properties fields need to be removed to allow updating
+            vehicle_properties = data.copy()
+            for key in ["vessel_type", "force_properties"]:
+                vehicle_properties.pop(key, None)
+
             vehicle_queryset.update(**vehicle_properties)
             logger.info(f"Updating properties for existing vehicle: {vessel_type}")
 
@@ -128,9 +124,7 @@ class VehicleView(LoggingMixin, GenericAPIView):
             logger.info("Creating new vehicle:")
 
             # Create vehicle in database
-            vehicle = Vehicle.objects.create(
-                vessel_type=vessel_type, **vehicle_properties
-            )
+            vehicle = Vehicle.objects.create(**data)
 
             # Prepare response data
             response_data = {"vessel_type": vehicle.vessel_type}

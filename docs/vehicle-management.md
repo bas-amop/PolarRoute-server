@@ -13,10 +13,14 @@ for example with the following CURL:
 curl --header "Content-Type: application/json" \
   --request POST \
   --data '{
-    "vessel_type":"SDA",
-    "max_speed":"26.5",
-    "unit":"km/hr",
-    "beam":"24.0"
+       "vessel_type": "SDA",
+       "max_speed": 26.5,
+       "unit": "km/hr",
+       "beam": 24.0,
+       "hull_type": "slender",
+       "force_limit": 96634.5,
+       "max_ice_conc": 80,
+       "min_depth": 10 
     }' \
   http://localhost:8000/api/vehicle
 ```
@@ -35,10 +39,14 @@ Let's say we actually wanted to display the speed in knots:
 curl --header "Content-Type: application/json" \
   --request POST \
   --data '{
-    "vessel_type":"SDA",
-    "max_speed":"14.31",
-    "unit":"knots",
-    "beam":"24.0",
+      "vessel_type": "SDA",
+      "max_speed": 14.3,
+      "unit": "knots",
+      "beam": 24.0,
+      "hull_type": "slender",
+      "force_limit": 96634.5,
+      "max_ice_conc": 80,
+      "min_depth": 10 
     "force_properties":"true"
     }' \
   http://localhost:8000/api/vehicle
