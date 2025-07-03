@@ -85,6 +85,12 @@ class TestVehicleRequest(TestCase):
             response.data["info"]["error"],
         )
 
+    def test_type_error_on_invalid_input(self):
+        invalid_data = ["this", "is", "not", "a", "dict"]
+
+        with self.assertRaises(TypeError):
+            self.post_vehicle(invalid_data)
+
 
 class TestRouteRequest(TestCase):
     def setUp(self):
