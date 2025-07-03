@@ -154,7 +154,10 @@ class VehicleView(LoggingMixin, GenericAPIView):
 
     def get(self, request, vessel_type=None):
         """Retrieve vehicles by vessel_type"""
-        logger.info(f"Fetching vehicle(s) with vessel_type={vessel_type}")
+
+        logger.info(
+            f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
+        )
 
         # Log what kind of request we got
         if vessel_type:
