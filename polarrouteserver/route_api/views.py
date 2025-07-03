@@ -152,6 +152,26 @@ class VehicleView(LoggingMixin, GenericAPIView):
             status=rest_framework.status.HTTP_200_OK,
         )
 
+    def get(self, request):
+        """Retrieve vehicle(s), optionally filtered by vessel_type"""
+
+        vessel_type = request.query_params.get("vessel_type")
+
+        if vessel_type:
+            vehicles = Vehicle.objects.filter(vessel_type=vessel_type)
+            logger.info(f"Fetching vehicle(s) with vessel_type={vessel_type}")
+        else:
+            vehicles = Vehicle.objects.all()
+            logger.info("Fetching all vehicles")
+
+        serializer = self.serializer_class(vehicles, many=True)
+
+        return Response(
+            serializer.data,
+            headers={"Content-Type": "application/json"},
+            status=rest_framework.status.HTTP_200_OK,
+        )
+
 
 class RouteView(LoggingMixin, GenericAPIView):
     serializer_class = RouteSerializer
