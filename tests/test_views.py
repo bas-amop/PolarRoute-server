@@ -21,19 +21,24 @@ class TestVehicleRequest(TestCase):
 
     def setUp(self):
         self.factory = APIRequestFactory()
+        self.data = self.__class__.data.copy()
+
+    def post_vehicle(self, data):
+        request = self.factory.post("/api/vehicle/", data=data, format="json")
+        return VehicleView.as_view()(request)
 
     # Test vehicle is created successfully
-    def test_create_update_vehicle(self, data=data):
-        request = self.factory.post("/api/vehicle/", data=data, format="json")
-        response = VehicleView.as_view()(request)
+    def test_create_update_vehicle(self):
+        data = self.data.copy()
+        response = self.post_vehicle(data)
 
         self.assertEqual(response.status_code, 200)
 
         # Test creating a duplicate vehicle fails
-        duplicate_request = self.factory.post("/api/vehicle/", data=data, format="json")
-        duplicate_response = VehicleView.as_view()(duplicate_request)
-
+        duplicate_response = self.post_vehicle(data)
         self.assertEqual(duplicate_response.status_code, 406)
+        self.assertIn("info", duplicate_response.data)
+        self.assertIn("error", duplicate_response.data["info"])
         self.assertIn(
             "Pre-existing vehicle was found.", duplicate_response.data["info"]["error"]
         )
@@ -45,39 +50,36 @@ class TestVehicleRequest(TestCase):
             }
         )
 
-        request_force = self.factory.post("/api/vehicle/", data=data, format="json")
-        response_force = VehicleView.as_view()(request_force)
-
+        response_force = self.post_vehicle(data)
         self.assertEqual(response_force.status_code, 200)
 
-        assert response.data.get("vessel_type") == response_force.data.get(
-            "vessel_type"
+        self.assertEqual(
+            response.data.get("vessel_type"),
+            response_force.data.get("vessel_type"),
         )
 
     # Test the validation error responses
     def test_missing_property(self, data=data):
-        missing_property = data.copy()
+        missing_property = self.data.copy()
         missing_property.pop("max_speed", None)
-
-        request = self.factory.post(
-            "/api/vehicle/", data=missing_property, format="json"
-        )
-        response = VehicleView.as_view()(request)
+        response = self.post_vehicle(missing_property)
 
         self.assertEqual(response.status_code, 400)
+        self.assertIn("info", response.data)
+        self.assertIn("error", response.data["info"])
         self.assertIn(
             "Validation error: 'max_speed' is a required property",
             response.data["info"]["error"],
         )
 
     def test_wrong_type(self, data=data):
-        wrong_type = data.copy()
+        wrong_type = self.data.copy()
         wrong_type["max_speed"] = "really fast"
-
-        request = self.factory.post("/api/vehicle/", data=wrong_type, format="json")
-        response = VehicleView.as_view()(request)
+        response = self.post_vehicle(wrong_type)
 
         self.assertEqual(response.status_code, 400)
+        self.assertIn("info", response.data)
+        self.assertIn("error", response.data["info"])
         self.assertIn(
             "Validation error: 'really fast' is not of type 'number'",
             response.data["info"]["error"],
