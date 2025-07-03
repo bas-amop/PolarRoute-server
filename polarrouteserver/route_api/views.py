@@ -2,6 +2,7 @@ from datetime import datetime
 import logging
 
 from celery.result import AsyncResult
+from jsonschema.exceptions import ValidationError
 from meshiphi.mesh_generation.environment_mesh import EnvironmentMesh
 import rest_framework.status
 from rest_framework.generics import GenericAPIView
@@ -79,8 +80,23 @@ class VehicleView(LoggingMixin, GenericAPIView):
         )
 
         data = request.data
+
         # Using Polarroute's built in validation to validate vessel config supplied
-        validate_vessel_config(data)
+        try:
+            validate_vessel_config(data)
+            logging.info("Vessel config is valid.")
+        except Exception as e:
+            if isinstance(e, ValidationError):
+                error_message = f"Validation error: {e.message}"
+                logging.error(error_message)
+            else:
+                error_message = f"Validation error: {e}"
+                logging.error(error_message)
+            return Response(
+                data={**data, "info": {"error": {error_message}}},
+                headers={"Content-Type": "application/json"},
+                status=rest_framework.status.HTTP_400_BAD_REQUEST,
+            )
 
         # Separate out vessel_type and force_properties for checking logic below
         force_properties = data.get("force_properties", None)
