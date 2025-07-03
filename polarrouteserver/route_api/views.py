@@ -153,7 +153,7 @@ class VehicleView(LoggingMixin, GenericAPIView):
         )
 
     def get(self, request, vessel_type=None):
-        """Retrieve vehicles by vessel_type"""
+        """Retrieve all vehicles or filter by vessel_type"""
 
         logger.info(
             f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
@@ -174,6 +174,34 @@ class VehicleView(LoggingMixin, GenericAPIView):
             headers={"Content-Type": "application/json"},
             status=rest_framework.status.HTTP_200_OK,
         )
+
+    def delete(self, request, vessel_type=None):
+        logger.info(
+            f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
+        )
+
+        if not vessel_type:
+            return Response(
+                {"error": "vessel_type parameter is required for delete."},
+                status=rest_framework.status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            vehicle = Vehicle.objects.get(vessel_type=vessel_type)
+            vehicle.delete()
+            logger.info(f"Deleted vehicle with vessel_type={vessel_type}")
+            return Response(
+                {"message": f"Vehicle '{vessel_type}' deleted successfully."},
+                status=rest_framework.status.HTTP_204_NO_CONTENT,
+            )
+        except Vehicle.DoesNotExist:
+            logger.error(
+                f"Vehicle with vessel_type={vessel_type} not found for deletion."
+            )
+            return Response(
+                {"error": f"Vehicle with vessel_type '{vessel_type}' not found."},
+                status=rest_framework.status.HTTP_404_NOT_FOUND,
+            )
 
 
 class RouteView(LoggingMixin, GenericAPIView):

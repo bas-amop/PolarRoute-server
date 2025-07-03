@@ -29,12 +29,14 @@ urlpatterns = [
         "api/route/<uuid:id>", views.RouteView.as_view(), name="route"
     ),  # url for retrieving routes (get)
     path("api/recent_routes", views.RecentRoutesView.as_view(), name="recent_routes"),
-    path("api/vehicle", views.VehicleView.as_view(), name="vehicle"),
+    path(
+        "api/vehicle", views.VehicleView.as_view(), name="vehicle"
+    ),  # POST create, GET all
     path(
         "api/vehicle/<str:vessel_type>/",
         views.VehicleView.as_view(),
         name="vehicle",
-    ),
+    ),  # GET, DELETE by vessel_type
     path("api/mesh/<int:id>", views.MeshView.as_view(), name="mesh"),
     path(
         "api/evaluate_route", views.EvaluateRouteView.as_view(), name="evaluate_route"
