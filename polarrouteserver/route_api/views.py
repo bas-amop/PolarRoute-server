@@ -88,10 +88,11 @@ class VehicleView(LoggingMixin, GenericAPIView):
         except Exception as e:
             if isinstance(e, ValidationError):
                 error_message = f"Validation error: {e.message}"
-                logging.error(error_message)
             else:
                 error_message = f"Validation error: {e}"
-                logging.error(error_message)
+
+            logging.error(error_message)
+
             return Response(
                 data={**data, "info": {"error": {error_message}}},
                 headers={"Content-Type": "application/json"},

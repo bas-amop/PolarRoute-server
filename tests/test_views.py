@@ -54,6 +54,35 @@ class TestVehicleRequest(TestCase):
             "vessel_type"
         )
 
+    # Test the validation error responses
+    def test_missing_property(self, data=data):
+        missing_property = data.copy()
+        missing_property.pop("max_speed", None)
+
+        request = self.factory.post(
+            "/api/vehicle/", data=missing_property, format="json"
+        )
+        response = VehicleView.as_view()(request)
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn(
+            "Validation error: 'max_speed' is a required property",
+            response.data["info"]["error"],
+        )
+
+    def test_wrong_type(self, data=data):
+        wrong_type = data.copy()
+        wrong_type["max_speed"] = "really fast"
+
+        request = self.factory.post("/api/vehicle/", data=wrong_type, format="json")
+        response = VehicleView.as_view()(request)
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn(
+            "Validation error: 'really fast' is not of type 'number'",
+            response.data["info"]["error"],
+        )
+
 
 class TestRouteRequest(TestCase):
     def setUp(self):
