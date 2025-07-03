@@ -1,15 +1,15 @@
 import datetime
 import dash
-from dash import dcc
+from dash import dcc, ALL
 import dash_bootstrap_components as dbc
 import dash_leaflet as dl
 from django_plotly_dash import DjangoDash
 from django.utils.translation import gettext, gettext_lazy
 import plotly.express as px
 import pandas as pd
-from dash_extensions.enrich import DashProxy, Input, Output, html, no_update
+from dash_extensions.enrich import DashProxy, Input, Output, html, no_update, ctx, DashBlueprint
 from dash_extensions.javascript import assign
-import xyzservices
+# import xyzservices
 import requests
 from copy import deepcopy
 
@@ -29,21 +29,31 @@ def server_url(request):
     "Return server url from request object in dpd callback."
     return f"{request.scheme}://{request.get_host()}"
 
+# mapCustomEventHandlers = dict(
+#     mousemove=assign("function(e, ctx){ctx.setProps({mouseCoords: {area: e.latlng}})}"),
+# )
 
 app.layout = html.Div(
     children=[
         dl.Map([
            dl.TileLayer(id="basemap", attribution=("© OpenStreetMap contributors"), zIndex=0,),
            dl.FullScreenControl(),
-           dl.LayersControl([dl.Overlay(amsr_layer(default_sic_date), name="AMSR", checked=False, id="amsr-overlay")
-           ], id="layers-control"),
+           dl.LayersControl([dl.Overlay(amsr_layer(default_sic_date), name="AMSR", checked=False, id="amsr-overlay"),], id="layers-control"),
+           dl.FeatureGroup([], id="routes-fg"),
         ], center=[-72, -67], zoom=4, style={"height": "80vh"}, id="map"),
         dcc.Slider(min=-30, max=0, step=1, value=0, id='amsr-date-slider', marks=None, tooltip={"placement": "top", "always_visible": False}),
-        html.Span(id='slider-output-container'),
-        html.Div(id="recent-routes"),
-        dcc.Interval(id="recent-routes-interval", interval=30*1000),
+        html.Span("hello", id='slider-output-container'),
+        html.Div(id="recent-routes-container"),
+        dcc.Interval(id="recent-routes-interval", interval=150*1000),
     ],
 )
+
+# @app.callback(
+#         Output("slider-output-container", "children"),
+#         Input("map", "mouseCoords")
+# )
+# def mouse_coords(mousecoords):
+#     return mousecoords
 
 @app.callback(
         Output("amsr-overlay", "children"),
@@ -53,15 +63,39 @@ def update_amsr_overlay(slider_value):
     sic_date = (default_sic_date - datetime.timedelta(days=abs(slider_value)))
     return amsr_layer(sic_date)
 
+
+
+# def route_visibility_checkbox(app, id):
+    
+#     # checkbox_id = f"route-checkbox-{id}"
+
+#     @app.callback(
+#         Output("routes-fg", "children", allow_duplicate=True),
+#         [Input(f"route-checkbox-{id}", "n_clicks"),
+#         Input("routes-fg", "children")],
+#         prevent_initial_call="initial_duplicate"
+#     )
+#     # def toggle_route_visibility(checkbox_value, routes_fg_children, **kwargs):
+#     def toggle_route_visibility(_, **kwargs):
+#         print("wooooooooooooooooooooooooooooooooooooooooooooooooo")
+#         return
+
+#     return dbc.Button("Show/hide", id=f"route-checkbox-{id}")
+
+
+
+
+
+
 @app.callback(
-        Output("recent-routes", "children"),
-        Input("recent-routes-interval", "n_intervals"),
+        Output("recent-routes-container", "children"),
+        [Input("recent-routes-interval", "n_intervals")],
 )
-def update_recent_routes(_, **kwargs):
+def update_recent_routes_table(_, **kwargs):
     r = requests.get(server_url(kwargs["request"])+"/api/recent_routes")
     result = r.json()
 
-    print(result)
+    # print(type(result[0]['json'][0]))
     
     if len(result) == 0:
         return [html.Span("No routes available. Try requesting one.")]
@@ -71,7 +105,7 @@ def update_recent_routes(_, **kwargs):
                             html.Th("Start"),
                             html.Th("End"),
                             html.Th("Status"),
-                            html.Th("Show"),
+                            html.Th("Show?"),
                         ]))]
         rows = []
         for route in result:
@@ -80,7 +114,20 @@ def update_recent_routes(_, **kwargs):
                     html.Td(f"{route['start_name']} ({route['start_lat']}, {route['start_lon']})"),
                     html.Td(f"{route['end_name']} ({route['end_lat']}, {route['end_lon']})"),
                     html.Td(f"{route['status']}"),
+                    html.Td(dbc.Checkbox(id={"type": "route-checkbox", "index": route['id']})),
                     ]))
         table_body = [html.Tbody(rows)]
-        print(table_body)
-        return dbc.Table(table_header + table_body, bordered=True, striped=True)
+
+        return dbc.Table(table_header + table_body, bordered=True, striped=True, hover=True)
+
+
+@app.callback(
+    Output("slider-output-container", "children"),
+    Input({"type": "route-checkbox", "index": ALL}, "value"),
+)
+def display_output(values):
+    return str(values)
+
+
+def get_route_geojson(route: dict):
+    return route['json'][0][0]
