@@ -123,7 +123,11 @@ def update_recent_routes_table(_, **kwargs):
 
 @app.callback(
     Output("slider-output-container", "children"),
+<<<<<<< HEAD
     Input({"type": "route-checkbox", "index": ALL}, "value"),
+=======
+    Input({"type": "route-checkbox", "index": ALL}, "id"),
+>>>>>>> 07944ef (chaos checkpoint)
 )
 def display_output(values):
     return str(values)
