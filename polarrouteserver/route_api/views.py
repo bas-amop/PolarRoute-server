@@ -204,6 +204,28 @@ class VehicleView(LoggingMixin, GenericAPIView):
             )
 
 
+class VehicleTypeListView(LoggingMixin, GenericAPIView):
+    """
+    Endpoint to list all distinct vessel_types available.
+    """
+
+    def get(self, request):
+        logger.info(
+            f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
+        )
+
+        vessel_types = Vehicle.objects.values_list("vessel_type", flat=True).distinct()
+
+        vessel_types_list = list(vessel_types)
+        logger.info(f"Returning {len(vessel_types_list)} distinct vessel_types")
+
+        return Response(
+            data={"vessel_types": vessel_types_list},
+            status=rest_framework.status.HTTP_200_OK,
+            headers={"Content-Type": "application/json"},
+        )
+
+
 class RouteView(LoggingMixin, GenericAPIView):
     serializer_class = RouteSerializer
 

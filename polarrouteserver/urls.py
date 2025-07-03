@@ -35,8 +35,13 @@ urlpatterns = [
     path(
         "api/vehicle/<str:vessel_type>/",
         views.VehicleView.as_view(),
-        name="vehicle",
+        name="specific vehicle",
     ),  # GET, DELETE by vessel_type
+    path(
+        "api/vehicles",
+        views.VehicleTypeListView.as_view(),
+        name="vehicle list",
+    ),
     path("api/mesh/<int:id>", views.MeshView.as_view(), name="mesh"),
     path(
         "api/evaluate_route", views.EvaluateRouteView.as_view(), name="evaluate_route"
