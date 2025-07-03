@@ -53,6 +53,7 @@ frontend = [
     "dash-extensions",
     "dash-leaflet",
     "dash-mantine-components",
+    "django-bootstrap5",
     "django-plotly-dash",
     "dpd-static-support",
     "requests",
