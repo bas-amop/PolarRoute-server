@@ -89,7 +89,7 @@ class VehicleView(LoggingMixin, GenericAPIView):
             if isinstance(e, ValidationError):
                 error_message = f"Validation error: {e.message}"
             else:
-                error_message = f"Validation error: {e}"
+                error_message = f"{e}"
 
             logging.error(error_message)
 
