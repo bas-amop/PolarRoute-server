@@ -215,8 +215,19 @@ class VehicleTypeListView(LoggingMixin, GenericAPIView):
         )
 
         vessel_types = Vehicle.objects.values_list("vessel_type", flat=True).distinct()
-
         vessel_types_list = list(vessel_types)
+
+        if not vessel_types_list:
+            logger.warning("No available vessel_types found in the database.")
+            return Response(
+                data={
+                    "vessel_types": [],
+                    "message": "No available vessel types found.",
+                },
+                status=rest_framework.status.HTTP_204_NO_CONTENT,
+                headers={"Content-Type": "application/json"},
+            )
+
         logger.info(f"Returning {len(vessel_types_list)} distinct vessel_types")
 
         return Response(
