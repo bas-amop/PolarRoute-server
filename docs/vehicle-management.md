@@ -56,12 +56,12 @@ will be updated.
 
 ## Requesting a list of all available vehicles
 To request a list of all available vehicles in the database, you can make a GET request to the
-`api/vehicles` endpoint:
+`api/vehicle/available` endpoint:
 
 ```shell
 curl --header "Content-Type: application/json" \
   --request GET \
-  http://localhost:8000/api/vehicles
+  http://localhost:8000/api/vehicle/available
 ```
 
 ## Requesting vehicles

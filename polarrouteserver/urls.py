@@ -38,7 +38,7 @@ urlpatterns = [
         name="specific vehicle",
     ),  # GET, DELETE by vessel_type
     path(
-        "api/vehicles",
+        "api/vehicle/available",
         views.VehicleTypeListView.as_view(),
         name="vehicle list",
     ),
