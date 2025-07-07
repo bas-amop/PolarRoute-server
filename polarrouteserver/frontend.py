@@ -105,8 +105,8 @@ def update_routes_on_map(checkbox_values, routes):
         if checkbox_value == True:
             routes_to_show.extend(
                 [
-                    dl.GeoJSON(data=traveltime_geojson, style={'color': 'blue'}, children=[dl.Tooltip(content="Traveltime-optimised")]),
-                    dl.GeoJSON(data=fuel_geojson, style={'color': 'green'}, children=[dl.Tooltip(content="Fuel-optimised")]),
+                    dl.GeoJSON(data=traveltime_geojson, style={'color': '#2B8CC4'}, children=[dl.Tooltip(content="Traveltime-optimised")]),
+                    dl.GeoJSON(data=fuel_geojson, style={'color': '#379245'}, children=[dl.Tooltip(content="Fuel-optimised")]),
                     ]
             )
 
