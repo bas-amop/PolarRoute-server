@@ -66,7 +66,7 @@ def mouse_coords(coords):
     lat = coords["area"]["lat"]
     lon = coords["area"]["lng"]
 
-    return f"({lat}, {lon})"
+    return f"({lat:.2f}, {lon:.2f})"
 
 @app.callback(
         Output("amsr-overlay", "children"),
