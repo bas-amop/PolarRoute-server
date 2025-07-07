@@ -8,7 +8,7 @@ import dash_leaflet as dl
 from django.utils.translation import gettext, gettext_lazy
 import plotly.express as px
 import pandas as pd
-from dash_extensions.enrich import DashProxy, Input, Output, html, no_update, ctx, DashBlueprint, PrefixIdTransform
+from dash_extensions.enrich import DashProxy, Input, Output, State, html, no_update, ctx, DashBlueprint, PrefixIdTransform
 from dash_extensions.javascript import assign, arrow_function
 # import xyzservices
 import requests
@@ -36,9 +36,19 @@ def server_url():
 
 eventHandlers = dict(
     mousemove=assign("function(e, ctx){ctx.setProps({mouseCoords: {area: e.latlng}})}"),
+    click=assign("""
+function(e, ctx) {
+    ctx.setProps({
+        n_clicks: ctx.n_clicks == undefined ? 1 : ctx.n_clicks + 1,  // increment counter
+        clickData: {
+            latlng: e.latlng,
+            layerPoint: e.layerPoint,
+            containerPoint: e.containerPoint
+        }
+    });
+}
+"""),
 )
-
-
 
 app.layout = html.Div(
     children=[
@@ -47,8 +57,9 @@ app.layout = html.Div(
            dl.FullScreenControl(),
            dl.LayersControl([dl.Overlay(amsr_layer(default_sic_date), name="AMSR", checked=False, id="amsr-overlay"),], id="layers-control"),
            dl.FeatureGroup(id="routes-fg"),
+           dl.FeatureGroup(id="marker-fg"),
         ], center=[-72, -67], zoom=4, style={"height": "80vh"}, id="map", eventHandlers=eventHandlers),
-        # html.Span(" ", id='mouse-coords-container'),
+        html.Span(" ", id='mouse-coords-container'),
         dcc.Slider(min=-30, max=0, step=1, value=0, id='amsr-date-slider', marks=None, tooltip={"placement": "top", "always_visible": False}),
         html.Span("", id='test-output-container'),
         dbc.Row([
@@ -61,9 +72,30 @@ app.layout = html.Div(
 )
 
 @app.callback(
-        Output("mouse-coords-container", "children"),
-        Input("map", "mouseCoords"),
-        prevent_initial_call=True
+    Output("marker-fg", "children"),
+    Input('map', 'n_clicks'),
+    State('map', 'clickData'),
+    State("marker-fg", "children"),
+    prevent_initial_call=True,
+    )
+def onclick(n_clicks, data, markers):
+    lat = data['latlng']['lat']
+    lon = data['latlng']['lng']
+
+    start_point = False if n_clicks % 2 == 0 or n_clicks==0 else True
+
+    if start_point:
+        return [dl.Marker(position=[lat, lon], draggable=True, icon=dict(iconUrl="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png"))]
+    else:
+        markers.append(dl.Marker(position=[lat, lon], draggable=True, icon=dict(iconUrl="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png")))
+        return markers
+
+
+
+@app.callback(
+    Output("mouse-coords-container", "children"),
+    Input("map", "mouseCoords"),
+    prevent_initial_call=True
 )
 def mouse_coords(coords):
     lat = coords["area"]["lat"]
@@ -85,7 +117,7 @@ def update_amsr_overlay(slider_value):
     Output("routes-fg", "children"),
     # Output("test-output-container", "children"),
     Input({"type": "route-show-checkbox", "index": ALL}, "value"),
-    Input("routes-store", "data"),
+    State("routes-store", "data"),
     prevent_initial_call=True
 )
 def update_routes_on_map(checkbox_values, routes):
