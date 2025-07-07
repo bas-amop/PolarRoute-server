@@ -9,7 +9,7 @@ from django.utils.translation import gettext, gettext_lazy
 import plotly.express as px
 import pandas as pd
 from dash_extensions.enrich import DashProxy, Input, Output, html, no_update, ctx, DashBlueprint, PrefixIdTransform
-from dash_extensions.javascript import assign
+from dash_extensions.javascript import assign, arrow_function
 # import xyzservices
 import requests
 from copy import deepcopy
@@ -98,13 +98,15 @@ def update_routes_on_map(checkbox_values, routes):
         route_id = n['id']['index']
 
         route_to_show = [x for x in routes if x['id']==route_id]
-        route_geojson = route_to_show[0]['json'][0][0]['features'][0]
+        traveltime_geojson = route_to_show[0]['json'][0][0]['features'][0]
+        fuel_geojson = route_to_show[0]['json'][1][0]['features'][0]
 
 
         if checkbox_value == True:
             routes_to_show.extend(
                 [
-                    dl.GeoJSON(data=route_geojson),
+                    dl.GeoJSON(data=traveltime_geojson, style={'color': 'blue'}, children=[dl.Tooltip(content="Traveltime-optimised")]),
+                    dl.GeoJSON(data=fuel_geojson, style={'color': 'green'}, children=[dl.Tooltip(content="Fuel-optimised")]),
                     ]
             )
 
