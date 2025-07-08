@@ -50,6 +50,28 @@ function(e, ctx) {
 """),
 )
 
+favourites = {
+    "bird": {"lat": -54.025, "lon": -38.044},
+    "falklands": {"lat": -51.731, "lon": -57.706},
+    "halley": {"lat": -75.059, "lon": -25.840},
+    "rothera": {"lat": -67.764, "lon": -68.02},
+    "kep": {"lat": -54.220, "lon": -36.433},
+    "signy": {"lat": -60.720, "lon": -45.480},
+    "nyalesund": {"lat": 78.929, "lon": 11.928},
+    "harwich": {"lat": 51.949, "lon": 1.255},
+    "rosyth": {"lat": 56.017, "lon": -3.440},
+}
+
+def coords_form(loc):
+    return html.Div([
+        dbc.InputGroup([
+            dbc.InputGroupText(loc),
+            dbc.Select(options=[{'label': k, 'value': v} for k,v in favourites.items()])
+        ], class_name="bsk-input-group")
+    ])
+
+form = dbc.Form([coords_form("start"), coords_form("end")])
+
 app.layout = html.Div(
     children=[
         dl.Map([
@@ -58,38 +80,46 @@ app.layout = html.Div(
            dl.LayersControl([dl.Overlay(amsr_layer(default_sic_date), name="AMSR", checked=False, id="amsr-overlay"),], id="layers-control"),
            dl.FeatureGroup(id="routes-fg"),
            dl.FeatureGroup(id="marker-fg"),
-        ], center=[-72, -67], zoom=4, style={"height": "80vh", "cursor": "crosshair"}, id="map", eventHandlers=eventHandlers),
+        ], center=[-40, -67], zoom=3, style={"height": "80vh", "cursor": "crosshair"}, id="map", eventHandlers=eventHandlers),
         html.Span(" ", id='mouse-coords-container'),
         dcc.Slider(min=-30, max=0, step=1, value=0, id='amsr-date-slider', marks=None, tooltip={"placement": "top", "always_visible": False}),
         html.Span("", id='test-output-container'),
         dbc.Row([
-            dbc.Col(html.Div(id='route-request')),
-            dbc.Col(html.Div(id="recent-routes-container")),
+            dbc.Col([html.H2("Recent Routes"), html.Div(id="recent-routes")], class_name="col-12 col-md-6"),
+            dbc.Col([html.H2("Request Route"), html.Div(form, id='route-request')], class_name="col-12 col-md-6"),
         ]),
         dcc.Interval(id="recent-routes-interval", interval=150*1000),
         dcc.Store(id='routes-store'),
+        dcc.Store(id='marker-store', data='{"start_lat": null, "start_lon": null, "end_lat": null, "end_lon": null}'),
     ],
 )
 
 @app.callback(
     Output("marker-fg", "children"),
+    Output("marker-store", "data"),
     Input('map', 'n_clicks'),
     State('map', 'clickData'),
     State("marker-fg", "children"),
+    State("marker-store", "data"),
     prevent_initial_call=True,
     )
-def onclick(n_clicks, data, markers):
-    lat = data['latlng']['lat']
-    lon = data['latlng']['lng']
+def place_markers(n_clicks, clickData, markers, markerData):
+    lat = clickData['latlng']['lat']
+    lon = clickData['latlng']['lng']
 
     start_point = False if n_clicks % 2 == 0 or n_clicks==0 else True
 
-    if start_point:
-        return [dl.Marker(position=[lat, lon], draggable=True, icon=dict(iconUrl="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png", iconAnchor=[11, 40]))]
-    else:
-        markers.append(dl.Marker(position=[lat, lon], draggable=True, icon=dict(iconUrl="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png", iconAnchor=[11, 40])))
-        return markers
+    markerCoords = json.loads(markerData)
 
+    if start_point:
+        markerCoords['start_lat'] = lat
+        markerCoords['start_lon'] = lon
+        return [dl.Marker(id={"type": "marker", "index": "start"}, position=[lat, lon], draggable=True, icon=dict(iconUrl="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png", iconAnchor=[11, 40]))], json.dumps(markerCoords)
+    else:
+        markerCoords['end_lat'] = lat
+        markerCoords['end_lon'] = lon
+        markers.append(dl.Marker(id={"type": "marker", "index": "end"}, position=[lat, lon], draggable=True, icon=dict(iconUrl="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png", iconAnchor=[11, 40])))
+        return markers, json.dumps(markerCoords)
 
 
 @app.callback(
@@ -151,7 +181,7 @@ def update_routes_on_map(checkbox_values, routes):
 
 
 @app.callback(
-        Output("recent-routes-container", "children"),
+        Output("recent-routes", "children"),
         Output("routes-store", "data"),
         Input("recent-routes-interval", "n_intervals"),
 )
