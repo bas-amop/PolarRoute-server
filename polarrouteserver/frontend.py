@@ -58,7 +58,7 @@ app.layout = html.Div(
            dl.LayersControl([dl.Overlay(amsr_layer(default_sic_date), name="AMSR", checked=False, id="amsr-overlay"),], id="layers-control"),
            dl.FeatureGroup(id="routes-fg"),
            dl.FeatureGroup(id="marker-fg"),
-        ], center=[-72, -67], zoom=4, style={"height": "80vh"}, id="map", eventHandlers=eventHandlers),
+        ], center=[-72, -67], zoom=4, style={"height": "80vh", "cursor": "crosshair"}, id="map", eventHandlers=eventHandlers),
         html.Span(" ", id='mouse-coords-container'),
         dcc.Slider(min=-30, max=0, step=1, value=0, id='amsr-date-slider', marks=None, tooltip={"placement": "top", "always_visible": False}),
         html.Span("", id='test-output-container'),
@@ -85,9 +85,9 @@ def onclick(n_clicks, data, markers):
     start_point = False if n_clicks % 2 == 0 or n_clicks==0 else True
 
     if start_point:
-        return [dl.Marker(position=[lat, lon], draggable=True, icon=dict(iconUrl="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png"))]
+        return [dl.Marker(position=[lat, lon], draggable=True, icon=dict(iconUrl="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png", iconAnchor=[11, 40]))]
     else:
-        markers.append(dl.Marker(position=[lat, lon], draggable=True, icon=dict(iconUrl="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png")))
+        markers.append(dl.Marker(position=[lat, lon], draggable=True, icon=dict(iconUrl="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png", iconAnchor=[11, 40])))
         return markers
 
 
@@ -159,8 +159,6 @@ def update_recent_routes_table(_):
     r = requests.get(server_url()+"/api/recent_routes")
     result = r.json()
 
-    # print(type(result[0]['json'][0]))
-    
     if len(result) == 0:
         return [html.Span("No routes available. Try requesting one.")], json.dumps(result)
     else:
