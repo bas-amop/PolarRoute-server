@@ -16,6 +16,7 @@ services:
       - ./manage.py:/usr/src/app/manage.py
       - ./polarrouteserver:/usr/src/app/polarrouteserver
       - ./data/mesh:/usr/src/app/data/mesh
+      - ./assets:/usr/src/app/assets
     depends_on:
       - db 
       - celery

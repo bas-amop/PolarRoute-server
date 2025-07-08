@@ -179,8 +179,9 @@ if os.getenv("POLARROUTE_FRONTEND", True):
     INSTALLED_APPS.extend([
         "django_plotly_dash.apps.DjangoPlotlyDashConfig",
         "dpd_static_support",
+        "django_bootstrap5",
         ])
-    MIDDLEWARE.append("django_plotly_dash.middleware.BaseMiddleware")
+    
     X_FRAME_OPTIONS = 'SAMEORIGIN'
 
     # See: https://django-plotly-dash.readthedocs.io/en/latest/configuration.html#configuration-options
@@ -208,7 +209,7 @@ if os.getenv("POLARROUTE_FRONTEND", True):
         "cache_arguments": True,
 
         # Flag controlling local serving of assets
-        "serve_locally": False,
+        "serve_locally": True,
     }
 
     # Staticfiles finders for locating dash app assets and related files
@@ -237,18 +238,39 @@ if os.getenv("POLARROUTE_FRONTEND", True):
         # Other components, as needed
         'dash_bootstrap_components',
 
-        'dash_mantine_components',
+        # 'dash_mantine_components',
 
         'dash_extensions',
 
         'dash_leaflet',
     ]
 
-    MIDDLEWARE.extend([
+    # MIDDLEWARE.extend([
+    #     'django_plotly_dash.middleware.BaseMiddleware',
+    #     'django_plotly_dash.middleware.ExternalRedirectionMiddleware',
+    #     "whitenoise.middleware.WhiteNoiseMiddleware",
+    # ])
+
+    MIDDLEWARE = [
+
+        'django.middleware.security.SecurityMiddleware',
+
+        'whitenoise.middleware.WhiteNoiseMiddleware',
+
+        'django.contrib.sessions.middleware.SessionMiddleware',
+        'django.middleware.common.CommonMiddleware',
+        'django.middleware.csrf.CsrfViewMiddleware',
+        'django.contrib.auth.middleware.AuthenticationMiddleware',
+        'django.contrib.messages.middleware.MessageMiddleware',
+
         'django_plotly_dash.middleware.BaseMiddleware',
         'django_plotly_dash.middleware.ExternalRedirectionMiddleware',
-        "whitenoise.middleware.WhiteNoiseMiddleware",
-    ])
+
+        'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+        "corsheaders.middleware.CorsMiddleware",
+
+    ]
 
 
 # Routing settings (TODO: hardcoded, can / should these be exposed elsewhere?)

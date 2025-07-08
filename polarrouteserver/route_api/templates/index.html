@@ -12,6 +12,7 @@
         <meta name="msapplication-TileColor" content="#222222">
         <meta name="msapplication-config" content="https://cdn.web.bas.ac.uk/bas-style-kit/0.7.3/img/favicon/browserconfig.xml">
         <meta name="theme-color" content="#222222">
+        {% load static %}
         {% load plotly_dash%}
         {% plotly_header %}
     </head>
@@ -83,7 +84,10 @@
 
 
 
-        <iframe src="http://localhost:8050" width="100%" height=1200>
+        <!-- <iframe src="http://localhost:8050" width="100%" height=1200> -->
+        <script src="{% static 'mapFunctions.js' %}"></script>
+
+        {%plotly_direct name="PolarRoute"%}
 
 
 

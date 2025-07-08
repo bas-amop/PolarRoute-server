@@ -1,15 +1,16 @@
 import datetime
 import json
+import os
 import dash
 from dash import Dash, dcc, ALL
 import dash_bootstrap_components as dbc
 import dash_leaflet as dl
-# from django_plotly_dash import DjangoDash, dash_wrapper
+from django_plotly_dash import DjangoDash, dash_wrapper
 from django.utils.translation import gettext, gettext_lazy
 import plotly.express as px
 import pandas as pd
 from dash_extensions.enrich import DashProxy, Input, Output, State, html, no_update, ctx, DashBlueprint, PrefixIdTransform
-from dash_extensions.javascript import assign, arrow_function
+from dash_extensions.javascript import assign, arrow_function, Namespace
 # import xyzservices
 import requests
 from copy import deepcopy
@@ -21,7 +22,9 @@ stylesheets = [
     dbc.themes.BOOTSTRAP,
 ]
 
-app = DashProxy('PolarRoute', update_title=None, external_stylesheets=stylesheets)
+app = DjangoDash('PolarRoute', add_bootstrap_links=True, update_title=None, external_stylesheets=stylesheets)
+
+ns = Namespace("polarRoute", "mapFunctions")
 
 def amsr_layer(date: datetime.date):
     return dl.TileLayer(
@@ -35,19 +38,8 @@ def server_url():
     return "http://localhost:8000"
 
 eventHandlers = dict(
-    mousemove=assign("function(e, ctx){ctx.setProps({mouseCoords: {area: e.latlng}})}"),
-    click=assign("""
-function(e, ctx) {
-    ctx.setProps({
-        n_clicks: ctx.n_clicks == undefined ? 1 : ctx.n_clicks + 1,  // increment counter
-        clickData: {
-            latlng: e.latlng,
-            layerPoint: e.layerPoint,
-            containerPoint: e.containerPoint
-        }
-    });
-}
-"""),
+    mousemove=ns("geoff"),
+    click=ns("click"),
 )
 
 favourites = {
@@ -223,6 +215,3 @@ def update_recent_routes_table(_):
 
 def get_route_geojson(route: dict):
     return route['json'][0][0]
-
-if __name__ == "__main__":
-    app.run(debug=True)
