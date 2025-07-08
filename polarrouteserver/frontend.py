@@ -162,7 +162,7 @@ def update_recent_routes_table(_):
     # print(type(result[0]['json'][0]))
     
     if len(result) == 0:
-        return [html.Span("No routes available. Try requesting one.")]
+        return [html.Span("No routes available. Try requesting one.")], json.dumps(result)
     else:
         table_header = [html.Thead(
                         html.Tr([
