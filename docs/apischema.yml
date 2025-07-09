@@ -73,6 +73,31 @@ paths:
           description: ''
       tags:
       - api
+  /api/vehicle:
+    post:
+      operationId: api_vehicle_request
+      description: Entry point creating vehicle
+      tags:
+      - api
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/vehicle-request'
+        required: true
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/vehicle-request-response'
+          description: ''
+        '406':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/vehicle-request-response'
+          description: 'Duplicate vehicle created'     
   /api/mesh/{id}:
      get:
       operationId: api_mesh_get
@@ -173,6 +198,50 @@ components:
         polarrouteserver-version:
           type: string
           nullable: false
+    
+    vehicle-request:
+      type: object
+      properties:
+        vessel_type:
+          type: string
+        max_speed:
+          type: number
+          format: double
+        unit:
+          type: string
+        max_ice_conc:
+          type: number
+          format: double
+        min_depth:
+          type: number
+          format: double
+        max_wave:
+          type: number
+          format: double
+        excluded_zones:
+          type: object
+        neighbour_splitting:
+          type: boolean
+        beam:
+          type: number
+          format: double
+        hull_type:
+          type: string
+        force_limit:
+          type: number
+          format: double
+        force_properties:
+          type: boolean
+      required:
+      - vessel_type
+      - max_speed
+      - unit
+
+    vehicle-request-response:
+      type: object
+      properties:
+        vessel_type:
+          type: string
 
     mesh-response:
       type: object
