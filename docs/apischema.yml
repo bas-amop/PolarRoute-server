@@ -73,10 +73,13 @@ paths:
           description: ''
       tags:
       - api
+
   /api/vehicle:
     post:
       operationId: api_vehicle_request
-      description: Entry point creating vehicle
+      description: |
+        Creates a new vehicle. If a vehicle with the same `vessel_type` already exists,
+        the `force_properties: true` flag must be set to update it.
       tags:
       - api
       requestBody:
@@ -86,18 +89,109 @@ paths:
               $ref: '#/components/schemas/vehicle-request'
         required: true
       responses:
-        '202':
+        '200':
+          description: Vehicle created or updated successfully
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/vehicle-request-response'
-          description: ''
+        '400':
+          description: Invalid vehicle configuration
         '406':
+          description: Duplicate vehicle created
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/vehicle-request-response'
-          description: 'Duplicate vehicle created'     
+        
+    get:
+      operationId: api_vehicle_list
+      description: Retrieves all vehicles
+      tags:
+      - api
+      responses:
+        '200':
+          description: A list of vehicle objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/vehicle-retrieve'
+
+
+  /api/vehicle/{vessel_type}:   
+    get:
+      operationId: api_vehicle_retrieve
+      description: Entry point retrieving specific vehicle by vessel_type
+      tags:
+      - api
+      parameters:
+      - in: path
+        name: vessel_type
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+        description: Vehicle found
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#components/schemas/vehicle-retrieve'
+        '404':
+          description: Vehicle not found
+    
+    delete:
+      operationId: api_vehicle_delete
+      summary: Delete a vehicle by vessel_type
+      tags:
+      - api
+      parameters:
+        - in: path
+          name: vessel_type
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Vehicle deleted successfully
+        '404':
+          description: Vehicle not found
+    
+  /api/vehicle/available:
+    get:
+      operationId: api_vehicle_available_list
+      description: Returns a list of distinct `vessel_type` values currently in the database.
+      responses:
+        '200':
+          description: List of distinct vessel types
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  vessel_types:
+                    type: array
+                    items:
+                      type: string
+        '204':
+          description: No available vessel types found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  vessel_types:
+                    type: array
+                    items:
+                      type: string
+                  message:
+                    type: string
+                    example: No available vessel types found.
+
   /api/mesh/{id}:
      get:
       operationId: api_mesh_get
@@ -238,6 +332,12 @@ components:
       - unit
 
     vehicle-request-response:
+      type: object
+      properties:
+        vessel_type:
+          type: string
+    
+    vehicle-retrieve:
       type: object
       properties:
         vessel_type:
