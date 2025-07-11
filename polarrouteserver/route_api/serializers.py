@@ -22,7 +22,8 @@ class VehicleSerializer(serializers.ModelSerializer):
 
 
 class VesselTypeSerializer(serializers.Serializer):
-    vessel_type = serializers.CharField()
+    class Meta:
+        vessel_type = serializers.CharField()
 
 
 class RouteSerializer(serializers.ModelSerializer):
