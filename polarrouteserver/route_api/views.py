@@ -2,7 +2,7 @@ from datetime import datetime
 import logging
 
 from celery.result import AsyncResult
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import extend_schema, OpenApiResponse, inline_serializer
 from jsonschema.exceptions import ValidationError
 from meshiphi.mesh_generation.environment_mesh import EnvironmentMesh
 import rest_framework.status
@@ -10,6 +10,7 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
+from rest_framework import serializers
 
 from polar_route.config_validation.config_validator import validate_vessel_config
 from polarrouteserver import __version__ as polarrouteserver_version
@@ -74,7 +75,45 @@ class LoggingMixin:
 class VehicleListCreateView(LoggingMixin, GenericAPIView):
     serializer_class = VehicleSerializer
 
-    @extend_schema(operation_id="api_vehicle_create_request")
+    @extend_schema(
+        operation_id="api_vehicle_create_request",
+        request=VehicleSerializer,
+        responses={
+            200: OpenApiResponse(
+                response=inline_serializer(
+                    name="VehicleCreationSuccess",
+                    fields={
+                        "vessel_type": serializers.CharField(
+                            help_text="The type of vessel successfully created or updated."
+                        )
+                    },
+                ),
+                description="Vehicle created or updated successfully.",
+            ),
+            400: OpenApiResponse(
+                response=inline_serializer(
+                    name="VehicleValidationError",
+                    fields={
+                        "info": serializers.DictField(
+                            help_text="Details about the validation error, including the error message."
+                        )
+                    },
+                ),
+                description="Invalid input data for vehicle configuration.",
+            ),
+            406: OpenApiResponse(
+                response=inline_serializer(
+                    name="VehicleExistsError",
+                    fields={
+                        "info": serializers.DictField(
+                            help_text="Details about the conflict, indicating a pre-existing vehicle."
+                        )
+                    },
+                ),
+                description="Pre-existing vehicle found, 'force_properties' not specified or not true.",
+            ),
+        },
+    )
     def post(self, request):
         """Entry point to create vehicles"""
 

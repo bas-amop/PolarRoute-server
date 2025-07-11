@@ -152,8 +152,21 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Vehicle'
-          description: ''
+                $ref: '#/components/schemas/VehicleCreationSuccess'
+          description: Vehicle created or updated successfully.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleValidationError'
+          description: Invalid input data for vehicle configuration.
+        '406':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleExistsError'
+          description: Pre-existing vehicle found, 'force_properties' not specified
+            or not true.
   /api/vehicle/{vessel_type}/:
     get:
       operationId: api_vehicle_retrieve_by_type
@@ -293,6 +306,32 @@ components:
       required:
       - max_speed
       - unit
+    VehicleCreationSuccess:
+      type: object
+      properties:
+        vessel_type:
+          type: string
+          description: The type of vessel successfully created or updated.
+      required:
+      - vessel_type
+    VehicleExistsError:
+      type: object
+      properties:
+        info:
+          type: object
+          additionalProperties: {}
+          description: Details about the conflict, indicating a pre-existing vehicle.
+      required:
+      - info
+    VehicleValidationError:
+      type: object
+      properties:
+        info:
+          type: object
+          additionalProperties: {}
+          description: Details about the validation error, including the error message.
+      required:
+      - info
     VesselType:
       type: object
       properties:
