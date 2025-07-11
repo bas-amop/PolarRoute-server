@@ -54,13 +54,50 @@ curl --header "Content-Type: application/json" \
 With `"force_properties"` set to `"true"`, the request will be accepted and the properties for "SDA"
 will be updated.
 
-## Requesting a vehicle
+## Requesting a list of all available vehicles
+To request a list of all available vehicles in the database, you can make a GET request to the
+`api/vehicle/available` endpoint:
 
-Coming soon.
+```shell
+curl --header "Content-Type: application/json" \
+  --request GET \
+  http://localhost:8000/api/vehicle/available
+```
 
-## Requesting all vehicles
+## Requesting vehicles
+### Requesting a specific vehicle
+To request a specific vehicle to be returned, you can make a GET request to the `api/vehicle`
+endpoint, adding the `vessel_type` to the end of the endpoint, for example `api/vehicle/SDA`:
 
-Coming soon.
+```shell
+curl --header "Content-Type: application/json" \
+  --request GET \
+  http://localhost:8000/api/vehicle/SDA/
+
+```
+
+### Requesting all vehicles
+If you make a GET request to `api/vehicle` without specifying the `vessel_type`, all vehicles will
+be returned.
+
+```shell
+curl --header "Content-Type: application/json" \
+  --request GET \
+  http://localhost:8000/api/vehicle
+```
+
+## Deleting a vehicle
+To request a vehicle to be removed from the database, you can make a DELETE request to `api/vehicle`,
+specifying the `vessel_type` in the URL, just as with specific vehicle GET requests, `api/vehicle/SDA`:
+
+```shell
+curl --header "Content-Type: application/json" \
+  --request DELETE \
+  http://localhost:8000/api/vehicle/SDA/
+
+```
+
+Removing all vehicles in one go is not currently supported. 
 
 ## Adding a vehicle to an environment mesh
 

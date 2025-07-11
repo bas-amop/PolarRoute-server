@@ -8,33 +8,53 @@ from rest_framework.test import APIRequestFactory
 import pytest
 
 from polarrouteserver import __version__ as polarrouteserver_version
-from polarrouteserver.route_api.views import EvaluateRouteView, MeshView, VehicleView, RouteView, RecentRoutesView
+from polarrouteserver.route_api.views import EvaluateRouteView, MeshView, VehicleView, VehicleTypeListView, RouteView, RecentRoutesView
 from polarrouteserver.route_api.models import Job, Route
 from .utils import add_test_mesh_to_db
 
 
 class TestVehicleRequest(TestCase):
+    """
+    Test case for the Vehicle API endpoints. Covers:
+    - Creating and updating vehicles
+    - Validating input data for vehicles
+    - Retrieving vehicle records
+    - Deleting vehicle records
+    """
+
     with open(settings.TEST_VEHICLE_PATH) as fp:
         vessel_config = json.load(fp)
 
     data = dict(vessel_config)
 
     def setUp(self):
+        """
+        Set up test environment for each test case, API request factory and test data.
+        """
         self.factory = APIRequestFactory()
         self.data = self.__class__.data.copy()
 
     def post_vehicle(self, data):
+        """
+        Helper method to send a POST request to create or update a vehicle.
+
+        Args:
+            data (dict): The vehicle data payload.
+
+        Returns:
+            Response: Response object returned.
+        """
         request = self.factory.post("/api/vehicle/", data=data, format="json")
         return VehicleView.as_view()(request)
 
-    # Test vehicle is created successfully
     def test_create_update_vehicle(self):
+        """
+        Test creating a new vehicle, handling duplicates, and using force_properties.
+        """
         data = self.data.copy()
         response = self.post_vehicle(data)
-
         self.assertEqual(response.status_code, 200)
 
-        # Test creating a duplicate vehicle fails
         duplicate_response = self.post_vehicle(data)
         self.assertEqual(duplicate_response.status_code, 406)
         self.assertIn("info", duplicate_response.data)
@@ -43,23 +63,18 @@ class TestVehicleRequest(TestCase):
             "Pre-existing vehicle was found.", duplicate_response.data["info"]["error"]
         )
 
-        # Test force_properties allows for existing vessel_type to be updated
-        data.update(
-            {
-                "force_properties":True
-            }
-        )
-
+        data.update({"force_properties": True})
         response_force = self.post_vehicle(data)
         self.assertEqual(response_force.status_code, 200)
-
         self.assertEqual(
             response.data.get("vessel_type"),
             response_force.data.get("vessel_type"),
         )
 
-    # Test the validation error responses
-    def test_missing_property(self, data=data):
+    def test_missing_property(self):
+        """
+        Test that omitting a required property (e.g., 'max_speed') results in validation error.
+        """
         missing_property = self.data.copy()
         missing_property.pop("max_speed", None)
         response = self.post_vehicle(missing_property)
@@ -73,6 +88,9 @@ class TestVehicleRequest(TestCase):
         )
 
     def test_wrong_type(self, data=data):
+        """
+        Test that submitting a wrong data type (e.g., string for 'max_speed') fails.
+        """
         wrong_type = self.data.copy()
         wrong_type["max_speed"] = "really fast"
         response = self.post_vehicle(wrong_type)
@@ -86,10 +104,158 @@ class TestVehicleRequest(TestCase):
         )
 
     def test_type_error_on_invalid_input(self):
+        """
+        Test that submitting a non-dictionary raises a TypeError.
+        """
         invalid_data = ["this", "is", "not", "a", "dict"]
 
         with self.assertRaises(TypeError):
             self.post_vehicle(invalid_data)
+
+    def test_get_vehicle(self):
+        """
+        Test GET requests to fetch specific or all vehicles.
+        """
+        self.post_vehicle(self.data)
+
+        request_all = self.factory.get("/api/vehicle/")
+        response_all = VehicleView.as_view()(request_all)
+
+        self.assertEqual(response_all.status_code, 200)
+        self.assertTrue(len(response_all.data) >= 1)
+        self.assertIn("vessel_type", response_all.data[0])
+
+        vessel_type = self.data["vessel_type"]
+        request_specific = self.factory.get(f"/api/vehicle/{vessel_type}/")
+        response_specific = VehicleView.as_view()(
+            request_specific, vessel_type=vessel_type
+        )
+
+        self.assertEqual(response_specific.status_code, 200)
+        self.assertTrue(len(response_specific.data) >= 1)
+        self.assertTrue(
+            all(v["vessel_type"] == vessel_type for v in response_specific.data)
+        )
+
+    def test_delete_vehicle_success(self):
+        """
+        Test successful deletion of a vehicle.
+        """
+        self.post_vehicle(self.data)
+        vessel_type = self.data["vessel_type"]
+
+        request_delete = self.factory.delete(f"/api/vehicle/{vessel_type}/")
+        response_delete = VehicleView.as_view()(request_delete, vessel_type=vessel_type)
+
+        self.assertEqual(response_delete.status_code, 204)
+        self.assertIn("message", response_delete.data)
+
+    def test_delete_vehicle_without_vessel_type(self):
+        """
+        Test deletion attempt without specifying a 'vessel_type' fails.
+        """
+        request_delete = self.factory.delete("/api/vehicle/")
+        response_delete = VehicleView.as_view()(request_delete)
+
+        self.assertEqual(response_delete.status_code, 400)
+        self.assertIn("error", response_delete.data)
+        self.assertEqual(
+            response_delete.data["error"],
+            "vessel_type parameter is required for delete.",
+        )
+
+    def test_delete_vehicle_not_found(self):
+        """
+        Test deletion of a non-existent vehicle.
+        """
+        vessel_type = "non_existent_type"
+        request_delete = self.factory.delete(f"/api/vehicle/{vessel_type}/")
+        response_delete = VehicleView.as_view()(request_delete, vessel_type=vessel_type)
+
+        self.assertEqual(response_delete.status_code, 404)
+        self.assertIn("error", response_delete.data)
+        self.assertIn(vessel_type, response_delete.data["error"])
+
+
+class TestVehicleTypeListView(TestCase):
+    """
+    Test case for the VehicleTypeListView endpoint at /api/vehicle/available, listing all available
+    vehicles.
+    """
+
+    with open(settings.TEST_VEHICLE_PATH) as fp:
+        vessel_config = json.load(fp)
+
+    data = dict(vessel_config)
+
+    def setUp(self):
+        """
+        Set up test environment for each test case, API request factory and test data.
+        """
+        self.factory = APIRequestFactory()
+        self.data = self.__class__.data.copy()
+
+    def post_vehicle(self, data):
+        """
+        Helper method to send a POST request to create or update a vehicle.
+
+        Args:
+            data (dict): The vehicle data.
+
+        Returns:
+            Response: Response object returned.
+        """
+        request = self.factory.post("/api/vehicle/", data=data, format="json")
+        return VehicleView.as_view()(request)
+
+    def test_get_vessel_types_empty(self):
+        """
+        Test the endpoint returns warning when no vehicles exist.
+        """
+        request = self.factory.get("/api/vehicle/available")
+        response = VehicleTypeListView.as_view()(request)
+
+        self.assertEqual(response.status_code, 204)
+        self.assertIn("vessel_types", response.data)
+        self.assertEqual(response.data["vessel_types"], [])
+        self.assertIn("message", response.data)
+        self.assertEqual(response.data["message"], "No available vessel types found.")
+    
+    def test_get_vessel_types_single_vehicle(self):
+        """
+        Test the endpoint after creating a single vehicle.
+        """
+        self.post_vehicle(self.data)
+
+        request = self.factory.get("/api/vehicle/available")
+        response = VehicleTypeListView.as_view()(request)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("vessel_types", response.data)
+        self.assertEqual(len(response.data["vessel_types"]), 1)
+        self.assertIn(self.data["vessel_type"], response.data["vessel_types"])
+
+    def test_get_vessel_types_multiple_vehicles(self):
+        """
+        Test the endpoint after creating vehicles with multiple distinct vessel_types.
+        """
+        data1 = self.data.copy()
+        data2 = self.data.copy()
+        data2["vessel_type"] = "Boaty McBoatface"
+
+        self.post_vehicle(data1)
+        self.post_vehicle(data2)
+
+        request = self.factory.get("/api/vehicle/available")
+        response = VehicleTypeListView.as_view()(request)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("vessel_types", response.data)
+        self.assertEqual(len(response.data["vessel_types"]), 2)
+        self.assertCountEqual(
+            response.data["vessel_types"],
+            [data1["vessel_type"], data2["vessel_type"]],
+        )
 
 
 class TestRouteRequest(TestCase):

@@ -15,7 +15,7 @@ from polarrouteserver.celery import app
 
 from .models import Job, Vehicle, Route, Mesh
 from .tasks import optimise_route
-from .serializers import VehicleSerializer, RouteSerializer
+from .serializers import VehicleSerializer, VesselTypeSerializer, RouteSerializer
 from .utils import (
     evaluate_route,
     route_exists,
@@ -150,6 +150,92 @@ class VehicleView(LoggingMixin, GenericAPIView):
             response_data,
             headers={"Content-Type": "application/json"},
             status=rest_framework.status.HTTP_200_OK,
+        )
+
+    def get(self, request, vessel_type=None):
+        """Retrieve all vehicles or filter by vessel_type"""
+
+        logger.info(
+            f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
+        )
+
+        # Return all vehicles, unless a specific vessel type is requested
+        if vessel_type:
+            logger.info(f"Fetching vehicle(s) with vessel_type={vessel_type}")
+            vehicles = Vehicle.objects.filter(vessel_type=vessel_type)
+        else:
+            logger.info("Fetching all vehicles")
+            vehicles = Vehicle.objects.all()
+
+        serializer = self.serializer_class(vehicles, many=True)
+
+        return Response(
+            serializer.data,
+            headers={"Content-Type": "application/json"},
+            status=rest_framework.status.HTTP_200_OK,
+        )
+
+    def delete(self, request, vessel_type=None):
+        logger.info(
+            f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
+        )
+
+        if not vessel_type:
+            return Response(
+                {"error": "vessel_type parameter is required for delete."},
+                status=rest_framework.status.HTTP_400_BAD_REQUEST,
+            )
+
+        try:
+            vehicle = Vehicle.objects.get(vessel_type=vessel_type)
+            vehicle.delete()
+            logger.info(f"Deleted vehicle with vessel_type={vessel_type}")
+            return Response(
+                {"message": f"Vehicle '{vessel_type}' deleted successfully."},
+                status=rest_framework.status.HTTP_204_NO_CONTENT,
+            )
+        except Vehicle.DoesNotExist:
+            logger.error(
+                f"Vehicle with vessel_type={vessel_type} not found for deletion."
+            )
+            return Response(
+                {"error": f"Vehicle with vessel_type '{vessel_type}' not found."},
+                status=rest_framework.status.HTTP_404_NOT_FOUND,
+            )
+
+
+class VehicleTypeListView(LoggingMixin, GenericAPIView):
+    """
+    Endpoint to list all distinct vessel_types available.
+    """
+
+    serializer_class = VesselTypeSerializer
+
+    def get(self, request):
+        logger.info(
+            f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
+        )
+
+        vessel_types = Vehicle.objects.values_list("vessel_type", flat=True).distinct()
+        vessel_types_list = list(vessel_types)
+
+        if not vessel_types_list:
+            logger.warning("No available vessel_types found in the database.")
+            return Response(
+                data={
+                    "vessel_types": [],
+                    "message": "No available vessel types found.",
+                },
+                status=rest_framework.status.HTTP_204_NO_CONTENT,
+                headers={"Content-Type": "application/json"},
+            )
+
+        logger.info(f"Returning {len(vessel_types_list)} distinct vessel_types")
+
+        return Response(
+            data={"vessel_types": vessel_types_list},
+            status=rest_framework.status.HTTP_200_OK,
+            headers={"Content-Type": "application/json"},
         )
 
 
