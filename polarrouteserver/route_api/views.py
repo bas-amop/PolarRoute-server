@@ -71,10 +71,10 @@ class LoggingMixin:
         return super().finalize_response(request, response, *args, **kwargs)
 
 
-class VehicleView(LoggingMixin, GenericAPIView):
+class VehicleListCreateView(LoggingMixin, GenericAPIView):
     serializer_class = VehicleSerializer
 
-    @extend_schema(operation_id="api_vehicle_request")
+    @extend_schema(operation_id="api_vehicle_create_request")
     def post(self, request):
         """Entry point to create vehicles"""
 
@@ -155,21 +155,16 @@ class VehicleView(LoggingMixin, GenericAPIView):
             status=rest_framework.status.HTTP_200_OK,
         )
 
-    @extend_schema(operation_id="api_vehicle_retrieve")
-    def get(self, request, vessel_type=None):
-        """Retrieve all vehicles or filter by vessel_type"""
+    @extend_schema(operation_id="api_vehicle_list_retrieve")
+    def get(self, request):
+        """Retrieve all vehicles"""
 
         logger.info(
             f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
         )
 
-        # Return all vehicles, unless a specific vessel type is requested
-        if vessel_type:
-            logger.info(f"Fetching vehicle(s) with vessel_type={vessel_type}")
-            vehicles = Vehicle.objects.filter(vessel_type=vessel_type)
-        else:
-            logger.info("Fetching all vehicles")
-            vehicles = Vehicle.objects.all()
+        logger.info("Fetching all vehicles")
+        vehicles = Vehicle.objects.all()
 
         serializer = self.serializer_class(vehicles, many=True)
 
@@ -179,19 +174,36 @@ class VehicleView(LoggingMixin, GenericAPIView):
             status=rest_framework.status.HTTP_200_OK,
         )
 
-    @extend_schema(operation_id="api_vehicle_destroy")
-    def delete(self, request, vessel_type=None):
-        """Delete vehicle by vessel_type"""
+
+class VehicleDetailView(LoggingMixin, GenericAPIView):
+    serializer_class = VehicleSerializer
+
+    @extend_schema(operation_id="api_vehicle_retrieve_by_type")
+    def get(self, request, vessel_type):
+        """Retrieve vehicle by vessel_type"""
 
         logger.info(
             f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
         )
 
-        if not vessel_type:
-            return Response(
-                {"error": "vessel_type parameter is required for delete."},
-                status=rest_framework.status.HTTP_400_BAD_REQUEST,
-            )
+        logger.info(f"Fetching vehicle(s) with vessel_type={vessel_type}")
+        vehicles = Vehicle.objects.filter(vessel_type=vessel_type)
+
+        serializer = self.serializer_class(vehicles, many=True)
+
+        return Response(
+            serializer.data,
+            headers={"Content-Type": "application/json"},
+            status=rest_framework.status.HTTP_200_OK,
+        )
+
+    @extend_schema(operation_id="api_vehicle_delete_by_type")
+    def delete(self, request, vessel_type):
+        """Delete vehicle by vessel_type"""
+
+        logger.info(
+            f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
+        )
 
         try:
             vehicle = Vehicle.objects.get(vessel_type=vessel_type)
@@ -234,8 +246,8 @@ class VehicleTypeListView(LoggingMixin, GenericAPIView):
                     "vessel_types": [],
                     "message": "No available vessel types found.",
                 },
-                status=rest_framework.status.HTTP_204_NO_CONTENT,
                 headers={"Content-Type": "application/json"},
+                status=rest_framework.status.HTTP_204_NO_CONTENT,
             )
 
         logger.info(f"Returning {len(vessel_types_list)} distinct vessel_types")
@@ -247,10 +259,10 @@ class VehicleTypeListView(LoggingMixin, GenericAPIView):
         )
 
 
-class RouteView(LoggingMixin, GenericAPIView):
+class RouteListCreateView(LoggingMixin, GenericAPIView):
     serializer_class = RouteSerializer
 
-    @extend_schema(operation_id="api_route_request")
+    @extend_schema(operation_id="api_route_create_request")
     def post(self, request):
         """Entry point for route requests"""
 
@@ -317,7 +329,9 @@ class RouteView(LoggingMixin, GenericAPIView):
                             },
                             "id": str(existing_job.id),
                             "status-url": reverse(
-                                "route", args=[existing_job.id], request=request
+                                "route_detail",
+                                args=[existing_job.id],
+                                request=request,
                             ),
                             "polarrouteserver-version": polarrouteserver_version,
                         }
@@ -372,7 +386,7 @@ class RouteView(LoggingMixin, GenericAPIView):
         data = {
             "id": job.id,
             # url to request status of requested route
-            "status-url": reverse("route", args=[job.id], request=request),
+            "status-url": reverse("route_detail", args=[job.id], request=request),
             "polarrouteserver-version": polarrouteserver_version,
         }
 
@@ -382,7 +396,11 @@ class RouteView(LoggingMixin, GenericAPIView):
             status=rest_framework.status.HTTP_202_ACCEPTED,
         )
 
-    @extend_schema(operation_id="api_route_retrieve")
+
+class RouteDetailView(LoggingMixin, GenericAPIView):
+    serializer_class = RouteSerializer
+
+    @extend_schema(operation_id="api_route_retrieve_status")
     def get(self, request, id):
         "Return status of route calculation and route itself if complete."
 
@@ -414,7 +432,7 @@ class RouteView(LoggingMixin, GenericAPIView):
             status=rest_framework.status.HTTP_200_OK,
         )
 
-    @extend_schema(operation_id="api_route_destroy")
+    @extend_schema(operation_id="api_route_cancel_job")
     def delete(self, request, id):
         """Cancel route calculation"""
 
@@ -435,7 +453,7 @@ class RouteView(LoggingMixin, GenericAPIView):
 class RecentRoutesView(LoggingMixin, GenericAPIView):
     serializer_class = RouteSerializer
 
-    @extend_schema(operation_id="api_recent_routes")
+    @extend_schema(operation_id="api_recent_routes_list")
     def get(self, request):
         """Get recent routes"""
 

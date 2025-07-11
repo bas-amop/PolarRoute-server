@@ -115,6 +115,8 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "Backend server for serving PolarRoute and MeshiPhi assets",
     "VERSION": "0.2.0",
     "SERVE_INCLUDE_SCHEMA": False,
+    "SECURITY": [],
+    "AUTHENTICATION_WHITELIST": [],
 }
 
 ROOT_URLCONF = "polarrouteserver.urls"
