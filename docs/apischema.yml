@@ -165,6 +165,8 @@ paths:
     get:
       operationId: api_vehicle_available_list
       description: Returns a list of distinct `vessel_type` values currently in the database.
+      tags:
+      - api
       responses:
         '200':
           description: List of distinct vessel types
