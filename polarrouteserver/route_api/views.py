@@ -15,7 +15,7 @@ from polarrouteserver.celery import app
 
 from .models import Job, Vehicle, Route, Mesh
 from .tasks import optimise_route
-from .serializers import VehicleSerializer, RouteSerializer
+from .serializers import VehicleSerializer, VesselTypeSerializer, RouteSerializer
 from .utils import (
     evaluate_route,
     route_exists,
@@ -208,6 +208,8 @@ class VehicleTypeListView(LoggingMixin, GenericAPIView):
     """
     Endpoint to list all distinct vessel_types available.
     """
+
+    serializer_class = VesselTypeSerializer
 
     def get(self, request):
         logger.info(
