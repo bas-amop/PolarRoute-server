@@ -84,6 +84,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django_celery_results",
     "django_celery_beat",
+    "drf_spectacular",
     "polarrouteserver.route_api",
     "corsheaders",
 ]
@@ -104,6 +105,17 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "corsheaders.middleware.CorsMiddleware",
 ]
+
+REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "PolarRoute-Server",
+    "DESCRIPTION": "Backend server for serving PolarRoute and MeshiPhi assets",
+    "VERSION": "0.2.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+}
 
 ROOT_URLCONF = "polarrouteserver.urls"
 
