@@ -2,10 +2,12 @@ from datetime import datetime
 import logging
 
 from celery.result import AsyncResult
+from drf_spectacular.utils import extend_schema
 from jsonschema.exceptions import ValidationError
 from meshiphi.mesh_generation.environment_mesh import EnvironmentMesh
 import rest_framework.status
 from rest_framework.generics import GenericAPIView
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
 
@@ -72,6 +74,7 @@ class LoggingMixin:
 class VehicleView(LoggingMixin, GenericAPIView):
     serializer_class = VehicleSerializer
 
+    @extend_schema(operation_id="api_vehicle_request")
     def post(self, request):
         """Entry point to create vehicles"""
 
@@ -152,6 +155,7 @@ class VehicleView(LoggingMixin, GenericAPIView):
             status=rest_framework.status.HTTP_200_OK,
         )
 
+    @extend_schema(operation_id="api_vehicle_retrieve")
     def get(self, request, vessel_type=None):
         """Retrieve all vehicles or filter by vessel_type"""
 
@@ -175,7 +179,10 @@ class VehicleView(LoggingMixin, GenericAPIView):
             status=rest_framework.status.HTTP_200_OK,
         )
 
+    @extend_schema(operation_id="api_vehicle_destroy")
     def delete(self, request, vessel_type=None):
+        """Delete vehicle by vessel_type"""
+
         logger.info(
             f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
         )
@@ -211,6 +218,7 @@ class VehicleTypeListView(LoggingMixin, GenericAPIView):
 
     serializer_class = VesselTypeSerializer
 
+    @extend_schema(operation_id="api_vehicle_available_list")
     def get(self, request):
         logger.info(
             f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
@@ -242,6 +250,7 @@ class VehicleTypeListView(LoggingMixin, GenericAPIView):
 class RouteView(LoggingMixin, GenericAPIView):
     serializer_class = RouteSerializer
 
+    @extend_schema(operation_id="api_route_request")
     def post(self, request):
         """Entry point for route requests"""
 
@@ -373,6 +382,7 @@ class RouteView(LoggingMixin, GenericAPIView):
             status=rest_framework.status.HTTP_202_ACCEPTED,
         )
 
+    @extend_schema(operation_id="api_route_retrieve")
     def get(self, request, id):
         "Return status of route calculation and route itself if complete."
 
@@ -404,6 +414,7 @@ class RouteView(LoggingMixin, GenericAPIView):
             status=rest_framework.status.HTTP_200_OK,
         )
 
+    @extend_schema(operation_id="api_route_destroy")
     def delete(self, request, id):
         """Cancel route calculation"""
 
@@ -422,6 +433,9 @@ class RouteView(LoggingMixin, GenericAPIView):
 
 
 class RecentRoutesView(LoggingMixin, GenericAPIView):
+    serializer_class = RouteSerializer
+
+    @extend_schema(operation_id="api_recent_routes")
     def get(self, request):
         """Get recent routes"""
 
@@ -464,7 +478,10 @@ class RecentRoutesView(LoggingMixin, GenericAPIView):
         )
 
 
-class MeshView(LoggingMixin, GenericAPIView):
+class MeshView(LoggingMixin, APIView):
+    serializer_class = None
+
+    @extend_schema(operation_id="api_mesh_get")
     def get(self, request, id):
         logger.info(
             f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
@@ -494,7 +511,10 @@ class MeshView(LoggingMixin, GenericAPIView):
         )
 
 
-class EvaluateRouteView(LoggingMixin, GenericAPIView):
+class EvaluateRouteView(LoggingMixin, APIView):
+    serializer_class = None
+
+    @extend_schema(operation_id="api_route_evaluation")
     def post(self, request):
         data = request.data
         route_json = data.get("route", None)
