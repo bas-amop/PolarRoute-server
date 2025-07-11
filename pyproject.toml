@@ -48,6 +48,7 @@ polarrouteserver = [
 
 [project.optional-dependencies]
 dev = [
+    "drf-spectacular",
     "pre-commit",
     "pytest",
     "pytest-celery",
