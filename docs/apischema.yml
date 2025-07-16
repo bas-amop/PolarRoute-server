@@ -10,11 +10,39 @@ paths:
       description: Provides full logging of requests and responses
       tags:
       - evaluate_route
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RouteEvaluationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RouteEvaluationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RouteEvaluationRequest'
+        required: true
       security:
       - {}
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RouteEvaluationSuccess'
+          description: Route evaluated successfully.
+        '204':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeshNotFoundForEvaluation'
+          description: Mesh with the specified ID not found for evaluation.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RouteEvaluationBadRequest'
+          description: Invalid route data provided for evaluation.
   /api/mesh/{id}:
     get:
       operationId: api_mesh_get
@@ -31,7 +59,17 @@ paths:
       - {}
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeshDetailSuccess'
+          description: Mesh details retrieved successfully.
+        '204':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeshNotFound'
+          description: Mesh with the specified ID not found.
   /api/recent_routes:
     get:
       operationId: api_recent_routes_list
@@ -45,8 +83,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Route'
-          description: ''
+                type: array
+                items:
+                  $ref: '#/components/schemas/Route'
+          description: List of recent routes retrieved successfully.
+        '204':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoRecentRoutesFound'
+          description: No recent routes found for today.
   /api/route:
     post:
       operationId: api_route_create_request
@@ -57,23 +103,35 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Route'
+              $ref: '#/components/schemas/RouteCreationRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/Route'
+              $ref: '#/components/schemas/RouteCreationRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Route'
+              $ref: '#/components/schemas/RouteCreationRequest'
         required: true
       security:
       - {}
       responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RouteCreationAccepted'
+          description: Route calculation job accepted.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RouteCreationBadRequest'
+          description: Invalid request data.
         '200':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Route'
-          description: ''
+                $ref: '#/components/schemas/NoSuitableMesh'
+          description: No suitable mesh available for the requested route.
   /api/route/{id}:
     get:
       operationId: api_route_retrieve_status
@@ -94,8 +152,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Route'
-          description: ''
+                $ref: '#/components/schemas/RouteStatusSuccess'
+          description: Route status and details retrieved successfully.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobNotFound'
+          description: Job with the specified ID not found.
     delete:
       operationId: api_route_cancel_job
       description: Cancel route calculation
@@ -111,8 +175,8 @@ paths:
       security:
       - {}
       responses:
-        '204':
-          description: No response body
+        '202':
+          description: Route calculation job cancellation accepted.
   /api/vehicle:
     get:
       operationId: api_vehicle_list_retrieve
@@ -126,8 +190,12 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Vehicle'
-          description: ''
+                type: array
+                items:
+                  $ref: '#/components/schemas/Vehicle'
+          description: List of all vehicles.
+        '204':
+          description: No vehicles found.
     post:
       operationId: api_vehicle_create_request
       description: Entry point to create vehicles
@@ -186,8 +254,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Vehicle'
-          description: ''
+                type: array
+                items:
+                  $ref: '#/components/schemas/Vehicle'
+          description: Vehicle details retrieved successfully.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleNotFound'
+          description: Vehicle with the specified vessel_type not found.
     delete:
       operationId: api_vehicle_delete_by_type
       description: Delete vehicle by vessel_type
@@ -203,7 +279,13 @@ paths:
       - {}
       responses:
         '204':
-          description: No response body
+          description: Vehicle deleted successfully.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleDeleteNotFound'
+          description: Vehicle with the specified vessel_type not found.
   /api/vehicle/available:
     get:
       operationId: api_vehicle_available_list
@@ -217,10 +299,94 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/VesselType'
-          description: ''
+                $ref: '#/components/schemas/VesselTypeListSuccess'
+          description: List of available vessel types retrieved successfully.
+        '204':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoVesselTypesFound'
+          description: No available vessel types found.
 components:
   schemas:
+    JobNotFound:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message indicating job not found.
+      required:
+      - error
+    MeshDetailSuccess:
+      type: object
+      properties:
+        polarrouteserver-version:
+          type: string
+          description: Version of PolarRoute-server.
+        id:
+          type: string
+          format: uuid
+          description: ID of the mesh.
+        json:
+          description: Mesh JSON.
+        geojson:
+          description: Mesh GeoJSON.
+      required:
+      - geojson
+      - id
+      - json
+      - polarrouteserver-version
+    MeshNotFound:
+      type: object
+      properties:
+        polarrouteserver-version:
+          type: string
+          description: Version of PolarRoute-server.
+      required:
+      - polarrouteserver-version
+    MeshNotFoundForEvaluation:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message indicating mesh not found.
+      required:
+      - error
+    NoRecentRoutesFound:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Message indicating no recent routes were found.
+      required:
+      - message
+    NoSuitableMesh:
+      type: object
+      properties:
+        info:
+          type: object
+          additionalProperties: {}
+          description: Error message indicating no suitable mesh.
+        status:
+          type: string
+          description: Status of the request (e.g., FAILURE).
+      required:
+      - info
+      - status
+    NoVesselTypesFound:
+      type: object
+      properties:
+        vessel_types:
+          type: array
+          items:
+            type: string
+          description: Empty list of vessel types.
+        message:
+          type: string
+          description: Message indicating no vessel types were found.
+      required:
+      - message
+      - vessel_types
     Route:
       type: object
       properties:
@@ -262,6 +428,159 @@ components:
       - end_lon
       - start_lat
       - start_lon
+    RouteCreationAccepted:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ID of the submitted job for route calculation.
+        status-url:
+          type: string
+          format: uri
+          description: URL to check the status of the route calculation job.
+        polarrouteserver-version:
+          type: string
+          description: Version of PolarRoute-server.
+        info:
+          type: object
+          additionalProperties: {}
+          description: Information or warning messages about the route calculation.
+      required:
+      - id
+      - polarrouteserver-version
+      - status-url
+    RouteCreationBadRequest:
+      type: object
+      properties:
+        info:
+          type: object
+          additionalProperties: {}
+          description: Details about the error, e.g., missing parameters.
+        status:
+          type: string
+          description: Status of the request (e.g., FAILURE).
+      required:
+      - info
+      - status
+    RouteCreationRequest:
+      type: object
+      properties:
+        start_lat:
+          type: number
+          format: double
+          description: Starting latitude of the route.
+        start_lon:
+          type: number
+          format: double
+          description: Starting longitude of the route.
+        end_lat:
+          type: number
+          format: double
+          description: Ending latitude of the route.
+        end_lon:
+          type: number
+          format: double
+          description: Ending longitude of the route.
+        start_name:
+          type: string
+          nullable: true
+          description: Name of the start point.
+        end_name:
+          type: string
+          nullable: true
+          description: Name of the end point.
+        mesh_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: 'Optional: Custom mesh ID to use for route calculation.'
+        force_recalculate:
+          type: boolean
+          default: false
+          description: If true, forces recalculation even if an existing route is
+            found.
+      required:
+      - end_lat
+      - end_lon
+      - start_lat
+      - start_lon
+    RouteEvaluationBadRequest:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message indicating invalid route data.
+      required:
+      - error
+    RouteEvaluationRequest:
+      type: object
+      properties:
+        route:
+          description: The route JSON to evaluate.
+        custom_mesh_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: 'Optional: Custom mesh ID to use for evaluation.'
+      required:
+      - route
+    RouteEvaluationSuccess:
+      type: object
+      properties:
+        polarrouteserver-version:
+          type: string
+          description: Version of PolarRoute-server.
+        evaluation_results:
+          type: object
+          additionalProperties: {}
+          description: Results of the route evaluation.
+      required:
+      - evaluation_results
+      - polarrouteserver-version
+    RouteStatusSuccess:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ID of the route calculation job.
+        status:
+          type: string
+          description: Current status of the job.
+        polarrouteserver-version:
+          type: string
+          description: Version of PolarRoute-server.
+        start_lat:
+          type: number
+          format: double
+        start_lon:
+          type: number
+          format: double
+        end_lat:
+          type: number
+          format: double
+        end_lon:
+          type: number
+          format: double
+        start_name:
+          type: string
+        end_name:
+          type: string
+        info:
+          type: object
+          additionalProperties: {}
+          description: Additional information or error details if status is FAILURE.
+      required:
+      - end_lat
+      - end_lon
+      - end_name
+      - id
+      - polarrouteserver-version
+      - start_lat
+      - start_lon
+      - start_name
+      - status
     Vehicle:
       type: object
       properties:
@@ -314,6 +633,14 @@ components:
           description: The type of vessel successfully created or updated.
       required:
       - vessel_type
+    VehicleDeleteNotFound:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message indicating vehicle not found.
+      required:
+      - error
     VehicleExistsError:
       type: object
       properties:
@@ -323,6 +650,14 @@ components:
           description: Details about the conflict, indicating a pre-existing vehicle.
       required:
       - info
+    VehicleNotFound:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message indicating vehicle not found.
+      required:
+      - error
     VehicleValidationError:
       type: object
       properties:
@@ -332,10 +667,13 @@ components:
           description: Details about the validation error, including the error message.
       required:
       - info
-    VesselType:
+    VesselTypeListSuccess:
       type: object
       properties:
-        vessel_type:
-          type: string
+        vessel_types:
+          type: array
+          items:
+            type: string
+          description: List of available vessel types.
       required:
-      - vessel_type
+      - vessel_types
