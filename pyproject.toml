@@ -19,6 +19,7 @@ dependencies = [
     "django-celery-results",
     "django-cors-headers",
     "django-rest-framework",
+    "drf-spectacular",
     "haversine",
     "polar-route==1.0.0",
     "psycopg>=3",
@@ -48,7 +49,6 @@ polarrouteserver = [
 
 [project.optional-dependencies]
 dev = [
-    "drf-spectacular",
     "pre-commit",
     "pytest",
     "pytest-celery",
