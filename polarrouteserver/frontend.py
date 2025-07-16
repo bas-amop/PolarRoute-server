@@ -1,5 +1,6 @@
 import datetime
 import json
+import logging
 import os
 import dash
 from dash import Dash, dcc, ALL
@@ -14,6 +15,8 @@ from dash_extensions.javascript import assign, arrow_function, Namespace
 # import xyzservices
 import requests
 from copy import deepcopy
+
+logger = logging.getLogger(__name__)
 
 default_sic_date = datetime.date.today() - datetime.timedelta(days=1)
 
@@ -43,26 +46,26 @@ eventHandlers = dict(
 )
 
 favourites = {
-    "bird": {"lat": -54.025, "lon": -38.044},
-    "falklands": {"lat": -51.731, "lon": -57.706},
-    "halley": {"lat": -75.059, "lon": -25.840},
-    "rothera": {"lat": -67.764, "lon": -68.02},
-    "kep": {"lat": -54.220, "lon": -36.433},
-    "signy": {"lat": -60.720, "lon": -45.480},
-    "nyalesund": {"lat": 78.929, "lon": 11.928},
-    "harwich": {"lat": 51.949, "lon": 1.255},
-    "rosyth": {"lat": 56.017, "lon": -3.440},
+    "bird": {"lat": -54.025, "lon": -38.044, "display_name": "Bird Island"},
+    "falklands": {"lat": -51.731, "lon": -57.706, "display_name": "Falklands"},
+    "halley": {"lat": -75.059, "lon": -25.840, "display_name": "Halley"},
+    "rothera": {"lat": -67.764, "lon": -68.02, "display_name": "Rothera"},
+    "kep": {"lat": -54.220, "lon": -36.433, "display_name": "King Edward Point"},
+    "signy": {"lat": -60.720, "lon": -45.480, "display_name": "Signy"},
+    "nyalesund": {"lat": 78.929, "lon": 11.928, "display_name": "Ny-Ålesund"},
+    "harwich": {"lat": 51.949, "lon": 1.255, "display_name": "Harwich, UK"},
+    "rosyth": {"lat": 56.017, "lon": -3.440, "display_name": "Rosyth, UK"},
 }
 
-def coords_form(loc):
+def coords_input(loc):
     return html.Div([
         dbc.InputGroup([
             dbc.InputGroupText(loc),
-            dbc.Select(options=[{'label': k, 'value': v} for k,v in favourites.items()])
+            dbc.Select(options=[{'label': v['display_name'], 'value': json.dumps(v)} for v in favourites.values()], id={"type": "location-select", "index": loc})
         ], class_name="bsk-input-group")
     ])
 
-form = dbc.Form([coords_form("start"), coords_form("end")])
+form = dbc.Form([coords_input("start"), coords_input("end")])
 
 app.layout = html.Div(
     children=[
@@ -72,23 +75,48 @@ app.layout = html.Div(
            dl.LayersControl([dl.Overlay(amsr_layer(default_sic_date), name="AMSR", checked=False, id="amsr-overlay"),], id="layers-control"),
            dl.FeatureGroup(id="routes-fg"),
            dl.FeatureGroup(id="marker-fg"),
-        ], center=[-40, -67], zoom=3, style={"height": "80vh", "cursor": "crosshair"}, id="map", eventHandlers=eventHandlers),
+        ], center=[-60, -67], zoom=3, style={"height": "50vh", "cursor": "crosshair"}, id="map", eventHandlers=eventHandlers),
         html.Span(" ", id='mouse-coords-container'),
         dcc.Slider(min=-30, max=0, step=1, value=0, id='amsr-date-slider', marks=None, tooltip={"placement": "top", "always_visible": False}),
         html.Span("", id='test-output-container'),
         dbc.Row([
-            dbc.Col([html.H2("Recent Routes"), html.Div(id="recent-routes")], class_name="col-12 col-md-6"),
+            dbc.Col([html.H2("Recent Routes"), dcc.Loading(html.Div(id="recent-routes"))], class_name="col-12 col-md-6"),
             dbc.Col([html.H2("Request Route"), html.Div(form, id='route-request')], class_name="col-12 col-md-6"),
         ]),
         dcc.Interval(id="recent-routes-interval", interval=150*1000),
         dcc.Store(id='routes-store'),
-        dcc.Store(id='marker-store', data='{"start_lat": null, "start_lon": null, "end_lat": null, "end_lon": null}'),
+        dcc.Store(id='marker-store', data={}, storage_type="session"),
     ],
 )
 
 @app.callback(
+    Output("marker-store", "data", allow_duplicate=True),
+    Input({"type": "location-select", "index": ALL}, "value"),
+    State("marker-store", "data"),
+    prevent_initial_call=True
+)
+def update_markers_from_dropdown(location_value, marker_data):
+    print(marker_data)
+
+    # if marker_data is None:
+    #     marker_data = {"start_lat": None, "start_lon": None, "end_lat": None, "end_lon": None}
+
+
+    trigger_id = json.loads(dash.callback_context.triggered[0]['prop_id'].strip('.value'))['index']
+    location_data = json.loads(location_value[0])
+
+    print(trigger_id)
+    marker_data[f"{trigger_id}_lat"] = location_data["lat"]
+    marker_data[f"{trigger_id}_lon"] = location_data["lon"]
+
+    print(marker_data)
+
+    return marker_data
+
+
+@app.callback(
     Output("marker-fg", "children"),
-    Output("marker-store", "data"),
+    Output("marker-store", "data", allow_duplicate=True),
     Input('map', 'n_clicks'),
     State('map', 'clickData'),
     State("marker-fg", "children"),
