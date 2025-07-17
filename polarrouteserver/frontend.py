@@ -1,8 +1,9 @@
 import datetime
 import json
+import logging
 import os
 import dash
-from dash import Dash, dcc, ALL
+from dash import Dash, dcc, ALL, MATCH
 import dash_bootstrap_components as dbc
 import dash_leaflet as dl
 from django_plotly_dash import DjangoDash, dash_wrapper
@@ -14,6 +15,8 @@ from dash_extensions.javascript import assign, arrow_function, Namespace
 # import xyzservices
 import requests
 from copy import deepcopy
+
+logger = logging.getLogger(__name__)
 
 default_sic_date = datetime.date.today() - datetime.timedelta(days=1)
 
@@ -43,75 +46,135 @@ eventHandlers = dict(
 )
 
 favourites = {
-    "bird": {"lat": -54.025, "lon": -38.044},
-    "falklands": {"lat": -51.731, "lon": -57.706},
-    "halley": {"lat": -75.059, "lon": -25.840},
-    "rothera": {"lat": -67.764, "lon": -68.02},
-    "kep": {"lat": -54.220, "lon": -36.433},
-    "signy": {"lat": -60.720, "lon": -45.480},
-    "nyalesund": {"lat": 78.929, "lon": 11.928},
-    "harwich": {"lat": 51.949, "lon": 1.255},
-    "rosyth": {"lat": 56.017, "lon": -3.440},
+    "bird": {"lat": -54.025, "lon": -38.044, "display_name": "Bird Island"},
+    "falklands": {"lat": -51.731, "lon": -57.706, "display_name": "Falklands"},
+    "halley": {"lat": -75.059, "lon": -25.840, "display_name": "Halley"},
+    "rothera": {"lat": -67.764, "lon": -68.02, "display_name": "Rothera"},
+    "kep": {"lat": -54.220, "lon": -36.433, "display_name": "King Edward Point"},
+    "signy": {"lat": -60.720, "lon": -45.480, "display_name": "Signy"},
+    "nyalesund": {"lat": 78.929, "lon": 11.928, "display_name": "Ny-Ålesund"},
+    "harwich": {"lat": 51.949, "lon": 1.255, "display_name": "Harwich, UK"},
+    "rosyth": {"lat": 56.017, "lon": -3.440, "display_name": "Rosyth, UK"},
 }
 
-def coords_form(loc):
+def coords_input(loc):
     return html.Div([
         dbc.InputGroup([
             dbc.InputGroupText(loc),
-            dbc.Select(options=[{'label': k, 'value': v} for k,v in favourites.items()])
+            dbc.Select(options=[{'label': v['display_name'], 'value': json.dumps(v)} for v in favourites.values()], id={"type": "location-select", "index": loc})
         ], class_name="bsk-input-group")
     ])
 
-form = dbc.Form([coords_form("start"), coords_form("end")])
+form = dbc.Form([coords_input("start"), coords_input("end")])
 
 app.layout = html.Div(
     children=[
+        dcc.Store(id='routes-store'),
+        dcc.Store(id='marker-store', storage_type="memory", data={}),
         dl.Map([
            dl.TileLayer(id="basemap", attribution=("© OpenStreetMap contributors"), zIndex=0,),
            dl.FullScreenControl(),
            dl.LayersControl([dl.Overlay(amsr_layer(default_sic_date), name="AMSR", checked=False, id="amsr-overlay"),], id="layers-control"),
            dl.FeatureGroup(id="routes-fg"),
-           dl.FeatureGroup(id="marker-fg"),
-        ], center=[-40, -67], zoom=3, style={"height": "80vh", "cursor": "crosshair"}, id="map", eventHandlers=eventHandlers),
+           dl.FeatureGroup(id="marker-fg", children=[]),
+        ], center=[-60, -67], zoom=3, style={"height": "50vh", "cursor": "crosshair"}, id="map", eventHandlers=eventHandlers),
         html.Span(" ", id='mouse-coords-container'),
         dcc.Slider(min=-30, max=0, step=1, value=0, id='amsr-date-slider', marks=None, tooltip={"placement": "top", "always_visible": False}),
         html.Span("", id='test-output-container'),
         dbc.Row([
-            dbc.Col([html.H2("Recent Routes"), html.Div(id="recent-routes")], class_name="col-12 col-md-6"),
+            dbc.Col([html.H2("Recent Routes"), dcc.Loading(html.Div(id="recent-routes"))], class_name="col-12 col-md-6"),
             dbc.Col([html.H2("Request Route"), html.Div(form, id='route-request')], class_name="col-12 col-md-6"),
         ]),
         dcc.Interval(id="recent-routes-interval", interval=150*1000),
-        dcc.Store(id='routes-store'),
-        dcc.Store(id='marker-store', data='{"start_lat": null, "start_lon": null, "end_lat": null, "end_lon": null}'),
+
     ],
 )
 
+def marker(lat:float, lon:float, loc:str="start"):
+
+    if loc == "start":
+        iconUrl = "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png"
+    elif loc == "end":
+        iconUrl = "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png"
+    else:
+        raise ValueError(f"Valid values of loc are 'start' and 'end', got {loc}.")
+
+    return dl.Marker(id={"type": "marker", "index": loc}, position=[lat, lon], draggable=True, icon=dict(iconUrl=iconUrl, iconAnchor=[11, 40]))
+
+
+
+
+
 @app.callback(
-    Output("marker-fg", "children"),
     Output("marker-store", "data"),
+    Input({"type": "location-select", "index": ALL}, "value"),
     Input('map', 'n_clicks'),
     State('map', 'clickData'),
-    State("marker-fg", "children"),
     State("marker-store", "data"),
-    prevent_initial_call=True,
-    )
-def place_markers(n_clicks, clickData, markers, markerData):
-    lat = clickData['latlng']['lat']
-    lon = clickData['latlng']['lng']
+)
+def update_marker_store(location_value, n_clicks, clickData, marker_data):
+    # print(marker_data)
 
-    start_point = False if n_clicks % 2 == 0 or n_clicks==0 else True
+    if dash.callback_context.triggered == []:
+        return no_update
+    
+    #TODO: trigger this on marker drag too
+    
+    trigger = dash.callback_context.triggered[0]['prop_id']
+    # print(f"trigger: {trigger}")
+    
+    if trigger == 'map.n_clicks':
+        # if trigger is map click: e.g. [{'prop_id': 'map.n_clicks', 'value': 1}]
+        lat = clickData['latlng']['lat']
+        lon = clickData['latlng']['lng']
 
-    markerCoords = json.loads(markerData)
+        # first click is start location, second click is end
+        start_point = False if n_clicks % 2 == 0 or n_clicks==0 else True
 
-    if start_point:
-        markerCoords['start_lat'] = lat
-        markerCoords['start_lon'] = lon
-        return [dl.Marker(id={"type": "marker", "index": "start"}, position=[lat, lon], draggable=True, icon=dict(iconUrl="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png", iconAnchor=[11, 40]))], json.dumps(markerCoords)
+        marker_data.update({
+            "start" if start_point else "end": {
+                "lat": lat,
+                "lon": lon,
+            }
+        })
+    
     else:
-        markerCoords['end_lat'] = lat
-        markerCoords['end_lon'] = lon
-        markers.append(dl.Marker(id={"type": "marker", "index": "end"}, position=[lat, lon], draggable=True, icon=dict(iconUrl="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png", iconAnchor=[11, 40])))
-        return markers, json.dumps(markerCoords)
+        # if trigger is dropdown, e.g. [{'prop_id': '{"index":"start","type":"location-select"}.value', 'value': '{"lat": -67.764, "lon": -68.02, "display_name": "Rothera"}'}]
+        trigger_id = json.loads(dash.callback_context.triggered[0]['prop_id'].strip('.value'))['index']
+        # print(f"location_value: {location_value}")
+        if trigger_id == "start":
+            location_data = json.loads(location_value[0])
+        elif trigger_id == "end":
+            location_data = json.loads(location_value[1])
+        lat = location_data["lat"]
+        lon = location_data["lon"]
+        # print(trigger_id)
+        marker_data.update({
+            trigger_id: {
+                "lat": lat,
+                "lon": lon,
+            }
+        })
+
+    # print(marker_data)
+    return marker_data
+
+
+@app.callback(
+    Output("marker-fg", "children"),
+    Input("marker-store", "modified_timestamp"),
+    State("marker-store", "data"),
+)
+def update_markers(ts, marker_data):
+    if ts is None:
+        return no_update
+    
+    markers = []
+    for loc in marker_data.keys():
+        markers.append(
+            marker(marker_data[loc]["lat"], marker_data[loc]["lon"], loc)
+        )
+    return markers
 
 
 @app.callback(
