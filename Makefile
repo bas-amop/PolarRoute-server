@@ -133,6 +133,11 @@ serve-dev: start-rabbitmq start-celery start-dev-server ## Run all the component
 export DJANGO_SETTINGS_MODULE=polarrouteserver.settings.development
 stop-serve-dev: stop-rabbitmq stop-celery stop-dev-server # stop all dev serve components (rabbitmq, celery, devserver)
 
+.PHONY: build-apischema
+build-apischema:
+	@echo "+ $@"
+	@python manage.py spectacular --color --validate --file docs/apischema.yml
+
 .PHONY: start-swagger
 start-swagger: ## Start swagger-ui container with API schema
 	@echo "+ $@"
