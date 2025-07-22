@@ -10,6 +10,7 @@ services:
       POLARROUTE_DB_HOST: db
       POLARROUTE_DB_PORT: 5432
       POLARROUTE_FRONTEND: True
+      POLARROUTE_LOG_LEVEL: DEBUG
     entrypoint: /usr/src/app/entrypoint.sh
     command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
     volumes:

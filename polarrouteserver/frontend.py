@@ -16,6 +16,8 @@ from dash_extensions.javascript import assign, arrow_function, Namespace
 import requests
 from copy import deepcopy
 
+FORMAT = "[%(filename)s . %(funcName)20s() ] %(message)s"
+logging.basicConfig(format=FORMAT)
 logger = logging.getLogger(__name__)
 
 default_sic_date = datetime.date.today() - datetime.timedelta(days=1)
@@ -41,7 +43,7 @@ def server_url():
     return "http://localhost:8000"
 
 eventHandlers = dict(
-    mousemove=ns("geoff"),
+    mousemove=ns("mousemove"),
     click=ns("click"),
 )
 
@@ -61,7 +63,8 @@ def coords_input(loc):
     return html.Div([
         dbc.InputGroup([
             dbc.InputGroupText(loc),
-            dbc.Select(options=[{'label': v['display_name'], 'value': json.dumps(v)} for v in favourites.values()], id={"type": "location-select", "index": loc})
+            dbc.Select(options=[{'label': v['display_name'], 'value': json.dumps(v)} for v in favourites.values()], id={"type": "location-select", "index": loc}),
+            dbc.Input(id={"type": "location-coords", "index": loc}, placeholder="lat, lon", disabled=True)
         ], class_name="bsk-input-group")
     ])
 
@@ -83,7 +86,7 @@ app.layout = html.Div(
         html.Span("", id='test-output-container'),
         dbc.Row([
             dbc.Col([html.H2("Recent Routes"), dcc.Loading(html.Div(id="recent-routes"))], class_name="col-12 col-md-6"),
-            dbc.Col([html.H2("Request Route"), html.Div(form, id='route-request')], class_name="col-12 col-md-6"),
+            dbc.Col([html.H2("Request Route"), html.Span("Select start and end points from dropdown or by clicking on map."), html.Div(form, id='route-request')], class_name="col-12 col-md-6"),
         ]),
         dcc.Interval(id="recent-routes-interval", interval=150*1000),
 
@@ -99,7 +102,7 @@ def marker(lat:float, lon:float, loc:str="start"):
     else:
         raise ValueError(f"Valid values of loc are 'start' and 'end', got {loc}.")
 
-    return dl.Marker(id={"type": "marker", "index": loc}, position=[lat, lon], draggable=True, icon=dict(iconUrl=iconUrl, iconAnchor=[11, 40]))
+    return dl.Marker(id={"type": "marker", "index": loc}, position=[lat, lon], draggable=True, eventHandlers=dict(dragend=ns("dragend")), icon=dict(iconUrl=iconUrl, iconAnchor=[11, 40]))
 
 
 
@@ -107,24 +110,34 @@ def marker(lat:float, lon:float, loc:str="start"):
 
 @app.callback(
     Output("marker-store", "data"),
+    Input({"type": "marker", "index": ALL}, "dragEndPosition"),
     Input({"type": "location-select", "index": ALL}, "value"),
-    Input('map', 'n_clicks'),
+    Input('map', 'n_clicks'), # this input order must be preserved since lower inputs are prioritised
     State('map', 'clickData'),
     State("marker-store", "data"),
+    prevent_initial_call=True
 )
-def update_marker_store(location_value, n_clicks, clickData, marker_data):
-    # print(marker_data)
+def update_marker_store(marker_position, location_value, n_clicks, clickData, marker_data):
+    
+    logger.debug(f"dash.callback_context.triggered: {dash.callback_context.triggered}")
+    logger.debug(f"marker_position: {marker_position}")
+    logger.debug(f"location_value: {location_value}")
+    logger.debug(f"n_clicks: {n_clicks}")
+
 
     if dash.callback_context.triggered == []:
         return no_update
     
     #TODO: trigger this on marker drag too
+
+    #TODO: also update the labels on start and end with coordinates
     
     trigger = dash.callback_context.triggered[0]['prop_id']
-    # print(f"trigger: {trigger}")
+    logger.debug(f"trigger: {trigger}")
+    logger.debug(f"type: {type(trigger)}")
     
+    # if trigger is map click: e.g. [{'prop_id': 'map.n_clicks', 'value': 1}]
     if trigger == 'map.n_clicks':
-        # if trigger is map click: e.g. [{'prop_id': 'map.n_clicks', 'value': 1}]
         lat = clickData['latlng']['lat']
         lon = clickData['latlng']['lng']
 
@@ -133,6 +146,30 @@ def update_marker_store(location_value, n_clicks, clickData, marker_data):
 
         marker_data.update({
             "start" if start_point else "end": {
+                "lat": lat,
+                "lon": lon,
+            }
+        })
+
+    # if trigger is marker move, e.g.
+    elif trigger in ['{"index":"start","type":"marker"}.dragEndPosition', '{"index":"end","type":"marker"}.dragEndPosition']:
+        logger.debug("marker move trigger")
+        logger.debug(f"marker_position: {marker_position}")
+
+        if marker_position == [None]:
+            return no_update
+        # get "start" or "end"
+        loc = json.loads(dash.callback_context.triggered[0]['prop_id'].strip('.dragEndPosition'))['index']
+        logger.debug(f"loc: {loc}")
+
+        idx = 0 if loc=="start" else 1
+        if marker_position[idx] == None:
+            return no_update
+        lat = marker_position[idx]["lat"]
+        lon = marker_position[idx]["lon"]
+
+        marker_data.update({
+            loc: {
                 "lat": lat,
                 "lon": lon,
             }
@@ -176,13 +213,41 @@ def update_markers(ts, marker_data):
         )
     return markers
 
+@app.callback(
+    Output({"type": "location-coords", "index": "start"}, "value"),
+    Output({"type": "location-coords", "index": "end"}, "value"),
+    Input("marker-store", "modified_timestamp"),
+    State("marker-store", "data"),
+)
+def update_coords(ts, marker_data):
+    if ts is None or marker_data is {}:
+        return no_update, no_update
+    
+    markers = []
+    for loc in marker_data.keys():
+        markers.append(
+            marker(marker_data[loc]["lat"], marker_data[loc]["lon"], loc)
+        )
+
+    if marker_data.get("start", None) is None:
+        start_value = no_update
+    else:
+        start_value = f"{marker_data['start']['lat']:.2f}, {marker_data['start']['lon']:.2f}"
+        
+    if marker_data.get("end", None) is None:
+        end_value = no_update
+    else:
+        end_value = f"{marker_data['end']['lat']:.2f}, {marker_data['end']['lon']:.2f}"
+
+    return start_value, end_value
+
 
 @app.callback(
     Output("mouse-coords-container", "children"),
     Input("map", "mouseCoords"),
     prevent_initial_call=True
 )
-def mouse_coords(coords):
+def update_mouse_coords(coords):
     lat = coords["area"]["lat"]
     lon = coords["area"]["lng"]
 
