@@ -24,7 +24,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path(
         "api/route",
-        views.RouteListCreateView.as_view(),
+        views.RouteRequestView.as_view(),
         name="route_list_create",
     ),
     path(
@@ -39,7 +39,7 @@ urlpatterns = [
     ),
     path(
         "api/vehicle",
-        views.VehicleListCreateView.as_view(),  # POST and GET (list all)
+        views.VehicleRequestView.as_view(),  # POST and GET (list all)
         name="vehicle_list_create",
     ),
     path(

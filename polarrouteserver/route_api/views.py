@@ -72,7 +72,7 @@ class LoggingMixin:
         return super().finalize_response(request, response, *args, **kwargs)
 
 
-class VehicleListCreateView(LoggingMixin, GenericAPIView):
+class VehicleRequestView(LoggingMixin, GenericAPIView):
     serializer_class = VehicleSerializer
 
     @extend_schema(
@@ -378,7 +378,7 @@ class VehicleTypeListView(LoggingMixin, GenericAPIView):
         )
 
 
-class RouteListCreateView(LoggingMixin, GenericAPIView):
+class RouteRequestView(LoggingMixin, GenericAPIView):
     serializer_class = RouteSerializer
 
     @extend_schema(

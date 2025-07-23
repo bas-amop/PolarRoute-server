@@ -12,10 +12,10 @@ from polarrouteserver import __version__ as polarrouteserver_version
 from polarrouteserver.route_api.views import (
     EvaluateRouteView,
     MeshView,
-    VehicleListCreateView,
+    VehicleRequestView,
     VehicleDetailView,
     VehicleTypeListView,
-    RouteListCreateView,
+    RouteRequestView,
     RouteDetailView,
     RecentRoutesView,
 )
@@ -57,7 +57,7 @@ class TestVehicleRequest(TestCase):
         request = self.factory.post(
             "/api/vehicle", data=data, format="json"
         )
-        return VehicleListCreateView.as_view()(request)
+        return VehicleRequestView.as_view()(request)
 
     def test_create_update_vehicle(self):
         """
@@ -132,7 +132,7 @@ class TestVehicleRequest(TestCase):
 
         # Test GET all vehicles
         request_all = self.factory.get("/api/vehicle")
-        response_all = VehicleListCreateView.as_view()(request_all)
+        response_all = VehicleRequestView.as_view()(request_all)
 
         self.assertEqual(response_all.status_code, 200)
         self.assertTrue(len(response_all.data) >= 1)
@@ -172,7 +172,7 @@ class TestVehicleRequest(TestCase):
         We have intentionally not implemented this method.
         """
         request_delete = self.factory.delete("/api/vehicle/")
-        response_delete = VehicleListCreateView.as_view()(
+        response_delete = VehicleRequestView.as_view()(
             request_delete
         )
 
@@ -224,7 +224,7 @@ class TestVehicleTypeListView(TestCase):
         request = self.factory.post(
             "/api/vehicle", data=data, format="json"
         )
-        return VehicleListCreateView.as_view()(request)
+        return VehicleRequestView.as_view()(request)
 
     def test_get_vessel_types_empty(self):
         """
@@ -296,7 +296,7 @@ class TestRouteRequest(TestCase):
             "/api/route", data=data, format="json"
         )
 
-        response = RouteListCreateView.as_view()(request)
+        response = RouteRequestView.as_view()(request)
 
         self.assertEqual(response.status_code, 202)
         self.assertIn("Does not exist.", response.data["info"]["error"])
@@ -313,7 +313,7 @@ class TestRouteRequest(TestCase):
             "/api/route", data=data, format="json"
         )
 
-        response = RouteListCreateView.as_view()(request)
+        response = RouteRequestView.as_view()(request)
 
         self.assertEqual(response.status_code, 202)
 
@@ -325,7 +325,7 @@ class TestRouteRequest(TestCase):
         request = self.factory.post(
             "/api/route", data=data, format="json"
         )
-        response2 = RouteListCreateView.as_view()(request)  # Changed View
+        response2 = RouteRequestView.as_view()(request)  # Changed View
         assert response.data.get("id") == response2.data.get("id")
         assert response.data.get("polarrouteserver-version") == response2.data.get(
             "polarrouteserver-version"
@@ -436,7 +436,7 @@ class TestRouteStatus:
         # using try except to ignore deliberate error in celery task in test envrionment
         # in production, celery handles this
         try:
-            post_response = RouteListCreateView.as_view()(request)
+            post_response = RouteRequestView.as_view()(request)
         except AssertionError:
             pass
 
