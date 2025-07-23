@@ -13,7 +13,7 @@ from rest_framework.reverse import reverse
 from rest_framework import serializers
 
 from polar_route.config_validation.config_validator import validate_vessel_config
-from polarrouteserver import __version__ as polarrouteserver_version
+from polarrouteserver.version import __version__ as polarrouteserver_version
 from polarrouteserver.celery import app
 
 from .models import Job, Vehicle, Route, Mesh

@@ -12,6 +12,8 @@ import logging
 import os
 import secrets
 
+from polarrouteserver.version import __version__ as polarrouteserver_version
+
 logger = logging.getLogger(__name__)
 
 BASE_DIR = os.getenv("POLARROUTE_BASE_DIR", os.getcwd())
@@ -113,7 +115,7 @@ REST_FRAMEWORK = {
 SPECTACULAR_SETTINGS = {
     "TITLE": "PolarRoute-Server",
     "DESCRIPTION": "Backend server for serving PolarRoute and MeshiPhi assets",
-    "VERSION": "0.2.0",
+    "VERSION": polarrouteserver_version,
     "SERVE_INCLUDE_SCHEMA": False,
     "SECURITY": [],
     "AUTHENTICATION_WHITELIST": [],
