@@ -1,4 +1,5 @@
-import  json, uuid
+import json
+import uuid
 from unittest.mock import patch, PropertyMock
 
 import celery.states
@@ -8,7 +9,16 @@ from rest_framework.test import APIRequestFactory
 import pytest
 
 from polarrouteserver import __version__ as polarrouteserver_version
-from polarrouteserver.route_api.views import EvaluateRouteView, MeshView, VehicleView, VehicleTypeListView, RouteView, RecentRoutesView
+from polarrouteserver.route_api.views import (
+    EvaluateRouteView,
+    MeshView,
+    VehicleRequestView,
+    VehicleDetailView,
+    VehicleTypeListView,
+    RouteRequestView,
+    RouteDetailView,
+    RecentRoutesView,
+)
 from polarrouteserver.route_api.models import Job, Route
 from .utils import add_test_mesh_to_db
 
@@ -44,8 +54,10 @@ class TestVehicleRequest(TestCase):
         Returns:
             Response: Response object returned.
         """
-        request = self.factory.post("/api/vehicle/", data=data, format="json")
-        return VehicleView.as_view()(request)
+        request = self.factory.post(
+            "/api/vehicle", data=data, format="json"
+        )
+        return VehicleRequestView.as_view()(request)
 
     def test_create_update_vehicle(self):
         """
@@ -118,16 +130,18 @@ class TestVehicleRequest(TestCase):
         """
         self.post_vehicle(self.data)
 
-        request_all = self.factory.get("/api/vehicle/")
-        response_all = VehicleView.as_view()(request_all)
+        # Test GET all vehicles
+        request_all = self.factory.get("/api/vehicle")
+        response_all = VehicleRequestView.as_view()(request_all)
 
         self.assertEqual(response_all.status_code, 200)
         self.assertTrue(len(response_all.data) >= 1)
         self.assertIn("vessel_type", response_all.data[0])
 
+        # Test GET specific vehicle
         vessel_type = self.data["vessel_type"]
         request_specific = self.factory.get(f"/api/vehicle/{vessel_type}/")
-        response_specific = VehicleView.as_view()(
+        response_specific = VehicleDetailView.as_view()(
             request_specific, vessel_type=vessel_type
         )
 
@@ -145,7 +159,9 @@ class TestVehicleRequest(TestCase):
         vessel_type = self.data["vessel_type"]
 
         request_delete = self.factory.delete(f"/api/vehicle/{vessel_type}/")
-        response_delete = VehicleView.as_view()(request_delete, vessel_type=vessel_type)
+        response_delete = VehicleDetailView.as_view()(
+            request_delete, vessel_type=vessel_type
+        )
 
         self.assertEqual(response_delete.status_code, 204)
         self.assertIn("message", response_delete.data)
@@ -153,16 +169,14 @@ class TestVehicleRequest(TestCase):
     def test_delete_vehicle_without_vessel_type(self):
         """
         Test deletion attempt without specifying a 'vessel_type' fails.
+        We have intentionally not implemented this method.
         """
         request_delete = self.factory.delete("/api/vehicle/")
-        response_delete = VehicleView.as_view()(request_delete)
-
-        self.assertEqual(response_delete.status_code, 400)
-        self.assertIn("error", response_delete.data)
-        self.assertEqual(
-            response_delete.data["error"],
-            "vessel_type parameter is required for delete.",
+        response_delete = VehicleRequestView.as_view()(
+            request_delete
         )
+
+        self.assertEqual(response_delete.status_code, 405)
 
     def test_delete_vehicle_not_found(self):
         """
@@ -170,7 +184,9 @@ class TestVehicleRequest(TestCase):
         """
         vessel_type = "non_existent_type"
         request_delete = self.factory.delete(f"/api/vehicle/{vessel_type}/")
-        response_delete = VehicleView.as_view()(request_delete, vessel_type=vessel_type)
+        response_delete = VehicleDetailView.as_view()(
+            request_delete, vessel_type=vessel_type
+        )
 
         self.assertEqual(response_delete.status_code, 404)
         self.assertIn("error", response_delete.data)
@@ -205,8 +221,10 @@ class TestVehicleTypeListView(TestCase):
         Returns:
             Response: Response object returned.
         """
-        request = self.factory.post("/api/vehicle/", data=data, format="json")
-        return VehicleView.as_view()(request)
+        request = self.factory.post(
+            "/api/vehicle", data=data, format="json"
+        )
+        return VehicleRequestView.as_view()(request)
 
     def test_get_vessel_types_empty(self):
         """
@@ -220,7 +238,7 @@ class TestVehicleTypeListView(TestCase):
         self.assertEqual(response.data["vessel_types"], [])
         self.assertIn("message", response.data)
         self.assertEqual(response.data["message"], "No available vessel types found.")
-    
+
     def test_get_vessel_types_single_vehicle(self):
         """
         Test the endpoint after creating a single vehicle.
@@ -271,12 +289,14 @@ class TestRouteRequest(TestCase):
             "start_lon": 0.0,
             "end_lat": 1.0,
             "end_lon": 1.0,
-            "mesh_id": 999
+            "mesh_id": 999,
         }
 
-        request = self.factory.post("/api/route/", data=data, format="json")
+        request = self.factory.post(
+            "/api/route", data=data, format="json"
+        )
 
-        response = RouteView.as_view()(request)
+        response = RouteRequestView.as_view()(request)
 
         self.assertEqual(response.status_code, 202)
         self.assertIn("Does not exist.", response.data["info"]["error"])
@@ -289,9 +309,11 @@ class TestRouteRequest(TestCase):
             "end_lon": 1.0,
         }
 
-        request = self.factory.post("/api/route/", data=data, format="json")
+        request = self.factory.post(
+            "/api/route", data=data, format="json"
+        )
 
-        response = RouteView.as_view()(request)
+        response = RouteRequestView.as_view()(request)
 
         self.assertEqual(response.status_code, 202)
 
@@ -300,40 +322,49 @@ class TestRouteRequest(TestCase):
 
         # Test that requesting the same route doesn't start a new job.
         # request the same route parameters
-        request = self.factory.post("/api/route/", data=data, format="json")
-        response2 = RouteView.as_view()(request)
-        assert response.data.get('id') == response2.data.get('id')
+        request = self.factory.post(
+            "/api/route", data=data, format="json"
+        )
+        response2 = RouteRequestView.as_view()(request)  # Changed View
+        assert response.data.get("id") == response2.data.get("id")
         assert response.data.get("polarrouteserver-version") == response2.data.get(
             "polarrouteserver-version"
         )
-        assert f"api/route/{response.data.get('id')}" in response2.data.get("status-url")
+        assert f"api/route/{response.data.get('id')}" in response2.data.get(
+            "status-url"
+        )
 
     def test_evaluate_route(self):
         with open(settings.TEST_ROUTE_PATH) as fp:
             route_json = json.load(fp)
 
-        data=dict(route=route_json)
+        data = dict(route=route_json)
 
-        request = self.factory.post("/api/evaluate_route/", data=data, format="json")
+        request = self.factory.post(
+            "/api/evaluate_route", data=data, format="json"
+        )
 
         response = EvaluateRouteView.as_view()(request)
         self.assertEqual(response.status_code, 200)
 
+
 pytestmark = pytest.mark.django_db
 
-@pytest.mark.usefixtures("celery_app","celery_worker", "celery_enable_logging")
+
+@pytest.mark.usefixtures("celery_app", "celery_worker", "celery_enable_logging")
 @pytest.mark.django_db
 class TestRouteStatus:
-    
+
     pytestmark = pytest.mark.django_db
 
     def setUp(self):
         self.factory = APIRequestFactory()
-        mesh=add_test_mesh_to_db()
+        mesh = add_test_mesh_to_db()
         self.route = Route.objects.create(
             start_lat=1.1, start_lon=1.1, end_lat=2.0, end_lon=2.0, mesh=mesh
         )
         from polarrouteserver.route_api.tasks import optimise_route
+
         optimise_route(self.route.id)
 
     def test_get_status_pending(self):
@@ -347,7 +378,7 @@ class TestRouteStatus:
 
         request = self.factory.get(f"/api/route/{self.job.id}")
 
-        response = RouteView.as_view()(request, self.job.id)
+        response = RouteDetailView.as_view()(request, self.job.id)
 
         assert response.status_code == 200
 
@@ -358,7 +389,8 @@ class TestRouteStatus:
         self.setUp()
 
         with patch(
-            "polarrouteserver.route_api.views.AsyncResult.state", new_callable=PropertyMock
+            "polarrouteserver.route_api.views.AsyncResult.state",
+            new_callable=PropertyMock,
         ) as mock_job_status:
             mock_job_status.return_value = celery.states.SUCCESS
 
@@ -369,7 +401,7 @@ class TestRouteStatus:
 
             request = self.factory.get(f"/api/route/{self.job.id}")
 
-            response = RouteView.as_view()(request, self.job.id)
+            response = RouteDetailView.as_view()(request, self.job.id)
 
             assert response.status_code == 200
             assert response.data.get("status") == "SUCCESS"
@@ -379,10 +411,10 @@ class TestRouteStatus:
     def test_request_out_of_mesh(self):
 
         self.setUp()
-        
+
         with open(settings.TEST_MESH_PATH) as f:
             mesh = json.load(f)
-        
+
         # Request a point that is out of mesh
         lat_min = mesh["config"]["mesh_info"]["region"]["lat_min"]
         lat_max = mesh["config"]["mesh_info"]["region"]["lat_max"]
@@ -390,26 +422,27 @@ class TestRouteStatus:
         lon_max = mesh["config"]["mesh_info"]["region"]["long_max"]
 
         data = {
-            "start_lat": lat_min-5,
-            "start_lon": lon_min-5,
-            "end_lat": abs(lat_max-lat_min)/2,
-            "end_lon": abs(lon_max-lon_min)/2,
+            "start_lat": lat_min - 5,
+            "start_lon": lon_min - 5,
+            "end_lat": abs(lat_max - lat_min) / 2,
+            "end_lon": abs(lon_max - lon_min) / 2,
         }
 
         # make route request
-        request = self.factory.post("/api/route/", data=data, format="json")
+        request = self.factory.post(
+            "/api/route", data=data, format="json"
+        )
 
         # using try except to ignore deliberate error in celery task in test envrionment
         # in production, celery handles this
         try:
-            post_response = RouteView.as_view()(request)
+            post_response = RouteRequestView.as_view()(request)
         except AssertionError:
             pass
 
         assert post_response.status_code == 200
         assert post_response.data["info"]["error"] == "No suitable mesh available."
 
-    
     def test_cancel_route(self):
 
         self.setUp()
@@ -421,28 +454,28 @@ class TestRouteStatus:
 
         request = self.factory.delete(f"/api/route/{self.job.id}")
 
-        response = RouteView.as_view()(request, self.job.id)
+        response = RouteDetailView.as_view()(request, self.job.id)
 
         assert response.status_code == 202
 
-class TestGetRecentRoutesAndMesh(TestCase):
 
+class TestGetRecentRoutesAndMesh(TestCase):
 
     def setUp(self):
         self.factory = APIRequestFactory()
         self.mesh = add_test_mesh_to_db()
-        self.route1 = self.route = Route.objects.create(
+        self.route1 = Route.objects.create(
             start_lat=0.0, start_lon=0.0, end_lat=0.0, end_lon=0.0, mesh=self.mesh
         )
-        self.route2 = self.route = Route.objects.create(
+        self.route2 = Route.objects.create(
             start_lat=1.0, start_lon=1.0, end_lat=1.0, end_lon=0.0, mesh=self.mesh
         )
         self.job1 = Job.objects.create(id=uuid.uuid1(), route=self.route1)
         self.job2 = Job.objects.create(id=uuid.uuid1(), route=self.route2)
-    
+
     def test_recent_routes_request(self):
 
-        request = self.factory.get(f"/api/recent_routes/")
+        request = self.factory.get(f"/api/recent_routes")
 
         response = RecentRoutesView.as_view()(request)
 
