@@ -12,7 +12,6 @@ import plotly.express as px
 import pandas as pd
 from dash_extensions.enrich import DashProxy, Input, Output, State, html, no_update, ctx, DashBlueprint, PrefixIdTransform
 from dash_extensions.javascript import assign, arrow_function, Namespace
-# import xyzservices
 import requests
 from copy import deepcopy
 
@@ -42,6 +41,18 @@ def amsr_layer(date: datetime.date):
 def server_url():
     return "http://localhost:8000"
 
+def request_status_toast(content, header, icon, is_open=True, duration=5000):
+
+    return dbc.Toast(
+            [html.P(content, className="mb-0")],
+            id="request-status-toast",
+            header=header,
+            icon=icon,
+            dismissable=True,
+            is_open=is_open,
+            duration=duration,
+        )
+
 eventHandlers = dict(
     mousemove=ns("mousemove"),
     click=ns("click"),
@@ -63,12 +74,18 @@ def coords_input(loc):
     return html.Div([
         dbc.InputGroup([
             dbc.InputGroupText(loc),
-            dbc.Select(options=[{'label': v['display_name'], 'value': json.dumps(v)} for v in favourites.values()], id={"type": "location-select", "index": loc}),
-            dbc.Input(id={"type": "location-coords", "index": loc}, placeholder="lat, lon", disabled=True)
+            dbc.Select(options=[{'label': v['display_name'], 'value': json.dumps(v)} for v in favourites.values()], id={"type": "location-select", "index": loc}, class_name="bsk-form-control"),
+            dbc.Input(id={"type": "location-coords", "index": loc}, placeholder="lat, lon", disabled=True, class_name="bsk-form-control"),
+            dbc.Input(id={"type": "location-name", "index": loc}, placeholder="name this location (optional)", class_name="bsk-form-control"),
         ], class_name="bsk-input-group")
     ])
 
-form = dbc.Form([coords_input("start"), coords_input("end")])
+form = dbc.Form([
+    coords_input("start"),
+    coords_input("end"),
+    dbc.Button("Submit", color="primary", id="request-button"),
+    dbc.Spinner(children=html.P(""), color="primary", id="request-spinner"),
+    ])
 
 app.layout = html.Div(
     children=[
@@ -88,7 +105,7 @@ app.layout = html.Div(
             dbc.Col([html.H2("Recent Routes"), dcc.Loading(html.Div(id="recent-routes"))], class_name="col-12 col-md-6"),
             dbc.Col([html.H2("Request Route"), html.Span("Select start and end points from dropdown or by clicking on map."), html.Div(form, id='route-request')], class_name="col-12 col-md-6"),
         ]),
-        dcc.Interval(id="recent-routes-interval", interval=150*1000),
+        dcc.Interval(id="recent-routes-interval", interval=30*1000),
 
     ],
 )
@@ -118,6 +135,7 @@ def marker(lat:float, lon:float, loc:str="start"):
     prevent_initial_call=True
 )
 def update_marker_store(marker_position, location_value, n_clicks, clickData, marker_data):
+    """Updates the marker store after one of a number of triggers."""
     
     logger.debug(f"dash.callback_context.triggered: {dash.callback_context.triggered}")
     logger.debug(f"marker_position: {marker_position}")
@@ -128,8 +146,6 @@ def update_marker_store(marker_position, location_value, n_clicks, clickData, ma
     if dash.callback_context.triggered == []:
         return no_update
     
-    #TODO: trigger this on marker drag too
-
     #TODO: also update the labels on start and end with coordinates
     
     trigger = dash.callback_context.triggered[0]['prop_id']
@@ -203,6 +219,8 @@ def update_marker_store(marker_position, location_value, n_clicks, clickData, ma
     State("marker-store", "data"),
 )
 def update_markers(ts, marker_data):
+    """Updates the marker positions shown on the map following a change to the marker store."""
+
     if ts is None:
         return no_update
     
@@ -213,6 +231,7 @@ def update_markers(ts, marker_data):
         )
     return markers
 
+
 @app.callback(
     Output({"type": "location-coords", "index": "start"}, "value"),
     Output({"type": "location-coords", "index": "end"}, "value"),
@@ -220,6 +239,8 @@ def update_markers(ts, marker_data):
     State("marker-store", "data"),
 )
 def update_coords(ts, marker_data):
+    """Updates the coordinates text boxes after a change to the marker store."""
+
     if ts is None or marker_data is {}:
         return no_update, no_update
     
@@ -265,7 +286,6 @@ def update_amsr_overlay(slider_value):
 
 @app.callback(
     Output("routes-fg", "children"),
-    # Output("test-output-container", "children"),
     Input({"type": "route-show-checkbox", "index": ALL}, "value"),
     State("routes-store", "data"),
     prevent_initial_call=True
@@ -333,13 +353,93 @@ def update_recent_routes_table(_):
         return dbc.Table(table_header + table_body, bordered=True, striped=True, hover=True), json.dumps(result)
 
 
-# @app.callback(
-#     Output("slider-output-container", "children"),
-#     Input({"type": "route-checkbox", "index": ALL}, "value"),
-# )
-# def display_output(values):
-#     return str(values)
+@app.callback(
+    Output("request-spinner", "children"),
+    Input("request-button", "n_clicks"),
+    State("marker-store", "data"),
+    State({"type": "location-select", "index": "start"}, "value"),
+    State({"type": "location-select", "index": "end"}, "value"),
+    State({"type": "location-name", "index": "start"}, "value"),
+    State({"type": "location-name", "index": "end"}, "value"),
+    prevent_initial_call=True,
+)
+def handle_request_route_click(n_clicks, marker_data, start_select, end_select, start_custom_name, end_custom_name):
+    logger.debug(f"n_clicks: {n_clicks}")
+    logger.debug(f"marker_data: {marker_data}")
+    logger.debug(f"start_select: {start_select}")
+    logger.debug(f"end_select: {end_select}")
+    logger.debug(f"start_custom_name: {start_custom_name}")
+    logger.debug(f"end_custom_name: {end_custom_name}")
 
+    if n_clicks:
+        if marker_data == {}:
+            ret = request_status_toast("No points specified.", "Error", "warning")
+            logger.debug(f"toast: {ret}")
+            return ret
+        elif marker_data.get("start", None) is None:
+            return request_status_toast("Start point not specified.", "Error", "warning")
+        elif marker_data.get("end", None) is None:
+            return request_status_toast("End point not specified.", "Warning", "warning")
+
+        start_name = start_custom_name
+        end_name = end_custom_name
+
+        response = request_route(
+            url=server_url(),
+            start_lat = marker_data["start"]["lat"],
+            start_lon = marker_data["start"]["lon"],
+            end_lat = marker_data["end"]["lat"],
+            end_lon = marker_data["end"]["lon"],
+            start_name=start_name,
+            end_name=end_name,
+            force_recalculate=False,
+            mesh_id=None,
+        )
+
+        print(response.json())
+        
+        if response.status_code == 200:
+            if response.json().get("info"):
+                return request_status_toast(response.json().get("info")["error"], "Error", "error")
+
+        elif response.status_code == 204:
+            # message = response.data
+            update_recent_routes_table(None)
+            logger.debug(response)
+            return request_status_toast("Request submitted successfully", "Success", "primary")
+
+
+    
+    return no_update
+
+def request_route(
+        url: str,
+        start_lat: float,
+        start_lon: float,
+        end_lat: float,
+        end_lon: float,
+        start_name: str = None,
+        end_name: str = None,
+        mesh_id: int = None,
+        force_recalculate: bool = False,
+    ) -> requests.Response:
+
+    response = requests.post(
+        url=url+"/api/route",
+        data={
+            "start_lat": float(start_lat),
+            "start_lon": float(start_lon),
+            "end_lat": float(end_lat),
+            "end_lon": float(end_lon),
+            "start_name": start_name,
+            "end_name": end_name,
+            "mesh_id": mesh_id,
+            "force_recalculate": force_recalculate,
+        }
+        )
+    
+    logger.debug(response)
+    return response
 
 def get_route_geojson(route: dict):
     return route['json'][0][0]
