@@ -89,7 +89,7 @@ form = dbc.Form([
 
 app.layout = html.Div(
     children=[
-        dcc.Store(id='routes-store'),
+        dcc.Store(id='routes-store', data=[]),
         dcc.Store(id='marker-store', storage_type="memory", data={}),
         dl.Map([
            dl.TileLayer(id="basemap", attribution=("© OpenStreetMap contributors"), zIndex=0,),
@@ -292,9 +292,6 @@ def update_amsr_overlay(slider_value):
 )
 def update_routes_on_map(checkbox_values, routes):
 
-    # load available routes from store
-    routes = json.loads(routes)
-
     routes_to_show = []
 
     # iterate checkboxes
@@ -324,14 +321,39 @@ def update_routes_on_map(checkbox_values, routes):
         Output("recent-routes", "children"),
         Output("routes-store", "data"),
         Input("recent-routes-interval", "n_intervals"),
+        State("routes-store", "data")
 )
-def update_recent_routes_table(_):
-    r = requests.get(server_url()+"/api/recent_routes")
-    result = r.json()
+def update_recent_routes(_, existing_routes_data):
+    """Requests recent routes and updates table and routes store."""
 
-    if len(result) == 0:
-        return [html.Span("No routes available. Try requesting one.")], json.dumps(result)
+    r = requests.get(server_url()+"/api/recent_routes")
+    new_routes_data = r.json()
+
+    if existing_routes_data is not None:
+        if new_routes_data == existing_routes_data:
+            return no_update, no_update
+        
+        # update routes data with any new routes
+        routes_data = existing_routes_data
+        existing_route_ids = [r["id"] for r in existing_routes_data]
+        for route in new_routes_data:
+            if route["id"] not in existing_route_ids:
+                routes_data.insert(0, route)
+    
+        # remove any expired routes
+        new_route_ids = [r["id"] for r in new_routes_data]
+        for i, route in enumerate(routes_data):
+            if route["id"] not in new_route_ids:
+                routes_data.pop(i)
+                
     else:
+        # if there is no existing route data, use the new route data
+        routes_data = new_routes_data
+
+    if len(routes_data) == 0:
+        return [html.Span("No routes available. Try requesting one.")], routes_data
+    else:
+        
         table_header = [html.Thead(
                         html.Tr([
                             html.Th(""),
@@ -340,17 +362,17 @@ def update_recent_routes_table(_):
                             html.Th("Status"),
                         ]))]
         rows = []
-        for route in result:
+        for route in routes_data:
             rows.append(
                 html.Tr([
                     html.Td(dbc.Checkbox(id={"type": "route-show-checkbox", "index": route['id']})),
-                    html.Td(f"{route['start_name']} ({route['start_lat']}, {route['start_lon']})"),
-                    html.Td(f"{route['end_name']} ({route['end_lat']}, {route['end_lon']})"),
+                    html.Td(f"{route['start_name']} ({route['start_lat']:.2f}, {route['start_lon']:.2f})"),
+                    html.Td(f"{route['end_name']} ({route['end_lat']:.2f}, {route['end_lon']:.2f})"),
                     html.Td(f"{route['status']}"),
                     ]))
         table_body = [html.Tbody(rows)]
 
-        return dbc.Table(table_header + table_body, bordered=True, striped=True, hover=True), json.dumps(result)
+        return dbc.Table(table_header + table_body, bordered=True, striped=True, hover=True), routes_data
 
 
 @app.callback(
@@ -396,20 +418,16 @@ def handle_request_route_click(n_clicks, marker_data, start_select, end_select, 
             mesh_id=None,
         )
 
-        print(response.json())
-        
         if response.status_code == 200:
             if response.json().get("info"):
                 return request_status_toast(response.json().get("info")["error"], "Error", "error")
 
         elif response.status_code == 204:
             # message = response.data
-            update_recent_routes_table(None)
+            update_recent_routes(None)
             logger.debug(response)
             return request_status_toast("Request submitted successfully", "Success", "primary")
 
-
-    
     return no_update
 
 def request_route(
