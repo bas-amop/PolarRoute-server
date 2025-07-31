@@ -14,6 +14,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 import os
 
 from django.conf import settings
@@ -40,13 +41,15 @@ urlpatterns = [
 ]
 
 if os.getenv("POLARROUTE_FRONTEND", True):
-    import polarrouteserver.frontend
-    urlpatterns.extend([
-        path('django_plotly_dash/', include('django_plotly_dash.urls')),
-        path('', TemplateView.as_view(template_name='index.html'), name="frontend"),
-    ])
+    import polarrouteserver.frontend  # noqa: F401
+
+    urlpatterns.extend(
+        [
+            path("django_plotly_dash/", include("django_plotly_dash.urls")),
+            path("", TemplateView.as_view(template_name="index.html"), name="frontend"),
+        ]
+    )
 
     # for serving static files in development
     if settings.DEBUG:
         urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-
