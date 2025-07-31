@@ -274,7 +274,6 @@ class RecentRoutesView(LoggingMixin, GenericAPIView):
         response_data = []
         logger.debug(f"Found {len(routes_today)} routes today.")
         for route in routes_today:
-            logger.debug(f"{route.id}")
             try:
                 job = route.job_set.latest("datetime")
             except Job.DoesNotExist:
