@@ -36,7 +36,7 @@ def amsr_layer(date: datetime.date):
             )
 
 def server_url():
-    return "http://localhost:8000"
+    return os.getenv("POLARROUTE_FRONTEND_INTERNAL_URL", "http://localhost:8000")
 
 def request_status_toast(content, header, icon, is_open=True, duration=5000):
 
