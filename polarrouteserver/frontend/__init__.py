@@ -2,18 +2,15 @@ import datetime
 import json
 import logging
 import os
+
 import dash
-from dash import Dash, dcc, ALL, MATCH
+from dash import dcc, ALL
 import dash_bootstrap_components as dbc
 import dash_leaflet as dl
-from django_plotly_dash import DjangoDash, dash_wrapper
-from django.utils.translation import gettext, gettext_lazy
-import plotly.express as px
-import pandas as pd
-from dash_extensions.enrich import DashProxy, Input, Output, State, html, no_update, ctx, DashBlueprint, PrefixIdTransform
-from dash_extensions.javascript import assign, arrow_function, Namespace
+from django_plotly_dash import DjangoDash
+from dash_extensions.enrich import Input, Output, State, html, no_update,
+from dash_extensions.javascript import Namespace
 import requests
-from copy import deepcopy
 
 FORMAT = "[%(filename)s . %(funcName)20s() ] %(message)s"
 logging.basicConfig(format=FORMAT)
