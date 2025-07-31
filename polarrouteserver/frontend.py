@@ -53,6 +53,17 @@ def request_status_toast(content, header, icon, is_open=True, duration=5000):
             duration=duration,
         )
 
+def _summarise_route(route):
+    
+    keys_to_extract = ['id', 'start_lat', 'start_lon', 'end_lat', 'end_lon', 'start_name', 'end_name', 'show', 'mesh']
+    return dict(filter(lambda item: item[0] in keys_to_extract, route.items()))
+
+def _summarise_route_list(routes):
+    summary = []
+    for route in routes:
+        summary.append(_summarise_route(route))
+    return summary
+
 eventHandlers = dict(
     mousemove=ns("mousemove"),
     click=ns("click"),
@@ -89,7 +100,8 @@ form = dbc.Form([
 
 app.layout = html.Div(
     children=[
-        dcc.Store(id='routes-store', data=[]),
+        dcc.Store(id='routes-store', data=[], storage_type="session"),
+        dcc.Store(id='route-visibility-store', data=[], storage_type="session"),
         dcc.Store(id='marker-store', storage_type="memory", data={}),
         dl.Map([
            dl.TileLayer(id="basemap", attribution=("© OpenStreetMap contributors"), zIndex=0,),
@@ -102,10 +114,10 @@ app.layout = html.Div(
         dcc.Slider(min=-30, max=0, step=1, value=0, id='amsr-date-slider', marks=None, tooltip={"placement": "top", "always_visible": False}),
         html.Span("", id='test-output-container'),
         dbc.Row([
-            dbc.Col([html.H2("Recent Routes"), dcc.Loading(html.Div(id="recent-routes"))], class_name="col-12 col-md-6"),
+            dbc.Col([html.H2("Recent Routes"), dcc.Loading(html.Div(id="recent-routes-table"))], class_name="col-12 col-md-6"),
             dbc.Col([html.H2("Request Route"), html.Span("Select start and end points from dropdown or by clicking on map."), html.Div(form, id='route-request')], class_name="col-12 col-md-6"),
         ]),
-        dcc.Interval(id="recent-routes-interval", interval=30*1000),
+        dcc.Interval(id="recent-routes-interval", interval=10000),
 
     ],
 )
@@ -136,12 +148,6 @@ def marker(lat:float, lon:float, loc:str="start"):
 )
 def update_marker_store(marker_position, location_value, n_clicks, clickData, marker_data):
     """Updates the marker store after one of a number of triggers."""
-    
-    logger.debug(f"dash.callback_context.triggered: {dash.callback_context.triggered}")
-    logger.debug(f"marker_position: {marker_position}")
-    logger.debug(f"location_value: {location_value}")
-    logger.debug(f"n_clicks: {n_clicks}")
-
 
     if dash.callback_context.triggered == []:
         return no_update
@@ -149,8 +155,6 @@ def update_marker_store(marker_position, location_value, n_clicks, clickData, ma
     #TODO: also update the labels on start and end with coordinates
     
     trigger = dash.callback_context.triggered[0]['prop_id']
-    logger.debug(f"trigger: {trigger}")
-    logger.debug(f"type: {type(trigger)}")
     
     # if trigger is map click: e.g. [{'prop_id': 'map.n_clicks', 'value': 1}]
     if trigger == 'map.n_clicks':
@@ -169,14 +173,11 @@ def update_marker_store(marker_position, location_value, n_clicks, clickData, ma
 
     # if trigger is marker move, e.g.
     elif trigger in ['{"index":"start","type":"marker"}.dragEndPosition', '{"index":"end","type":"marker"}.dragEndPosition']:
-        logger.debug("marker move trigger")
-        logger.debug(f"marker_position: {marker_position}")
 
         if marker_position == [None]:
             return no_update
         # get "start" or "end"
         loc = json.loads(dash.callback_context.triggered[0]['prop_id'].strip('.dragEndPosition'))['index']
-        logger.debug(f"loc: {loc}")
 
         idx = 0 if loc=="start" else 1
         if marker_position[idx] == None:
@@ -283,55 +284,71 @@ def update_amsr_overlay(slider_value):
     return amsr_layer(sic_date)
 
 
-
 @app.callback(
     Output("routes-fg", "children"),
-    Input({"type": "route-show-checkbox", "index": ALL}, "value"),
+    Input("route-visibility-store", "modified_timestamp"),
+    State("route-visibility-store", "data"),
     State("routes-store", "data"),
-    prevent_initial_call=True
 )
-def update_routes_on_map(checkbox_values, routes):
-
+def update_map_routes(ts, route_visibility, routes_data):
     routes_to_show = []
 
-    # iterate checkboxes
-    for i,n  in enumerate(dash.callback_context.inputs_list[0]):
-        checkbox_value = checkbox_values[i]
-        route_id = n['id']['index']
+    if ts is None:
+        return no_update
 
-        route_to_show = [x for x in routes if x['id']==route_id]
-        traveltime_geojson = route_to_show[0]['json'][0][0]['features'][0]
-        fuel_geojson = route_to_show[0]['json'][1][0]['features'][0]
-
-
-        if checkbox_value == True:
+    for r in route_visibility:
+        if r.get("show"):
+            route = [x for x in routes_data if x["id"]==r["id"]][0]
+            traveltime_geojson = route['json'][0][0]['features'][0]
+            fuel_geojson = route['json'][1][0]['features'][0]
             routes_to_show.extend(
                 [
                     dl.GeoJSON(data=traveltime_geojson, style={'color': '#2B8CC4'}, children=[dl.Tooltip(content="Traveltime-optimised")]),
                     dl.GeoJSON(data=fuel_geojson, style={'color': '#379245'}, children=[dl.Tooltip(content="Fuel-optimised")]),
                     ]
             )
-
+        
     return routes_to_show
-    
-
 
 
 @app.callback(
-        Output("recent-routes", "children"),
+    Output("route-visibility-store", "data"),
+    Input({"type": "route-show-checkbox", "index": ALL}, "value"),
+    State("routes-store", "data"),
+)
+def update_visible_routes(checkbox_values, routes_data):
+    """When checkbox is clicked, show routes on map and update routes store."""
+
+    # iterate checkboxes
+    # [{'id': {'index': 'fe3daba1-09ab-4505-bfbc-3c82d7d01ee4', 'type': 'route-show-checkbox'}, 'property': 'value', 'value': True}]
+    route_visibility = []
+    for i,n  in enumerate(dash.callback_context.inputs_list[0]):
+        route_visibility.append({
+            "id": n['id']['index'],
+            "show": checkbox_values[i] == True,
+        })
+    return route_visibility
+    
+
+@app.callback(
         Output("routes-store", "data"),
         Input("recent-routes-interval", "n_intervals"),
-        State("routes-store", "data")
+        State("routes-store", "data"),
 )
-def update_recent_routes(_, existing_routes_data):
-    """Requests recent routes and updates table and routes store."""
+def update_routes_store(_, existing_routes_data):
+    """Requests recent routes and updates routes store."""
 
     r = requests.get(server_url()+"/api/recent_routes")
     new_routes_data = r.json()
 
-    if existing_routes_data is not None:
-        if new_routes_data == existing_routes_data:
-            return no_update, no_update
+
+    if len(existing_routes_data) == 0:
+        # if there is no existing route data, use the new route data
+        routes_data = []
+        for route in new_routes_data:
+            routes_data.append(route)
+        
+    else:
         
         # update routes data with any new routes
         routes_data = existing_routes_data
@@ -345,18 +362,32 @@ def update_recent_routes(_, existing_routes_data):
         for i, route in enumerate(routes_data):
             if route["id"] not in new_route_ids:
                 routes_data.pop(i)
-                
-    else:
-        # if there is no existing route data, use the new route data
-        routes_data = new_routes_data
 
-    if len(routes_data) == 0:
-        return [html.Span("No routes available. Try requesting one.")], routes_data
+    return routes_data
+
+def _get_route_visibility(route_visibility, route_id):
+
+    if len(route_visibility) == 0:
+        return False
+    else:
+        return [x["show"] for x in route_visibility if x["id"]==route_id][0]
+
+@app.callback(
+        Output("recent-routes-table", "children"),
+        Input("routes-store", "modified_timestamp"),
+        State("routes-store", "data"),
+        State("route-visibility-store", "data"),
+)
+def update_recent_routes_table(ts, routes_data, route_visibility):
+    """Updates recent routes table in response to changing routes store."""
+
+    if ts is None or len(routes_data) == 0:
+        return [html.Span("No routes available. Try requesting one.")]
     else:
         
         table_header = [html.Thead(
                         html.Tr([
-                            html.Th(""),
+                            html.Th("Show"),
                             html.Th("Start"),
                             html.Th("End"),
                             html.Th("Status"),
@@ -365,15 +396,15 @@ def update_recent_routes(_, existing_routes_data):
         for route in routes_data:
             rows.append(
                 html.Tr([
-                    html.Td(dbc.Checkbox(id={"type": "route-show-checkbox", "index": route['id']})),
+                    html.Td(dbc.Checkbox(id={"type": "route-show-checkbox", "index": route['id']}, value=_get_route_visibility(route_visibility, route["id"]))),
                     html.Td(f"{route['start_name']} ({route['start_lat']:.2f}, {route['start_lon']:.2f})"),
                     html.Td(f"{route['end_name']} ({route['end_lat']:.2f}, {route['end_lon']:.2f})"),
                     html.Td(f"{route['status']}"),
                     ]))
         table_body = [html.Tbody(rows)]
 
-        return dbc.Table(table_header + table_body, bordered=True, striped=True, hover=True), routes_data
-
+        return dbc.Table(table_header + table_body, bordered=True, striped=True, hover=True)
+    
 
 @app.callback(
     Output("request-spinner", "children"),
@@ -386,17 +417,10 @@ def update_recent_routes(_, existing_routes_data):
     prevent_initial_call=True,
 )
 def handle_request_route_click(n_clicks, marker_data, start_select, end_select, start_custom_name, end_custom_name):
-    logger.debug(f"n_clicks: {n_clicks}")
-    logger.debug(f"marker_data: {marker_data}")
-    logger.debug(f"start_select: {start_select}")
-    logger.debug(f"end_select: {end_select}")
-    logger.debug(f"start_custom_name: {start_custom_name}")
-    logger.debug(f"end_custom_name: {end_custom_name}")
 
     if n_clicks:
         if marker_data == {}:
             ret = request_status_toast("No points specified.", "Error", "warning")
-            logger.debug(f"toast: {ret}")
             return ret
         elif marker_data.get("start", None) is None:
             return request_status_toast("Start point not specified.", "Error", "warning")
@@ -424,8 +448,7 @@ def handle_request_route_click(n_clicks, marker_data, start_select, end_select, 
 
         elif response.status_code == 204:
             # message = response.data
-            update_recent_routes(None)
-            logger.debug(response)
+            # update_recent_routes_store(None)
             return request_status_toast("Request submitted successfully", "Success", "primary")
 
     return no_update
@@ -456,7 +479,6 @@ def request_route(
         }
         )
     
-    logger.debug(response)
     return response
 
 def get_route_geojson(route: dict):
