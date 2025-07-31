@@ -297,36 +297,43 @@ def update_map_routes(ts, route_visibility, routes_data):
         return no_update
 
     for r in route_visibility:
-        if r.get("show"):
-            route = [x for x in routes_data if x["id"]==r["id"]][0]
-            traveltime_geojson = route['json'][0][0]['features'][0]
+        route = [x for x in routes_data if x["id"]==r["id"]][0]
+        if r.get("fuel"):
             fuel_geojson = route['json'][1][0]['features'][0]
-            routes_to_show.extend(
-                [
-                    dl.GeoJSON(data=traveltime_geojson, style={'color': '#2B8CC4'}, children=[dl.Tooltip(content="Traveltime-optimised")]),
+            routes_to_show.append(
                     dl.GeoJSON(data=fuel_geojson, style={'color': '#379245'}, children=[dl.Tooltip(content="Fuel-optimised")]),
-                    ]
-            )
+                )
+        if r.get("traveltime"):
+            traveltime_geojson = route['json'][0][0]['features'][0]
+            routes_to_show.append(
+                    dl.GeoJSON(data=traveltime_geojson, style={'color': '#2B8CC4'}, children=[dl.Tooltip(content="Traveltime-optimised")]),
+                )
         
     return routes_to_show
 
 
 @app.callback(
     Output("route-visibility-store", "data"),
-    Input({"type": "route-show-checkbox", "index": ALL}, "value"),
-    State("routes-store", "data"),
+    Input({"type": "route-show-checkbox", "index": ALL, "route-type": "fuel"}, "value"),
+    Input({"type": "route-show-checkbox", "index": ALL, "route-type": "traveltime"}, "value"),
 )
-def update_visible_routes(checkbox_values, routes_data):
+def update_route_visibility(fuel_checkbox_values, traveltime_checkbox_values):
     """When checkbox is clicked, show routes on map and update routes store."""
 
     # iterate checkboxes
+    # e.g.
     # [{'id': {'index': 'fe3daba1-09ab-4505-bfbc-3c82d7d01ee4', 'type': 'route-show-checkbox'}, 'property': 'value', 'value': True}]
     route_visibility = []
-    for i,n  in enumerate(dash.callback_context.inputs_list[0]):
-        route_visibility.append({
-            "id": n['id']['index'],
-            "show": checkbox_values[i] == True,
-        })
+
+    for i,n in enumerate(dash.callback_context.inputs_list[0]):
+        route = {
+                "id": n['id']['index'],
+                "fuel": fuel_checkbox_values[i],
+                "traveltime": traveltime_checkbox_values[i],
+            }
+            
+        route_visibility.append(route)
+
     return route_visibility
     
 
@@ -365,12 +372,12 @@ def update_routes_store(_, existing_routes_data):
 
     return routes_data
 
-def _get_route_visibility(route_visibility, route_id):
+def _get_route_visibility(route_visibility, type, route_id):
 
     if len(route_visibility) == 0:
         return False
     else:
-        return [x["show"] for x in route_visibility if x["id"]==route_id][0]
+        return [x[type] for x in route_visibility if x["id"]==route_id][0]
 
 @app.callback(
         Output("recent-routes-table", "children"),
@@ -387,7 +394,8 @@ def update_recent_routes_table(ts, routes_data, route_visibility):
         
         table_header = [html.Thead(
                         html.Tr([
-                            html.Th("Show"),
+                            html.Th("Fuel"),
+                            html.Th("Time"),
                             html.Th("Start"),
                             html.Th("End"),
                             html.Th("Status"),
@@ -396,7 +404,8 @@ def update_recent_routes_table(ts, routes_data, route_visibility):
         for route in routes_data:
             rows.append(
                 html.Tr([
-                    html.Td(dbc.Checkbox(id={"type": "route-show-checkbox", "index": route['id']}, value=_get_route_visibility(route_visibility, route["id"]))),
+                    html.Td(dbc.Checkbox(id={"type": "route-show-checkbox", "index": route['id'], "route-type": "fuel"}, value=_get_route_visibility(route_visibility, "fuel", route["id"]))),
+                    html.Td(dbc.Checkbox(id={"type": "route-show-checkbox", "index": route['id'], "route-type": "traveltime"}, value=_get_route_visibility(route_visibility, "traveltime", route["id"]))),
                     html.Td(f"{route['start_name']} ({route['start_lat']:.2f}, {route['start_lon']:.2f})"),
                     html.Td(f"{route['end_name']} ({route['end_lat']:.2f}, {route['end_lon']:.2f})"),
                     html.Td(f"{route['status']}"),
