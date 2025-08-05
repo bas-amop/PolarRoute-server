@@ -8,7 +8,7 @@ from dash_extensions.enrich import html
 from dash_extensions.javascript import Namespace
 
 from .callbacks import register_callbacks
-from .components import amsr_layer
+from .components import amsr_layer, header, footer, site_development_notice
 from .layouts import route_request_form
 from .utils import default_sic_date
 
@@ -56,6 +56,9 @@ app.layout = html.Div(
         dcc.Store(id="routes-store", data=[], storage_type="session"),
         dcc.Store(id="route-visibility-store", data=[], storage_type="session"),
         dcc.Store(id="marker-store", storage_type="memory", data={}),
+        dcc.Interval(id="recent-routes-interval", interval=10000),
+        html.Header(header),
+        site_development_notice,
         dl.Map(
             [
                 dl.TileLayer(
@@ -116,6 +119,6 @@ app.layout = html.Div(
                 ),
             ]
         ),
-        dcc.Interval(id="recent-routes-interval", interval=10000),
+        html.Footer(footer),
     ],
 )

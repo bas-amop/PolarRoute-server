@@ -1,9 +1,18 @@
 import datetime
 
+from dash import html
 import dash_bootstrap_components as dbc
-from dash_extensions.enrich import html
 from dash_extensions.javascript import Namespace
 import dash_leaflet as dl
+
+__all__ = [
+    "site_development_notice",
+    "header",
+    "footer",
+    "marker",
+    "amsr_layer",
+    "request_status_toast",
+]
 
 ns = Namespace("polarRoute", "mapFunctions")
 
@@ -46,3 +55,192 @@ def request_status_toast(content, header, icon, is_open=True, duration=5000):
         is_open=is_open,
         duration=duration,
     )
+
+
+site_development_notice = html.Div(
+    className="site-development-notice",
+    children=[
+        html.Div(
+            className="bsk-container-fluid",
+            children=[
+                html.Span(
+                    className="bsk-label bsk-label-phase-alpha",
+                    children="Alpha",
+                ),
+                "This is a new website – your ",
+                html.A(
+                    children="feedback",
+                    href="https://www.bas.ac.uk/project/autonomous-marine-operations-planning/",
+                    target="_blank",
+                ),
+                " will help us to improve it.",
+            ],
+        ),
+        html.Hr(),
+    ],
+)
+
+header = dbc.NavbarSimple(
+    color="black",
+    dark=True,
+    class_name="bsk-navbar bsk-navbar-expand-lg bsk-navbar-dark bsk-bg-dark",
+    links_left=True,
+    children=[
+        dbc.Row(
+            justify="between",
+            children=[
+                dbc.Col(
+                    width=3,
+                    children=dbc.NavbarBrand(
+                        "PolarRoute",
+                        href="https://www.bas.ac.uk/project/autonomous-marine-operations-planning/",
+                        class_name="bsk-navbar-brand",
+                    ),
+                ),
+                dbc.Col(),
+                dbc.Col(
+                    width=6,
+                    children=dbc.Stack(
+                        direction="horizontal",
+                        children=[
+                            dbc.NavItem(
+                                dbc.NavLink(
+                                    "About",
+                                    external_link=True,
+                                    target="_blank",
+                                    href="https://www.bas.ac.uk/project/autonomous-marine-operations-planning/",
+                                    className="bsk-dropdown-item",
+                                )
+                            ),
+                            dbc.NavItem(
+                                dbc.NavLink(
+                                    "Admin",
+                                    external_link=True,
+                                    target="_blank",
+                                    href="/admin",
+                                    className="bsk-dropdown-item",
+                                )
+                            ),
+                            dbc.DropdownMenu(
+                                nav=True,
+                                in_navbar=True,
+                                align_end=True,
+                                label="Part of British Antarctic Survey",
+                                toggle_style={
+                                    "border": 0,
+                                },
+                                class_name="bsk-dropdown bsk-shadow",
+                                children=[
+                                    dbc.DropdownMenuItem(
+                                        "BAS Home",
+                                        href="https://www.bas.ac.uk/",
+                                        class_name="bsk-dropdown-item",
+                                    ),
+                                    dbc.DropdownMenuItem(
+                                        "Discover BAS Data",
+                                        href="https://data.bas.ac.uk/",
+                                        class_name="bsk-dropdown-item",
+                                    ),
+                                ],
+                            ),
+                        ],
+                    ),
+                ),
+            ],
+        ),
+    ],
+)
+
+footer = html.Footer(
+    className="site-footer",
+    children=[
+        html.Div(
+            className="bsk-footer bsk-footer-default m-0",
+            children=[
+                html.Div(
+                    className="bsk-container",
+                    children=[
+                        html.Div(
+                            className="bsk-footer-governance",
+                            style={"display": "inline-block"},
+                            children=[
+                                "The ",
+                                html.A(
+                                    "British Antarctic Survey",
+                                    href="https://www.bas.ac.uk/",
+                                ),
+                                " (BAS) is part of ",
+                                html.A(
+                                    "UK Research and Innovation",
+                                    href="https://www.ukri.org/",
+                                ),
+                                " (UKRI)",
+                                html.Div(
+                                    className="bsk-footer-ogl",
+                                    children=[
+                                        html.Div(
+                                            className="bsk-ogl-symbol",
+                                            children=[
+                                                html.A(
+                                                    href="http://www.nationalarchives.gov.uk/doc/open-government-licence",
+                                                    children=[
+                                                        html.Span(
+                                                            className="bsk-ogl-symbol",
+                                                            children=[
+                                                                "Open Government Licence"
+                                                            ],
+                                                        )
+                                                    ],
+                                                ),
+                                            ],
+                                        ),
+                                        "All content is available under the ",
+                                        html.A(
+                                            "Open Government Licence",
+                                            href="http://www.nationalarchives.gov.uk/doc/open-government-licence",
+                                        ),
+                                        ", v3.0 except where otherwise stated",
+                                    ],
+                                ),
+                            ],
+                        ),
+                        html.Div(
+                            className="bsk-footer-policy-links",
+                            style={
+                                "float": "right",
+                                "clear": "right",
+                                "display": "inline-block",
+                            },
+                            children=[
+                                html.Ul(
+                                    className="bsk-list-inline",
+                                    children=[
+                                        html.Li(
+                                            [
+                                                html.A(
+                                                    "Cookies",
+                                                    href="/cookies",
+                                                )
+                                            ],
+                                            className="d-inline-block me-2",
+                                        ),
+                                        html.Li(
+                                            [html.A("Copyright", href="/copyright")],
+                                            className="d-inline-block me-2",
+                                        ),
+                                        html.Li(
+                                            [html.A("Privacy", href="/privacy")],
+                                            className="d-inline-block",
+                                        ),
+                                    ],
+                                ),
+                                f"{datetime.date.today().year} British Antarctic Survey",
+                            ],
+                        ),
+                    ],
+                ),
+            ],
+            style={"padding-bottom": "2rem"},
+        )
+    ],
+)
