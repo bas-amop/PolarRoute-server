@@ -41,7 +41,12 @@ def route_request_form(favourites):
         [
             coords_input("start", favourites),
             coords_input("end", favourites),
-            dbc.Button("Submit", color="primary", id="request-button"),
+            dbc.Button(
+                "Submit",
+                color="primary",
+                id="request-button",
+                class_name="bsk-btn bsk-btn-primary",
+            ),
             dbc.Spinner(children=html.P(""), color="primary", id="request-spinner"),
         ]
     )

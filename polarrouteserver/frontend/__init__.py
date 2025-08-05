@@ -20,6 +20,7 @@ logging.basicConfig(format=FORMAT)
 stylesheets = [
     "https://cdn.web.bas.ac.uk/bas-style-kit/0.7.3/css/bas-style-kit.min.css",
     dbc.themes.BOOTSTRAP,
+    dbc.icons.BOOTSTRAP,
 ]
 
 with warnings.catch_warnings():
@@ -56,8 +57,8 @@ eventHandlers = dict(
 
 app.layout = html.Div(
     children=[
-        dcc.Store(id="routes-store", data=[], storage_type="session"),
-        dcc.Store(id="route-visibility-store", data=[], storage_type="session"),
+        dcc.Store(id="routes-store", data=[], storage_type="memory"),
+        dcc.Store(id="route-visibility-store", data=[], storage_type="memory"),
         dcc.Store(id="marker-store", storage_type="memory", data={}),
         dcc.Interval(id="recent-routes-interval", interval=10000),
         html.Header(header),
@@ -105,7 +106,19 @@ app.layout = html.Div(
             [
                 dbc.Col(
                     [
-                        html.H2("Recent Routes"),
+                        dbc.Row(
+                            [
+                                dbc.Col(html.H2("Recent Routes")),
+                                dbc.Col(
+                                    dbc.Button(
+                                        html.I(className="bi bi-arrow-clockwise me-2"),
+                                        id="refresh-routes-button",
+                                        class_name="bsk-btn bsk-btn-primary",
+                                    )
+                                ),
+                            ],
+                            justify="start",
+                        ),
                         dcc.Loading(html.Div(id="recent-routes-table")),
                     ],
                     class_name="col-12 col-md-6",

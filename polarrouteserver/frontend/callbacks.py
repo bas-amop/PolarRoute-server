@@ -284,10 +284,11 @@ def register_callbacks(app: DjangoDash):
     @app.callback(
         Output("recent-routes-table", "children"),
         Input("routes-store", "modified_timestamp"),
+        Input("refresh-routes-button", "n_clicks"),
         State("routes-store", "data"),
         State("route-visibility-store", "data"),
     )
-    def update_recent_routes_table(ts, routes_data, route_visibility):
+    def update_recent_routes_table(ts, _, routes_data, route_visibility):
         """Updates recent routes table in response to changing routes store."""
 
         if ts is None or len(routes_data) == 0:
