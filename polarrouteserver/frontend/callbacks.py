@@ -261,6 +261,7 @@ def register_callbacks(app: DjangoDash):
 
     @app.callback(
         Output("recent-routes-table", "children"),
+        Output("recent-routes-tooltips", "children"),
         Input("routes-store", "modified_timestamp"),
         Input("refresh-routes-button", "n_clicks"),
         State("routes-store", "data"),
@@ -270,7 +271,7 @@ def register_callbacks(app: DjangoDash):
         """Updates recent routes table in response to changing routes store."""
 
         if ts is None or len(routes_data) == 0:
-            return [html.Span("No routes available. Try requesting one.")]
+            return [html.Span("No routes available. Try requesting one.")], None
         else:
             table_header = [
                 html.Thead(
@@ -286,6 +287,7 @@ def register_callbacks(app: DjangoDash):
                 )
             ]
             rows = []
+            tooltips = []
             for route in routes_data:
                 rows.append(
                     html.Tr(
@@ -320,15 +322,26 @@ def register_callbacks(app: DjangoDash):
                             html.Td(
                                 f"{route['end_name']} ({route['end_lat']:.2f}, {route['end_lon']:.2f})"
                             ),
-                            html.Td(f"{route['status']}"),
+                            html.Td(
+                                html.Span(
+                                    f"{route['status']}", id=f"status-{route['id']}"
+                                )
+                            ),
                         ]
+                    )
+                )
+                tooltips.append(
+                    dbc.Tooltip(
+                        str(route["info"]),
+                        target=f"status-{route['id']}",
+                        placement="auto",
                     )
                 )
             table_body = [html.Tbody(rows)]
 
             return dbc.Table(
                 table_header + table_body, bordered=True, striped=True, hover=True
-            )
+            ), tooltips
 
     @app.callback(
         Output("request-spinner", "children"),
