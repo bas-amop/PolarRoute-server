@@ -12,9 +12,9 @@ from .components import amsr_layer, header, footer, site_development_notice
 from .layouts import route_request_form
 from .utils import default_sic_date
 
+logger = logging.getLogger(__name__)
 FORMAT = "[%(filename)s . %(funcName)20s() ] %(message)s"
 logging.basicConfig(format=FORMAT)
-logger = logging.getLogger(__name__)
 
 stylesheets = [
     "https://cdn.web.bas.ac.uk/bas-style-kit/0.7.3/css/bas-style-kit.min.css",
