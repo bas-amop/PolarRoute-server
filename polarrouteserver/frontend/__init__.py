@@ -1,4 +1,5 @@
 import logging
+import warnings
 
 from dash import dcc
 import dash_bootstrap_components as dbc
@@ -21,12 +22,14 @@ stylesheets = [
     dbc.themes.BOOTSTRAP,
 ]
 
-app = DjangoDash(
-    "PolarRoute",
-    add_bootstrap_links=True,
-    update_title=None,
-    external_stylesheets=stylesheets,
-)
+with warnings.catch_warnings():
+    warnings.simplefilter("ignore")
+    app = DjangoDash(
+        "PolarRoute",
+        add_bootstrap_links=True,
+        update_title=None,
+        external_stylesheets=stylesheets,
+    )
 
 register_callbacks(app)
 
