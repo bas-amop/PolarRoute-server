@@ -17,7 +17,9 @@ __all__ = [
 ns = Namespace("polarRoute", "mapFunctions")
 
 
-def marker(lat: float, lon: float, loc: str = "start"):
+def marker(
+    lat: float, lon: float, loc: str = "start", draggable: bool = True, id: str = None
+):
     if loc == "start":
         iconUrl = "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png"
     elif loc == "end":
@@ -26,9 +28,9 @@ def marker(lat: float, lon: float, loc: str = "start"):
         raise ValueError(f"Valid values of loc are 'start' and 'end', got {loc}.")
 
     return dl.Marker(
-        id={"type": "marker", "index": loc},
+        id={"type": "marker", "index": id if id else loc},
         position=[lat, lon],
-        draggable=True,
+        draggable=draggable,
         eventHandlers=dict(dragend=ns("dragend")),
         icon=dict(iconUrl=iconUrl, iconAnchor=[11, 40]),
     )

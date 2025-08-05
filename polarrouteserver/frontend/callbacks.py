@@ -192,7 +192,25 @@ def register_callbacks(app: DjangoDash):
 
         for r in route_visibility:
             route = [x for x in routes_data if x["id"] == r["id"]][0]
-            if r.get("fuel"):
+
+            routes_to_show.append(
+                marker(
+                    lat=route["start_lat"],
+                    lon=route["start_lon"],
+                    loc="start",
+                    draggable=False,
+                )
+            )
+            routes_to_show.append(
+                marker(
+                    lat=route["end_lat"],
+                    lon=route["end_lon"],
+                    loc="end",
+                    draggable=False,
+                )
+            )
+
+            if r.get("fuel") and len(route.get("json")) > 0:
                 fuel_geojson = route["json"][1][0]["features"][0]
                 routes_to_show.append(
                     dl.GeoJSON(
@@ -201,7 +219,7 @@ def register_callbacks(app: DjangoDash):
                         children=[dl.Tooltip(content="Fuel-optimised")],
                     ),
                 )
-            if r.get("traveltime"):
+            if r.get("traveltime") and len(route.get("json")) > 0:
                 traveltime_geojson = route["json"][0][0]["features"][0]
                 routes_to_show.append(
                     dl.GeoJSON(
