@@ -251,29 +251,7 @@ def register_callbacks(app: DjangoDash):
         """Requests recent routes and updates routes store."""
 
         r = requests.get(server_url() + "/api/recent_routes")
-        new_routes_data = r.json()
-
-        if len(existing_routes_data) == 0:
-            # if there is no existing route data, use the new route data
-            routes_data = []
-            for route in new_routes_data:
-                routes_data.append(route)
-
-        else:
-            # update routes data with any new routes
-            routes_data = existing_routes_data
-            existing_route_ids = [r["id"] for r in existing_routes_data]
-            for route in new_routes_data:
-                if route["id"] not in existing_route_ids:
-                    routes_data.insert(0, route)
-
-            # remove any expired routes
-            new_route_ids = [r["id"] for r in new_routes_data]
-            for i, route in enumerate(routes_data):
-                if route["id"] not in new_route_ids:
-                    routes_data.pop(i)
-
-        return routes_data
+        return r.json()
 
     def _get_route_visibility(route_visibility, type, route_id):
         if len(route_visibility) == 0:
