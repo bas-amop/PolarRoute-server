@@ -141,3 +141,5 @@ GitHub.sublime-settings
 
 # assets used by dash js components
 assets/*
+
+data/*
