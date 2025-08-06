@@ -108,7 +108,7 @@ app.layout = html.Div(
                     [
                         dbc.Row(
                             [
-                                dbc.Col(html.H2("Recent Routes")),
+                                dbc.Col(html.H2("Recent Routes"), width=4),
                                 dbc.Col(
                                     dbc.Button(
                                         html.I(className="bi bi-arrow-clockwise me-2"),
