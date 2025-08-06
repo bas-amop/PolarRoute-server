@@ -312,10 +312,12 @@ def register_callbacks(app: DjangoDash):
                 html.Thead(
                     html.Tr(
                         [
-                            html.Th("Fuel"),
-                            html.Th("Time"),
+                            html.Th(html.I(className="bi bi-fuel-pump-fill me-2")),
+                            html.Th(html.I(className="bi bi-clock-fill me-2")),
                             html.Th("Start"),
                             html.Th("End"),
+                            html.Th("Fuel-optimised"),
+                            html.Th("Time-optimised"),
                             html.Th("Status"),
                         ]
                     )
@@ -356,6 +358,13 @@ def register_callbacks(app: DjangoDash):
                             ),
                             html.Td(
                                 f"{route['end_name']} ({route['end_lat']:.2f}, {route['end_lon']:.2f})"
+                            ),
+                            # sorry this is a really quick and dirty solution - TODO fix this!
+                            html.Td(
+                                f'{route["json"][1][0]["features"][0]["properties"]["total_fuel"]:.2f} tons {route["json"][1][0]["features"][0]["properties"]["total_traveltime"]:.2f} days',
+                            ),
+                            html.Td(
+                                f'{route["json"][0][0]["features"][0]["properties"]["total_fuel"]:.2f} tons {route["json"][0][0]["features"][0]["properties"]["total_traveltime"]:.2f} days',
                             ),
                             html.Td(
                                 html.Span(
