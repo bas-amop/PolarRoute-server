@@ -1,6 +1,24 @@
 from rest_framework import serializers
 
-from .models import Mesh, Route
+from .models import Mesh, Vehicle, Route
+
+
+class VehicleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Vehicle
+        fields = [
+            "vessel_type",
+            "max_speed",
+            "unit",
+            "max_ice_conc",
+            "min_depth",
+            "max_wave",
+            "excluded_zones",
+            "neighbour_splitting",
+            "beam",
+            "hull_type",
+            "force_limit",
+        ]
 
 
 class RouteSerializer(serializers.ModelSerializer):

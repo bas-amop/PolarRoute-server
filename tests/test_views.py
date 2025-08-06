@@ -8,9 +8,88 @@ from rest_framework.test import APIRequestFactory
 import pytest
 
 from polarrouteserver import __version__ as polarrouteserver_version
-from polarrouteserver.route_api.views import EvaluateRouteView, MeshView, RouteView, RecentRoutesView
+from polarrouteserver.route_api.views import EvaluateRouteView, MeshView, VehicleView, RouteView, RecentRoutesView
 from polarrouteserver.route_api.models import Job, Route
 from .utils import add_test_mesh_to_db
+
+
+class TestVehicleRequest(TestCase):
+    with open(settings.TEST_VEHICLE_PATH) as fp:
+        vessel_config = json.load(fp)
+
+    data = dict(vessel_config)
+
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.data = self.__class__.data.copy()
+
+    def post_vehicle(self, data):
+        request = self.factory.post("/api/vehicle/", data=data, format="json")
+        return VehicleView.as_view()(request)
+
+    # Test vehicle is created successfully
+    def test_create_update_vehicle(self):
+        data = self.data.copy()
+        response = self.post_vehicle(data)
+
+        self.assertEqual(response.status_code, 200)
+
+        # Test creating a duplicate vehicle fails
+        duplicate_response = self.post_vehicle(data)
+        self.assertEqual(duplicate_response.status_code, 406)
+        self.assertIn("info", duplicate_response.data)
+        self.assertIn("error", duplicate_response.data["info"])
+        self.assertIn(
+            "Pre-existing vehicle was found.", duplicate_response.data["info"]["error"]
+        )
+
+        # Test force_properties allows for existing vessel_type to be updated
+        data.update(
+            {
+                "force_properties":True
+            }
+        )
+
+        response_force = self.post_vehicle(data)
+        self.assertEqual(response_force.status_code, 200)
+
+        self.assertEqual(
+            response.data.get("vessel_type"),
+            response_force.data.get("vessel_type"),
+        )
+
+    # Test the validation error responses
+    def test_missing_property(self, data=data):
+        missing_property = self.data.copy()
+        missing_property.pop("max_speed", None)
+        response = self.post_vehicle(missing_property)
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("info", response.data)
+        self.assertIn("error", response.data["info"])
+        self.assertIn(
+            "Validation error: 'max_speed' is a required property",
+            response.data["info"]["error"],
+        )
+
+    def test_wrong_type(self, data=data):
+        wrong_type = self.data.copy()
+        wrong_type["max_speed"] = "really fast"
+        response = self.post_vehicle(wrong_type)
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("info", response.data)
+        self.assertIn("error", response.data["info"])
+        self.assertIn(
+            "Validation error: 'really fast' is not of type 'number'",
+            response.data["info"]["error"],
+        )
+
+    def test_type_error_on_invalid_input(self):
+        invalid_data = ["this", "is", "not", "a", "dict"]
+
+        with self.assertRaises(TypeError):
+            self.post_vehicle(invalid_data)
 
 
 class TestRouteRequest(TestCase):
