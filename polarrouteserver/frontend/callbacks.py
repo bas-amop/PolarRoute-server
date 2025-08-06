@@ -185,7 +185,10 @@ def register_callbacks(app: DjangoDash):
         State("routes-store", "data"),
     )
     def update_map_routes(ts, route_visibility, routes_data):
-        routes_to_show = []
+        features = []
+
+        print("WHAAAAAAT")
+        print(route_visibility)
 
         if ts is None:
             return no_update
@@ -193,26 +196,31 @@ def register_callbacks(app: DjangoDash):
         for r in route_visibility:
             route = [x for x in routes_data if x["id"] == r["id"]][0]
 
-            routes_to_show.append(
-                marker(
-                    lat=route["start_lat"],
-                    lon=route["start_lon"],
-                    loc="start",
-                    draggable=False,
+            if r.get("fuel") or r.get("traveltime"):
+                features.append(
+                    marker(
+                        lat=route["start_lat"],
+                        lon=route["start_lon"],
+                        loc="start",
+                        draggable=False,
+                        interactive=False,
+                        opacity=0.6,
+                    )
                 )
-            )
-            routes_to_show.append(
-                marker(
-                    lat=route["end_lat"],
-                    lon=route["end_lon"],
-                    loc="end",
-                    draggable=False,
+                features.append(
+                    marker(
+                        lat=route["end_lat"],
+                        lon=route["end_lon"],
+                        loc="end",
+                        draggable=False,
+                        interactive=False,
+                        opacity=0.6,
+                    )
                 )
-            )
 
             if r.get("fuel") and len(route.get("json")) > 0:
                 fuel_geojson = route["json"][1][0]["features"][0]
-                routes_to_show.append(
+                features.append(
                     dl.GeoJSON(
                         data=fuel_geojson,
                         style={"color": "#379245"},
@@ -221,7 +229,7 @@ def register_callbacks(app: DjangoDash):
                 )
             if r.get("traveltime") and len(route.get("json")) > 0:
                 traveltime_geojson = route["json"][0][0]["features"][0]
-                routes_to_show.append(
+                features.append(
                     dl.GeoJSON(
                         data=traveltime_geojson,
                         style={"color": "#2B8CC4"},
@@ -229,7 +237,7 @@ def register_callbacks(app: DjangoDash):
                     ),
                 )
 
-        return routes_to_show
+        return features
 
     @app.callback(
         Output("route-visibility-store", "data"),

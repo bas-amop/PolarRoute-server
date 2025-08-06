@@ -18,7 +18,13 @@ ns = Namespace("polarRoute", "mapFunctions")
 
 
 def marker(
-    lat: float, lon: float, loc: str = "start", draggable: bool = True, id: str = None
+    lat: float,
+    lon: float,
+    loc: str = "start",
+    draggable: bool = True,
+    interactive: bool = True,
+    id: str = None,
+    opacity: float = 1.0,
 ):
     if loc == "start":
         iconUrl = "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png"
@@ -31,8 +37,10 @@ def marker(
         id={"type": "marker", "index": id if id else loc},
         position=[lat, lon],
         draggable=draggable,
+        interactive=interactive,
         eventHandlers=dict(dragend=ns("dragend")),
         icon=dict(iconUrl=iconUrl, iconAnchor=[11, 40]),
+        opacity=opacity,
     )
 
 
