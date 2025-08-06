@@ -187,9 +187,6 @@ def register_callbacks(app: DjangoDash):
     def update_map_routes(ts, route_visibility, routes_data):
         features = []
 
-        print("WHAAAAAAT")
-        print(route_visibility)
-
         if ts is None:
             return no_update
 
