@@ -9,30 +9,6 @@ from polarrouteserver.celery import app
 logger = logging.getLogger(__name__)
 
 
-class Mesh(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    meshiphi_version = models.CharField(max_length=60, null=True)
-    md5 = models.CharField(max_length=64)
-    valid_date_start = models.DateField()
-    valid_date_end = models.DateField()
-    created = models.DateTimeField()
-    lat_min = models.FloatField()
-    lat_max = models.FloatField()
-    lon_min = models.FloatField()
-    lon_max = models.FloatField()
-    json = models.JSONField(null=True)
-    name = models.CharField(max_length=150, null=True)
-
-    @property
-    def size(self) -> float:
-        """Computes a metric for the size of a mesh."""
-
-        return abs(self.lat_max - self.lat_min) * abs(self.lon_max - self.lon_min)
-
-    class Meta:
-        verbose_name_plural = "Meshes"
-
-
 class Vehicle(models.Model):
     # Required properties
     vessel_type = models.CharField(
@@ -57,11 +33,50 @@ class Vehicle(models.Model):
     created_by = models.CharField(max_length=150, null=True)
 
 
+class Mesh(models.Model):
+    """Abstract base class for meshes."""
+
+    id = models.BigAutoField(primary_key=True)
+    meshiphi_version = models.CharField(max_length=60, null=True)
+    md5 = models.CharField(max_length=64)
+    valid_date_start = models.DateField()
+    valid_date_end = models.DateField()
+    created = models.DateTimeField()
+    lat_min = models.FloatField()
+    lat_max = models.FloatField()
+    lon_min = models.FloatField()
+    lon_max = models.FloatField()
+    json = models.JSONField(null=True)
+    name = models.CharField(max_length=150, null=True)
+
+    @property
+    def size(self) -> float:
+        """Computes a metric for the size of a mesh."""
+
+        return abs(self.lat_max - self.lat_min) * abs(self.lon_max - self.lon_min)
+
+    class Meta:
+        abstract = True
+        verbose_name_plural = "Meshes"
+
+
+class EnvironmentMesh(Mesh):
+    class Meta:
+        verbose_name_plural = "Environment Meshes"
+
+
+class VehicleMesh(Mesh):
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.SET_NULL, null=True)
+
+    class Meta:
+        verbose_name_plural = "Vehicle Meshes"
+
+
 class Route(models.Model):
     requested = models.DateTimeField(default=timezone.now)
     calculated = models.DateTimeField(null=True)
     info = models.JSONField(null=True)
-    mesh = models.ForeignKey(Mesh, on_delete=models.SET_NULL, null=True)
+    mesh = models.ForeignKey(VehicleMesh, on_delete=models.SET_NULL, null=True)
     start_lat = models.FloatField()
     start_lon = models.FloatField()
     end_lat = models.FloatField()
