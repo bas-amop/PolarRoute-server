@@ -355,9 +355,13 @@ def register_callbacks(app: DjangoDash):
                             ),
                             html.Td(
                                 f"{route['start_name']} ({route['start_lat']:.2f}, {route['start_lon']:.2f})"
+                                if route.get("start_name")
+                                else f"({route['start_lat']:.2f}, {route['start_lon']:.2f})"
                             ),
                             html.Td(
                                 f"{route['end_name']} ({route['end_lat']:.2f}, {route['end_lon']:.2f})"
+                                if route.get("end_name")
+                                else f"({route['end_lat']:.2f}, {route['end_lon']:.2f})"
                             ),
                             # sorry this is a really quick and dirty solution - TODO fix this!
                             html.Td(
