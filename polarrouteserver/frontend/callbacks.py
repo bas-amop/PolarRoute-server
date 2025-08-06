@@ -217,20 +217,32 @@ def register_callbacks(app: DjangoDash):
 
             if r.get("fuel") and len(route.get("json")) > 0:
                 fuel_geojson = route["json"][1][0]["features"][0]
+                total_fuel = fuel_geojson["properties"]["total_fuel"]
+                total_traveltime = fuel_geojson["properties"]["total_traveltime"]
                 features.append(
                     dl.GeoJSON(
                         data=fuel_geojson,
                         style={"color": "#379245"},
-                        children=[dl.Tooltip(content="Fuel-optimised")],
+                        children=[
+                            dl.Tooltip(
+                                content=f"<strong>Fuel-optimised</strong><br>Fuel: {total_fuel:.2f} tons<br>Traveltime: {total_traveltime:.2f} days"
+                            )
+                        ],
                     ),
                 )
             if r.get("traveltime") and len(route.get("json")) > 0:
                 traveltime_geojson = route["json"][0][0]["features"][0]
+                total_fuel = traveltime_geojson["properties"]["total_fuel"]
+                total_traveltime = traveltime_geojson["properties"]["total_traveltime"]
                 features.append(
                     dl.GeoJSON(
                         data=traveltime_geojson,
                         style={"color": "#2B8CC4"},
-                        children=[dl.Tooltip(content="Traveltime-optimised")],
+                        children=[
+                            dl.Tooltip(
+                                content=f"<strong>Traveltime-optimised</strong><br>Fuel: {total_fuel:.2f} tons<br>Traveltime: {total_traveltime:.2f} days"
+                            )
+                        ],
                     ),
                 )
 
