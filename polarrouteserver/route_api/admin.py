@@ -1,6 +1,38 @@
 from django.contrib import admin
 
-from .models import Vehicle, Route, Mesh, Job
+from .models import Vehicle, Route, Job, VehicleMesh, EnvironmentMesh
+
+# Shared list_display for all mesh-based admin classes
+MESH_LIST_DISPLAY = [
+    "id",
+    "valid_date_start",
+    "valid_date_end",
+    "created",
+    "lat_min",
+    "lat_max",
+    "lon_min",
+    "lon_max",
+    "name",
+    "size",
+]
+
+
+# Shared base admin for mesh models
+class BaseMeshAdmin(admin.ModelAdmin):
+    ordering = ("-created",)
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.defer("json")
+
+
+class VehicleMeshAdmin(BaseMeshAdmin):
+    list_display = ["id", "vehicle"] + MESH_LIST_DISPLAY[1:]
+
+
+class EnvironmentMeshAdmin(BaseMeshAdmin):
+    list_display = MESH_LIST_DISPLAY
+
 
 LIST_PER_PAGE = 20
 
@@ -81,27 +113,8 @@ class JobAdmin(admin.ModelAdmin):
     ordering = ("-datetime",)
 
 
-class MeshAdmin(admin.ModelAdmin):
-    list_display = [
-        "id",
-        "valid_date_start",
-        "valid_date_end",
-        "created",
-        "lat_min",
-        "lat_max",
-        "lon_min",
-        "lon_max",
-        "name",
-        "size",
-    ]
-    ordering = ("-created",)
-
-    def get_queryset(self, request):
-        # Load only the fields necessary for the changelist view
-        queryset = super().get_queryset(request)
-        return queryset.defer("json")
-
 admin.site.register(Vehicle, VehicleAdmin)
 admin.site.register(Route, RouteAdmin)
-admin.site.register(Mesh, MeshAdmin)
 admin.site.register(Job, JobAdmin)
+admin.site.register(VehicleMesh, VehicleMeshAdmin)
+admin.site.register(EnvironmentMesh, EnvironmentMeshAdmin)
