@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Vehicle, Route, Mesh, Job
+from .models import Vehicle, Route, EnvironmentMesh, VehicleMesh, Job
 
 LIST_PER_PAGE = 20
 
@@ -82,6 +82,9 @@ class JobAdmin(admin.ModelAdmin):
 
 
 class MeshAdmin(admin.ModelAdmin):
+    class Meta:
+        abstract = True
+
     list_display = [
         "id",
         "valid_date_start",
@@ -101,7 +104,17 @@ class MeshAdmin(admin.ModelAdmin):
         queryset = super().get_queryset(request)
         return queryset.defer("json")
 
+
+class EnvironmentMeshAdmin(MeshAdmin):
+    pass
+
+
+class VehicleMeshAdmin(MeshAdmin):
+    pass
+
+
 admin.site.register(Vehicle, VehicleAdmin)
 admin.site.register(Route, RouteAdmin)
-admin.site.register(Mesh, MeshAdmin)
+admin.site.register(EnvironmentMesh, EnvironmentMeshAdmin)
+admin.site.register(VehicleMesh, VehicleMeshAdmin)
 admin.site.register(Job, JobAdmin)
