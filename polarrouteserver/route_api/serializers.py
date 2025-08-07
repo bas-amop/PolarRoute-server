@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import Mesh, Vehicle, Route
+from .models import EnvironmentMesh, VehicleMesh, Vehicle, Route
 
 
 class VehicleSerializer(serializers.ModelSerializer):
@@ -79,12 +79,31 @@ class RouteSerializer(serializers.ModelSerializer):
         return data
 
 
-class ModelSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Mesh
-        fields = [
-            "id",
-        ]
+# Shared mesh fields for serializers
+MESH_FIELDS = [
+    "id",
+    "valid_date_start",
+    "valid_date_end",
+    "created",
+    "lat_min",
+    "lat_max",
+    "lon_min",
+    "lon_max",
+    "name",
+    "size",
+    "meshiphi_version",
+    "md5",
+    "json",
+]
 
-    def to_representation(self, instance):
-        return super().to_representation(instance)
+
+class EnvironmentMeshSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EnvironmentMesh
+        fields = MESH_FIELDS
+
+
+class VehicleMeshSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VehicleMesh
+        fields = ["vehicle"] + MESH_FIELDS[1:]
