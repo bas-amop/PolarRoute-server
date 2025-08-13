@@ -33,7 +33,30 @@ logger = get_task_logger(__name__)
 
 @app.task(bind=True)
 def import_new_meshes(self):
-    """Look for new meshes and insert them into the database."""
+    """
+    Look for new meshes and insert them into the database.
+
+    Automatically detects whether each mesh is an EnvironmentMesh or VehicleMesh based
+    on mesh content.
+
+    For VehicleMesh files:
+    - Extracts vehicle configuration from mesh data.
+    - Creates Vehicle records if they don't exist in database.
+    - Links VehicleMesh to corresponding Vehicle.
+
+    For EnvironmentMesh files:
+    - Creates EnvironmentMesh record.
+
+    Returns:
+        list: List of dictionaries containing details of added meshes with fields:
+              - id: Database ID of created mesh
+              - md5: MD5 hash of mesh data
+              - name: Mesh filename
+              - type: "VehicleMesh" or "EnvironmentMesh"
+
+    Raises:
+        ValueError: If MESH_METADATA_DIR is not set
+    """
 
     if settings.MESH_METADATA_DIR is None:
         raise ValueError("MESH_METADATA_DIR has not been set.")
@@ -83,6 +106,22 @@ def import_new_meshes(self):
             )
             continue
 
+        # Determine if this is a vehicle mesh or environment mesh
+        is_vehicle_mesh = False
+        vehicle_type = None
+
+        config = mesh_json.get("config", {})
+
+        # Look for vessel configuration in the mesh (check both new and old formats)
+        if "vessel_info" in config:
+            is_vehicle_mesh = True
+            vessel_config = config["vessel_info"]
+            vehicle_type = vessel_config.get("vessel_type")
+            logger.info(f"Found vessel config (old format) with type: {vehicle_type}")
+
+        mesh_type = "VehicleMesh" if is_vehicle_mesh else "EnvironmentMesh"
+        logger.info(f"Processing {mesh_type}: {mesh_filename}")
+
         # write out the unzipped mesh to temp file
         tfile = tempfile.NamedTemporaryFile(mode="w+", delete=True)
         json.dump(mesh_json, tfile, indent=4)
@@ -101,34 +140,99 @@ def import_new_meshes(self):
             # there may have been a filename clash, skip this one.
             continue
 
-        # create an entry in the database
-        mesh, created = EnvironmentMesh.objects.get_or_create(
-            md5=md5,
-            defaults={
-                "name": mesh_filename,
-                "valid_date_start": datetime.datetime.strptime(
-                    mesh_json["config"]["mesh_info"]["region"]["start_time"], "%Y-%m-%d"
-                ).replace(tzinfo=datetime.timezone.utc),
-                "valid_date_end": datetime.datetime.strptime(
-                    mesh_json["config"]["mesh_info"]["region"]["end_time"], "%Y-%m-%d"
-                ).replace(tzinfo=datetime.timezone.utc),
-                "created": datetime.datetime.strptime(
-                    record["created"], "%Y%m%dT%H%M%S"
-                ).replace(tzinfo=datetime.timezone.utc),
-                "json": mesh_json,
-                "meshiphi_version": record["meshiphi"],
-                "lat_min": record["latlong"]["latmin"],
-                "lat_max": record["latlong"]["latmax"],
-                "lon_min": record["latlong"]["lonmin"],
-                "lon_max": record["latlong"]["lonmax"],
-            },
-        )
+        # Create mesh entry based on type
+        mesh_defaults = {
+            "name": mesh_filename,
+            "valid_date_start": datetime.datetime.strptime(
+                mesh_json["config"]["mesh_info"]["region"]["start_time"], "%Y-%m-%d"
+            ).replace(tzinfo=datetime.timezone.utc),
+            "valid_date_end": datetime.datetime.strptime(
+                mesh_json["config"]["mesh_info"]["region"]["end_time"], "%Y-%m-%d"
+            ).replace(tzinfo=datetime.timezone.utc),
+            "created": datetime.datetime.strptime(
+                record["created"], "%Y%m%dT%H%M%S"
+            ).replace(tzinfo=datetime.timezone.utc),
+            "json": mesh_json,
+            "meshiphi_version": record["meshiphi"],
+            "lat_min": record["latlong"]["latmin"],
+            "lat_max": record["latlong"]["latmax"],
+            "lon_min": record["latlong"]["lonmin"],
+            "lon_max": record["latlong"]["lonmax"],
+        }
+
+        if is_vehicle_mesh:
+            # For vehicle meshes, we need to determine the vehicle type
+            try:
+                vehicle = Vehicle.objects.get(vessel_type=vehicle_type)
+                logger.info(f"Found existing vehicle type '{vehicle_type}' in database")
+                # Do we need to check if their configs match?
+            except Vehicle.DoesNotExist:
+                logger.info(
+                    f"Vehicle type '{vehicle_type}' not found in database, creating new vehicle"
+                )
+
+                # Get vessel config from either new or old format
+                vessel_config = config.get("vessel") or config.get("vessel_info", {})
+
+                # Extract required fields from vessel config
+                max_speed = vessel_config.get("max_speed")
+                unit = vessel_config.get("unit")
+
+                # Create new Vehicle from vessel config
+                vehicle_data = {
+                    "vessel_type": vehicle_type,
+                    "max_speed": max_speed,
+                    "unit": unit,
+                    "created": timezone.now(),
+                }
+
+                # Add optional fields if they exist in the vessel config
+                optional_fields = [
+                    "max_ice_conc",
+                    "min_depth",
+                    "max_wave",
+                    "excluded_zones",
+                    "neighbour_splitting",
+                    "beam",
+                    "hull_type",
+                    "force_limit",
+                ]
+
+                for field in optional_fields:
+                    if field in vessel_config:
+                        vehicle_data[field] = vessel_config[field]
+
+                try:
+                    vehicle = Vehicle.objects.create(**vehicle_data)
+                    logger.info(f"Created new vehicle '{vehicle_type}' in database")
+                except Exception as e:
+                    logger.error(f"Failed to create vehicle '{vehicle_type}': {e}")
+                    continue
+
+            # Create VehicleMesh
+            mesh_defaults["vehicle"] = vehicle
+            mesh_defaults["environment_mesh"] = None
+
+            mesh, created = VehicleMesh.objects.get_or_create(
+                md5=md5, defaults=mesh_defaults
+            )
+        else:
+            # Create EnvironmentMesh
+            mesh, created = EnvironmentMesh.objects.get_or_create(
+                md5=md5, defaults=mesh_defaults
+            )
+
         if created:
             logger.info(
-                f"Adding new mesh to database: {mesh.id} {mesh.name} {mesh.created}"
+                f"Adding new {mesh_type} to database: {mesh.id} {mesh.name} {mesh.created}"
             )
             meshes_added.append(
-                {"id": mesh.id, "md5": record["md5"], "name": mesh.name}
+                {
+                    "id": mesh.id,
+                    "md5": record["md5"],
+                    "name": mesh.name,
+                    "type": mesh_type,
+                }
             )
 
     return meshes_added
@@ -136,13 +240,14 @@ def import_new_meshes(self):
 
 def optimise_route(mesh_json: dict, route: Route) -> list:
     """
-    Function to calculate optimal route using PolarRoute.
+    Calculate optimal route using PolarRoute.
 
+    This function performs the core route optimization using PolarRoute's RoutePlanner.
     Requires a VehicleMesh.
 
-    Params:
-        mesh_json: Vehicle mesh data as dictionary
-        route: Route database object
+    Args:
+        mesh_json (dict): Vehicle mesh
+        route (Route): Route database object with start/end coordinates and metadata
 
     Returns:
         smoothed routes as list of geojson dictionaries
@@ -220,15 +325,17 @@ def add_vehicle_to_environment_mesh(
     environment_mesh: EnvironmentMesh, vehicle: Vehicle
 ) -> VehicleMesh:
     """
-    Non-task function to add vehicle performance data to an environment mesh,
-    creating a new VehicleMesh.
+    Create a VehicleMesh by adding vehicle to an EnvironmentMesh.
 
-    Params:
-        environment_mesh: EnvironmentMesh database object
-        vehicle: Vehicle database object
+    Args:
+        environment_mesh (EnvironmentMesh): EnvironmentMesh
+        vehicle (Vehicle): Vehicle object
 
     Returns:
-        newly created VehicleMesh database object
+        VehicleMesh: Newly created VehicleMesh
+
+    Raises:
+        RuntimeError: If vessel addition fails
     """
     logger.info(
         f"Adding vehicle {vehicle.vessel_type} to environment mesh {environment_mesh.id}"
@@ -318,16 +425,32 @@ def create_and_calculate_route(
     backup_mesh_ids: list[int] = None,
 ) -> dict:
     """
-    Calculate optimal route using a VehicleMesh.
-    If needed, creates VehicleMesh from EnvironmentMesh + Vehicle.
+    Calculate optimal route using VehicleMesh, creating one if necessary.
 
-    Params:
-        route_id: id of record in Route database table
-        vehicle_type: vessel type to use for route calculation (required for route calculation)
-        backup_mesh_ids: list of database ids of backup meshes to try
+    This is the main route calculation task that ensures the correct VehicleMesh is used
+    for the requested vehicle type. Routes can ONLY be calculated with VehicleMesh
+    (never EnvironmentMesh alone).
+
+    Workflow:
+    1. Validates that vehicle_type is provided (required for route calculation)
+    2. Determines current mesh type (VehicleMesh or EnvironmentMesh)
+    3. If VehicleMesh exists but for wrong vehicle: finds/creates correct VehicleMesh
+    4. If EnvironmentMesh: creates VehicleMesh for requested vehicle
+    5. Performs route optimization using the correct VehicleMesh
+    6. Handles backup meshes if route is inaccessible
+
+    Args:
+        route_id (int): Database ID of Route record to calculate
+        vehicle_type (str): Vessel type for route calculation (required)
+        backup_mesh_ids (list[int], optional): List of backup mesh IDs to try if
+                                             main mesh yields no accessible routes
 
     Returns:
-        route geojson as dictionary
+        dict: Route GeoJSON data with optimized routes
+
+    Raises:
+        ValueError: If vehicle_type not provided or vehicle not found in database
+        RuntimeError: If VehicleMesh creation fails
     """
     route = Route.objects.get(id=route_id)
     logger.info(f"Running route optimization for route {route.id}")
