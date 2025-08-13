@@ -13,8 +13,8 @@ from polar_route.config_validation.config_validator import validate_vessel_confi
 from polarrouteserver import __version__ as polarrouteserver_version
 from polarrouteserver.celery import app
 
-from .models import Job, Vehicle, Route, Mesh
-from .tasks import optimise_route
+from .models import Job, Vehicle, Route, EnvironmentMesh, VehicleMesh
+from .tasks import create_and_calculate_route
 from .serializers import VehicleSerializer, RouteSerializer
 from .utils import (
     evaluate_route,
@@ -174,12 +174,18 @@ class RouteView(LoggingMixin, GenericAPIView):
         end_name = data.get("end_name", None)
         custom_mesh_id = data.get("mesh_id", None)
         force_recalculate = data.get("force_recalculate", False)
+        vehicle_type = data.get("vehicle_type", None)  # Add vehicle support
 
         if custom_mesh_id:
             try:
                 logger.info(f"Got custom mesh id {custom_mesh_id} in request.")
-                meshes = [Mesh.objects.get(id=custom_mesh_id)]
-            except Mesh.DoesNotExist:
+                # Try VehicleMesh first, then EnvironmentMesh
+                try:
+                    mesh = VehicleMesh.objects.get(id=custom_mesh_id)
+                except VehicleMesh.DoesNotExist:
+                    mesh = EnvironmentMesh.objects.get(id=custom_mesh_id)
+                meshes = [mesh]
+            except (VehicleMesh.DoesNotExist, EnvironmentMesh.DoesNotExist):
                 msg = f"Mesh id {custom_mesh_id} requested. Does not exist."
                 logger.info(msg)
                 return Response(
@@ -263,8 +269,8 @@ class RouteView(LoggingMixin, GenericAPIView):
         )
 
         # Start the task calculation
-        task = optimise_route.delay(
-            route.id, backup_mesh_ids=[mesh.id for mesh in meshes[1:]]
+        task = create_and_calculate_route.delay(
+            route.id, vehicle_type, backup_mesh_ids=[mesh.id for mesh in meshes[1:]]
         )
 
         # Create database record representing the calculation job
@@ -387,7 +393,12 @@ class MeshView(LoggingMixin, GenericAPIView):
         data = {"polarrouteserver-version": polarrouteserver_version}
 
         try:
-            mesh = Mesh.objects.get(id=id)
+            # Try VehicleMesh first, then EnvironmentMesh
+            try:
+                mesh = VehicleMesh.objects.get(id=id)
+            except VehicleMesh.DoesNotExist:
+                mesh = EnvironmentMesh.objects.get(id=id)
+
             data.update(
                 dict(
                     id=mesh.id,
@@ -398,7 +409,7 @@ class MeshView(LoggingMixin, GenericAPIView):
 
             status = rest_framework.status.HTTP_200_OK
 
-        except Mesh.DoesNotExist:
+        except (VehicleMesh.DoesNotExist, EnvironmentMesh.DoesNotExist):
             status = rest_framework.status.HTTP_204_NO_CONTENT
 
         return Response(
@@ -416,9 +427,9 @@ class EvaluateRouteView(LoggingMixin, GenericAPIView):
 
         if custom_mesh_id:
             try:
-                mesh = Mesh.objects.get(id=custom_mesh_id)
+                mesh = VehicleMesh.objects.get(id=custom_mesh_id)
                 meshes = [mesh]
-            except Mesh.DoesNotExist:
+            except VehicleMesh.DoesNotExist:
                 return Response(
                     {"error": f"Mesh with id {custom_mesh_id} not found."},
                     headers={"Content-Type": "application/json"},

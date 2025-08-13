@@ -66,6 +66,9 @@ class EnvironmentMesh(Mesh):
 
 
 class VehicleMesh(Mesh):
+    environment_mesh = models.ForeignKey(
+        EnvironmentMesh, on_delete=models.SET_NULL, null=True
+    )
     vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, null=True)
 
     class Meta:
