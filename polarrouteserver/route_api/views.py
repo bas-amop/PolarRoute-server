@@ -3,7 +3,7 @@ import logging
 
 from celery.result import AsyncResult
 from jsonschema.exceptions import ValidationError
-from meshiphi.mesh_generation.environment_mesh import EnvironmentMesh
+from meshiphi.mesh_generation.environment_mesh import EnvironmentMesh as EnvMeshLoader
 import rest_framework.status
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
@@ -392,7 +392,7 @@ class MeshView(LoggingMixin, GenericAPIView):
                 dict(
                     id=mesh.id,
                     json=mesh.json,
-                    geojson=EnvironmentMesh.load_from_json(mesh.json).to_geojson(),
+                    geojson=EnvMeshLoader.load_from_json(mesh.json).to_geojson(),
                 )
             )
 
