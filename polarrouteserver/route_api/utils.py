@@ -2,15 +2,17 @@ import hashlib
 import json
 import logging
 import os
+from datetime import datetime
 from tempfile import NamedTemporaryFile
-from typing import Union
+from typing import Union, Tuple, Dict, Any
 
 from django.conf import settings
+from django.utils import timezone
 import haversine
 from polar_route.route_calc import route_calc
 from polar_route.utils import convert_decimal_days
 
-from .models import Mesh, Route
+from .models import Mesh, Route, EnvironmentMesh, VehicleMesh, Vehicle
 
 logger = logging.getLogger(__name__)
 
@@ -274,3 +276,182 @@ def check_mesh_data(mesh: Mesh) -> str:
                 message += f"{actual_num_files} of expected {data_source_num_expected_files} days' data available for {data_type}.\n"
 
     return message
+
+
+def ingest_mesh(
+    mesh_json: Dict[str, Any],
+    mesh_filename: str,
+    metadata_record: Dict[str, Any] = None,
+    expected_md5: str = None,
+) -> Tuple[Union[EnvironmentMesh, VehicleMesh], bool, str]:
+    """
+    Ingest a mesh into the database, automatically detecting mesh type.
+
+    This function handles creating either EnvironmentMesh or VehicleMesh records
+    based on the mesh content. For vehicle meshes, it automatically creates Vehicle
+    records if they don't exist. It also calculates MD5 hash internally and optionally
+    validates against expected MD5.
+
+    Args:
+        mesh_json (Dict[str, Any]): The mesh JSON
+        mesh_filename (str): Name of the mesh file
+        metadata_record (Dict[str, Any], optional): Metadata record from upload metadata
+        expected_md5 (str, optional): Expected MD5 hash for validation
+
+    Returns:
+        Tuple[Union[EnvironmentMesh, VehicleMesh], bool, str]:
+            - The created mesh object
+            - Whether a new mesh was created (True) or existing found (False)
+            - The mesh type ("EnvironmentMesh" or "VehicleMesh")
+
+    Raises:
+        ValueError: If vehicle mesh is missing required configuration or MD5 mismatch
+        Exception: If vehicle creation fails
+    """
+    # Calculate MD5 hash from mesh JSON
+    tfile = NamedTemporaryFile(mode="w+", delete=True)
+    json.dump(mesh_json, tfile, indent=4)
+    tfile.flush()
+    md5 = calculate_md5(tfile.name)
+
+    # Validate MD5 if expected hash is provided
+    if expected_md5 and md5 != expected_md5:
+        raise ValueError(f"Mesh MD5 {md5} does not match expected MD5 {expected_md5}")
+
+    # Determine if this is a vehicle mesh or environment mesh
+    is_vehicle_mesh = False
+    vehicle_type = None
+
+    config = mesh_json.get("config", {})
+
+    # Look for vessel configuration in the mesh
+    if "vessel_info" in config:
+        is_vehicle_mesh = True
+        vessel_config = config["vessel_info"]
+        vehicle_type = vessel_config.get("vessel_type")
+        logger.info(f"Found vessel config with type: {vehicle_type}")
+
+    mesh_type = "VehicleMesh" if is_vehicle_mesh else "EnvironmentMesh"
+    logger.info(f"Processing {mesh_type}: {mesh_filename}")
+
+    # Prepare mesh defaults
+    if metadata_record:
+        # Use metadata record for date and coordinate information
+        mesh_defaults = {
+            "name": mesh_filename,
+            "valid_date_start": timezone.make_aware(
+                datetime.strptime(
+                    mesh_json["config"]["mesh_info"]["region"]["start_time"], "%Y-%m-%d"
+                )
+            ),
+            "valid_date_end": timezone.make_aware(
+                datetime.strptime(
+                    mesh_json["config"]["mesh_info"]["region"]["end_time"], "%Y-%m-%d"
+                )
+            ),
+            "created": timezone.make_aware(
+                datetime.strptime(metadata_record["created"], "%Y%m%dT%H%M%S")
+            ),
+            "json": mesh_json,
+            "meshiphi_version": metadata_record["meshiphi"],
+            "lat_min": metadata_record["latlong"]["latmin"],
+            "lat_max": metadata_record["latlong"]["latmax"],
+            "lon_min": metadata_record["latlong"]["lonmin"],
+            "lon_max": metadata_record["latlong"]["lonmax"],
+        }
+    else:
+        # Use mesh data for coordinate information (manual insertion)
+        mesh_defaults = {
+            "name": mesh_filename,
+            "valid_date_start": timezone.make_aware(
+                datetime.strptime(
+                    mesh_json["config"]["mesh_info"]["region"]["start_time"],
+                    "%Y-%m-%d",
+                )
+            ),
+            "valid_date_end": timezone.make_aware(
+                datetime.strptime(
+                    mesh_json["config"]["mesh_info"]["region"]["end_time"],
+                    "%Y-%m-%d",
+                )
+            ),
+            "created": timezone.now(),
+            "json": mesh_json,
+            "meshiphi_version": "manually_inserted",
+            "lat_min": mesh_json["config"]["mesh_info"]["region"]["lat_min"],
+            "lat_max": mesh_json["config"]["mesh_info"]["region"]["lat_max"],
+            "lon_min": mesh_json["config"]["mesh_info"]["region"]["long_min"],
+            "lon_max": mesh_json["config"]["mesh_info"]["region"]["long_max"],
+        }
+
+    if is_vehicle_mesh:
+        if not vehicle_type:
+            raise ValueError(
+                "Vehicle mesh found but no vessel_type specified in config"
+            )
+
+        # For vehicle meshes, we need to determine the vehicle type
+        try:
+            vehicle = Vehicle.objects.get(vessel_type=vehicle_type)
+            logger.info(f"Found existing vehicle type '{vehicle_type}' in database")
+        except Vehicle.DoesNotExist:
+            logger.info(
+                f"Vehicle type '{vehicle_type}' not found in database, creating new vehicle"
+            )
+
+            # Get vessel config
+            vessel_config = config.get("vessel_info", {})
+
+            # Extract required fields from vessel config
+            max_speed = vessel_config.get("max_speed")
+            unit = vessel_config.get("unit")
+
+            if not max_speed or not unit:
+                raise ValueError(
+                    f"Vehicle mesh missing required fields: max_speed={max_speed}, unit={unit}"
+                )
+
+            # Create new Vehicle from vessel config
+            vehicle_data = {
+                "vessel_type": vehicle_type,
+                "max_speed": max_speed,
+                "unit": unit,
+                "created": timezone.now(),
+            }
+
+            # Add optional fields if they exist in the vessel config
+            optional_fields = [
+                "max_ice_conc",
+                "min_depth",
+                "max_wave",
+                "excluded_zones",
+                "neighbour_splitting",
+                "beam",
+                "hull_type",
+                "force_limit",
+            ]
+
+            for field in optional_fields:
+                if field in vessel_config:
+                    vehicle_data[field] = vessel_config[field]
+
+            try:
+                vehicle = Vehicle.objects.create(**vehicle_data)
+                logger.info(f"Created new vehicle '{vehicle_type}' in database")
+            except Exception as e:
+                raise Exception(f"Failed to create vehicle '{vehicle_type}': {e}")
+
+        # Create VehicleMesh
+        mesh_defaults["vehicle"] = vehicle
+        mesh_defaults["environment_mesh"] = None
+
+        mesh, created = VehicleMesh.objects.get_or_create(
+            md5=md5, defaults=mesh_defaults
+        )
+    else:
+        # Create EnvironmentMesh
+        mesh, created = EnvironmentMesh.objects.get_or_create(
+            md5=md5, defaults=mesh_defaults
+        )
+
+    return mesh, created, mesh_type
