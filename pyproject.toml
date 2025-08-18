@@ -6,6 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "polarrouteserver"
 authors = [
   {name = "David Wilby", email = "dalby@bas.ac.uk"},
+  {name = "Thomas Zwagerman", email = "thozwa@bas.ac.uk"},
 ]
 description = "Backend server for serving PolarRoute and MeshiPhi assets and managing their calcuation using Django & Celery."
 readme = "README.md"
