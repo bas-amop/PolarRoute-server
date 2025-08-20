@@ -76,13 +76,36 @@ def import_new_meshes(self):
         metadata = yaml.load(f.read(), Loader=yaml.Loader)
 
     meshes_added = []
-    for record in metadata["records"]:
-        # we only want the vessel json files
-        if not bool(re.search(VESSEL_MESH_FILENAME_PATTERN, record["filepath"])):
-            continue
 
+    # Filter records to only process vessel json files
+    vessel_records = [
+        record
+        for record in metadata["records"]
+        if bool(re.search(VESSEL_MESH_FILENAME_PATTERN, record["filepath"]))
+    ]
+
+    total_meshes = len(vessel_records)
+    logger.info(f"Found {total_meshes} mesh files to process")
+
+    # Update initial state
+    self.update_state(
+        state="STARTED",
+        meta={"current": 0, "total": total_meshes, "status": "Starting mesh import..."},
+    )
+
+    for i, record in enumerate(vessel_records, 1):
         # extract the filename from the filepath
         mesh_filename = record["filepath"].split("/")[-1]
+
+        # Update progress
+        self.update_state(
+            state="PROCESSING",
+            meta={
+                "current": i,
+                "total": total_meshes,
+                "status": f"Processing mesh {i}/{total_meshes}: {mesh_filename}",
+            },
+        )
 
         # load in the mesh json
         try:
@@ -127,6 +150,20 @@ def import_new_meshes(self):
                     "type": mesh_type,
                 }
             )
+        else:
+            logger.info(
+                f"Mesh {mesh_filename} already exists in database (MD5: {record['md5']})"
+            )
+
+    # Update final state
+    self.update_state(
+        state="SUCCESS",
+        meta={
+            "current": total_meshes,
+            "total": total_meshes,
+            "status": f"Completed! Added {len(meshes_added)} new meshes to database",
+        },
+    )
 
     return meshes_added
 
@@ -169,6 +206,11 @@ def create_and_calculate_route(
     route = Route.objects.get(id=route_id)
     logger.info(f"Running route optimization for route {route.id}")
 
+    self.update_state(
+        state="STARTED",
+        meta={"status": f"Starting route calculation for route {route.id}"},
+    )
+
     # Routes MUST have a vehicle type to be calculated
     if not vehicle_type:
         raise ValueError("vehicle_type is required for route calculation")
@@ -179,6 +221,11 @@ def create_and_calculate_route(
         raise ValueError(f"Vehicle type '{vehicle_type}' not found in database")
 
     current_mesh = route.mesh
+
+    self.update_state(
+        state="PROGRESS",
+        meta={"status": f"Preparing mesh for vehicle type: {vehicle_type}"},
+    )
 
     # Check the type of mesh we have and handle accordingly
     if isinstance(current_mesh, VehicleMesh):
@@ -201,6 +248,12 @@ def create_and_calculate_route(
             logger.info(
                 f"Creating new VehicleMesh for vehicle {vehicle_type} using EnvironmentMesh {environment_mesh.id}"
             )
+
+            self.update_state(
+                state="PROGRESS",
+                meta={"status": f"Creating VehicleMesh for vehicle {vehicle_type}"},
+            )
+
             vehicle_mesh = add_vehicle_to_environment_mesh(environment_mesh, vehicle)
 
             # Update route to use the correct VehicleMesh
@@ -217,6 +270,10 @@ def create_and_calculate_route(
         logger.info(
             f"Creating new VehicleMesh for vehicle {vehicle_type} using EnvironmentMesh {current_mesh.id}"
         )
+        self.update_state(
+            state="PROGRESS",
+            meta={"status": f"Creating VehicleMesh for vehicle {vehicle_type}"},
+        )
         vehicle_mesh = add_vehicle_to_environment_mesh(current_mesh, vehicle)
 
         # Update route to use the VehicleMesh
@@ -228,6 +285,14 @@ def create_and_calculate_route(
 
     # Now we have the correct VehicleMesh for route calculation
     mesh = vehicle_mesh
+
+    # Update progress
+    self.update_state(
+        state="PROGRESS",
+        meta={
+            "status": "Checking mesh data quality and performing route optimization..."
+        },
+    )
 
     # Add warning on mesh date if older than today
     if mesh.created.date() < datetime.datetime.now().date():
@@ -243,8 +308,21 @@ def create_and_calculate_route(
             route.info["info"] = route.info["info"] + data_warning_message
 
     try:
+        # Update progress before starting route calculation
+        self.update_state(
+            state="PROGRESS",
+            meta={"status": "Running PolarRoute optimization algorithm..."},
+        )
+
         # Use the non-task function to calculate the route
         smoothed_routes = optimise_route(mesh.json, route)
+
+        # Update final progress
+        self.update_state(
+            state="SUCCESS",
+            meta={"status": "Route optimization completed successfully"},
+        )
+
         return smoothed_routes
 
     except Exception as e:
@@ -255,6 +333,12 @@ def create_and_calculate_route(
         if "Inaccessible. No routes found" in str(e) and backup_mesh_ids:
             logger.info(
                 f"No routes found on mesh {mesh.id}, trying with next mesh(es) {backup_mesh_ids}"
+            )
+            self.update_state(
+                state="RETRY",
+                meta={
+                    "status": "Route inaccessible on current mesh, trying backup mesh..."
+                },
             )
             route.info = {"info": "Route inaccessible on mesh, trying next mesh."}
 
