@@ -2,6 +2,7 @@ import hashlib
 import json
 import logging
 import os
+import copy
 from datetime import datetime
 from tempfile import NamedTemporaryFile
 from typing import Union, Tuple, Dict, Any
@@ -9,6 +10,14 @@ from typing import Union, Tuple, Dict, Any
 from django.conf import settings
 from django.utils import timezone
 import haversine
+import numpy as np
+import pandas as pd
+import polar_route
+from polar_route.route_planner.route_planner import RoutePlanner
+from polar_route.utils import extract_geojson_routes
+from polar_route.vessel_performance.vessel_performance_modeller import (
+    VesselPerformanceModeller,
+)
 from polar_route.route_calc import route_calc
 from polar_route.utils import convert_decimal_days
 
@@ -476,3 +485,186 @@ def ingest_mesh(
         )
 
     return mesh, created, mesh_type
+
+
+def optimise_route(mesh_json: dict, route) -> list:
+    """
+    Calculate optimal route using PolarRoute.
+
+    This function performs the core route optimization using PolarRoute's RoutePlanner.
+    Requires a VehicleMesh.
+
+    Args:
+        mesh_json (dict): Vehicle mesh
+        route (Route): Route database object with start/end coordinates and metadata
+
+    Returns:
+        smoothed routes as list of geojson dictionaries
+    """
+    logger.info(f"Calculating route optimization for route {route.id}")
+
+    # convert waypoints into pandas dataframe for PolarRoute
+    waypoints = pd.DataFrame(
+        {
+            "Name": [
+                "Start" if route.start_name is None else route.start_name,
+                "End" if route.end_name is None else route.end_name,
+            ],
+            "Lat": [route.start_lat, route.end_lat],
+            "Long": [route.start_lon, route.end_lon],
+            "Source": ["X", np.nan],
+            "Destination": [np.nan, "X"],
+        }
+    )
+
+    unsmoothed_routes = []
+    route_planners = []
+    configs = (
+        settings.TRAVELTIME_CONFIG,
+        settings.FUEL_CONFIG,
+    )
+
+    for config in configs:
+        rp = RoutePlanner(copy.deepcopy(mesh_json), config)
+
+        # Calculate optimal dijkstra path between waypoints
+        rp.compute_routes(waypoints)
+        route_planners.append(rp)
+
+        # save the initial unsmoothed route
+        logger.info(
+            f"Saving unsmoothed Dijkstra paths for {config['objective_function']}-optimised route."
+        )
+        if len(rp.routes_dijkstra) == 0:
+            raise ValueError("Inaccessible. No routes found.")
+        route_geojson = extract_geojson_routes(rp.to_json())
+        route_geojson[0]["features"][0]["properties"]["objective_function"] = config[
+            "objective_function"
+        ]
+        unsmoothed_routes.append(route_geojson)
+
+    # Update route with unsmoothed data
+    route.json_unsmoothed = unsmoothed_routes
+    route.calculated = timezone.now()
+    route.polar_route_version = polar_route.__version__
+    route.save()
+
+    smoothed_routes = []
+    for i, rp in enumerate(route_planners):
+        # Smooth the dijkstra routes
+        rp.compute_smoothed_routes()
+        # Save the smoothed route(s)
+        logger.info(f"Route smoothing {i + 1}/{len(route_planners)} complete.")
+        route_geojson = extract_geojson_routes(rp.to_json())
+        route_geojson[0]["features"][0]["properties"]["objective_function"] = rp.config[
+            "objective_function"
+        ]
+        smoothed_routes.append(route_geojson)
+
+    # Update the database
+    route.json = smoothed_routes
+    route.calculated = timezone.now()
+    route.polar_route_version = polar_route.__version__
+    route.save()
+
+    return smoothed_routes
+
+
+def add_vehicle_to_environment_mesh(environment_mesh, vehicle):
+    """
+    Create a VehicleMesh by adding vehicle to an EnvironmentMesh.
+
+    Args:
+        environment_mesh (EnvironmentMesh): EnvironmentMesh
+        vehicle (Vehicle): Vehicle object
+
+    Returns:
+        VehicleMesh: Newly created VehicleMesh
+
+    Raises:
+        RuntimeError: If vessel addition fails
+    """
+    logger.info(
+        f"Adding vehicle {vehicle.vessel_type} to environment mesh {environment_mesh.id}"
+    )
+
+    # Create vehicle config dictionary from Vehicle model
+    vehicle_config = {
+        "vessel_type": vehicle.vessel_type,
+        "max_speed": vehicle.max_speed,
+        "unit": vehicle.unit,
+    }
+
+    # Add optional vehicle properties if they exist
+    optional_fields = [
+        "max_ice_conc",
+        "min_depth",
+        "max_wave",
+        "excluded_zones",
+        "neighbour_splitting",
+        "beam",
+        "hull_type",
+        "force_limit",
+    ]
+
+    for field in optional_fields:
+        value = getattr(vehicle, field, None)
+        if value is not None:
+            vehicle_config[field] = value
+
+    try:
+        # Use VesselPerformanceModeller to add vehicle performance to the mesh
+        logger.info(f"Running vessel performance modelling for {vehicle.vessel_type}")
+
+        # Initialize the vessel performance modeller
+        vp = VesselPerformanceModeller(
+            env_mesh_json=environment_mesh.json, vessel_config=vehicle_config
+        )
+
+        # Model accessibility (determines which cells are accessible to this vessel)
+        vp.model_accessibility()
+
+        # Model performance (calculates vessel-specific performance metrics)
+        vp.model_performance()
+
+        # Get the modified mesh with vessel performance data
+        vessel_mesh_json = vp.to_json()
+
+        logger.info(f"Vessel performance modelling completed for {vehicle.vessel_type}")
+
+    except Exception as e:
+        logger.error(f"Error during vessel performance modelling: {e}")
+        raise RuntimeError(
+            f"Failed to create vehicle mesh for {vehicle.vessel_type}: {e}"
+        )
+
+    # Calculate MD5 for the processed vessel mesh data
+    tfile = NamedTemporaryFile(mode="w+", delete=True)
+    json.dump(vessel_mesh_json, tfile, indent=4)
+    tfile.flush()
+    vehicle_mesh_md5 = calculate_md5(tfile.name)
+
+    # Import here to avoid circular imports
+    from .models import VehicleMesh
+
+    # Create vehicle mesh by copying environment mesh metadata and updating with vessel data
+    vehicle_mesh = VehicleMesh.objects.create(
+        environment_mesh=environment_mesh,
+        vehicle=vehicle,
+        meshiphi_version=environment_mesh.meshiphi_version,
+        md5=vehicle_mesh_md5,
+        valid_date_start=environment_mesh.valid_date_start,
+        valid_date_end=environment_mesh.valid_date_end,
+        created=timezone.now(),
+        lat_min=environment_mesh.lat_min,
+        lat_max=environment_mesh.lat_max,
+        lon_min=environment_mesh.lon_min,
+        lon_max=environment_mesh.lon_max,
+        name=f"{environment_mesh.name}_vehicle_{vehicle.vessel_type}",
+        json=vessel_mesh_json,
+    )
+
+    logger.info(
+        f"Created VehicleMesh {vehicle_mesh.id} for vehicle {vehicle.vessel_type}"
+    )
+    return vehicle_mesh
