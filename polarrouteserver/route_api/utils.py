@@ -318,11 +318,30 @@ def ingest_mesh(
     if expected_md5 and md5 != expected_md5:
         raise ValueError(f"Mesh MD5 {md5} does not match expected MD5 {expected_md5}")
 
+    # Clean JSON data to handle NaN values that are invalid in PostgreSQL JSON fields
+    def clean_json_data(obj):
+        """Recursively clean JSON data to replace NaN with None."""
+        if isinstance(obj, dict):
+            return {k: clean_json_data(v) for k, v in obj.items()}
+        elif isinstance(obj, list):
+            return [clean_json_data(item) for item in obj]
+        elif isinstance(obj, float):
+            import math
+
+            if math.isnan(obj):
+                return None
+            elif math.isinf(obj):
+                return None
+            return obj
+        return obj
+
+    cleaned_mesh_json = clean_json_data(mesh_json)
+
     # Determine if this is a vehicle mesh or environment mesh
     is_vehicle_mesh = False
     vehicle_type = None
 
-    config = mesh_json.get("config", {})
+    config = cleaned_mesh_json.get("config", {})
 
     # Look for vessel configuration in the mesh
     if "vessel_info" in config:
@@ -341,18 +360,20 @@ def ingest_mesh(
             "name": mesh_filename,
             "valid_date_start": timezone.make_aware(
                 datetime.strptime(
-                    mesh_json["config"]["mesh_info"]["region"]["start_time"], "%Y-%m-%d"
+                    cleaned_mesh_json["config"]["mesh_info"]["region"]["start_time"],
+                    "%Y-%m-%d",
                 )
             ),
             "valid_date_end": timezone.make_aware(
                 datetime.strptime(
-                    mesh_json["config"]["mesh_info"]["region"]["end_time"], "%Y-%m-%d"
+                    cleaned_mesh_json["config"]["mesh_info"]["region"]["end_time"],
+                    "%Y-%m-%d",
                 )
             ),
             "created": timezone.make_aware(
                 datetime.strptime(metadata_record["created"], "%Y%m%dT%H%M%S")
             ),
-            "json": mesh_json,
+            "json": cleaned_mesh_json,
             "meshiphi_version": metadata_record["meshiphi"],
             "lat_min": metadata_record["latlong"]["latmin"],
             "lat_max": metadata_record["latlong"]["latmax"],
@@ -365,23 +386,23 @@ def ingest_mesh(
             "name": mesh_filename,
             "valid_date_start": timezone.make_aware(
                 datetime.strptime(
-                    mesh_json["config"]["mesh_info"]["region"]["start_time"],
+                    cleaned_mesh_json["config"]["mesh_info"]["region"]["start_time"],
                     "%Y-%m-%d",
                 )
             ),
             "valid_date_end": timezone.make_aware(
                 datetime.strptime(
-                    mesh_json["config"]["mesh_info"]["region"]["end_time"],
+                    cleaned_mesh_json["config"]["mesh_info"]["region"]["end_time"],
                     "%Y-%m-%d",
                 )
             ),
             "created": timezone.now(),
-            "json": mesh_json,
+            "json": cleaned_mesh_json,
             "meshiphi_version": "manually_inserted",
-            "lat_min": mesh_json["config"]["mesh_info"]["region"]["lat_min"],
-            "lat_max": mesh_json["config"]["mesh_info"]["region"]["lat_max"],
-            "lon_min": mesh_json["config"]["mesh_info"]["region"]["long_min"],
-            "lon_max": mesh_json["config"]["mesh_info"]["region"]["long_max"],
+            "lat_min": cleaned_mesh_json["config"]["mesh_info"]["region"]["lat_min"],
+            "lat_max": cleaned_mesh_json["config"]["mesh_info"]["region"]["lat_max"],
+            "lon_min": cleaned_mesh_json["config"]["mesh_info"]["region"]["long_min"],
+            "lon_max": cleaned_mesh_json["config"]["mesh_info"]["region"]["long_max"],
         }
 
     if is_vehicle_mesh:
