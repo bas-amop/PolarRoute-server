@@ -8,7 +8,6 @@ from django.test import TestCase
 from rest_framework.test import APIRequestFactory
 import pytest
 
-from polarrouteserver import __version__ as polarrouteserver_version
 from polarrouteserver.route_api.views import (
     EvaluateRouteView,
     MeshView,
