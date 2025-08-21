@@ -20,18 +20,31 @@ MESH_LIST_DISPLAY = [
 # Shared base admin for mesh models
 class BaseMeshAdmin(admin.ModelAdmin):
     ordering = ("-created",)
+    readonly_fields = ("md5", "size", "created")
+    exclude = ("json",)  # Hide the raw JSON field
+    list_per_page = 20
 
     def get_queryset(self, request):
         queryset = super().get_queryset(request)
-        return queryset.defer("json")
+        queryset = queryset.defer("json")
+
+        if hasattr(self, "list_select_related") and self.list_select_related:
+            queryset = queryset.select_related(*self.list_select_related)
+
+        return queryset
 
 
 class VehicleMeshAdmin(BaseMeshAdmin):
     list_display = ["id", "vehicle"] + MESH_LIST_DISPLAY[1:]
+    list_select_related = ("vehicle",)
+    list_filter = ("vehicle", "created")
+    search_fields = ("name", "vehicle__vessel_type")
 
 
 class EnvironmentMeshAdmin(BaseMeshAdmin):
     list_display = MESH_LIST_DISPLAY
+    list_filter = ("created",)
+    search_fields = ("name",)
 
 
 LIST_PER_PAGE = 20
