@@ -1,8 +1,12 @@
 from django.contrib import admin
 
-from .models import Route, Mesh, Job
+from .models import Vehicle, Route, Mesh, Job
 
 LIST_PER_PAGE = 20
+
+
+class VehicleAdmin(admin.ModelAdmin):
+    list_display = ["vessel_type"]
 
 
 class RouteAdmin(admin.ModelAdmin):
@@ -97,6 +101,7 @@ class MeshAdmin(admin.ModelAdmin):
         queryset = super().get_queryset(request)
         return queryset.defer("json")
 
+admin.site.register(Vehicle, VehicleAdmin)
 admin.site.register(Route, RouteAdmin)
 admin.site.register(Mesh, MeshAdmin)
 admin.site.register(Job, JobAdmin)

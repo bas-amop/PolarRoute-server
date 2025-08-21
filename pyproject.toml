@@ -20,6 +20,7 @@ dependencies = [
     "django-celery-results",
     "django-cors-headers",
     "django-rest-framework",
+    "drf-spectacular",
     "haversine",
     "polar-route==1.0.0",
     "psycopg>=3",

@@ -12,6 +12,8 @@ import logging
 import os
 import secrets
 
+from polarrouteserver.version import __version__ as polarrouteserver_version
+
 logger = logging.getLogger(__name__)
 
 BASE_DIR = os.getenv("POLARROUTE_BASE_DIR", os.getcwd())
@@ -84,6 +86,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django_celery_results",
     "django_celery_beat",
+    "drf_spectacular",
     "polarrouteserver.route_api",
     "corsheaders",
 ]
@@ -104,6 +107,19 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "corsheaders.middleware.CorsMiddleware",
 ]
+
+REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "PolarRoute-Server",
+    "DESCRIPTION": "Backend server for serving PolarRoute and MeshiPhi assets",
+    "VERSION": polarrouteserver_version,
+    "SERVE_INCLUDE_SCHEMA": False,
+    "SECURITY": [],
+    "AUTHENTICATION_WHITELIST": [],
+}
 
 ROOT_URLCONF = "polarrouteserver.urls"
 

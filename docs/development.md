@@ -33,7 +33,15 @@ The documentation should build automatically on pushes to `main` using GitHub ac
 
 The API is documented in `./docs/apischema.yml` using the OpenAPI 3.0 standard (formerly known as swagger).
 
-Any changes to the Web API should be **manually** reflected in the schema. These can be checked by building the docs and checking the [API reference page](api.md) or serving using swagger (`make start-swagger`).
+Any changes to the Web API should be reflected in the schema, you can re-generate these by running:
+
+```shell
+python manage.py spectacular --color --validate --file docs/apischema.yml
+```
+
+Aim to resolve any warnings/error before comitting.
+
+The generated schema can be checked by building the docs and checking the [API reference page](api.md) or serving using swagger (`make start-swagger`).
 
 ## Docker containers and compose configuration
 PolarRoute-server relies on four different services, orchestrated by [docker compose](https://docs.docker.com/compose/install/), to each be running in their own docker container.
