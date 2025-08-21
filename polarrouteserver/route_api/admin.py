@@ -92,6 +92,10 @@ class MeshAdmin(admin.ModelAdmin):
     ]
     ordering = ("-created",)
 
+    def get_queryset(self, request):
+        # Load only the fields necessary for the changelist view
+        queryset = super().get_queryset(request)
+        return queryset.defer("json")
 
 admin.site.register(Route, RouteAdmin)
 admin.site.register(Mesh, MeshAdmin)

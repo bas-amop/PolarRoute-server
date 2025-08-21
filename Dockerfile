@@ -25,3 +25,4 @@ COPY polarrouteserver /usr/src/app/polarrouteserver
 COPY assets /usr/src/app/assets
 
 RUN pip install .[frontend]
+RUN pip install django-debug-toolbar
