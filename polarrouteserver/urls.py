@@ -53,3 +53,10 @@ if os.getenv("POLARROUTE_FRONTEND", True):
     # for serving static files in development
     if settings.DEBUG:
         urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+# noqa
+try:
+    from debug_toolbar.toolbar import debug_toolbar_urls
+    urlpatterns += debug_toolbar_urls()
+except:#noqa
+    pass
