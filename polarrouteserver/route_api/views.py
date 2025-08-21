@@ -17,6 +17,7 @@ from .models import Job, Vehicle, Route, EnvironmentMesh, VehicleMesh
 from .tasks import create_and_calculate_route
 from .serializers import VehicleSerializer, RouteSerializer
 from .utils import (
+    add_vehicle_to_environment_mesh,
     evaluate_route,
     route_exists,
     select_mesh,
@@ -165,96 +166,123 @@ class RouteView(LoggingMixin, GenericAPIView):
 
         data = request.data
 
-        # TODO validate request JSON
-        start_lat = data["start_lat"]
-        start_lon = data["start_lon"]
-        end_lat = data["end_lat"]
-        end_lon = data["end_lon"]
+        # Extract and validate request parameters
+        try:
+            start_lat = data["start_lat"]
+            start_lon = data["start_lon"]
+            end_lat = data["end_lat"]
+            end_lon = data["end_lon"]
+            vehicle_type = data["vehicle_type"]
+        except KeyError as e:
+            return Response(
+                data={"error": f"Missing required field: {e}"},
+                headers={"Content-Type": "application/json"},
+                status=rest_framework.status.HTTP_400_BAD_REQUEST,
+            )
+
         start_name = data.get("start_name", None)
         end_name = data.get("end_name", None)
         custom_mesh_id = data.get("mesh_id", None)
         force_recalculate = data.get("force_recalculate", False)
-        vehicle_type = data.get("vehicle_type", None)  # Add vehicle support
 
+        # Validate vehicle exists before fetching meshes
+        try:
+            vehicle = Vehicle.objects.get(vessel_type=vehicle_type)
+            logger.debug(f"Found vehicle type '{vehicle_type}' in database")
+        except Vehicle.DoesNotExist:
+            return Response(
+                data={"error": f"Vehicle type '{vehicle_type}' not found in database."},
+                headers={"Content-Type": "application/json"},
+                status=rest_framework.status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Get meshes (either custom or auto-selected)
         if custom_mesh_id:
             try:
                 logger.info(f"Got custom mesh id {custom_mesh_id} in request.")
-                # Try VehicleMesh first, then EnvironmentMesh
                 try:
                     mesh = VehicleMesh.objects.get(id=custom_mesh_id)
                 except VehicleMesh.DoesNotExist:
                     mesh = EnvironmentMesh.objects.get(id=custom_mesh_id)
                 meshes = [mesh]
             except (VehicleMesh.DoesNotExist, EnvironmentMesh.DoesNotExist):
-                msg = f"Mesh id {custom_mesh_id} requested. Does not exist."
-                logger.info(msg)
                 return Response(
                     data={
-                        "info": {"error": msg},
-                        "status": "FAILURE",
+                        "error": f"Mesh id {custom_mesh_id} requested. Does not exist."
                     },
                     headers={"Content-Type": "application/json"},
-                    status=rest_framework.status.HTTP_202_ACCEPTED,
+                    status=rest_framework.status.HTTP_400_BAD_REQUEST,
                 )
         else:
-            meshes = select_mesh(start_lat, start_lon, end_lat, end_lon)
+            meshes = select_mesh(start_lat, start_lon, end_lat, end_lon, vehicle_type)
+            if meshes is None:
+                return Response(
+                    data={"error": "No suitable mesh available."},
+                    headers={"Content-Type": "application/json"},
+                    status=rest_framework.status.HTTP_400_BAD_REQUEST,
+                )
 
-        if meshes is None:
-            return Response(
-                data={
-                    "info": {"error": "No suitable mesh available."},
-                    "status": "FAILURE",
-                },
-                headers={"Content-Type": "application/json"},
-                status=rest_framework.status.HTTP_200_OK,
+            logger.debug(f"Using meshes: {[mesh.id for mesh in meshes]}")
+
+        # Convert EnvironmentMesh to VehicleMesh if needed
+        processed_meshes = []
+        for mesh in meshes:
+            if isinstance(mesh, EnvironmentMesh):
+                logger.info(
+                    f"Using EnvironmentMesh {mesh.id} to create VehicleMesh for vehicle type '{vehicle_type}'"
+                )
+                vehicle_mesh = add_vehicle_to_environment_mesh(mesh, vehicle)
+                processed_meshes.append(vehicle_mesh)
+            else:
+                # Already a VehicleMesh, so just append it
+                processed_meshes.append(mesh)
+
+        # Check for existing routes
+        vehicle_meshes = [
+            mesh for mesh in processed_meshes if isinstance(mesh, VehicleMesh)
+        ]
+        existing_route = None
+        if vehicle_meshes:
+            existing_route = route_exists(
+                vehicle_meshes, start_lat, start_lon, end_lat, end_lon
             )
 
-        logger.debug(f"Using meshes: {[mesh.id for mesh in meshes]}")
-        # TODO Future: calculate an up to date mesh if none available
+        if existing_route and not force_recalculate:
+            logger.info(f"Existing route found: {existing_route}")
+            response_data = RouteSerializer(existing_route).data
 
-        existing_route = route_exists(meshes, start_lat, start_lon, end_lat, end_lon)
-
-        if existing_route is not None:
-            if not force_recalculate:
-                logger.info(f"Existing route found: {existing_route}")
-                response_data = RouteSerializer(existing_route).data
-                if existing_route.job_set.count() > 0:
-                    existing_job = existing_route.job_set.latest("datetime")
-
-                    response_data.update(
-                        {
-                            "info": {
-                                "info": "Pre-existing route found and returned. To force new calculation, include 'force_recalculate': true in POST request."
-                            },
-                            "id": str(existing_job.id),
-                            "status-url": reverse(
-                                "route", args=[existing_job.id], request=request
-                            ),
-                            "polarrouteserver-version": polarrouteserver_version,
-                        }
-                    )
-
-                else:
-                    response_data.update(
-                        {
-                            "info": {
-                                "error": "Pre-existing route was found but there was an error.\
-                                To force new calculation, include 'force_recalculate': true in POST request."
-                            }
-                        }
-                    )
-                return Response(
-                    data=response_data,
-                    headers={"Content-Type": "application/json"},
-                    status=rest_framework.status.HTTP_202_ACCEPTED,
+            if existing_route.job_set.count() > 0:
+                existing_job = existing_route.job_set.latest("datetime")
+                response_data.update(
+                    {
+                        "info": {
+                            "info": "Pre-existing route found and returned. To force new calculation, include 'force_recalculate': true in POST request."
+                        },
+                        "id": str(existing_job.id),
+                        "status-url": reverse(
+                            "route", args=[existing_job.id], request=self.request
+                        ),
+                        "polarrouteserver-version": polarrouteserver_version,
+                    }
                 )
             else:
-                logger.info(
-                    f"Found existing route(s) but got force_recalculate={force_recalculate}, beginning recalculation."
+                response_data.update(
+                    {
+                        "info": {
+                            "error": "Pre-existing route was found but there was an error. To force new calculation, include 'force_recalculate': true in POST request."
+                        }
+                    }
                 )
 
+            return Response(
+                data=response_data,
+                headers={"Content-Type": "application/json"},
+                status=rest_framework.status.HTTP_202_ACCEPTED,
+            )
+
+        # Create and start new route calculation
         logger.debug(
-            f"Using mesh {meshes[0].id} as primary mesh with {[mesh.id for mesh in meshes[1:]]} as backup."
+            f"Using mesh {processed_meshes[0].id} as primary mesh with {[mesh.id for mesh in processed_meshes[1:]]} as backup."
         )
 
         # Create route in database
@@ -263,32 +291,28 @@ class RouteView(LoggingMixin, GenericAPIView):
             start_lon=start_lon,
             end_lat=end_lat,
             end_lon=end_lon,
-            mesh=meshes[0],
+            mesh=processed_meshes[0],
             start_name=start_name,
             end_name=end_name,
         )
 
         # Start the task calculation
         task = create_and_calculate_route.delay(
-            route.id, vehicle_type, backup_mesh_ids=[mesh.id for mesh in meshes[1:]]
+            route.id,
+            vehicle_type,
+            backup_mesh_ids=[mesh.id for mesh in processed_meshes[1:]],
         )
 
         # Create database record representing the calculation job
-        job = Job.objects.create(
-            id=task.id,
-            route=route,
-        )
+        job = Job.objects.create(id=task.id, route=route)
 
         # Prepare response data
-        data = {
-            "id": job.id,
-            # url to request status of requested route
-            "status-url": reverse("route", args=[job.id], request=request),
-            "polarrouteserver-version": polarrouteserver_version,
-        }
-
         return Response(
-            data,
+            data={
+                "id": job.id,
+                "status-url": reverse("route", args=[job.id], request=self.request),
+                "polarrouteserver-version": polarrouteserver_version,
+            },
             headers={"Content-Type": "application/json"},
             status=rest_framework.status.HTTP_202_ACCEPTED,
         )
