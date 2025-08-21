@@ -365,10 +365,14 @@ def register_callbacks(app: DjangoDash):
                             ),
                             # sorry this is a really quick and dirty solution - TODO fix this!
                             html.Td(
-                                f'{route["json"][1][0]["features"][0]["properties"]["total_fuel"]:.2f} tons {route["json"][1][0]["features"][0]["properties"]["total_traveltime"]:.2f} days',
+                                f'{route["json"][1][0]["features"][0]["properties"]["total_fuel"]:.2f} tons {route["json"][1][0]["features"][0]["properties"]["total_traveltime"]:.2f} days'
+                                if len(route.get("json")) > 1
+                                else "-",
                             ),
                             html.Td(
-                                f'{route["json"][0][0]["features"][0]["properties"]["total_fuel"]:.2f} tons {route["json"][0][0]["features"][0]["properties"]["total_traveltime"]:.2f} days',
+                                f'{route["json"][0][0]["features"][0]["properties"]["total_fuel"]:.2f} tons {route["json"][0][0]["features"][0]["properties"]["total_traveltime"]:.2f} days'
+                                if len(route.get("json")) > 0
+                                else "-",
                             ),
                             html.Td(
                                 html.Span(
