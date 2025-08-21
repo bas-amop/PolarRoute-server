@@ -21,7 +21,7 @@ from polar_route.vessel_performance.vessel_performance_modeller import (
 from polar_route.route_calc import route_calc
 from polar_route.utils import convert_decimal_days
 
-from .models import Mesh, Route, EnvironmentMesh, VehicleMesh, Vehicle
+from .models import Route, EnvironmentMesh, VehicleMesh, Vehicle
 
 logger = logging.getLogger(__name__)
 
@@ -31,14 +31,27 @@ def select_mesh(
     start_lon: float,
     end_lat: float,
     end_lon: float,
-) -> Union[list[Mesh], None]:
+    vehicle_type: str = None,
+) -> Union[list[Union[VehicleMesh, EnvironmentMesh]], None]:
     """Find the most suitable mesh from the database for a given set of start and end coordinates.
-    Returns either a list of Mesh objects or None.
+    If vehicle_type is specified, look for VehicleMesh objects for that vehicle_type.
+    If no vehicle_type specified or specific vehicle type not found, fall back to EnvironmentMesh
+    objects.
+
+    Returns either a list of mesh objects (VehicleMesh for specific vehicle_type, EnvironmentMesh
+    as fallback) or None.
+
+    Args:
+        start_lat, start_lon, end_lat, end_lon: Coordinate bounds
+        vehicle_type: Optional vehicle type to prioritize in search
+
+    Returns:
+        List of mesh objects in priority order, or None if no suitable meshes found
     """
 
-    try:
-        # get meshes which contain both start and end points
-        containing_meshes = Mesh.objects.filter(
+    def get_meshes_in_bounds(model_class):
+        """Helper function to get meshes of a specific type within coordinate bounds"""
+        return model_class.objects.filter(
             lat_min__lte=start_lat,
             lat_max__gte=start_lat,
             lon_min__lte=start_lon,
@@ -50,32 +63,57 @@ def select_mesh(
             lon_max__gte=end_lon,
         )
 
-        # get the date of the most recently created mesh
-        latest_date = containing_meshes.latest("created").created.date()
+    def filter_latest_and_smallest(meshes):
+        """Helper function to filter by latest date and return smallest meshes"""
+        if not meshes.exists():
+            return []
 
-        # get all valid meshes from that creation date
-        valid_meshes = containing_meshes.filter(created__date=latest_date)
-
-        # return the smallest
+        latest_date = meshes.latest("created").created.date()
+        valid_meshes = meshes.filter(created__date=latest_date)
         return sorted(valid_meshes, key=lambda mesh: mesh.size)
 
-    except Mesh.DoesNotExist:
+    try:
+        # VehicleMesh for specific vehicle type (if specified)
+        if vehicle_type:
+            try:
+                vehicle = Vehicle.objects.get(vessel_type=vehicle_type)
+                vehicle_meshes = get_meshes_in_bounds(VehicleMesh).filter(
+                    vehicle=vehicle
+                )
+                result = filter_latest_and_smallest(vehicle_meshes)
+                if result:
+                    return result
+            except Vehicle.DoesNotExist:
+                pass
+
+        # If no vehicle_type specified, or specific vehicle type not found
+        environment_meshes = get_meshes_in_bounds(EnvironmentMesh)
+        result = filter_latest_and_smallest(environment_meshes)
+        if result:
+            return result
+
+        return None
+
+    except (EnvironmentMesh.DoesNotExist, VehicleMesh.DoesNotExist):
         return None
 
 
 def route_exists(
-    meshes: Union[Mesh, list[Mesh]],
+    meshes: Union[VehicleMesh, list[VehicleMesh]],
     start_lat: float,
     start_lon: float,
     end_lat: float,
     end_lon: float,
 ) -> Union[Route, None]:
     """Check if a route of given parameters has already been calculated.
-    Works through list of meshes in order, returns first matching route
-    Return None if not and the route object if it has.
+    Works through list of VehicleMesh objects in order, returns first matching route.
+    Only applies to VehicleMesh objects. Return None if not and the route object if it has.
+
+    Args:
+        meshes: VehicleMesh object or list of VehicleMesh objects
     """
 
-    if isinstance(meshes, Mesh):
+    if isinstance(meshes, VehicleMesh):
         meshes = [meshes]
 
     for mesh in meshes:
@@ -181,12 +219,12 @@ def calculate_md5(filename):
     return hash_md5.hexdigest()
 
 
-def evaluate_route(route_json: dict, mesh: Mesh) -> dict:
+def evaluate_route(route_json: dict, mesh: VehicleMesh) -> dict:
     """Run calculate_route method from PolarRoute to evaluate the fuel usage and travel time of a route.
 
     Args:
         route_json (dict): route to evaluate in geojson format.
-        mesh (polarrouteserver.models.Mesh): mesh object on which to evaluate the route.
+        mesh (VehicleMesh): VehicleMesh object on which to evaluate the rout.
 
     Returns:
         dict: evaluated route
@@ -225,30 +263,41 @@ def evaluate_route(route_json: dict, mesh: Mesh) -> dict:
     )
 
 
-def select_mesh_for_route_evaluation(route: dict) -> Union[list[Mesh], None]:
-    """Select a mesh from the database to be used for route evaluation.
+def select_mesh_for_route_evaluation(
+    route: dict, vehicle_type: str = None
+) -> Union[list[VehicleMesh], None]:
+    """Select VehicleMesh from the database to be used for route evaluation.
+
     The latest mesh containing all points in the route will be chosen.
-    If no suitable meshes are available, return None.
+    If no suitable VehicleMesh objects are available, return None.
 
     Args:
         route (dict): GeoJSON route to be evaluated.
+        vehicle_type (str, optional): Specific vehicle type to look for.
 
     Returns:
-        Union[Mesh,None]: Selected mesh object or None.
+        Union[list[VehicleMesh], None]: Selected VehicleMesh objects or None.
     """
 
     coordinates = route["features"][0]["geometry"]["coordinates"]
     lats = [c[0] for c in coordinates]
     lons = [c[1] for c in coordinates]
 
-    return select_mesh(min(lats), min(lons), max(lats), max(lons))
+    # Use select_mesh with vehicle_type parameter, but specify vehicle type
+    meshes = select_mesh(min(lats), min(lons), max(lats), max(lons), vehicle_type)
+
+    if meshes:
+        vehicle_meshes = [mesh for mesh in meshes if isinstance(mesh, VehicleMesh)]
+        return vehicle_meshes if vehicle_meshes else None
+
+    return None
 
 
-def check_mesh_data(mesh: Mesh) -> str:
+def check_mesh_data(mesh: Union[EnvironmentMesh, VehicleMesh]) -> str:
     """Check a mesh object for missing data sources.
 
     Args:
-        mesh (Mesh): mesh object to evaluate.
+        mesh (Union[EnvironmentMesh, VehicleMesh]): mesh object to evaluate.
 
     Returns:
         A user-friendly warning message as a string.

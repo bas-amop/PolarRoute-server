@@ -94,7 +94,7 @@ def import_new_meshes(self):
     )
 
     for i, record in enumerate(vessel_records, 1):
-        # extract the filename from the filepath
+        # Extract the filename from the filepath
         mesh_filename = record["filepath"].split("/")[-1]
 
         # Update progress
@@ -107,7 +107,7 @@ def import_new_meshes(self):
             },
         )
 
-        # load in the mesh json
+        # Load in the mesh json
         try:
             zipped_filename = mesh_filename + ".gz"
             with gzip.open(
