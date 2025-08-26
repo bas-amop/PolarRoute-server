@@ -45,6 +45,10 @@
                 </li>
               </ul>
               <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../vehicle-management/">Vehicle Management</a>
+                </li>
+              </ul>
+              <ul>
                 <li class="toctree-l1"><a class="reference internal" href="../requesting-routes/">Requesting Routes</a>
                 </li>
               </ul>
@@ -97,6 +101,8 @@
                 <li class="toctree-l3"><a class="reference internal" href="../autoapi/polarrouteserver/route_api/views/">views</a>
                 </li>
     </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../autoapi/polarrouteserver/version/">version</a>
                 </li>
     </ul>
                   </li>
@@ -152,7 +158,11 @@
 </ul>
 <h2 id="making-changes-to-the-api">Making changes to the API</h2>
 <p>The API is documented in <code>./docs/apischema.yml</code> using the OpenAPI 3.0 standard (formerly known as swagger).</p>
-<p>Any changes to the Web API should be <strong>manually</strong> reflected in the schema. These can be checked by building the docs and checking the <a href="../api/">API reference page</a> or serving using swagger (<code>make start-swagger</code>).</p>
+<p>Any changes to the Web API should be reflected in the schema, you can re-generate these by running:</p>
+<pre><code class="language-shell">python manage.py spectacular --color --validate --file docs/apischema.yml
+</code></pre>
+<p>Aim to resolve any warnings/error before comitting.</p>
+<p>The generated schema can be checked by building the docs and checking the <a href="../api/">API reference page</a> or serving using swagger (<code>make start-swagger</code>).</p>
 <h2 id="docker-containers-and-compose-configuration">Docker containers and compose configuration</h2>
 <p>PolarRoute-server relies on four different services, orchestrated by <a href="https://docs.docker.com/compose/install/">docker compose</a>, to each be running in their own docker container.</p>
 <p>As a user, you run a single <code>docker compose up</code> command to build and start these services.</p>

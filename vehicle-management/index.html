@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../img/favicon.ico" />
-    <title>Requesting Routes - PolarRoute-Server</title>
+    <title>Vehicle Management - PolarRoute-Server</title>
     <link rel="stylesheet" href="../css/theme.css" />
     <link rel="stylesheet" href="../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
@@ -13,8 +13,8 @@
     
       <script>
         // Current page data
-        var mkdocs_page_name = "Requesting Routes";
-        var mkdocs_page_input_path = "requesting-routes.md";
+        var mkdocs_page_name = "Vehicle Management";
+        var mkdocs_page_input_path = "vehicle-management.md";
         var mkdocs_page_url = null;
       </script>
     
@@ -44,22 +44,32 @@
                 <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
                 </li>
               </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../vehicle-management/">Vehicle Management</a>
-                </li>
-              </ul>
               <ul class="current">
-                <li class="toctree-l1 current"><a class="reference internal current" href="#">Requesting Routes</a>
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Vehicle Management</a>
     <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#using-the-in-built-demo-utility-simplest">Using the in-built demo utility (simplest)</a>
+    <li class="toctree-l2"><a class="reference internal" href="#creating-vehicles">Creating vehicles</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#updating-vehicle-properties">Updating vehicle properties</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#requesting-a-list-of-all-available-vehicles">Requesting a list of all available vehicles</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#requesting-vehicles">Requesting vehicles</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#usage">Usage</a>
+    <li class="toctree-l3"><a class="reference internal" href="#requesting-a-specific-vehicle">Requesting a specific vehicle</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#requesting-all-vehicles">Requesting all vehicles</a>
     </li>
         </ul>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#by-making-http-requests">By making HTTP requests</a>
+    <li class="toctree-l2"><a class="reference internal" href="#deleting-a-vehicle">Deleting a vehicle</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#adding-a-vehicle-to-an-environment-mesh">Adding a vehicle to an environment mesh</a>
     </li>
     </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../requesting-routes/">Requesting Routes</a>
                 </li>
               </ul>
               <ul>
@@ -121,9 +131,9 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
-      <li class="breadcrumb-item active">Requesting Routes</li>
+      <li class="breadcrumb-item active">Vehicle Management</li>
     <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/bas-amop/polarroute-server/edit/main/docs/requesting-routes.md" class="icon icon-github"> Edit on GitHub</a>
+          <a href="https://github.com/bas-amop/polarroute-server/edit/main/docs/vehicle-management.md" class="icon icon-github"> Edit on GitHub</a>
     </li>
   </ul>
   <hr/>
@@ -131,65 +141,89 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="requesting-routes">Requesting Routes</h1>
-<h2 id="using-the-in-built-demo-utility-simplest">Using the in-built demo utility (simplest)</h2>
-<p>A demo script is available in this repo (<code>polarrouteserver/demo.py</code>) to be used as a utility for making route requests.</p>
-<p>To obtain, either:</p>
-<ul>
-<li>Clone this whole repo</li>
-<li>Download the file from its GitHub page here: https://github.com/bas-amop/PolarRoute-server/blob/main/demo.py</li>
-</ul>
-<p>This can be done with <code>wget</code> by running:</p>
-<pre><code>wget https://raw.githubusercontent.com/bas-amop/PolarRoute-server/refs/heads/main/polarrouteserver/demo.py
-</code></pre>
-<p>To run, you'll just need python ~3.11 installed. Earlier versions of python may work, but are untested.</p>
-<h3 id="usage">Usage</h3>
-<p>Help for the utility can be printed out by running <code>python demo.py --help</code>.</p>
-<p>Alternatively, if you have the package installed, a command named <code>request_route</code> is made available.</p>
-<pre><code class="language-sh">$ request_route --help
-# OR
-$ python demo.py --help
-
-usage: demo.py [-h] [-u URL] -s [START] -e [END] [-d [DELAY]] [-f] [-o [OUTPUT]]
-
-Requests a route from polarRouteServer, repeating the request for status until the route is available. Specify start and end points by coordinates or from one of the standard locations: ['bird', 'falklands',
-'halley', 'rothera', 'kep', 'signy', 'nyalesund', 'harwich', 'rosyth']
-
-options:
-  -h, --help            show this help message and exit
-  -u URL, --url URL     Base URL to send request to.
-  -s [START], --start [START]
-                        Start location either as the name of a standard location or latitude,longitude separated by a comma, e.g. -56.7,-65.01
-  -e [END], --end [END]
-                        End location either as the name of a standard location or latitude,longitude separated by a comma, e.g. -56.7,-65.01
-  -d [DELAY], --delay [DELAY]
-                        (integer) number of seconds to delay between status calls.
-  -f, --force           Force polarRouteServer to recalculate the route even if it is already available.
-  -o [OUTPUT], --output [OUTPUT]
-                        File path to write out route to. (Default: None and print to stdout)
-</code></pre>
-<p>So to request a route from Falklands to Rothera, for example:</p>
-<pre><code class="language-sh">python demo.py --url example-polar-route-server.com -s falklands -e rothera --delay 120 --output demo_output.json
-</code></pre>
-<p>This will request the route from the server running at <code>example-polar-route-server.com</code>, and initiate a route calculation if one is not already available.</p>
-<p>The utility will then request the route's status every <code>120</code> seconds.</p>
-<p>The HTTP response from each request will be printed to stdout.</p>
-<p>Once the route is available it will be returned, or if 10 attempts to get the route have passed, the utility will stop.</p>
-<h2 id="by-making-http-requests">By making HTTP requests</h2>
+                <h1 id="vehicle-management">Vehicle Management</h1>
+<p>In order to add vehicles to environment meshes, they will first need to be created in the database.</p>
 <p>For details on the API, see the <a href="../api/">API reference page</a>.</p>
-<p>To request a route, make a POST request to the <code>/api/route</code> endpoint, for example the following using CURL</p>
-<pre><code>curl --header &quot;Content-Type: application/json&quot; \
+<h2 id="creating-vehicles">Creating vehicles</h2>
+<p>To request a vehicle to be added to the database, make a POST request to the <code>/api/vehicle</code> endpoint,
+for example with the following CURL:</p>
+<pre><code class="language-shell">curl --header &quot;Content-Type: application/json&quot; \
   --request POST \
-  --data '{&quot;start_lat&quot;:&quot;43.21&quot;,&quot;start_lon&quot;:&quot;43.21&quot;, &quot;end_lat&quot;:&quot;43.21&quot;,&quot;end_lon&quot;:&quot;43.21&quot;}' \
-  http://localhost:8000/api/route
+  --data '{
+       &quot;vessel_type&quot;: &quot;SDA&quot;,
+       &quot;max_speed&quot;: 26.5,
+       &quot;unit&quot;: &quot;km/hr&quot;,
+       &quot;beam&quot;: 24.0,
+       &quot;hull_type&quot;: &quot;slender&quot;,
+       &quot;force_limit&quot;: 96634.5,
+       &quot;max_ice_conc&quot;: 80,
+       &quot;min_depth&quot;: 10 
+    }' \
+  http://localhost:8000/api/vehicle
 </code></pre>
-<p>This will return a <code>status-url</code> where you can request the status of the route calculation using a GET request, when the route is ready the same URL will return the route in the response.</p>
+<p>This will create a vehicle of <code>vessel_type</code> "SDA" in the database. Note that <code>vessel_type</code> is unique,
+and any subsequent request to create the same vessel type will result in an error.</p>
+<h2 id="updating-vehicle-properties">Updating vehicle properties</h2>
+<p>Should you wish to update a <code>vessel_type</code>'s properties after creation, you can do so using the
+<code>force_properties</code> argument in your request.</p>
+<p>Let's say we actually wanted to display the speed in knots:</p>
+<pre><code class="language-shell">curl --header &quot;Content-Type: application/json&quot; \
+  --request POST \
+  --data '{
+      &quot;vessel_type&quot;: &quot;SDA&quot;,
+      &quot;max_speed&quot;: 14.3,
+      &quot;unit&quot;: &quot;knots&quot;,
+      &quot;beam&quot;: 24.0,
+      &quot;hull_type&quot;: &quot;slender&quot;,
+      &quot;force_limit&quot;: 96634.5,
+      &quot;max_ice_conc&quot;: 80,
+      &quot;min_depth&quot;: 10,
+      &quot;force_properties&quot;:&quot;true&quot;
+    }' \
+  http://localhost:8000/api/vehicle
+</code></pre>
+<p>With <code>"force_properties"</code> set to <code>"true"</code>, the request will be accepted and the properties for "SDA"
+will be updated.</p>
+<h2 id="requesting-a-list-of-all-available-vehicles">Requesting a list of all available vehicles</h2>
+<p>To request a list of all available vehicles in the database, you can make a GET request to the
+<code>api/vehicle/available</code> endpoint:</p>
+<pre><code class="language-shell">curl --header &quot;Content-Type: application/json&quot; \
+  --request GET \
+  http://localhost:8000/api/vehicle/available
+</code></pre>
+<h2 id="requesting-vehicles">Requesting vehicles</h2>
+<h3 id="requesting-a-specific-vehicle">Requesting a specific vehicle</h3>
+<p>To request a specific vehicle to be returned, you can make a GET request to the <code>api/vehicle</code>
+endpoint, adding the <code>vessel_type</code> to the end of the endpoint, for example <code>api/vehicle/SDA</code>:</p>
+<pre><code class="language-shell">curl --header &quot;Content-Type: application/json&quot; \
+  --request GET \
+  http://localhost:8000/api/vehicle/SDA/
+
+</code></pre>
+<h3 id="requesting-all-vehicles">Requesting all vehicles</h3>
+<p>If you make a GET request to <code>api/vehicle</code> without specifying the <code>vessel_type</code>, all vehicles will
+be returned.</p>
+<pre><code class="language-shell">curl --header &quot;Content-Type: application/json&quot; \
+  --request GET \
+  http://localhost:8000/api/vehicle
+</code></pre>
+<h2 id="deleting-a-vehicle">Deleting a vehicle</h2>
+<p>To request a vehicle to be removed from the database, you can make a DELETE request to <code>api/vehicle</code>,
+specifying the <code>vessel_type</code> in the URL, just as with specific vehicle GET requests, <code>api/vehicle/SDA</code>:</p>
+<pre><code class="language-shell">curl --header &quot;Content-Type: application/json&quot; \
+  --request DELETE \
+  http://localhost:8000/api/vehicle/SDA/
+
+</code></pre>
+<p>Removing all vehicles in one go is not currently supported. </p>
+<h2 id="adding-a-vehicle-to-an-environment-mesh">Adding a vehicle to an environment mesh</h2>
+<p>Coming soon.</p>
               
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../vehicle-management/" class="btn btn-neutral float-left" title="Vehicle Management"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../how-polarroute-server-works/" class="btn btn-neutral float-right" title="How PolarRoute-server works">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href=".." class="btn btn-neutral float-left" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../requesting-routes/" class="btn btn-neutral float-right" title="Requesting Routes">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -216,10 +250,10 @@ options:
         </span>
     
     
-      <span><a href="../vehicle-management/" style="color: #fcfcfc">&laquo; Previous</a></span>
+      <span><a href=".." style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../how-polarroute-server-works/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../requesting-routes/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
