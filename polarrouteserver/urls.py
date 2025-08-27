@@ -15,8 +15,13 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
+import os
+
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
+from django.views.generic import TemplateView
 
 from polarrouteserver.route_api import views
 
@@ -57,6 +62,20 @@ urlpatterns = [
         "api/evaluate_route", views.EvaluateRouteView.as_view(), name="evaluate_route"
     ),
 ]
+
+if os.getenv("POLARROUTE_FRONTEND", True):
+    import polarrouteserver.frontend  # noqa: F401
+
+    urlpatterns.extend(
+        [
+            path("django_plotly_dash/", include("django_plotly_dash.urls")),
+            path("", TemplateView.as_view(template_name="index.html"), name="frontend"),
+        ]
+    )
+
+    # for serving static files in development
+    if settings.DEBUG:
+        urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 # noqa
 try:
