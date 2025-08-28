@@ -346,6 +346,19 @@ class TestRouteRequest(TestCase):
         response = EvaluateRouteView.as_view()(request)
         self.assertEqual(response.status_code, 200)
 
+    def test_evaluate_out_of_mesh_waypoints(self):
+        with open(settings.TEST_ROUTE_OOM_PATH) as fp:
+            route_json = json.load(fp)
+
+        data = dict(route=route_json)
+
+        request = self.factory.post(
+            "/api/evaluate_route", data=data, format="json"
+        )
+
+        response = EvaluateRouteView.as_view()(request)
+        self.assertEqual(response.status_code, 400)
+
 
 pytestmark = pytest.mark.django_db
 
