@@ -908,6 +908,15 @@ class EvaluateRouteView(LoggingMixin, APIView):
         else:
             meshes = select_mesh_for_route_evaluation(route_json)
 
+            if meshes is None:
+                return Response(
+                    data={
+                        "error": "No suitable mesh available, unable to evaluate route.",
+                    },
+                    headers={"Content-Type": "application/json"},
+                    status=rest_framework.status.HTTP_400_BAD_REQUEST,
+                )
+
         response_data = {"polarrouteserver-version": polarrouteserver_version}
 
         result_dict = evaluate_route(route_json, meshes[0])
