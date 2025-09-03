@@ -43,6 +43,61 @@ paths:
               schema:
                 $ref: '#/components/schemas/RouteEvaluationBadRequest'
           description: Invalid route data provided for evaluation.
+  /api/job/{id}:
+    get:
+      operationId: api_job_retrieve_status
+      description: Return status of job and route URL if complete.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - job
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobStatusSuccess'
+          description: Job status retrieved successfully.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobNotFound'
+          description: Job with the specified ID not found.
+    delete:
+      operationId: api_job_cancel
+      description: Cancel job
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - job
+      security:
+      - {}
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobCancelAccepted'
+          description: Job cancellation accepted.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobCancelNotFound'
+          description: Job with the specified ID not found.
   /api/mesh/{id}:
     get:
       operationId: api_mesh_get
@@ -83,10 +138,8 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Route'
-          description: List of recent routes retrieved successfully.
+                $ref: '#/components/schemas/RecentRoutesSuccess'
+          description: List of recent routes with job information retrieved successfully.
         '204':
           content:
             application/json:
@@ -118,8 +171,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RouteCreationAccepted'
-          description: Route calculation job accepted.
+                $ref: '#/components/schemas/RouteRequestAccepted'
+          description: Route calculation job submitted successfully.
         '400':
           content:
             application/json:
@@ -134,14 +187,13 @@ paths:
           description: No suitable mesh available for the requested route.
   /api/route/{id}:
     get:
-      operationId: api_route_retrieve_status
-      description: Return status of route calculation and route itself if complete.
+      operationId: api_route_retrieve_by_id
+      description: Return route data by route ID.
       parameters:
       - in: path
         name: id
         schema:
-          type: string
-          format: uuid
+          type: integer
         required: true
       tags:
       - route
@@ -152,31 +204,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RouteStatusSuccess'
-          description: Route status and details retrieved successfully.
+                $ref: '#/components/schemas/Route'
+          description: Route data retrieved successfully.
         '404':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JobNotFound'
-          description: Job with the specified ID not found.
-    delete:
-      operationId: api_route_cancel_job
-      description: Cancel route calculation
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: string
-          format: uuid
-        required: true
-      tags:
-      - route
-      security:
-      - {}
-      responses:
-        '202':
-          description: Route calculation job cancellation accepted.
+                $ref: '#/components/schemas/RouteNotFound'
+          description: Route with the specified ID not found.
   /api/vehicle:
     get:
       operationId: api_vehicle_list_retrieve
@@ -309,6 +344,22 @@ paths:
           description: No available vessel types found.
 components:
   schemas:
+    JobCancelAccepted:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Confirmation message that job cancellation was accepted.
+      required:
+      - message
+    JobCancelNotFound:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message indicating job not found.
+      required:
+      - error
     JobNotFound:
       type: object
       properties:
@@ -317,6 +368,94 @@ components:
           description: Error message indicating job not found.
       required:
       - error
+    JobStatusSuccess:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ID of the job.
+        status:
+          type: string
+          description: Current status of the job (PENDING, SUCCESS, FAILURE, etc.).
+        polarrouteserver-version:
+          type: string
+          description: Version of PolarRoute-server.
+        route_id:
+          type: string
+          format: uuid
+          description: ID of the associated route.
+        created:
+          type: string
+          format: date-time
+          description: When the job was created.
+        info:
+          type: object
+          additionalProperties: {}
+          description: Additional information or error details if status is FAILURE.
+        route_url:
+          type: string
+          format: uri
+          description: URL to retrieve the route data when status is SUCCESS.
+      required:
+      - created
+      - id
+      - polarrouteserver-version
+      - route_id
+      - status
+    JobWithRoute:
+      type: object
+      properties:
+        job_id:
+          type: string
+          format: uuid
+        route_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+        created:
+          type: string
+          format: date-time
+        start_lat:
+          type: number
+          format: double
+        start_lon:
+          type: number
+          format: double
+        end_lat:
+          type: number
+          format: double
+        end_lon:
+          type: number
+          format: double
+        start_name:
+          type: string
+          nullable: true
+        end_name:
+          type: string
+          nullable: true
+        job_url:
+          type: string
+          format: uri
+        route_url:
+          type: string
+          format: uri
+        info:
+          type: object
+          additionalProperties: {}
+      required:
+      - created
+      - end_lat
+      - end_lon
+      - end_name
+      - job_id
+      - job_url
+      - route_id
+      - start_lat
+      - start_lon
+      - start_name
+      - status
     MeshDetailSuccess:
       type: object
       properties:
@@ -387,6 +526,19 @@ components:
       required:
       - message
       - vessel_types
+    RecentRoutesSuccess:
+      type: object
+      properties:
+        jobs:
+          type: array
+          items:
+            $ref: '#/components/schemas/JobWithRoute'
+          description: List of recent jobs with associated route information.
+        polarrouteserver-version:
+          type: string
+      required:
+      - jobs
+      - polarrouteserver-version
     Route:
       type: object
       properties:
@@ -428,28 +580,6 @@ components:
       - end_lon
       - start_lat
       - start_lon
-    RouteCreationAccepted:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: ID of the submitted job for route calculation.
-        status-url:
-          type: string
-          format: uri
-          description: URL to check the status of the route calculation job.
-        polarrouteserver-version:
-          type: string
-          description: Version of PolarRoute-server.
-        info:
-          type: object
-          additionalProperties: {}
-          description: Information or warning messages about the route calculation.
-      required:
-      - id
-      - polarrouteserver-version
-      - status-url
     RouteCreationBadRequest:
       type: object
       properties:
@@ -538,49 +668,36 @@ components:
       required:
       - evaluation_results
       - polarrouteserver-version
-    RouteStatusSuccess:
+    RouteNotFound:
       type: object
       properties:
-        id:
+        error:
+          type: string
+          description: Error message indicating route not found.
+      required:
+      - error
+    RouteRequestAccepted:
+      type: object
+      properties:
+        job_id:
           type: string
           format: uuid
-          description: ID of the route calculation job.
-        status:
+          description: ID of the submitted job for route calculation.
+        status-url:
           type: string
-          description: Current status of the job.
+          format: uri
+          description: URL to check the status of the route calculation job.
         polarrouteserver-version:
           type: string
           description: Version of PolarRoute-server.
-        start_lat:
-          type: number
-          format: double
-        start_lon:
-          type: number
-          format: double
-        end_lat:
-          type: number
-          format: double
-        end_lon:
-          type: number
-          format: double
-        start_name:
-          type: string
-        end_name:
-          type: string
         info:
           type: object
           additionalProperties: {}
-          description: Additional information or error details if status is FAILURE.
+          description: Information or warning messages about the route calculation.
       required:
-      - end_lat
-      - end_lon
-      - end_name
-      - id
+      - job_id
       - polarrouteserver-version
-      - start_lat
-      - start_lon
-      - start_name
-      - status
+      - status-url
     Vehicle:
       type: object
       properties:

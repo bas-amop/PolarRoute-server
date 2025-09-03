@@ -27,10 +27,9 @@ $ request_route --help
 # OR
 $ python demo.py --help
 
-usage: demo.py [-h] [-u URL] -s [START] -e [END] [-d [DELAY]] [-f] [-o [OUTPUT]]
+usage: demo.py [-h] [-u URL] -s [START] -e [END] [-d [DELAY]] [-n [REQUESTS]] [-m [MESHID]] [-f] [-o [OUTPUT]]
 
-Requests a route from polarRouteServer, repeating the request for status until the route is available. Specify start and end points by coordinates or from one of the standard locations: ['bird', 'falklands',
-'halley', 'rothera', 'kep', 'signy', 'nyalesund', 'harwich', 'rosyth']
+Requests a route from polarRouteServer, monitors job status until complete, then retrieves the route data. Specify start and end points by coordinates or from one of the standard locations: ['bird', 'falklands', 'halley', 'rothera', 'kep', 'signy', 'nyalesund', 'harwich', 'rosyth']
 
 options:
   -h, --help            show this help message and exit
@@ -40,7 +39,11 @@ options:
   -e [END], --end [END]
                         End location either as the name of a standard location or latitude,longitude separated by a comma, e.g. -56.7,-65.01
   -d [DELAY], --delay [DELAY]
-                        (integer) number of seconds to delay between status calls.
+                        (integer) number of seconds to delay between status calls. Default: 30
+  -n [REQUESTS], --requests [REQUESTS]
+                        (integer) number of status requests to make before stopping. Default: 10
+  -m [MESHID], --meshid [MESHID]
+                        (integer) Custom mesh ID.
   -f, --force           Force polarRouteServer to recalculate the route even if it is already available.
   -o [OUTPUT], --output [OUTPUT]
                         File path to write out route to. (Default: None and print to stdout)
@@ -49,28 +52,74 @@ options:
 So to request a route from Falklands to Rothera, for example:
 
 ```sh
-python demo.py --url example-polar-route-server.com -s falklands -e rothera --delay 120 --output demo_output.json
+python demo.py --url http://example-polar-route-server.com -s falklands -e rothera --delay 120 --output demo_output.json
 ```
 
-This will request the route from the server running at `example-polar-route-server.com`, and initiate a route calculation if one is not already available.
+This will request the route from the server running at `http://example-polar-route-server.com`, and initiate a route calculation if one is not already available.
 
-The utility will then request the route's status every `120` seconds.
+The utility will then monitor the job status every `120` seconds until the route calculation is complete.
 
 The HTTP response from each request will be printed to stdout.
 
-Once the route is available it will be returned, or if 10 attempts to get the route have passed, the utility will stop.
+Once the route is available it will be retrieved and returned, or if the maximum number of attempts have passed, the utility will stop.
 
 ## By making HTTP requests
 
 For details on the API, see the [API reference page](api.md).
 
-To request a route, make a POST request to the `/api/route` endpoint, for example the following using CURL
+The route request workflow consists of three steps:
 
-```
+### 1. Submit Route Request
+
+Make a POST request to the `/api/route` endpoint to submit a route calculation job:
+
+```bash
 curl --header "Content-Type: application/json" \
   --request POST \
-  --data '{"start_lat":"43.21","start_lon":"43.21", "end_lat":"43.21","end_lon":"43.21"}' \
+  --data '{"start_lat":"-51.73","start_lon":"-57.71", "end_lat":"-54.03","end_lon":"-38.04"}' \
   http://localhost:8000/api/route
 ```
 
-This will return a `status-url` where you can request the status of the route calculation using a GET request, when the route is ready the same URL will return the route in the response.
+This will return a response containing:
+
+- `id`: The job ID for monitoring status.
+- `status-url`: URL for checking job status (e.g., `http://localhost:8000/api/job/{job_id}`).
+- If a pre-existing route is found, it may be returned immediately.
+
+### 2. Monitor Job Status
+
+Use the job ID to monitor the calculation status by making GET requests to the `/api/job/{job_id}` endpoint:
+
+```bash
+curl --header "Content-Type: application/json" \
+  --request GET \
+  http://localhost:8000/api/job/5c39308e-b88c-4988-9e4b-1c33bc97c90c
+```
+
+The response will include:
+
+- `status`: Current job status (PENDING, SUCCESS, FAILURE).
+- `route_id`: The route ID for data retrieval (available when status is SUCCESS).
+- `route_url`: Direct URL to retrieve the route data (e.g., `http://localhost:8000/api/route/{route_id}`).
+
+### 3. Retrieve Route Data
+
+Once the job status is SUCCESS, retrieve the actual route data using the route ID:
+
+```bash
+curl --header "Content-Type: application/json" \
+  --request GET \
+  http://localhost:8000/api/route/9
+```
+
+This will return the complete route data.
+
+### Optional: Cancel Job
+
+You can cancel a running job by making a DELETE request to the job endpoint:
+
+```bash
+curl --header "Content-Type: application/json" \
+  --request DELETE \
+  http://localhost:8000/api/job/5c39308e-b88c-4988-9e4b-1c33bc97c90c
+```
