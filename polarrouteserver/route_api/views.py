@@ -22,7 +22,7 @@ from .serializers import (
     VehicleSerializer,
     VesselTypeSerializer,
     RouteSerializer,
-    JobSerializer,
+    JobStatusSerializer,
 )
 from .utils import (
     evaluate_route,
@@ -657,7 +657,6 @@ class RouteDetailView(LoggingMixin, GenericAPIView):
             )
 
         data = RouteSerializer(route).data
-        data["polarrouteserver-version"] = polarrouteserver_version
 
         return Response(
             data,
@@ -737,33 +736,28 @@ class RecentRoutesView(LoggingMixin, GenericAPIView):
         for job in jobs_today:
             logger.debug(f"Processing job {job.id}")
 
-            # Get current status from Celery
-            result = AsyncResult(id=str(job.id), app=app)
-            status = result.state
+            # Use JobStatusSerializer for consistent job data formatting
+            job_serializer = JobStatusSerializer(job, context={"request": request})
+            job_data = job_serializer.data
 
-            job_data = {
-                "job_id": job.id,
-                "route_id": job.route.id,
-                "status": status,
-                "created": job.datetime.isoformat(),
-                "start_lat": job.route.start_lat,
-                "start_lon": job.route.start_lon,
-                "end_lat": job.route.end_lat,
-                "end_lon": job.route.end_lon,
-                "start_name": job.route.start_name,
-                "end_name": job.route.end_name,
-                "job_url": reverse("job_detail", args=[job.id], request=request),
-            }
+            # Add additional fields specific to recent routes view
+            job_data.update(
+                {
+                    "job_id": job.id,
+                    "start_lat": job.route.start_lat,
+                    "start_lon": job.route.start_lon,
+                    "end_lat": job.route.end_lat,
+                    "end_lon": job.route.end_lon,
+                    "start_name": job.route.start_name,
+                    "end_name": job.route.end_name,
+                    "job_url": reverse("job_detail", args=[job.id], request=request),
+                }
+            )
 
-            # Include route URL if job is successful
-            if status == "SUCCESS":
-                job_data["route_url"] = reverse(
-                    "route_detail", args=[job.route.id], request=request
-                )
+            # Include full route data if job is successful
+            if job_data.get("status") == "SUCCESS":
                 route_data = RouteSerializer(job.route).data
                 job_data.update(route_data)
-            elif status == "FAILURE":
-                job_data["info"] = {"error": job.route.info}
 
             jobs_data.append(job_data)
 
@@ -932,7 +926,7 @@ class JobView(LoggingMixin, GenericAPIView):
     View for handling job status requests
     """
 
-    serializer_class = JobSerializer
+    serializer_class = JobStatusSerializer
 
     @extend_schema(
         operation_id="api_job_retrieve_status",
@@ -995,28 +989,10 @@ class JobView(LoggingMixin, GenericAPIView):
                 status=rest_framework.status.HTTP_404_NOT_FOUND,
             )
 
-        # Get current status from Celery
-        result = AsyncResult(id=str(id), app=app)
-        status = result.state
-
-        data = {
-            "id": id,
-            "status": status,
-            "polarrouteserver-version": polarrouteserver_version,
-            "route_id": job.route.id,
-            "created": job.datetime.isoformat(),
-        }
-
-        if status == "SUCCESS":
-            # Include route URL when job is complete
-            data["route_url"] = reverse(
-                "route_detail", args=[job.route.id], request=request
-            )
-        elif status == "FAILURE":
-            data["info"] = {"error": job.route.info}
+        serializer = JobStatusSerializer(job, context={"request": request})
 
         return Response(
-            data,
+            serializer.data,
             headers={"Content-Type": "application/json"},
             status=rest_framework.status.HTTP_200_OK,
         )
