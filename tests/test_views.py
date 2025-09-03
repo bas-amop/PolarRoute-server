@@ -326,7 +326,7 @@ class TestRouteRequest(TestCase):
         request = self.factory.post(
             "/api/route", data=data, format="json"
         )
-        response2 = RouteRequestView.as_view()(request)
+        response2 = RouteRequestView.as_view()(request) # Changed View
         assert response.data.get("id") == response2.data.get("id")
         assert response.data.get("polarrouteserver-version") == response2.data.get(
             "polarrouteserver-version"
@@ -367,6 +367,7 @@ class TestRouteStatus:
         optimise_route(self.route.id)
 
     def test_get_status_pending(self):
+        
         self.setUp()
         
         self.job = Job.objects.create(

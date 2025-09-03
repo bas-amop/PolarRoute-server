@@ -760,7 +760,6 @@ class RecentRoutesView(LoggingMixin, GenericAPIView):
                 job_data["route_url"] = reverse(
                     "route_detail", args=[job.route.id], request=request
                 )
-                # Include route JSON data for backward compatibility with frontend
                 route_data = RouteSerializer(job.route).data
                 job_data.update(route_data)
             elif status == "FAILURE":
