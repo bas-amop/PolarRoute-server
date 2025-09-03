@@ -1,6 +1,8 @@
 from django.contrib import admin
+from celery.result import AsyncResult
 
 from .models import Vehicle, Route, Mesh, Job
+from polarrouteserver.celery import app
 
 LIST_PER_PAGE = 20
 
@@ -78,9 +80,20 @@ class JobAdmin(admin.ModelAdmin):
         "id",
         "datetime",
         "route",
-        "status",
+        "get_status",
     ]
     ordering = ("-datetime",)
+
+    def get_status(self, obj):
+        """Get current job status from Celery."""
+        try:
+            result = AsyncResult(id=str(obj.id), app=app)
+            status = result.state
+            return status if status is not None else "UNKNOWN"
+        except Exception as e:
+            return f"Error: {type(e).__name__}"
+
+    get_status.short_description = "Status"
 
 
 class MeshAdmin(admin.ModelAdmin):

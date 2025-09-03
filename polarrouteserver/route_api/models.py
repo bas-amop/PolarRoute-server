@@ -1,10 +1,7 @@
 import logging
 
-from celery.result import AsyncResult
 from django.db import models
 from django.utils import timezone
-
-from polarrouteserver.celery import app
 
 logger = logging.getLogger(__name__)
 
@@ -82,8 +79,3 @@ class Job(models.Model):
 
     datetime = models.DateTimeField(default=timezone.now)
     route = models.ForeignKey(Route, on_delete=models.SET_NULL, null=True)
-
-    @property
-    def status(self):
-        result = AsyncResult(self.id, app=app)
-        return result.state
