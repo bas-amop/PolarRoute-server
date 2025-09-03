@@ -145,18 +145,28 @@ class RouteSerializer(serializers.ModelSerializer):
     def _build_optimization_metrics(self, route_type, properties):
         """Build optimization metrics based on route type and properties."""
         if route_type == "traveltime":
-            return {
-                "time": {
-                    "start": properties.get("start_time"),
-                    "end": properties.get("end_time"),
-                    "duration": properties.get("travel_time"),
-                }
-            }
+            # Convert duration to string as per TypeScript example
+            duration = properties.get("total_traveltime")
+            duration_str = str(duration) if duration is not None else "0"
+
+            # Only include start/end if they exist in the route data
+            time_metrics = {"duration": duration_str}
+
+            if properties.get("start_time"):
+                time_metrics["start"] = properties.get("start_time")
+            if properties.get("end_time"):
+                time_metrics["end"] = properties.get("end_time")
+
+            return {"time": time_metrics}
         elif route_type == "fuel":
+            # Default units to "tons" if not specified
+            units = properties.get("fuel_units") or "tons"
+            value = properties.get("total_fuel")
+
             return {
                 "fuelConsumption": {
-                    "value": properties.get("fuel_consumption"),
-                    "units": properties.get("fuel_units", "unknown"),
+                    "value": value,
+                    "units": units,
                 }
             }
         return {}
