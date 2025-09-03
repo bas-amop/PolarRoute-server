@@ -15,6 +15,7 @@ from polarrouteserver.route_api.views import (
     VehicleDetailView,
     VehicleTypeListView,
     RouteRequestView,
+    RouteDetailView,
     RecentRoutesView,
     JobView,
 )
@@ -455,6 +456,111 @@ class TestRouteStatus:
         response = JobView.as_view()(request, id=self.job.id)
 
         assert response.status_code == 202
+        
+        # Test the response includes job and route info
+        assert "message" in response.data
+        assert "job_id" in response.data
+        assert "route_id" in response.data
+        assert str(self.job.id) in response.data["message"]
+        assert response.data["job_id"] == str(self.job.id)
+        assert response.data["route_id"] == self.route.id
+
+    def test_cancel_nonexistent_job(self):
+        """
+        Test that attempting to cancel a non-existent job returns 404.
+        """
+        self.setUp()
+
+        fake_job_id = uuid.uuid4()
+        request = self.factory.delete(f"/api/job/{fake_job_id}")
+
+        response = JobView.as_view()(request, id=fake_job_id)
+
+        assert response.status_code == 404
+        assert "error" in response.data
+        assert str(fake_job_id) in response.data["error"]
+
+
+class TestRouteDetailView(TestCase):
+    """
+    Test case for the RouteDetailView endpoint that returns route data by route ID.
+    """
+
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.mesh = add_test_mesh_to_db()
+        
+        # Create a test route with minimal data
+        self.route = Route.objects.create(
+            start_lat=60.0,
+            start_lon=-1.0,
+            end_lat=61.0,
+            end_lon=-2.0,
+            mesh=self.mesh,
+            start_name="Test Start",
+            end_name="Test End",
+            json=None,
+            json_unsmoothed=None,
+            polar_route_version="0.2.0",
+            info={"message": "Test route"}
+        )
+
+    def test_get_route_success(self):
+        """
+        Test successful retrieval of route data by ID.
+        """
+        request = self.factory.get(f"/api/route/{self.route.id}")
+        response = RouteDetailView.as_view()(request, id=self.route.id)
+
+        self.assertEqual(response.status_code, 200)
+        
+        # Check that route data is included
+        self.assertEqual(response.data["start_lat"], 60.0)
+        self.assertEqual(response.data["start_lon"], -1.0)
+        self.assertEqual(response.data["end_lat"], 61.0)
+        self.assertEqual(response.data["end_lon"], -2.0)
+        self.assertEqual(response.data["start_name"], "Test Start")
+        self.assertEqual(response.data["end_name"], "Test End")
+        self.assertEqual(response.data["json"], [])
+        self.assertEqual(response.data["json_unsmoothed"], None)
+        self.assertEqual(response.data["polar_route_version"], "0.2.0")
+        self.assertIn("error", response.data["info"])
+
+    def test_get_route_not_found(self):
+        """
+        Test that requesting a non-existent route ID returns 404.
+        """
+        non_existent_id = 99999
+        request = self.factory.get(f"/api/route/{non_existent_id}")
+        response = RouteDetailView.as_view()(request, id=non_existent_id)
+
+        self.assertEqual(response.status_code, 404)
+        self.assertIn("error", response.data)
+        self.assertIn(str(non_existent_id), response.data["error"])
+
+    def test_get_route_with_minimal_data(self):
+        """
+        Test retrieval of route with minimal required data (no optional fields).
+        """
+        minimal_route = Route.objects.create(
+            start_lat=50.0,
+            start_lon=0.0,
+            end_lat=51.0,
+            end_lon=1.0,
+            mesh=self.mesh
+            # No optional fields like start_name, end_name, json, etc.
+        )
+
+        request = self.factory.get(f"/api/route/{minimal_route.id}")
+        response = RouteDetailView.as_view()(request, id=minimal_route.id)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["start_lat"], 50.0)
+        self.assertEqual(response.data["start_lon"], 0.0)
+        self.assertEqual(response.data["end_lat"], 51.0)
+        self.assertEqual(response.data["end_lon"], 1.0)
+        self.assertIsNone(response.data.get("start_name"))
+        self.assertIsNone(response.data.get("end_name"))
 
 
 class TestGetRecentRoutesAndMesh(TestCase):
