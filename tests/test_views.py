@@ -20,6 +20,7 @@ from polarrouteserver.route_api.views import (
     JobView,
 )
 from polarrouteserver.route_api.models import Job, Route
+from polarrouteserver.route_api.tasks import optimise_route
 from .utils import add_test_mesh_to_db
 
 
@@ -363,14 +364,11 @@ class TestRouteStatus:
         self.route = Route.objects.create(
             start_lat=1.1, start_lon=1.1, end_lat=2.0, end_lon=2.0, mesh=mesh
         )
-        from polarrouteserver.route_api.tasks import optimise_route
-
         optimise_route(self.route.id)
 
     def test_get_status_pending(self):
-
         self.setUp()
-
+        
         self.job = Job.objects.create(
             id=uuid.uuid1(),
             route=self.route,
@@ -470,7 +468,7 @@ class TestRouteStatus:
         Test that attempting to cancel a non-existent job returns 404.
         """
         self.setUp()
-
+        
         fake_job_id = uuid.uuid4()
         request = self.factory.delete(f"/api/job/{fake_job_id}")
 
