@@ -15,8 +15,8 @@ from polarrouteserver.route_api.views import (
     VehicleDetailView,
     VehicleTypeListView,
     RouteRequestView,
-    RouteDetailView,
     RecentRoutesView,
+    JobView,
 )
 from polarrouteserver.route_api.models import Job, Route
 from .utils import add_test_mesh_to_db
@@ -316,7 +316,7 @@ class TestRouteRequest(TestCase):
 
         self.assertEqual(response.status_code, 202)
 
-        assert f"api/route/{response.data.get('id')}" in response.data.get("status-url")
+        assert f"api/job/{response.data.get('id')}" in response.data.get("status-url")
         assert isinstance(uuid.UUID(response.data.get("id")), uuid.UUID)
 
         # Test that requesting the same route doesn't start a new job.
@@ -324,12 +324,12 @@ class TestRouteRequest(TestCase):
         request = self.factory.post(
             "/api/route", data=data, format="json"
         )
-        response2 = RouteRequestView.as_view()(request)  # Changed View
+        response2 = RouteRequestView.as_view()(request)
         assert response.data.get("id") == response2.data.get("id")
         assert response.data.get("polarrouteserver-version") == response2.data.get(
             "polarrouteserver-version"
         )
-        assert f"api/route/{response.data.get('id')}" in response2.data.get(
+        assert f"api/job/{response.data.get('id')}" in response2.data.get(
             "status-url"
         )
 
@@ -375,9 +375,9 @@ class TestRouteStatus:
             route=self.route,
         )
 
-        request = self.factory.get(f"/api/route/{self.job.id}")
+        request = self.factory.get(f"/api/job/{self.job.id}")
 
-        response = RouteDetailView.as_view()(request, self.job.id)
+        response = JobView.as_view()(request, id=self.job.id)
 
         assert response.status_code == 200
 
@@ -398,14 +398,13 @@ class TestRouteStatus:
                 route=self.route,
             )
 
-            request = self.factory.get(f"/api/route/{self.job.id}")
+            request = self.factory.get(f"/api/job/{self.job.id}")
 
-            response = RouteDetailView.as_view()(request, self.job.id)
+            response = JobView.as_view()(request, id=self.job.id)
 
             assert response.status_code == 200
             assert response.data.get("status") == "SUCCESS"
-            assert isinstance(response.data.get("json_unsmoothed"), list)
-            assert isinstance(response.data.get("json"), list)
+            assert "route_url" in response.data
 
     def test_request_out_of_mesh(self):
 
@@ -451,9 +450,9 @@ class TestRouteStatus:
             route=self.route,
         )
 
-        request = self.factory.delete(f"/api/route/{self.job.id}")
+        request = self.factory.delete(f"/api/job/{self.job.id}")
 
-        response = RouteDetailView.as_view()(request, self.job.id)
+        response = JobView.as_view()(request, id=self.job.id)
 
         assert response.status_code == 202
 
