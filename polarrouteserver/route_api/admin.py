@@ -31,7 +31,9 @@ class RouteAdmin(admin.ModelAdmin):
             "start_lat",
             "start_lon",
             "end_lat",
-            "end_lat",
+            "end_lon",
+            "start_name",
+            "end_name",
             "requested",
             "calculated",
             "job",
@@ -100,6 +102,7 @@ class MeshAdmin(admin.ModelAdmin):
         # Load only the fields necessary for the changelist view
         queryset = super().get_queryset(request)
         return queryset.defer("json")
+
 
 admin.site.register(Vehicle, VehicleAdmin)
 admin.site.register(Route, RouteAdmin)
