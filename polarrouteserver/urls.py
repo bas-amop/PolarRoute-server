@@ -28,14 +28,9 @@ urlpatterns = [
         name="route_list_create",
     ),
     path(
-        "api/route/<uuid:id>",
+        "api/route/<int:id>",
         views.RouteDetailView.as_view(),
         name="route_detail",
-    ),
-    path(
-        "api/optimise_route",
-        views.OptimiseRouteView.as_view(),
-        name="optimise_route",
     ),
     path(
         "api/job/<uuid:id>",
