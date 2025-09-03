@@ -357,7 +357,7 @@ class TestRouteRequest(TestCase):
         )
 
         response = EvaluateRouteView.as_view()(request)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 404)
 
 
 pytestmark = pytest.mark.django_db
@@ -452,7 +452,7 @@ class TestRouteStatus:
         except AssertionError:
             pass
 
-        assert post_response.status_code == 200
+        assert post_response.status_code == 404
         assert post_response.data["info"]["error"] == "No suitable mesh available."
 
     def test_cancel_route(self):

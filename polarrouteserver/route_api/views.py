@@ -29,6 +29,16 @@ from .utils import (
 logger = logging.getLogger(__name__)
 
 
+NoSuitableMeshResponse = Response(
+    data={
+        "info": {"error": "No suitable mesh available."},
+        "status": "FAILURE",
+    },
+    headers={"Content-Type": "application/json"},
+    status=rest_framework.status.HTTP_404_NOT_FOUND,
+)
+
+
 class LoggingMixin:
     """
     Provides full logging of requests and responses
@@ -455,7 +465,7 @@ class RouteRequestView(LoggingMixin, GenericAPIView):
                 ),
                 description="Invalid request data.",
             ),
-            200: OpenApiResponse(
+            404: OpenApiResponse(
                 response=inline_serializer(
                     name="NoSuitableMesh",
                     fields={
@@ -509,14 +519,7 @@ class RouteRequestView(LoggingMixin, GenericAPIView):
             meshes = select_mesh(start_lat, start_lon, end_lat, end_lon)
 
         if meshes is None:
-            return Response(
-                data={
-                    "info": {"error": "No suitable mesh available."},
-                    "status": "FAILURE",
-                },
-                headers={"Content-Type": "application/json"},
-                status=rest_framework.status.HTTP_200_OK,
-            )
+            return NoSuitableMeshResponse
 
         logger.debug(f"Using meshes: {[mesh.id for mesh in meshes]}")
         # TODO Future: calculate an up to date mesh if none available
@@ -877,16 +880,19 @@ class EvaluateRouteView(LoggingMixin, APIView):
                 ),
                 description="Mesh with the specified ID not found for evaluation.",
             ),
-            400: OpenApiResponse(
+            404: OpenApiResponse(
                 response=inline_serializer(
-                    name="RouteEvaluationBadRequest",
+                    name="NoSuitableMesh",
                     fields={
-                        "error": serializers.CharField(
-                            help_text="Error message indicating invalid route data."
-                        )
+                        "info": serializers.DictField(
+                            help_text="Error message indicating no suitable mesh."
+                        ),
+                        "status": serializers.CharField(
+                            help_text="Status of the request (e.g., FAILURE)."
+                        ),
                     },
                 ),
-                description="Invalid route data provided for evaluation.",
+                description="No suitable mesh available for the requested route.",
             ),
         },
     )
@@ -909,13 +915,7 @@ class EvaluateRouteView(LoggingMixin, APIView):
             meshes = select_mesh_for_route_evaluation(route_json)
 
             if meshes is None:
-                return Response(
-                    data={
-                        "error": "No suitable mesh available, unable to evaluate route.",
-                    },
-                    headers={"Content-Type": "application/json"},
-                    status=rest_framework.status.HTTP_400_BAD_REQUEST,
-                )
+                return NoSuitableMeshResponse
 
         response_data = {"polarrouteserver-version": polarrouteserver_version}
 
