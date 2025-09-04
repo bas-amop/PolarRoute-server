@@ -706,11 +706,9 @@ class RecentRoutesView(LoggingMixin, GenericAPIView):
         )
 
         # Only get today's routes
-        routes_today = (
-            Route.objects.filter(calculated__date=datetime.now().date())
-            .select_related("mesh")
-            .order_by("-calculated")
-        )
+        routes_today = Route.objects.filter(
+            calculated__date=datetime.now().date()
+        ).order_by("-calculated")
 
         logger.debug(f"Found {len(routes_today)} routes calculated today.")
 
