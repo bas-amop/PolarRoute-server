@@ -417,7 +417,7 @@ class RouteRequestView(LoggingMixin, GenericAPIView):
                     allow_null=True,
                     help_text="Optional: Custom mesh ID to use for route calculation.",
                 ),
-                "force_recalculate": serializers.BooleanField(
+                "force_new_route": serializers.BooleanField(
                     required=False,
                     default=False,
                     help_text="If true, forces recalculation even if an existing route is found.",
@@ -506,7 +506,7 @@ class RouteRequestView(LoggingMixin, GenericAPIView):
         start_name = data.get("start_name", None)
         end_name = data.get("end_name", None)
         custom_mesh_id = data.get("mesh_id", None)
-        force_recalculate = data.get("force_recalculate", False)
+        force_new_route = data.get("force_new_route", False)
 
         if custom_mesh_id:
             try:
@@ -542,7 +542,7 @@ class RouteRequestView(LoggingMixin, GenericAPIView):
         existing_route = route_exists(meshes, start_lat, start_lon, end_lat, end_lon)
 
         if existing_route is not None:
-            if not force_recalculate:
+            if not force_new_route:
                 logger.info(f"Existing route found: {existing_route}")
 
                 # Check if there's an existing job for this route
@@ -556,14 +556,14 @@ class RouteRequestView(LoggingMixin, GenericAPIView):
                         ),
                         "polarrouteserver-version": polarrouteserver_version,
                         "info": {
-                            "message": "Pre-existing route found. Job already exists. To force new calculation, include 'force_recalculate': true in POST request."
+                            "message": "Pre-existing route found. Job already exists. To force new calculation, include 'force_new_route': true in POST request."
                         },
                     }
                 else:
                     # Route exists but no job - manual route insertion, job deletion without route etc
                     response_data = {
                         "info": {
-                            "error": "Pre-existing route was found but there was an error with the job. To force new calculation, include 'force_recalculate': true in POST request."
+                            "error": "Pre-existing route was found but there was an error with the job. To force new calculation, include 'force_new_route': true in POST request."
                         }
                     }
 
@@ -574,7 +574,7 @@ class RouteRequestView(LoggingMixin, GenericAPIView):
                 )
             else:
                 logger.info(
-                    f"Found existing route(s) but got force_recalculate={force_recalculate}, beginning recalculation."
+                    f"Found existing route(s) but got force_new_route={force_new_route}, beginning recalculation."
                 )
 
         logger.debug(

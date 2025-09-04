@@ -572,7 +572,7 @@ components:
           format: uuid
           nullable: true
           description: 'Optional: Custom mesh ID to use for route calculation.'
-        force_recalculate:
+        force_new_route:
           type: boolean
           default: false
           description: If true, forces recalculation even if an existing route is
