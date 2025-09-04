@@ -139,7 +139,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RecentRoutesSuccess'
-          description: List of recent routes with job information retrieved successfully.
+          description: List of recent routes retrieved successfully.
         '204':
           content:
             application/json:
@@ -403,59 +403,6 @@ components:
       - polarrouteserver-version
       - route_id
       - status
-    JobWithRoute:
-      type: object
-      properties:
-        job_id:
-          type: string
-          format: uuid
-        route_id:
-          type: string
-          format: uuid
-        status:
-          type: string
-        created:
-          type: string
-          format: date-time
-        start_lat:
-          type: number
-          format: double
-        start_lon:
-          type: number
-          format: double
-        end_lat:
-          type: number
-          format: double
-        end_lon:
-          type: number
-          format: double
-        start_name:
-          type: string
-          nullable: true
-        end_name:
-          type: string
-          nullable: true
-        job_url:
-          type: string
-          format: uri
-        route_url:
-          type: string
-          format: uri
-        info:
-          type: object
-          additionalProperties: {}
-      required:
-      - created
-      - end_lat
-      - end_lon
-      - end_name
-      - job_id
-      - job_url
-      - route_id
-      - start_lat
-      - start_lon
-      - start_name
-      - status
     MeshDetailSuccess:
       type: object
       properties:
@@ -529,16 +476,16 @@ components:
     RecentRoutesSuccess:
       type: object
       properties:
-        jobs:
+        routes:
           type: array
           items:
-            $ref: '#/components/schemas/JobWithRoute'
-          description: List of recent jobs with associated route information.
+            $ref: '#/components/schemas/Route'
+          description: List of recent routes.
         polarrouteserver-version:
           type: string
       required:
-      - jobs
       - polarrouteserver-version
+      - routes
     Route:
       type: object
       properties:
