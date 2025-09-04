@@ -712,7 +712,7 @@ class RecentRoutesView(LoggingMixin, GenericAPIView):
     serializer_class = RouteSerializer
 
     @extend_schema(
-        operation_id="api_recent_routes_list",
+        operation_id="api_recent_routes_lists",
         responses={
             200: OpenApiResponse(
                 response=RouteSerializer(many=True),
