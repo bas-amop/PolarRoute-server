@@ -87,3 +87,19 @@ class Job(models.Model):
     def status(self):
         result = AsyncResult(self.id, app=app)
         return result.state
+
+
+class Location(models.Model):
+    "Preset locations"
+
+    lat = models.FloatField()
+    lon = models.FloatField()
+    name = models.CharField(max_length=100)
+
+    @property
+    def latitude(self):
+        return self.lat
+
+    @property
+    def longitude(self):
+        return self.lon
