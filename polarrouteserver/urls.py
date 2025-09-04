@@ -56,11 +56,15 @@ urlpatterns = [
     path(
         "api/evaluate_route", views.EvaluateRouteView.as_view(), name="evaluate_route"
     ),
+    path("api/locations", views.LocationView.as_view(), name="location_list"),
+    path("api/location", views.LocationView.as_view(), name="location_list"),
+    path("api/location/<int:id>", views.LocationView.as_view(), name="location_detail"),
 ]
 
 # noqa
 try:
     from debug_toolbar.toolbar import debug_toolbar_urls
+
     urlpatterns += debug_toolbar_urls()
-except:#noqa
+except:  # noqa
     pass

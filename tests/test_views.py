@@ -17,6 +17,7 @@ from polarrouteserver.route_api.views import (
     RouteRequestView,
     RouteDetailView,
     RecentRoutesView,
+    LocationView,
 )
 from polarrouteserver.route_api.models import Job, Route
 from .utils import add_test_mesh_to_db
@@ -490,3 +491,27 @@ class TestGetRecentRoutesAndMesh(TestCase):
         assert response.status_code == 200
         assert response.data.get("json") is not None
         assert response.data.get("geojson") is not None
+
+class TestGetLocations(TestCase):
+    fixtures = ["locations_bas.json"]
+
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.location_id = 1
+        self.location_expected_name = "Bird Island"
+
+    def test_location_list_request(self):
+        request = self.factory.get(f"/api/location")
+
+        response = LocationView.as_view()(request, None)
+
+        assert response.status_code == 200
+        assert len(response.data) > 1
+    
+    def test_location_single_request(self):
+        request = self.factory.get(f"/api/location/{self.location_id}")
+
+        response = LocationView.as_view()(request, self.location_id)
+
+        assert response.status_code == 200
+        assert response.data.get("name") == self.location_expected_name
