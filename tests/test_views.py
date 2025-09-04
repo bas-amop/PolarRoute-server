@@ -1,5 +1,6 @@
 import json
 import uuid
+from datetime import datetime, timezone
 from unittest.mock import patch, PropertyMock
 
 import celery.states
@@ -567,11 +568,15 @@ class TestGetRecentRoutesAndMesh(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
         self.mesh = add_test_mesh_to_db()
+        # Create routes with calculated timestamps so they'll be found by the recent routes filter
+        now = datetime.now(timezone.utc)
         self.route1 = Route.objects.create(
-            start_lat=0.0, start_lon=0.0, end_lat=0.0, end_lon=0.0, mesh=self.mesh
+            start_lat=0.0, start_lon=0.0, end_lat=0.0, end_lon=0.0, 
+            mesh=self.mesh, calculated=now
         )
         self.route2 = Route.objects.create(
-            start_lat=1.0, start_lon=1.0, end_lat=1.0, end_lon=0.0, mesh=self.mesh
+            start_lat=1.0, start_lon=1.0, end_lat=1.0, end_lon=0.0, 
+            mesh=self.mesh, calculated=now
         )
         self.job1 = Job.objects.create(id=uuid.uuid1(), route=self.route1)
         self.job2 = Job.objects.create(id=uuid.uuid1(), route=self.route2)
@@ -583,7 +588,9 @@ class TestGetRecentRoutesAndMesh(TestCase):
         response = RecentRoutesView.as_view()(request)
 
         assert response.status_code == 200
-        assert len(response.data) == 2
+        assert "routes" in response.data
+        assert "polarrouteserver-version" in response.data
+        assert len(response.data["routes"]) == 2
 
     def test_mesh_get(self):
 

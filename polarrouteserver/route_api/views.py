@@ -676,33 +676,14 @@ class RecentRoutesView(LoggingMixin, GenericAPIView):
                 response=inline_serializer(
                     name="RecentRoutesSuccess",
                     fields={
-                        "jobs": serializers.ListField(
-                            child=inline_serializer(
-                                name="JobWithRoute",
-                                fields={
-                                    "job_id": serializers.UUIDField(),
-                                    "route_id": serializers.UUIDField(),
-                                    "status": serializers.CharField(),
-                                    "created": serializers.DateTimeField(),
-                                    "start_lat": serializers.FloatField(),
-                                    "start_lon": serializers.FloatField(),
-                                    "end_lat": serializers.FloatField(),
-                                    "end_lon": serializers.FloatField(),
-                                    "start_name": serializers.CharField(
-                                        allow_null=True
-                                    ),
-                                    "end_name": serializers.CharField(allow_null=True),
-                                    "job_url": serializers.URLField(),
-                                    "route_url": serializers.URLField(required=False),
-                                    "info": serializers.DictField(required=False),
-                                },
-                            ),
-                            help_text="List of recent jobs with associated route information.",
+                        "routes": serializers.ListField(
+                            child=RouteSerializer(),
+                            help_text="List of recent routes.",
                         ),
                         "polarrouteserver-version": serializers.CharField(),
                     },
                 ),
-                description="List of recent routes with job information retrieved successfully.",
+                description="List of recent routes retrieved successfully.",
             ),
             204: OpenApiResponse(
                 response=inline_serializer(
@@ -718,57 +699,39 @@ class RecentRoutesView(LoggingMixin, GenericAPIView):
         },
     )
     def get(self, request):
-        """Get recent routes"""
+        """Get recent routes calculated today"""
 
         logger.info(
             f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
         )
 
-        # Get recent jobs instead of routes directly
-        jobs_today = (
-            Job.objects.filter(datetime__date=datetime.now().date())
-            .select_related("route")
-            .order_by("-datetime")
+        # Get routes calculated today - much simpler and more direct
+        routes_today = (
+            Route.objects.filter(calculated__date=datetime.now().date())
+            .select_related("mesh")
+            .order_by("-calculated")
         )
 
-        jobs_data = []
-        logger.debug(f"Found {len(jobs_today)} jobs today.")
+        logger.debug(f"Found {len(routes_today)} routes calculated today.")
 
-        for job in jobs_today:
-            logger.debug(f"Processing job {job.id}")
+        if not routes_today.exists():
+            return Response(
+                {
+                    "message": "No recent routes found for today.",
+                    "polarrouteserver-version": polarrouteserver_version,
+                },
+                status=rest_framework.status.HTTP_204_NO_CONTENT,
+            )
 
-            # Get current status from Celery
-            result = AsyncResult(id=str(job.id), app=app)
-            status = result.state
-
-            job_data = {
-                "job_id": job.id,
-                "route_id": job.route.id,
-                "status": status,
-                "created": job.datetime.isoformat(),
-                "start_lat": job.route.start_lat,
-                "start_lon": job.route.start_lon,
-                "end_lat": job.route.end_lat,
-                "end_lon": job.route.end_lon,
-                "start_name": job.route.start_name,
-                "end_name": job.route.end_name,
-                "job_url": reverse("job_detail", args=[job.id], request=request),
-            }
-
-            # Include route URL if job is successful
-            if status == "SUCCESS":
-                job_data["route_url"] = reverse(
-                    "route_detail", args=[job.route.id], request=request
-                )
-                route_data = RouteSerializer(job.route).data
-                job_data.update(route_data)
-            elif status == "FAILURE":
-                job_data["info"] = {"error": job.route.info}
-
-            jobs_data.append(job_data)
+        # Serialize the routes using the existing RouteSerializer
+        routes_data = []
+        for route in routes_today:
+            logger.debug(f"Processing route {route.id}")
+            route_data = RouteSerializer(route).data
+            routes_data.append(route_data)
 
         response_data = {
-            "jobs": jobs_data,
+            "routes": routes_data,
             "polarrouteserver-version": polarrouteserver_version,
         }
 
