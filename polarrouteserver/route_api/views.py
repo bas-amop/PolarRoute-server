@@ -699,13 +699,13 @@ class RecentRoutesView(LoggingMixin, GenericAPIView):
         },
     )
     def get(self, request):
-        """Get recent routes calculated today"""
+        """Get recent routes"""
 
         logger.info(
             f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
         )
 
-        # Get routes calculated today - much simpler and more direct
+        # Only get today's routes
         routes_today = (
             Route.objects.filter(calculated__date=datetime.now().date())
             .select_related("mesh")
@@ -723,7 +723,6 @@ class RecentRoutesView(LoggingMixin, GenericAPIView):
                 status=rest_framework.status.HTTP_204_NO_CONTENT,
             )
 
-        # Serialize the routes using the existing RouteSerializer
         routes_data = []
         for route in routes_today:
             logger.debug(f"Processing route {route.id}")
