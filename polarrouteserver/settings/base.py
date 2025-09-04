@@ -87,6 +87,7 @@ INSTALLED_APPS = [
     "django_celery_results",
     "django_celery_beat",
     "drf_spectacular",
+    "drf_spectacular_sidecar",
     "polarrouteserver.route_api",
     "corsheaders",
 ]
@@ -116,7 +117,9 @@ SPECTACULAR_SETTINGS = {
     "TITLE": "PolarRoute-Server",
     "DESCRIPTION": "Backend server for serving PolarRoute and MeshiPhi assets",
     "VERSION": polarrouteserver_version,
-    "SERVE_INCLUDE_SCHEMA": False,
+    "SERVE_INCLUDE_SCHEMA": True,
+    "SWAGGER_UI_DIST": "SIDECAR",
+    "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
     "SECURITY": [],
     "AUTHENTICATION_WHITELIST": [],
 }
