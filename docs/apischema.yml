@@ -31,18 +31,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/RouteEvaluationSuccess'
           description: Route evaluated successfully.
-        '204':
+        '404':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MeshNotFoundForEvaluation'
-          description: Mesh with the specified ID not found for evaluation.
-        '400':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RouteEvaluationBadRequest'
-          description: Invalid route data provided for evaluation.
+                $ref: '#/components/schemas/NoMesh'
+          description: No matching mesh found.
   /api/mesh/{id}:
     get:
       operationId: api_mesh_get
@@ -64,12 +58,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/MeshDetailSuccess'
           description: Mesh details retrieved successfully.
-        '204':
+        '404':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MeshNotFound'
-          description: Mesh with the specified ID not found.
+                $ref: '#/components/schemas/NoMesh'
+          description: No matching mesh found.
   /api/recent_routes:
     get:
       operationId: api_recent_routes_list
@@ -126,12 +120,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/RouteCreationBadRequest'
           description: Invalid request data.
-        '200':
+        '404':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NoSuitableMesh'
-          description: No suitable mesh available for the requested route.
+                $ref: '#/components/schemas/NoMesh'
+          description: No matching mesh found.
   /api/route/{id}:
     get:
       operationId: api_route_retrieve_status
@@ -336,22 +330,19 @@ components:
       - id
       - json
       - polarrouteserver-version
-    MeshNotFound:
+    NoMesh:
       type: object
       properties:
-        polarrouteserver-version:
+        info:
+          type: object
+          additionalProperties: {}
+          description: Error message indicating no mesh found.
+        status:
           type: string
-          description: Version of PolarRoute-server.
+          description: Status of the request (e.g., FAILURE).
       required:
-      - polarrouteserver-version
-    MeshNotFoundForEvaluation:
-      type: object
-      properties:
-        error:
-          type: string
-          description: Error message indicating mesh not found.
-      required:
-      - error
+      - info
+      - status
     NoRecentRoutesFound:
       type: object
       properties:
@@ -360,19 +351,6 @@ components:
           description: Message indicating no recent routes were found.
       required:
       - message
-    NoSuitableMesh:
-      type: object
-      properties:
-        info:
-          type: object
-          additionalProperties: {}
-          description: Error message indicating no suitable mesh.
-        status:
-          type: string
-          description: Status of the request (e.g., FAILURE).
-      required:
-      - info
-      - status
     NoVesselTypesFound:
       type: object
       properties:
@@ -505,14 +483,6 @@ components:
       - end_lon
       - start_lat
       - start_lon
-    RouteEvaluationBadRequest:
-      type: object
-      properties:
-        error:
-          type: string
-          description: Error message indicating invalid route data.
-      required:
-      - error
     RouteEvaluationRequest:
       type: object
       properties:
