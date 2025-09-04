@@ -919,4 +919,3 @@ class EvaluateRouteView(LoggingMixin, APIView):
             headers={"Content-Type": "application/json"},
             status=rest_framework.status.HTTP_200_OK,
         )
-        # Test comment to trigger pre-commit hook
