@@ -376,7 +376,7 @@
 
 
 <h2 id="polarrouteserver.demo.request_route" class="doc doc-heading">
-            <code class="highlight language-python">request_route(url, start, end, status_update_delay=30, num_requests=10, force_recalculation=False, mesh_id=None)</code>
+            <code class="highlight language-python">request_route(url, start, end, status_update_delay=30, num_requests=10, force_new_route=False, mesh_id=None)</code>
 
 </h2>
 
@@ -441,7 +441,7 @@
               </div>
             </li>
             <li>
-              <b><code>force_recalculation</code></b>
+              <b><code>force_new_route</code></b>
                   (<code><span title="bool">bool</span></code>, default:
                       <code>False</code>
 )
@@ -510,7 +510,7 @@
     end: Location,
     status_update_delay: int = 30,
     num_requests: int = 10,
-    force_recalculation: bool = False,
+    force_new_route: bool = False,
     mesh_id: int = None,
 ) -&gt; str:
     """Requests a route from polarRouteServer, repeating the request for status until the route is available.
@@ -521,7 +521,7 @@
         end (Location): End location of route
         status_update_delay (int, optional): Delay in seconds between each status request. Defaults to 10.
         num_requests (int, optional): Max number of status requests before giving up. Defaults to 10.
-        force_recalculation (bool, optional): Force recalculation of an already existing route. Default: False.
+        force_new_route (bool, optional): Force recalculation of an already existing route. Default: False.
 
     Raises:
         Exception: If no status URL is returned.
@@ -544,7 +544,7 @@
                 "end_lon": end.lon,
                 "start_name": start.name,
                 "end_name": end.name,
-                "force_recalculate": force_recalculation,
+                "force_new_route": force_new_route,
                 "mesh_id": mesh_id,
             },
         ).encode("utf-8"),
