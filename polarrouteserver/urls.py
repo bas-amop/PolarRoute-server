@@ -57,7 +57,6 @@ urlpatterns = [
         "api/evaluate_route", views.EvaluateRouteView.as_view(), name="evaluate_route"
     ),
     path("api/locations", views.LocationView.as_view(), name="location_list"),
-    path("api/location", views.LocationView.as_view(), name="location_list"),
     path("api/location/<int:id>", views.LocationView.as_view(), name="location_detail"),
 ]
 

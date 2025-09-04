@@ -44,24 +44,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/RouteEvaluationBadRequest'
           description: Invalid route data provided for evaluation.
-  /api/location:
-    get:
-      operationId: location_retrieve
-      description: GET either all locations or one location by its `id`.
-      tags:
-      - location
-      security:
-      - {}
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Location'
-          description: ''
   /api/location/{id}:
     get:
-      operationId: location_retrieve_2
+      operationId: location_retrieve
       description: GET either all locations or one location by its `id`.
       parameters:
       - in: path
