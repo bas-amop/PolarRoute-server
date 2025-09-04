@@ -102,8 +102,12 @@ branch = true
 omit = [
     "polarrouteserver/settings/*",
     "polarrouteserver/route_api/migrations/*",
+    "polarrouteserver/route_api/admin.py",
+    "polarrouteserver/route_api/apps.py",
     "polarrouteserver/asgi.py",
+    "polarrouteserver/admin.py",
     "polarrouteserver/demo.py",
     "polarrouteserver/urls.py",
     "polarrouteserver/wsgi.py",
+
     ]
