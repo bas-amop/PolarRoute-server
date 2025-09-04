@@ -481,14 +481,25 @@ class RouteRequestView(LoggingMixin, GenericAPIView):
         data = request.data
 
         # TODO validate request JSON
-        start_lat = data["start_lat"]
-        start_lon = data["start_lon"]
-        end_lat = data["end_lat"]
-        end_lon = data["end_lon"]
+        start_lat = float(data["start_lat"])
+        start_lon = float(data["start_lon"])
+        end_lat = float(data["end_lat"])
+        end_lon = float(data["end_lon"])
         start_name = data.get("start_name", None)
         end_name = data.get("end_name", None)
         custom_mesh_id = data.get("mesh_id", None)
         force_new_route = data.get("force_new_route", False)
+
+        # logger.debug(f"Route request received with parameters: \n" + \
+        #     f"start_lat: {type(start_lat)} \n" + \
+        #     f"start_lon: {type(start_lon)} \n" + \
+        #     f"end_lat: {type(end_lat)} \n" + \
+        #     f"end_lon: {type(end_lon)} \n" + \
+        #     f"start_name: {start_name} \n" + \
+        #     f"end_name: {end_name} \n" + \
+        #     f"custom_mesh_id: {custom_mesh_id} \n" + \
+        #     f"force_recalculate: {force_recalculate} \n"
+        # )
 
         if custom_mesh_id:
             try:
@@ -743,7 +754,6 @@ class RecentRoutesView(LoggingMixin, GenericAPIView):
         response_data = []
         logger.debug(f"Found {len(routes_today)} routes today.")
         for route in routes_today:
-            logger.debug(f"{route.id}")
             try:
                 job = route.job_set.latest("datetime")
             except Job.DoesNotExist:
