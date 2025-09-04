@@ -72,7 +72,7 @@ def request_route(
     end: Location,
     status_update_delay: int = 30,
     num_requests: int = 10,
-    force_recalculation: bool = False,
+    force_new_route: bool = False,
     mesh_id: int = None,
 ) -> str:
     """Requests a route from polarRouteServer, repeating the request for status until the route is available.
@@ -83,7 +83,7 @@ def request_route(
         end (Location): End location of route
         status_update_delay (int, optional): Delay in seconds between each status request. Defaults to 10.
         num_requests (int, optional): Max number of status requests before giving up. Defaults to 10.
-        force_recalculation (bool, optional): Force recalculation of an already existing route. Default: False.
+        force_new_route (bool, optional): Force recalculation of an already existing route. Default: False.
 
     Raises:
         Exception: If no status URL is returned.
@@ -106,7 +106,7 @@ def request_route(
                 "end_lon": end.lon,
                 "start_name": start.name,
                 "end_name": end.name,
-                "force_recalculate": force_recalculation,
+                "force_new_route": force_new_route,
                 "mesh_id": mesh_id,
             },
         ).encode("utf-8"),
@@ -235,7 +235,7 @@ def parse_args():
         "-f",
         "--force",
         action="store_true",
-        help="Force polarRouteServer to recalculate the route even if it is already available.",
+        help="Force polarRouteServer to create a new route even if one is already available.",
     )
     parser.add_argument(
         "-o",
@@ -256,7 +256,7 @@ def main():
         parse_location(args.start),
         parse_location(args.end),
         status_update_delay=args.delay,
-        force_recalculation=args.force,
+        force_new_route=args.force,
         mesh_id=args.meshid,
     )
 

@@ -412,7 +412,7 @@ class RouteRequestView(LoggingMixin, GenericAPIView):
                     allow_null=True,
                     help_text="Optional: Custom mesh ID to use for route calculation.",
                 ),
-                "force_recalculate": serializers.BooleanField(
+                "force_new_route": serializers.BooleanField(
                     required=False,
                     default=False,
                     help_text="If true, forces recalculation even if an existing route is found.",
@@ -488,7 +488,7 @@ class RouteRequestView(LoggingMixin, GenericAPIView):
         start_name = data.get("start_name", None)
         end_name = data.get("end_name", None)
         custom_mesh_id = data.get("mesh_id", None)
-        force_recalculate = data.get("force_recalculate", False)
+        force_new_route = data.get("force_new_route", False)
 
         if custom_mesh_id:
             try:
@@ -524,7 +524,7 @@ class RouteRequestView(LoggingMixin, GenericAPIView):
         existing_route = route_exists(meshes, start_lat, start_lon, end_lat, end_lon)
 
         if existing_route is not None:
-            if not force_recalculate:
+            if not force_new_route:
                 logger.info(f"Existing route found: {existing_route}")
                 response_data = RouteSerializer(existing_route).data
                 if existing_route.job_set.count() > 0:
@@ -533,7 +533,7 @@ class RouteRequestView(LoggingMixin, GenericAPIView):
                     response_data.update(
                         {
                             "info": {
-                                "info": "Pre-existing route found and returned. To force new calculation, include 'force_recalculate': true in POST request."
+                                "info": "Pre-existing route found and returned. To force new calculation, include 'force_new_route': true in POST request."
                             },
                             "id": str(existing_job.id),
                             "status-url": reverse(
@@ -550,7 +550,7 @@ class RouteRequestView(LoggingMixin, GenericAPIView):
                         {
                             "info": {
                                 "error": "Pre-existing route was found but there was an error.\
-                                To force new calculation, include 'force_recalculate': true in POST request."
+                                To force new calculation, include 'force_new_route': true in POST request."
                             }
                         }
                     )
@@ -561,7 +561,7 @@ class RouteRequestView(LoggingMixin, GenericAPIView):
                 )
             else:
                 logger.info(
-                    f"Found existing route(s) but got force_recalculate={force_recalculate}, beginning recalculation."
+                    f"Found existing route(s) but got force_new_route={force_new_route}, beginning recalculation."
                 )
 
         logger.debug(
