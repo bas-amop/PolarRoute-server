@@ -453,7 +453,7 @@ class TestRouteStatus:
             pass
 
         assert post_response.status_code == 404
-        assert post_response.data["info"]["error"] == "No suitable mesh available."
+        assert post_response.data["info"]["error"] == "No mesh available."
 
     def test_cancel_route(self):
 
