@@ -72,7 +72,7 @@ paths:
           description: Mesh with the specified ID not found.
   /api/recent_routes:
     get:
-      operationId: api_recent_routes_list
+      operationId: api_recent_routes_lists
       description: Get recent routes
       tags:
       - recent_routes

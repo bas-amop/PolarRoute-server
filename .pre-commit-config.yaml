@@ -12,7 +12,7 @@ repos:
   hooks:
     - id: update-api-schema
       name: Update API Schema
-      entry: bash -c 'if command -v python >/dev/null 2>&1; then make build-apischema || echo "⚠️  Could not update API schema - make sure Django dependencies are installed"; fi'
+      entry: bash -c 'python manage.py spectacular --color --validate --file docs/apischema.yml && git add docs/apischema.yml'
       language: system
       files: '^polarrouteserver/route_api/views\.py$'
       pass_filenames: false
