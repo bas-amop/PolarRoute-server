@@ -812,6 +812,8 @@ class MeshView(LoggingMixin, APIView):
         },
     )
     def get(self, request, id):
+        "GET Meshes by id"
+
         logger.info(
             f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
         )
@@ -896,6 +898,7 @@ class EvaluateRouteView(LoggingMixin, APIView):
         },
     )
     def post(self, request):
+        "POST Endpoint to evaluate traveltime and fuel usage on a given route."
         data = request.data
         route_json = data.get("route", None)
         custom_mesh_id = data.get("custom_mesh_id", None)
@@ -935,6 +938,7 @@ class LocationView(LoggingMixin, APIView):
     # return only locations which are covered by current meshes etc.
 
     def get(self, request, id=None):
+        "GET either all locations or one location by its `id`."
         logger.info(
             f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
         )
