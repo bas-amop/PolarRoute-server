@@ -16,7 +16,7 @@ Depends on:
 
 For development, also install and use the development tools with `pre-commit install`
 
-**Note:** The pre-commit hooks include automatic API schema generation. When you commit changes to `polarrouteserver/route_api/views.py`, the API schema (`docs/apischema.yml`) will be automatically updated and included in your commit.
+The pre-commit hooks include automatic API schema generation. When you commit changes to `polarrouteserver/route_api/views.py`, the API schema (`docs/apischema.yml`) will be automatically updated and included in your commit.
 
 A number of helpful development tools are made available through the `Makefile`, to see a description of each of these commands, run `make` (with no arguments) from the top-level of this directory.
 
@@ -35,9 +35,9 @@ The documentation should build automatically on pushes to `main` using GitHub ac
 
 The API is documented in `./docs/apischema.yml` using the OpenAPI 3.0 standard (formerly known as swagger).
 
-**Automatic Updates:** If you have pre-commit hooks installed (`pre-commit install`), the API schema will be automatically updated when you commit changes to Python files. The updated schema will be included in your commit.
+If you have pre-commit hooks installed (`pre-commit install`), the API schema will be automatically updated when you commit changes to Python files. The updated schema will be included in your commit.
 
-**Manual Updates:** You can also manually re-generate the schema by running:
+You can also manually re-generate the schema by running:
 
 ```shell
 make build-apischema
