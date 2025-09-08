@@ -28,9 +28,14 @@ urlpatterns = [
         name="route_list_create",
     ),
     path(
-        "api/route/<uuid:id>",
+        "api/route/<int:id>",
         views.RouteDetailView.as_view(),
         name="route_detail",
+    ),
+    path(
+        "api/job/<uuid:id>",
+        views.JobView.as_view(),
+        name="job_detail",
     ),
     path(
         "api/recent_routes",
@@ -61,6 +66,7 @@ urlpatterns = [
 # noqa
 try:
     from debug_toolbar.toolbar import debug_toolbar_urls
+
     urlpatterns += debug_toolbar_urls()
-except:#noqa
+except:  # noqa
     pass

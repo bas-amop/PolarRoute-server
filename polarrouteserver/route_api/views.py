@@ -18,7 +18,12 @@ from polarrouteserver.celery import app
 
 from .models import Job, Vehicle, Route, Mesh
 from .tasks import optimise_route
-from .serializers import VehicleSerializer, VesselTypeSerializer, RouteSerializer
+from .serializers import (
+    VehicleSerializer,
+    VesselTypeSerializer,
+    RouteSerializer,
+    JobSerializer,
+)
 from .utils import (
     evaluate_route,
     route_exists,
@@ -422,9 +427,9 @@ class RouteRequestView(LoggingMixin, GenericAPIView):
         responses={
             202: OpenApiResponse(
                 response=inline_serializer(
-                    name="RouteCreationAccepted",
+                    name="RouteRequestAccepted",
                     fields={
-                        "id": serializers.UUIDField(
+                        "job_id": serializers.UUIDField(
                             help_text="ID of the submitted job for route calculation."
                         ),
                         "status-url": serializers.URLField(
@@ -439,7 +444,7 @@ class RouteRequestView(LoggingMixin, GenericAPIView):
                         ),
                     },
                 ),
-                description="Route calculation job accepted.",
+                description="Route calculation job submitted successfully.",
             ),
             400: OpenApiResponse(
                 response=inline_serializer(
@@ -481,10 +486,23 @@ class RouteRequestView(LoggingMixin, GenericAPIView):
         data = request.data
 
         # TODO validate request JSON
-        start_lat = data["start_lat"]
-        start_lon = data["start_lon"]
-        end_lat = data["end_lat"]
-        end_lon = data["end_lon"]
+        try:
+            start_lat = float(data["start_lat"])
+            start_lon = float(data["start_lon"])
+            end_lat = float(data["end_lat"])
+            end_lon = float(data["end_lon"])
+        except (ValueError, TypeError, KeyError) as e:
+            msg = f"Invalid coordinate values provided: {e}"
+            logger.error(msg)
+            return Response(
+                data={
+                    "info": {"error": msg},
+                    "status": "FAILURE",
+                },
+                headers={"Content-Type": "application/json"},
+                status=rest_framework.status.HTTP_400_BAD_REQUEST,
+            )
+
         start_name = data.get("start_name", None)
         end_name = data.get("end_name", None)
         custom_mesh_id = data.get("mesh_id", None)
@@ -526,34 +544,29 @@ class RouteRequestView(LoggingMixin, GenericAPIView):
         if existing_route is not None:
             if not force_new_route:
                 logger.info(f"Existing route found: {existing_route}")
-                response_data = RouteSerializer(existing_route).data
+
+                # Check if there's an existing job for this route
                 if existing_route.job_set.count() > 0:
                     existing_job = existing_route.job_set.latest("datetime")
 
-                    response_data.update(
-                        {
-                            "info": {
-                                "info": "Pre-existing route found and returned. To force new calculation, include 'force_new_route': true in POST request."
-                            },
-                            "id": str(existing_job.id),
-                            "status-url": reverse(
-                                "route_detail",
-                                args=[existing_job.id],
-                                request=request,
-                            ),
-                            "polarrouteserver-version": polarrouteserver_version,
-                        }
-                    )
-
+                    response_data = {
+                        "id": str(existing_job.id),
+                        "status-url": reverse(
+                            "job_detail", args=[existing_job.id], request=request
+                        ),
+                        "polarrouteserver-version": polarrouteserver_version,
+                        "info": {
+                            "message": "Pre-existing route found. Job already exists. To force new calculation, include 'force_new_route': true in POST request."
+                        },
+                    }
                 else:
-                    response_data.update(
-                        {
-                            "info": {
-                                "error": "Pre-existing route was found but there was an error.\
-                                To force new calculation, include 'force_new_route': true in POST request."
-                            }
+                    # Route exists but no job - manual route insertion, job deletion without route etc
+                    response_data = {
+                        "info": {
+                            "error": "Pre-existing route was found but there was an error with the job. To force new calculation, include 'force_new_route': true in POST request."
                         }
-                    )
+                    }
+
                 return Response(
                     data=response_data,
                     headers={"Content-Type": "application/json"},
@@ -593,8 +606,7 @@ class RouteRequestView(LoggingMixin, GenericAPIView):
         # Prepare response data
         data = {
             "id": job.id,
-            # url to request status of requested route
-            "status-url": reverse("route_detail", args=[job.id], request=request),
+            "status-url": reverse("job_detail", args=[job.id], request=request),
             "polarrouteserver-version": polarrouteserver_version,
         }
 
@@ -609,102 +621,48 @@ class RouteDetailView(LoggingMixin, GenericAPIView):
     serializer_class = RouteSerializer
 
     @extend_schema(
-        operation_id="api_route_retrieve_status",
+        operation_id="api_route_retrieve_by_id",
         responses={
             200: OpenApiResponse(
-                response=inline_serializer(
-                    name="RouteStatusSuccess",
-                    fields={
-                        "id": serializers.UUIDField(
-                            help_text="ID of the route calculation job."
-                        ),
-                        "status": serializers.CharField(
-                            help_text="Current status of the job."
-                        ),
-                        "polarrouteserver-version": serializers.CharField(
-                            help_text="Version of PolarRoute-server."
-                        ),
-                        "start_lat": serializers.FloatField(),
-                        "start_lon": serializers.FloatField(),
-                        "end_lat": serializers.FloatField(),
-                        "end_lon": serializers.FloatField(),
-                        "start_name": serializers.CharField(),
-                        "end_name": serializers.CharField(),
-                        "info": serializers.DictField(
-                            required=False,
-                            help_text="Additional information or error details if status is FAILURE.",
-                        ),
-                    },
-                ),
-                description="Route status and details retrieved successfully.",
+                response=RouteSerializer,
+                description="Route data retrieved successfully.",
             ),
             404: OpenApiResponse(
                 response=inline_serializer(
-                    name="JobNotFound",
+                    name="RouteNotFound",
                     fields={
                         "error": serializers.CharField(
-                            help_text="Error message indicating job not found."
+                            help_text="Error message indicating route not found."
                         )
                     },
                 ),
-                description="Job with the specified ID not found.",
+                description="Route with the specified ID not found.",
             ),
         },
     )
     def get(self, request, id):
-        "Return status of route calculation and route itself if complete."
+        """Return route data by route ID."""
 
         logger.info(
             f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
         )
 
-        # update job with latest state
-        job = Job.objects.get(id=id)
+        try:
+            route = Route.objects.get(id=id)
+        except Route.DoesNotExist:
+            return Response(
+                {"error": f"Route with id {id} not found."},
+                headers={"Content-Type": "application/json"},
+                status=rest_framework.status.HTTP_404_NOT_FOUND,
+            )
 
-        # status = job.status
-        result = AsyncResult(id=str(id), app=app)
-        status = result.state
-
-        data = {
-            "id": str(id),
-            "status": status,
-            "polarrouteserver-version": polarrouteserver_version,
-        }
-
-        data.update(RouteSerializer(job.route).data)
-
-        if status == "FAILURE":
-            data.update({"error": job.route.info})
+        data = RouteSerializer(route).data
+        data["polarrouteserver-version"] = polarrouteserver_version
 
         return Response(
             data,
             headers={"Content-Type": "application/json"},
             status=rest_framework.status.HTTP_200_OK,
-        )
-
-    @extend_schema(
-        operation_id="api_route_cancel_job",
-        responses={
-            202: OpenApiResponse(
-                response=None,
-                description="Route calculation job cancellation accepted.",
-            ),
-        },
-    )
-    def delete(self, request, id):
-        """Cancel route calculation"""
-
-        logger.info(
-            f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
-        )
-
-        result = AsyncResult(id=str(id), app=app)
-        result.revoke()
-
-        return Response(
-            {},
-            headers={"Content-Type": "application/json"},
-            status=rest_framework.status.HTTP_202_ACCEPTED,
         )
 
 
@@ -715,7 +673,16 @@ class RecentRoutesView(LoggingMixin, GenericAPIView):
         operation_id="api_recent_routes_list",
         responses={
             200: OpenApiResponse(
-                response=RouteSerializer(many=True),
+                response=inline_serializer(
+                    name="RecentRoutesSuccess",
+                    fields={
+                        "routes": serializers.ListField(
+                            child=RouteSerializer(),
+                            help_text="List of recent routes.",
+                        ),
+                        "polarrouteserver-version": serializers.CharField(),
+                    },
+                ),
                 description="List of recent routes retrieved successfully.",
             ),
             204: OpenApiResponse(
@@ -738,33 +705,32 @@ class RecentRoutesView(LoggingMixin, GenericAPIView):
             f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
         )
 
-        # only get today's routes
-        routes_today = Route.objects.filter(requested__date=datetime.now().date())
-        response_data = []
-        logger.debug(f"Found {len(routes_today)} routes today.")
+        # Only get today's routes
+        routes_today = Route.objects.filter(
+            calculated__date=datetime.now().date()
+        ).order_by("-calculated")
+
+        logger.debug(f"Found {len(routes_today)} routes calculated today.")
+
+        if not routes_today.exists():
+            return Response(
+                {
+                    "message": "No recent routes found for today.",
+                    "polarrouteserver-version": polarrouteserver_version,
+                },
+                status=rest_framework.status.HTTP_204_NO_CONTENT,
+            )
+
+        routes_data = []
         for route in routes_today:
-            logger.debug(f"{route.id}")
-            try:
-                job = route.job_set.latest("datetime")
-            except Job.DoesNotExist:
-                logger.debug(f"Job does not exist for route {route.id}")
-                continue
+            logger.debug(f"Processing route {route.id}")
+            route_data = RouteSerializer(route).data
+            routes_data.append(route_data)
 
-            result = AsyncResult(id=str(job.id), app=app)
-            status = result.state
-
-            data = {
-                "id": str(job.id),
-                "status": status,
-                "polarrouteserver-version": polarrouteserver_version,
-            }
-
-            data.update(RouteSerializer(route).data)
-
-            if status == "FAILURE":
-                data.update({"error": route.info})
-
-            response_data.append(data)
+        response_data = {
+            "routes": routes_data,
+            "polarrouteserver-version": polarrouteserver_version,
+        }
 
         return Response(
             response_data,
@@ -918,4 +884,155 @@ class EvaluateRouteView(LoggingMixin, APIView):
             response_data,
             headers={"Content-Type": "application/json"},
             status=rest_framework.status.HTTP_200_OK,
+        )
+
+
+class JobView(LoggingMixin, GenericAPIView):
+    """
+    View for handling job status requests
+    """
+
+    serializer_class = JobSerializer
+
+    @extend_schema(
+        operation_id="api_job_retrieve_status",
+        responses={
+            200: OpenApiResponse(
+                response=inline_serializer(
+                    name="JobStatusSuccess",
+                    fields={
+                        "id": serializers.UUIDField(help_text="ID of the job."),
+                        "status": serializers.CharField(
+                            help_text="Current status of the job (PENDING, SUCCESS, FAILURE, etc.)."
+                        ),
+                        "polarrouteserver-version": serializers.CharField(
+                            help_text="Version of PolarRoute-server."
+                        ),
+                        "route_id": serializers.UUIDField(
+                            help_text="ID of the associated route."
+                        ),
+                        "created": serializers.DateTimeField(
+                            help_text="When the job was created."
+                        ),
+                        "info": serializers.DictField(
+                            required=False,
+                            help_text="Additional information or error details if status is FAILURE.",
+                        ),
+                        "route_url": serializers.URLField(
+                            required=False,
+                            help_text="URL to retrieve the route data when status is SUCCESS.",
+                        ),
+                    },
+                ),
+                description="Job status retrieved successfully.",
+            ),
+            404: OpenApiResponse(
+                response=inline_serializer(
+                    name="JobNotFound",
+                    fields={
+                        "error": serializers.CharField(
+                            help_text="Error message indicating job not found."
+                        )
+                    },
+                ),
+                description="Job with the specified ID not found.",
+            ),
+        },
+    )
+    def get(self, request, id):
+        """Return status of job and route URL if complete."""
+
+        logger.info(
+            f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
+        )
+
+        try:
+            job = Job.objects.get(id=id)
+        except Job.DoesNotExist:
+            return Response(
+                {"error": f"Job with id {id} not found."},
+                headers={"Content-Type": "application/json"},
+                status=rest_framework.status.HTTP_404_NOT_FOUND,
+            )
+
+        # Get current status from Celery
+        result = AsyncResult(id=str(id), app=app)
+        status = result.state
+
+        data = {
+            "id": id,
+            "status": status,
+            "polarrouteserver-version": polarrouteserver_version,
+            "route_id": job.route.id,
+            "created": job.datetime.isoformat(),
+        }
+
+        if status == "SUCCESS":
+            # Include route URL when job is complete
+            data["route_url"] = reverse(
+                "route_detail", args=[job.route.id], request=request
+            )
+        elif status == "FAILURE":
+            data["info"] = {"error": job.route.info}
+
+        return Response(
+            data,
+            headers={"Content-Type": "application/json"},
+            status=rest_framework.status.HTTP_200_OK,
+        )
+
+    @extend_schema(
+        operation_id="api_job_cancel",
+        responses={
+            202: OpenApiResponse(
+                response=inline_serializer(
+                    name="JobCancelAccepted",
+                    fields={
+                        "message": serializers.CharField(
+                            help_text="Confirmation message that job cancellation was accepted."
+                        )
+                    },
+                ),
+                description="Job cancellation accepted.",
+            ),
+            404: OpenApiResponse(
+                response=inline_serializer(
+                    name="JobCancelNotFound",
+                    fields={
+                        "error": serializers.CharField(
+                            help_text="Error message indicating job not found."
+                        )
+                    },
+                ),
+                description="Job with the specified ID not found.",
+            ),
+        },
+    )
+    def delete(self, request, id):
+        """Cancel job"""
+
+        logger.info(
+            f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
+        )
+
+        try:
+            job = Job.objects.get(id=id)
+        except Job.DoesNotExist:
+            return Response(
+                {"error": f"Job with id {id} not found."},
+                headers={"Content-Type": "application/json"},
+                status=rest_framework.status.HTTP_404_NOT_FOUND,
+            )
+
+        result = AsyncResult(id=str(id), app=app)
+        result.revoke()
+
+        return Response(
+            {
+                "message": f"Job {id} cancellation requested.",
+                "job_id": str(job.id),
+                "route_id": job.route.id,
+            },
+            headers={"Content-Type": "application/json"},
+            status=rest_framework.status.HTTP_202_ACCEPTED,
         )

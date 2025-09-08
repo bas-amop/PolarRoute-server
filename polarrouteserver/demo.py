@@ -1,4 +1,10 @@
-"""Demo script for requesting routes from PolarRouteServer API using Python standard library."""
+"""Demo script for requesting routes from PolarRouteServer API using Python standard library.
+
+This script demonstrates the two-step workflow:
+1. Submit a route request to /api/route, which returns a job ID
+2. Monitor job status at /api/job/{job_id} until completion
+3. When job is complete, retrieve route data from /api/route/{route_id}
+"""
 
 import argparse
 import http.client
@@ -75,7 +81,7 @@ def request_route(
     force_new_route: bool = False,
     mesh_id: int = None,
 ) -> str:
-    """Requests a route from polarRouteServer, repeating the request for status until the route is available.
+    """Requests a route from polarRouteServer, monitors job status until complete, then retrieves route data.
 
     Args:
         url (str): Base URL to send request to.
@@ -84,12 +90,13 @@ def request_route(
         status_update_delay (int, optional): Delay in seconds between each status request. Defaults to 10.
         num_requests (int, optional): Max number of status requests before giving up. Defaults to 10.
         force_new_route (bool, optional): Force recalculation of an already existing route. Default: False.
+        mesh_id (int, optional): Custom mesh ID to use for route calculation. Default: None.
 
     Raises:
         Exception: If no status URL is returned.
 
     Returns:
-        str: JSON response of route request.
+        str: JSON response of route data, or None if request failed.
     """
 
     # make route request
@@ -124,8 +131,11 @@ def request_route(
     # if no route returned, request status at status-url
     status_url = response_body.get("status-url")
     if status_url is None:
-        raise Exception("No status URL returned.")
-    id = response_body.get("id")
+        print(
+            "No status URL returned. Route may have failed or been returned immediately."
+        )
+        return None
+    job_id = response_body.get("id")
 
     status_request_count = 0
     while status_request_count <= num_requests:
@@ -135,25 +145,46 @@ def request_route(
         )
         time.sleep(status_update_delay)
 
-        # make route request
+        # make job status request
         print(f"Status request #{status_request_count} of {num_requests}")
-        response_body, status = make_request(
+        status_response, status_code = make_request(
             "GET",
             url,
-            f"/api/route/{id}",
+            f"/api/job/{job_id}",
             headers={"Content-Type": "application/json"},
         )
 
-        print(f"Route calculation {response_body.get('status')}.")
-        print(pprint.pprint(response_body))
-        if response_body.get("status") == "PENDING":
+        print(f"Route calculation {status_response.get('status')}.")
+        print(pprint.pprint(status_response))
+        if status_response.get("status") == "PENDING":
             continue
-        elif response_body.get("status") == "FAILURE":
+        elif status_response.get("status") == "FAILURE":
             return None
-        elif response_body.get("status") == "SUCCESS":
-            return response_body.get("json")
+        elif status_response.get("status") == "SUCCESS":
+            # Job is complete, now get the actual route data
+            route_url = status_response.get("route_url")
+            if route_url:
+                # Extract route ID from the route_url (e.g., "/api/route/123")
+                route_id = route_url.split("/")[-1]
+                print(f"Job complete! Fetching route data from route ID: {route_id}")
+
+                route_response, route_status = make_request(
+                    "GET",
+                    url,
+                    f"/api/route/{route_id}",
+                    headers={"Content-Type": "application/json"},
+                )
+
+                if str(route_status).startswith("2"):
+                    return route_response.get("json")
+                else:
+                    print(f"Failed to fetch route data: {route_status}")
+                    return None
+            else:
+                print("Job completed but no route_url provided")
+                return None
     print(
-        f'Max number of requests sent. Quitting.\nTo send more status requests, run: "curl {url}/api/route/{id}"'
+        f'Max number of requests sent. Quitting.\nTo send more status requests, run: "curl {url}/api/job/{job_id}"'
     )
     return None
 
@@ -181,7 +212,7 @@ def parse_location(location: str) -> Location:
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description=f"Requests a route from polarRouteServer, repeating the request for status until the route is available. \
+        description=f"Requests a route from polarRouteServer, monitors job status until complete, then retrieves the route data. \
         Specify start and end points by coordinates or from one of the standard locations: {[loc for loc in STANDARD_LOCATIONS.keys()]}"
     )
     parser.add_argument(
@@ -189,8 +220,8 @@ def parse_args():
         "--url",
         type=str,
         nargs="?",
-        default="localhost:8000",
-        help="Base URL to send request to. Default: localhost:8000",
+        default="http://localhost:8000",
+        help="Base URL to send request to. Default: http://localhost:8000",
     )
     parser.add_argument(
         "-s",
