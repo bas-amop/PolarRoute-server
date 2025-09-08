@@ -49,6 +49,18 @@ polarrouteserver = [
 ]
 
 [project.optional-dependencies]
+frontend = [
+    "dash>=2,<3",
+    "dash-bootstrap-components",
+    "dash-extensions",
+    "dash-leaflet",
+    "dash-mantine-components",
+    "django-bootstrap5",
+    "django-plotly-dash",
+    "dpd-static-support",
+    "requests",
+    "whitenoise",
+]
 dev = [
     "django-debug-toolbar",
     "pre-commit",

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {% if FRONTEND == "true" %}
+        <title>PolarRoute</title>
+        <link rel="stylesheet" href="https://cdn.web.bas.ac.uk/bas-style-kit/0.7.3/css/bas-style-kit.min.css" integrity="sha256-IQbFVuPltp9fndG5bH9NPKd7KTOYJ4fPqXIc0/pnbLs=" crossorigin="anonymous">
+        <link rel="apple-touch-icon" sizes="180x180" href="https://cdn.web.bas.ac.uk/bas-style-kit/0.7.3/img/favicon/apple-touch-icon.png" />
+        <link rel="icon" type="image/png" sizes="32x32" href="https://cdn.web.bas.ac.uk/bas-style-kit/0.7.3/img/favicon/favicon-32x32.png" />
+        <link rel="icon" type="image/png" sizes="16x16" href="https://cdn.web.bas.ac.uk/bas-style-kit/0.7.3/img/favicon/favicon-16x16.png" />
+        <link rel='manifest' href="https://cdn.web.bas.ac.uk/bas-style-kit/0.7.3/img/favicon/site.webmanifest" />
+        <link rel="mask-icon" href="https://cdn.web.bas.ac.uk/bas-style-kit/0.7.3/img/favicon/safari-pinned-tab.svg" color="#222222" />
+        <link rel="shortcut icon" href="https://cdn.web.bas.ac.uk/bas-style-kit/0.7.3/img/favicon/favicon.ico" />
+        <meta name="msapplication-TileColor" content="#222222">
+        <meta name="msapplication-config" content="https://cdn.web.bas.ac.uk/bas-style-kit/0.7.3/img/favicon/browserconfig.xml">
+        <meta name="theme-color" content="#222222">
+        {% load static %}
+        {% load plotly_dash%}
+        {% plotly_header %}
+        {% endif %}
+    </head>
+    <body>
+    
+    {% if FRONTEND == "true" %}
+
+    <script src="{% static 'mapFunctions.js' %}"></script>
+    {%plotly_direct name="PolarRoute"%}
+
+    {% else %}
+
+    <!-- PolarRoute server frontend is not enabled on this instance. -->
+
+    {% endif %}
+
+    </body>
+    {% plotly_footer %}
+</html>

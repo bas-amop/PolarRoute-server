@@ -138,3 +138,8 @@ GitHub.sublime-settings
 # Visual Studio Code # 
 .vscode/* 
 .history
+
+# assets used by dash js components
+assets/*
+
+data/*

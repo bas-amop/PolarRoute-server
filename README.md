@@ -46,7 +46,7 @@ popd
 3. Run `docker compose exec app /bin/bash` to open a shell inside the running app container.
 4. Run `django-admin insert_mesh /usr/src/app/data/mesh/<MESH FILENAME>` to insert the mesh into the database manually.
 
-Test that the app is working using the demo tool (see [Documentation](https://bas-amop.github.io/PolarRoute-server/requesting-routes/#using-the-in-built-demo-utility-simplest)). The URL of the service should be `localhost:8000`.
+Test that the app is working using the demo tool (see [Documentation](https://bas-amop.github.io/PolarRoute-server/requesting-routes/#using-the-in-built-demo-utility-simplest)). The URL of the service should be `localhost:8000`, where the user interface will be served if `POLARROUTE_FRONTEND` is set to `True` (which it is in `compose.yml`).
 
 The django development server supports hot reloading and the source code is bind-mounted into the container, so changes should be reflected in the running app. Any changes to `polarrouteserver.route_api.models.py` will necessitate a migration to the database. To create and run migrations, run:
 

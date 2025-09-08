@@ -27,6 +27,7 @@ DEBUG = os.getenv("POLARROUTE_DEBUG", "False").lower() == "True"
 ALLOWED_HOSTS = [
     "localhost",
     "0.0.0.0",
+    "127.0.0.1",
 ]
 if os.getenv("POLARROUTE_ALLOWED_HOSTS", None) is not None:
     ALLOWED_HOSTS.extend(os.getenv("POLARROUTE_ALLOWED_HOSTS").split(","))
@@ -134,6 +135,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "polarrouteserver.route_api.context_processors.export_vars",
             ],
         },
     },
@@ -188,6 +190,84 @@ CELERY_WORKER_HIJACK_ROOT_LOGGER = True
 CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "amqp://guest:guest@localhost")
 CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "django-db")
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
+
+
+if os.getenv("POLARROUTE_FRONTEND", True):
+    INSTALLED_APPS.extend(
+        [
+            "django_plotly_dash.apps.DjangoPlotlyDashConfig",
+            "dpd_static_support",
+            "django_bootstrap5",
+        ]
+    )
+
+    X_FRAME_OPTIONS = "SAMEORIGIN"
+
+    # See: https://django-plotly-dash.readthedocs.io/en/latest/configuration.html#configuration-options
+    PLOTLY_DASH = {
+        # Route used for the message pipe websocket connection
+        "ws_route": "dpd/ws/channel",
+        # Route used for direct http insertion of pipe messages
+        "http_route": "dpd/views",
+        # Flag controlling existince of http poke endpoint
+        "http_poke_enabled": True,
+        # Insert data for the demo when migrating
+        "insert_demo_migrations": False,
+        # Timeout for caching of initial arguments in seconds
+        "cache_timeout_initial_arguments": 60,
+        # Name of view wrapping function
+        "view_decorator": None,
+        # Flag to control location of initial argument storage
+        "cache_arguments": True,
+        # Flag controlling local serving of assets
+        "serve_locally": True,
+    }
+
+    # Staticfiles finders for locating dash app assets and related files
+
+    STATICFILES_FINDERS = [
+        "django.contrib.staticfiles.finders.FileSystemFinder",
+        "django.contrib.staticfiles.finders.AppDirectoriesFinder",
+        "django_plotly_dash.finders.DashAssetFinder",
+        "django_plotly_dash.finders.DashComponentFinder",
+        "django_plotly_dash.finders.DashAppDirectoryFinder",
+    ]
+
+    # Plotly components containing static content that should
+    # be handled by the Django staticfiles infrastructure
+
+    PLOTLY_COMPONENTS = [
+        # Common components (ie within dash itself) are automatically added
+        # django-plotly-dash components
+        "dpd_components",
+        # static support if serving local assets
+        "dpd_static_support",
+        # Other components, as needed
+        "dash_bootstrap_components",
+        # 'dash_mantine_components',
+        "dash_extensions",
+        "dash_leaflet",
+    ]
+
+    # MIDDLEWARE.extend([
+    #     'django_plotly_dash.middleware.BaseMiddleware',
+    #     'django_plotly_dash.middleware.ExternalRedirectionMiddleware',
+    #     "whitenoise.middleware.WhiteNoiseMiddleware",
+    # ])
+
+    MIDDLEWARE = [
+        "django.middleware.security.SecurityMiddleware",
+        "whitenoise.middleware.WhiteNoiseMiddleware",
+        "django.contrib.sessions.middleware.SessionMiddleware",
+        "django.middleware.common.CommonMiddleware",
+        "django.middleware.csrf.CsrfViewMiddleware",
+        "django.contrib.auth.middleware.AuthenticationMiddleware",
+        "django.contrib.messages.middleware.MessageMiddleware",
+        "django_plotly_dash.middleware.BaseMiddleware",
+        "django_plotly_dash.middleware.ExternalRedirectionMiddleware",
+        "django.middleware.clickjacking.XFrameOptionsMiddleware",
+        "corsheaders.middleware.CorsMiddleware",
+    ]
 
 
 # Routing settings (TODO: hardcoded, can / should these be exposed elsewhere?)
