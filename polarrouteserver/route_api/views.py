@@ -689,6 +689,10 @@ class RouteDetailView(LoggingMixin, GenericAPIView):
                 response=None,
                 description="Route calculation job cancellation accepted.",
             ),
+            400: OpenApiResponse(
+                response=None,
+                description="No corresponding job found.",
+            ),
         },
     )
     def delete(self, request, id):
@@ -698,8 +702,22 @@ class RouteDetailView(LoggingMixin, GenericAPIView):
             f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
         )
 
-        result = AsyncResult(id=str(id), app=app)
-        result.revoke()
+        try:
+            job = Job.objects.get(id=str(id))
+        except Job.DoesNotExist:
+            return Response(
+                {"error": f"Job {str(id)} not found."},
+                headers={"Content-Type": "application/json"},
+                status=rest_framework.status.HTTP_400_BAD_REQUEST,
+            )
+        except Exception as e:
+            raise (e)
+
+        # cancel the job's task
+        app.control.revoke(id)
+
+        # delete the corresponding route
+        job.route.delete()
 
         return Response(
             {},
