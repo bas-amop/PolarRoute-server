@@ -1,27 +1,16 @@
-"""
-URL configuration for polarrouteserver project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.0/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
-
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
+from rest_framework.routers import DefaultRouter
 
 from polarrouteserver.route_api import views
 
+# Create a router and register our ViewSets with it.
+router = DefaultRouter()
+router.register(r"locations", views.LocationViewSet, basename="location")
+
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("api/", include(router.urls)),
     path(
         "api/route",
         views.RouteRequestView.as_view(),
@@ -56,8 +45,6 @@ urlpatterns = [
     path(
         "api/evaluate_route", views.EvaluateRouteView.as_view(), name="evaluate_route"
     ),
-    path("api/locations", views.LocationView.as_view(), name="location_list"),
-    path("api/location/<int:id>", views.LocationView.as_view(), name="location_detail"),
 ]
 
 # noqa

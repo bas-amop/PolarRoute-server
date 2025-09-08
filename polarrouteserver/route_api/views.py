@@ -10,7 +10,7 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
-from rest_framework import serializers
+from rest_framework import serializers, viewsets
 
 from polar_route.config_validation.config_validator import validate_vessel_config
 from polarrouteserver.version import __version__ as polarrouteserver_version
@@ -929,42 +929,11 @@ class EvaluateRouteView(LoggingMixin, APIView):
         )
 
 
-class LocationView(LoggingMixin, APIView):
+class LocationViewSet(LoggingMixin, viewsets.ReadOnlyModelViewSet):
+    queryset = Location.objects.all().order_by("name")
     serializer_class = LocationSerializer
 
     # At present this is just a GET endpoint.
     # In future this endpoint and the Location model could support a lot of functionality,
     # e.g. user ownership of locations, search of locations by name,
     # return only locations which are covered by current meshes etc.
-
-    def get(self, request, id=None):
-        "GET either all locations or one location by its `id`."
-        logger.info(
-            f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
-        )
-
-        if id is not None:
-            try:
-                location = Location.objects.get(id=id)
-            except Location.DoesNotExist:
-                return Response(
-                    {"error": f"Location {id} not found."},
-                    headers={"Content-Type": "application/json"},
-                    status=rest_framework.status.HTTP_404_NOT_FOUND,
-                )
-
-            serializer = self.serializer_class(location)
-            return Response(
-                serializer.data,
-                headers={"Content-Type": "application/json"},
-                status=rest_framework.status.HTTP_200_OK,
-            )
-
-        else:
-            locations = Location.objects.all()
-            serializer = self.serializer_class(locations, many=True)
-            return Response(
-                serializer.data,
-                headers={"Content-Type": "application/json"},
-                status=rest_framework.status.HTTP_200_OK,
-            )
