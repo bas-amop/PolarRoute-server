@@ -76,6 +76,7 @@ def request_route(
     url: str,
     start: Location,
     end: Location,
+    vehicle_type: str,
     status_update_delay: int = 30,
     num_requests: int = 10,
     force_new_route: bool = False,
@@ -87,6 +88,7 @@ def request_route(
         url (str): Base URL to send request to.
         start (Location): Start location of route
         end (Location): End location of route
+        vehicle_type (str): Type of vehicle for route calculation (required)
         status_update_delay (int, optional): Delay in seconds between each status request. Defaults to 10.
         num_requests (int, optional): Max number of status requests before giving up. Defaults to 10.
         force_new_route (bool, optional): Force recalculation of an already existing route. Default: False.
@@ -113,6 +115,7 @@ def request_route(
                 "end_lon": end.lon,
                 "start_name": start.name,
                 "end_name": end.name,
+                "vehicle_type": vehicle_type,
                 "force_new_route": force_new_route,
                 "mesh_id": mesh_id,
             },
@@ -213,7 +216,8 @@ def parse_location(location: str) -> Location:
 def parse_args():
     parser = argparse.ArgumentParser(
         description=f"Requests a route from polarRouteServer, monitors job status until complete, then retrieves the route data. \
-        Specify start and end points by coordinates or from one of the standard locations: {[loc for loc in STANDARD_LOCATIONS.keys()]}"
+        Specify start and end points by coordinates or from one of the standard locations: {[loc for loc in STANDARD_LOCATIONS.keys()]}. \
+        Vehicle type is required for route calculation."
     )
     parser.add_argument(
         "-u",
@@ -237,6 +241,14 @@ def parse_args():
         type=str,
         nargs="?",
         help="End location either as the name of a standard location or latitude,longitude separated by a comma, e.g. -e-56.7,-65.01 Note that values starting with a minus (-) should use the single-letter form and omit the space.",
+        required=True,
+    )
+    parser.add_argument(
+        "-v",
+        "--vehicle",
+        type=str,
+        nargs="?",
+        help="Vehicle type for route calculation (required). Available types: SDA",
         required=True,
     )
     parser.add_argument(
@@ -286,6 +298,7 @@ def main():
         args.url,
         parse_location(args.start),
         parse_location(args.end),
+        args.vehicle,
         status_update_delay=args.delay,
         force_new_route=args.force,
         mesh_id=args.meshid,
