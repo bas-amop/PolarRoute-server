@@ -496,7 +496,6 @@ class RouteRequestView(LoggingMixin, GenericAPIView):
         except KeyError as e:
             return Response(
                 data={"error": f"Missing required field: {e}"},
-
                 headers={"Content-Type": "application/json"},
                 status=rest_framework.status.HTTP_400_BAD_REQUEST,
             )
@@ -568,7 +567,6 @@ class RouteRequestView(LoggingMixin, GenericAPIView):
                 vehicle_meshes, start_lat, start_lon, end_lat, end_lon
             )
 
-
         if existing_route is not None:
             if not force_new_route:
                 logger.info(f"Existing route found: {existing_route}")
@@ -623,6 +621,7 @@ class RouteRequestView(LoggingMixin, GenericAPIView):
             end_lat=end_lat,
             end_lon=end_lon,
             mesh=processed_meshes[0],
+            vehicle=vehicle,
             start_name=start_name,
             end_name=end_name,
         )
@@ -641,7 +640,9 @@ class RouteRequestView(LoggingMixin, GenericAPIView):
         return Response(
             data={
                 "id": job.id,
-                "status-url": reverse("job_detail", args=[job.id], request=self.request),
+                "status-url": reverse(
+                    "job_detail", args=[job.id], request=self.request
+                ),
                 "polarrouteserver-version": polarrouteserver_version,
             },
             headers={"Content-Type": "application/json"},

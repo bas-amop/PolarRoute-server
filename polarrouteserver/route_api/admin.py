@@ -59,6 +59,7 @@ class RouteAdmin(admin.ModelAdmin):
         "id",
         "display_start",
         "display_end",
+        "vehicle_type",
         "requested",
         "calculated",
         "job_id",
@@ -81,11 +82,12 @@ class RouteAdmin(admin.ModelAdmin):
             "calculated",
             "job",
             "mesh_id",
+            "vehicle_id",
             "info",
             "polar_route_version",
         )
 
-    list_select_related = ("mesh",)
+    list_select_related = ("mesh", "vehicle")
 
     def display_start(self, obj):
         if obj.start_name:
@@ -110,10 +112,16 @@ class RouteAdmin(admin.ModelAdmin):
         if obj.mesh:
             return f"{obj.mesh.id}"
 
+    def vehicle_type(self, obj):
+        if obj.vehicle:
+            return obj.vehicle.vessel_type
+        return "-"
+
     display_start.short_description = "Start (lat,lon)"
     display_end.short_description = "End (lat,lon)"
     job_id.short_description = "Job ID (latest)"
     mesh_id.short_description = "Mesh ID"
+    vehicle_type.short_description = "Vehicle Type"
 
 
 class JobAdmin(admin.ModelAdmin):

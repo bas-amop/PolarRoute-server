@@ -80,6 +80,7 @@ class Route(models.Model):
     calculated = models.DateTimeField(null=True)
     info = models.JSONField(null=True)
     mesh = models.ForeignKey(VehicleMesh, on_delete=models.SET_NULL, null=True)
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.SET_NULL, null=True)
     start_lat = models.FloatField()
     start_lon = models.FloatField()
     end_lat = models.FloatField()

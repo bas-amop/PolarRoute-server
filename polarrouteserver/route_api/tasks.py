@@ -244,7 +244,7 @@ def create_and_calculate_route(
             # Get the underlying EnvironmentMesh
             environment_mesh = current_mesh.environment_mesh
 
-            # Create new VehicleMesh for this vehicle + environment combination
+            # Create new VehicleMesh for this vehicle + environment
             logger.info(
                 f"Creating new VehicleMesh for vehicle {vehicle_type} using EnvironmentMesh {environment_mesh.id}"
             )
