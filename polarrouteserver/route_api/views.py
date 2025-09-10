@@ -848,6 +848,9 @@ class EvaluateRouteView(LoggingMixin, APIView):
             name="RouteEvaluationRequest",
             fields={
                 "route": serializers.JSONField(help_text="The route JSON to evaluate."),
+                "vehicle_type": serializers.CharField(
+                    help_text="Vehicle type for route evaluation (required)."
+                ),
                 "custom_mesh_id": serializers.UUIDField(
                     required=False,
                     allow_null=True,
@@ -897,20 +900,45 @@ class EvaluateRouteView(LoggingMixin, APIView):
     def post(self, request):
         data = request.data
         route_json = data.get("route", None)
+        vehicle_type = data.get("vehicle_type", None)
         custom_mesh_id = data.get("custom_mesh_id", None)
 
+        # Validate required parameters
+        if not route_json:
+            return Response(
+                {"error": "Missing required field: route"},
+                headers={"Content-Type": "application/json"},
+                status=rest_framework.status.HTTP_400_BAD_REQUEST,
+            )
+
+        if not vehicle_type:
+            return Response(
+                {"error": "Missing required field: vehicle_type"},
+                headers={"Content-Type": "application/json"},
+                status=rest_framework.status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Get meshes (either custom or auto-selected)
         if custom_mesh_id:
             try:
                 mesh = VehicleMesh.objects.get(id=custom_mesh_id)
                 meshes = [mesh]
             except VehicleMesh.DoesNotExist:
                 return Response(
-                    {"error": f"Mesh with id {custom_mesh_id} not found."},
+                    {"error": f"VehicleMesh with id {custom_mesh_id} not found."},
                     headers={"Content-Type": "application/json"},
-                    status=rest_framework.status.HTTP_204_NO_CONTENT,
+                    status=rest_framework.status.HTTP_400_BAD_REQUEST,
                 )
         else:
-            meshes = select_mesh_for_route_evaluation(route_json)
+            meshes = select_mesh_for_route_evaluation(route_json, vehicle_type)
+            if meshes is None or len(meshes) == 0:
+                return Response(
+                    {
+                        "error": f"No suitable VehicleMesh found for route evaluation with vehicle type '{vehicle_type}'."
+                    },
+                    headers={"Content-Type": "application/json"},
+                    status=rest_framework.status.HTTP_400_BAD_REQUEST,
+                )
 
         response_data = {"polarrouteserver-version": polarrouteserver_version}
 
