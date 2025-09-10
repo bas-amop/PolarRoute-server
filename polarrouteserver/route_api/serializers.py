@@ -1,6 +1,18 @@
 from rest_framework import serializers
+from .models import EnvironmentMesh, VehicleMesh, Vehicle, Route, Job
 
-from .models import EnvironmentMesh, VehicleMesh, Vehicle, Route
+
+class JobSerializer(serializers.ModelSerializer):
+    status = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = Job
+        fields = [
+            "id",
+            "datetime",
+            "route",
+            "status",
+        ]
 
 
 class VehicleSerializer(serializers.ModelSerializer):
@@ -19,6 +31,11 @@ class VehicleSerializer(serializers.ModelSerializer):
             "hull_type",
             "force_limit",
         ]
+
+
+class VesselTypeSerializer(serializers.Serializer):
+    class Meta:
+        vessel_type = serializers.CharField()
 
 
 class RouteSerializer(serializers.ModelSerializer):
