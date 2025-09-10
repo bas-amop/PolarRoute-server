@@ -14,7 +14,7 @@ import pytest
 import yaml
 
 from polarrouteserver.celery import app
-from polarrouteserver.route_api.models import VehicleMesh, EnvironmentMesh, Route
+from polarrouteserver.route_api.models import VehicleMesh, EnvironmentMesh, Route, Vehicle
 from polarrouteserver.route_api.tasks import import_new_meshes, create_and_calculate_route
 from polarrouteserver.route_api.utils import calculate_md5, optimise_route
 from .utils import add_test_vehicle_mesh_to_db, create_test_vehicle
@@ -33,6 +33,7 @@ class TestOptimiseRoute(TestCase):
         )
 
         assert isinstance(self.mesh, VehicleMesh)
+        assert isinstance(self.vehicle, Vehicle)
         assert isinstance(self.route, Route)
 
     def test_optimise_route(self):
