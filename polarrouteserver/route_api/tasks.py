@@ -419,7 +419,9 @@ def create_and_calculate_route(
                         raise ValueError(f"Backup mesh {backup_mesh_id} not found")
 
                 # Retry with the backup mesh
-                task = optimise_route.delay(route.id, vehicle_type, backup_mesh_ids[1:])
+                task = create_and_calculate_route.delay(
+                    route.id, vehicle_type, backup_mesh_ids[1:]
+                )
                 _ = Job.objects.create(
                     id=task.id,
                     route=route,
