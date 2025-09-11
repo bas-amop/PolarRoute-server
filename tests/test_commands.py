@@ -71,7 +71,7 @@ class TestInsertMeshCommand(TestCase):
     @patch('polarrouteserver.route_api.management.commands.insert_mesh.ingest_mesh')
     @patch('builtins.open', new_callable=mock_open)
     @patch('polarrouteserver.route_api.management.commands.insert_mesh.json.load')
-    def test_handle_value_error(self, mock_json_load, mock_ingest):
+    def test_handle_value_error(self, mock_json_load, _mock_file_open, mock_ingest):
         """Test handling of ValueError from ingest_mesh."""
         mock_json_load.return_value = self.test_mesh_data
         mock_ingest.side_effect = ValueError("Invalid mesh format")
@@ -83,7 +83,7 @@ class TestInsertMeshCommand(TestCase):
 
     @patch('builtins.open', new_callable=mock_open)
     @patch('polarrouteserver.route_api.management.commands.insert_mesh.json.load')
-    def test_handle_invalid_json_file(self, mock_json_load):
+    def test_handle_invalid_json_file(self, mock_json_load, _mock_file_open):
         """Test handling of invalid JSON files."""
         mock_json_load.side_effect = json.JSONDecodeError("Invalid JSON", "doc", 0)
         
