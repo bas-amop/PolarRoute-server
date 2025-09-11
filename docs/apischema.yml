@@ -595,6 +595,9 @@ components:
       properties:
         route:
           description: The route JSON to evaluate.
+        vehicle_type:
+          type: string
+          description: Vehicle type for route evaluation (required).
         custom_mesh_id:
           type: string
           format: uuid
@@ -602,6 +605,7 @@ components:
           description: 'Optional: Custom mesh ID to use for evaluation.'
       required:
       - route
+      - vehicle_type
     RouteEvaluationSuccess:
       type: object
       properties:

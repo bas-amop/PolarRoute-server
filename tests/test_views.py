@@ -20,9 +20,9 @@ from polarrouteserver.route_api.views import (
     RecentRoutesView,
     JobView,
 )
-from polarrouteserver.route_api.models import Job, Route
-from polarrouteserver.route_api.tasks import optimise_route
-from .utils import add_test_mesh_to_db
+from polarrouteserver.route_api.models import Job, Route, VehicleMesh, Vehicle
+from polarrouteserver.route_api.tasks import create_and_calculate_route
+from .utils import add_test_vehicle_mesh_to_db, create_test_vehicle
 
 
 class TestVehicleRequest(TestCase):
@@ -280,7 +280,7 @@ class TestVehicleTypeListView(TestCase):
 
 class TestRouteRequest(TestCase):
     def setUp(self):
-        add_test_mesh_to_db()
+        add_test_vehicle_mesh_to_db()
         self.factory = APIRequestFactory()
 
     def test_custom_mesh_id(self):
@@ -292,6 +292,7 @@ class TestRouteRequest(TestCase):
             "end_lat": 1.0,
             "end_lon": 1.0,
             "mesh_id": 999,
+            "vehicle_type": "TEST_VESSEL",
         }
 
         request = self.factory.post(
@@ -300,8 +301,8 @@ class TestRouteRequest(TestCase):
 
         response = RouteRequestView.as_view()(request)
 
-        self.assertEqual(response.status_code, 202)
-        self.assertIn("Does not exist.", response.data["info"]["error"])
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("Does not exist.", response.data["error"])
 
     def test_request_route(self):
         data = {
@@ -309,6 +310,7 @@ class TestRouteRequest(TestCase):
             "start_lon": 0.0,
             "end_lat": 1.0,
             "end_lon": 1.0,
+            "vehicle_type": "TEST_VESSEL",
         }
 
         request = self.factory.post(
@@ -340,7 +342,7 @@ class TestRouteRequest(TestCase):
         with open(settings.TEST_ROUTE_PATH) as fp:
             route_json = json.load(fp)
 
-        data = dict(route=route_json)
+        data = dict(route=route_json, vehicle_type="TEST_VESSEL")
 
         request = self.factory.post(
             "/api/evaluate_route", data=data, format="json"
@@ -348,6 +350,21 @@ class TestRouteRequest(TestCase):
 
         response = EvaluateRouteView.as_view()(request)
         self.assertEqual(response.status_code, 200)
+
+    def test_evaluate_route_missing_vehicle_type(self):
+        """Test that evaluate route fails when vehicle_type is not provided."""
+        with open(settings.TEST_ROUTE_PATH) as fp:
+            route_json = json.load(fp)
+
+        data = dict(route=route_json)  # Missing vehicle_type
+
+        request = self.factory.post(
+            "/api/evaluate_route", data=data, format="json"
+        )
+
+        response = EvaluateRouteView.as_view()(request)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("Missing required field: vehicle_type", response.data["error"])
 
 
 pytestmark = pytest.mark.django_db
@@ -361,11 +378,15 @@ class TestRouteStatus:
 
     def setUp(self):
         self.factory = APIRequestFactory()
-        mesh = add_test_mesh_to_db()
+        mesh = add_test_vehicle_mesh_to_db()
+        vehicle = create_test_vehicle()
         self.route = Route.objects.create(
-            start_lat=1.1, start_lon=1.1, end_lat=2.0, end_lon=2.0, mesh=mesh
+            start_lat=1.1, start_lon=1.1, end_lat=2.0, end_lon=2.0, mesh=mesh, vehicle=vehicle
         )
-        optimise_route(self.route.id)
+        # Run the route calculation task
+        task = create_and_calculate_route.delay(self.route.id, "TEST_VESSEL")
+        # Wait for task to complete in test
+        task.get()
 
     def test_get_status_pending(self):
         
@@ -420,11 +441,14 @@ class TestRouteStatus:
         lon_min = mesh["config"]["mesh_info"]["region"]["long_min"]
         lon_max = mesh["config"]["mesh_info"]["region"]["long_max"]
 
+        print(f"Mesh bounds: lat [{lat_min}, {lat_max}], lon [{lon_min}, {lon_max}]")
+
         data = {
             "start_lat": lat_min - 5,
             "start_lon": lon_min - 5,
             "end_lat": abs(lat_max - lat_min) / 2,
             "end_lon": abs(lon_max - lon_min) / 2,
+            "vehicle_type": "TEST_VESSEL",
         }
 
         # make route request
@@ -439,8 +463,8 @@ class TestRouteStatus:
         except AssertionError:
             pass
 
-        assert post_response.status_code == 200
-        assert post_response.data["info"]["error"] == "No suitable mesh available."
+        assert post_response.status_code == 400
+        assert post_response.data["error"] == "No suitable mesh available."
 
     def test_cancel_route(self):
 
@@ -488,7 +512,12 @@ class TestRouteDetailView(TestCase):
 
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.mesh = add_test_mesh_to_db()
+        self.mesh = add_test_vehicle_mesh_to_db()
+        self.vehicle = create_test_vehicle()
+        
+        # Type checking for test objects
+        assert isinstance(self.mesh, VehicleMesh)
+        assert isinstance(self.vehicle, Vehicle)
         
         # Create a test route with minimal data
         self.route = Route.objects.create(
@@ -497,6 +526,7 @@ class TestRouteDetailView(TestCase):
             end_lat=61.0,
             end_lon=-2.0,
             mesh=self.mesh,
+            vehicle=self.vehicle,
             start_name="Test Start",
             end_name="Test End",
             json=None,
@@ -504,6 +534,7 @@ class TestRouteDetailView(TestCase):
             polar_route_version="0.2.0",
             info={"message": "Test route"}
         )
+        assert isinstance(self.route, Route)
 
     def test_get_route_success(self):
         """
@@ -547,7 +578,8 @@ class TestRouteDetailView(TestCase):
             start_lon=0.0,
             end_lat=51.0,
             end_lon=1.0,
-            mesh=self.mesh
+            mesh=self.mesh,
+            vehicle=self.vehicle
             # No optional fields like start_name, end_name, json, etc.
         )
 
@@ -567,16 +599,17 @@ class TestGetRecentRoutesAndMesh(TestCase):
 
     def setUp(self):
         self.factory = APIRequestFactory()
-        self.mesh = add_test_mesh_to_db()
+        self.mesh = add_test_vehicle_mesh_to_db()
+        self.vehicle = create_test_vehicle()
         # Create routes with calculated timestamps so they'll be found by the recent routes filter
         now = datetime.now(timezone.utc)
         self.route1 = Route.objects.create(
             start_lat=0.0, start_lon=0.0, end_lat=0.0, end_lon=0.0, 
-            mesh=self.mesh, calculated=now
+            mesh=self.mesh, vehicle=self.vehicle, calculated=now
         )
         self.route2 = Route.objects.create(
             start_lat=1.0, start_lon=1.0, end_lat=1.0, end_lon=0.0, 
-            mesh=self.mesh, calculated=now
+            mesh=self.mesh, vehicle=self.vehicle, calculated=now
         )
         self.job1 = Job.objects.create(id=uuid.uuid1(), route=self.route1)
         self.job2 = Job.objects.create(id=uuid.uuid1(), route=self.route2)
