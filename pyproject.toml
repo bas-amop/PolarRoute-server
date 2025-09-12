@@ -20,7 +20,7 @@ dependencies = [
     "django-celery-results",
     "django-cors-headers",
     "django-rest-framework",
-    "drf-spectacular",
+    "drf-spectacular[sidecar]",
     "haversine",
     "polar-route==1.0.0",
     "psycopg>=3",
@@ -102,8 +102,12 @@ branch = true
 omit = [
     "polarrouteserver/settings/*",
     "polarrouteserver/route_api/migrations/*",
+    "polarrouteserver/route_api/admin.py",
+    "polarrouteserver/route_api/apps.py",
     "polarrouteserver/asgi.py",
+    "polarrouteserver/admin.py",
     "polarrouteserver/demo.py",
     "polarrouteserver/urls.py",
     "polarrouteserver/wsgi.py",
+
     ]

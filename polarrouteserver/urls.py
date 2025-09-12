@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 from polarrouteserver.route_api import views
 
@@ -11,15 +12,26 @@ router.register(r"locations", views.LocationViewSet, basename="location")
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", include(router.urls)),
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
+    path(
+        "api/schema/swagger-ui/",
+        SpectacularSwaggerView.as_view(url_name="schema"),
+        name="swagger-ui",
+    ),
     path(
         "api/route",
         views.RouteRequestView.as_view(),
         name="route_list_create",
     ),
     path(
-        "api/route/<uuid:id>",
+        "api/route/<int:id>",
         views.RouteDetailView.as_view(),
         name="route_detail",
+    ),
+    path(
+        "api/job/<uuid:id>",
+        views.JobView.as_view(),
+        name="job_detail",
     ),
     path(
         "api/recent_routes",
