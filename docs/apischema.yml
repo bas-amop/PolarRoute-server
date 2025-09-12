@@ -96,7 +96,7 @@ paths:
   /api/locations/:
     get:
       operationId: locations_list
-      description: Provides full logging of requests and responses
+      description: List all available locations
       tags:
       - locations
       security:
@@ -113,7 +113,7 @@ paths:
   /api/locations/{id}/:
     get:
       operationId: locations_retrieve
-      description: Provides full logging of requests and responses
+      description: Retrieve a specific location by ID
       parameters:
       - in: path
         name: id
@@ -132,6 +132,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/Location'
           description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocationNotFound'
+          description: Location with the specified ID not found.
   /api/mesh/{id}:
     get:
       operationId: api_mesh_get
@@ -601,6 +607,14 @@ components:
       - lat
       - lon
       - name
+    LocationNotFound:
+      type: object
+      properties:
+        detail:
+          type: string
+          description: Error message indicating location not found.
+      required:
+      - detail
     MeshDetailSuccess:
       type: object
       properties:

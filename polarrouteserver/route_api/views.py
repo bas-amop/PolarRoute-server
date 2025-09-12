@@ -2,7 +2,12 @@ from datetime import datetime
 import logging
 
 from celery.result import AsyncResult
-from drf_spectacular.utils import extend_schema, OpenApiResponse, inline_serializer
+from drf_spectacular.utils import (
+    extend_schema,
+    extend_schema_view,
+    OpenApiResponse,
+    inline_serializer,
+)
 from jsonschema.exceptions import ValidationError
 from meshiphi.mesh_generation.environment_mesh import EnvironmentMesh
 import rest_framework.status
@@ -1019,6 +1024,29 @@ class JobView(LoggingMixin, GenericAPIView):
         )
 
 
+@extend_schema_view(
+    list=extend_schema(
+        responses={200: LocationSerializer(many=True)},
+        description="List all available locations",
+    ),
+    retrieve=extend_schema(
+        responses={
+            200: LocationSerializer,
+            404: OpenApiResponse(
+                response=inline_serializer(
+                    name="LocationNotFound",
+                    fields={
+                        "detail": serializers.CharField(
+                            help_text="Error message indicating location not found."
+                        )
+                    },
+                ),
+                description="Location with the specified ID not found.",
+            ),
+        },
+        description="Retrieve a specific location by ID",
+    ),
+)
 class LocationViewSet(LoggingMixin, viewsets.ReadOnlyModelViewSet):
     queryset = Location.objects.all().order_by("name")
     serializer_class = LocationSerializer
