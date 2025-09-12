@@ -156,6 +156,198 @@
 
 
 
+<h2 id="polarrouteserver.route_api.views.EvaluateRouteView" class="doc doc-heading">
+            <code>EvaluateRouteView</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="LoggingMixin (polarrouteserver.route_api.views.LoggingMixin)" href="#polarrouteserver.route_api.views.LoggingMixin">LoggingMixin</a></code>, <code><span title="rest_framework.views.APIView">APIView</span></code></p>
+
+
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>polarrouteserver/route_api/views.py</code></summary>
+                <pre class="highlight"><code class="language-python">class EvaluateRouteView(LoggingMixin, APIView):
+    serializer_class = None
+
+    @extend_schema(
+        operation_id="api_route_evaluation",
+        request=inline_serializer(
+            name="RouteEvaluationRequest",
+            fields={
+                "route": serializers.JSONField(help_text="The route JSON to evaluate."),
+                "custom_mesh_id": serializers.UUIDField(
+                    required=False,
+                    allow_null=True,
+                    help_text="Optional: Custom mesh ID to use for evaluation.",
+                ),
+            },
+        ),
+        responses={
+            200: OpenApiResponse(
+                response=inline_serializer(
+                    name="RouteEvaluationSuccess",
+                    fields={
+                        "polarrouteserver-version": serializers.CharField(
+                            help_text="Version of PolarRoute-server."
+                        ),
+                        "evaluation_results": serializers.DictField(
+                            help_text="Results of the route evaluation."
+                        ),
+                    },
+                ),
+                description="Route evaluated successfully.",
+            ),
+            404: noMeshOpenApiResponse,
+        },
+    )
+    def post(self, request):
+        "POST Endpoint to evaluate traveltime and fuel usage on a given route."
+        data = request.data
+        route_json = data.get("route", None)
+        custom_mesh_id = data.get("custom_mesh_id", None)
+
+        if custom_mesh_id:
+            try:
+                mesh = Mesh.objects.get(id=custom_mesh_id)
+                meshes = [mesh]
+            except Mesh.DoesNotExist:
+                return noMeshResponse()
+        else:
+            meshes = select_mesh_for_route_evaluation(route_json)
+
+            if meshes is None:
+                return noMeshResponse()
+
+        response_data = {"polarrouteserver-version": polarrouteserver_version}
+
+        result_dict = evaluate_route(route_json, meshes[0])
+
+        response_data.update(result_dict)
+
+        return Response(
+            response_data,
+            headers={"Content-Type": "application/json"},
+            status=rest_framework.status.HTTP_200_OK,
+        )</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="polarrouteserver.route_api.views.EvaluateRouteView.post" class="doc doc-heading">
+            <code class="highlight language-python">post(request)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>POST Endpoint to evaluate traveltime and fuel usage on a given route.</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>polarrouteserver/route_api/views.py</code></summary>
+              <pre class="highlight"><code class="language-python">@extend_schema(
+    operation_id="api_route_evaluation",
+    request=inline_serializer(
+        name="RouteEvaluationRequest",
+        fields={
+            "route": serializers.JSONField(help_text="The route JSON to evaluate."),
+            "custom_mesh_id": serializers.UUIDField(
+                required=False,
+                allow_null=True,
+                help_text="Optional: Custom mesh ID to use for evaluation.",
+            ),
+        },
+    ),
+    responses={
+        200: OpenApiResponse(
+            response=inline_serializer(
+                name="RouteEvaluationSuccess",
+                fields={
+                    "polarrouteserver-version": serializers.CharField(
+                        help_text="Version of PolarRoute-server."
+                    ),
+                    "evaluation_results": serializers.DictField(
+                        help_text="Results of the route evaluation."
+                    ),
+                },
+            ),
+            description="Route evaluated successfully.",
+        ),
+        404: noMeshOpenApiResponse,
+    },
+)
+def post(self, request):
+    "POST Endpoint to evaluate traveltime and fuel usage on a given route."
+    data = request.data
+    route_json = data.get("route", None)
+    custom_mesh_id = data.get("custom_mesh_id", None)
+
+    if custom_mesh_id:
+        try:
+            mesh = Mesh.objects.get(id=custom_mesh_id)
+            meshes = [mesh]
+        except Mesh.DoesNotExist:
+            return noMeshResponse()
+    else:
+        meshes = select_mesh_for_route_evaluation(route_json)
+
+        if meshes is None:
+            return noMeshResponse()
+
+    response_data = {"polarrouteserver-version": polarrouteserver_version}
+
+    result_dict = evaluate_route(route_json, meshes[0])
+
+    response_data.update(result_dict)
+
+    return Response(
+        response_data,
+        headers={"Content-Type": "application/json"},
+        status=rest_framework.status.HTTP_200_OK,
+    )</code></pre>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
 <h2 id="polarrouteserver.route_api.views.JobView" class="doc doc-heading">
             <code>JobView</code>
 
@@ -614,6 +806,176 @@ def get(self, request, id):
 
 
 
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="polarrouteserver.route_api.views.MeshView" class="doc doc-heading">
+            <code>MeshView</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="LoggingMixin (polarrouteserver.route_api.views.LoggingMixin)" href="#polarrouteserver.route_api.views.LoggingMixin">LoggingMixin</a></code>, <code><span title="rest_framework.views.APIView">APIView</span></code></p>
+
+
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>polarrouteserver/route_api/views.py</code></summary>
+                <pre class="highlight"><code class="language-python">class MeshView(LoggingMixin, APIView):
+    serializer_class = None
+
+    @extend_schema(
+        operation_id="api_mesh_get",
+        responses={
+            200: OpenApiResponse(
+                response=inline_serializer(
+                    name="MeshDetailSuccess",
+                    fields={
+                        "polarrouteserver-version": serializers.CharField(
+                            help_text="Version of PolarRoute-server."
+                        ),
+                        "id": serializers.UUIDField(help_text="ID of the mesh."),
+                        "json": serializers.JSONField(help_text="Mesh JSON."),
+                        "geojson": serializers.JSONField(help_text="Mesh GeoJSON."),
+                    },
+                ),
+                description="Mesh details retrieved successfully.",
+            ),
+            404: noMeshOpenApiResponse,
+        },
+    )
+    def get(self, request, id):
+        "GET Meshes by id"
+
+        logger.info(
+            f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
+        )
+
+        data = {"polarrouteserver-version": polarrouteserver_version}
+
+        try:
+            mesh = Mesh.objects.get(id=id)
+            data.update(
+                dict(
+                    id=mesh.id,
+                    json=mesh.json,
+                    geojson=EnvironmentMesh.load_from_json(mesh.json).to_geojson(),
+                )
+            )
+
+            status = rest_framework.status.HTTP_200_OK
+
+        except Mesh.DoesNotExist:
+            status = rest_framework.status.HTTP_404_NOT_FOUND
+
+        return Response(
+            data,
+            headers={"Content-Type": "application/json"},
+            status=status,
+        )</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="polarrouteserver.route_api.views.MeshView.get" class="doc doc-heading">
+            <code class="highlight language-python">get(request, id)</code>
+
+</h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>GET Meshes by id</p>
+
+
+            <details class="quote">
+              <summary>Source code in <code>polarrouteserver/route_api/views.py</code></summary>
+              <pre class="highlight"><code class="language-python">@extend_schema(
+    operation_id="api_mesh_get",
+    responses={
+        200: OpenApiResponse(
+            response=inline_serializer(
+                name="MeshDetailSuccess",
+                fields={
+                    "polarrouteserver-version": serializers.CharField(
+                        help_text="Version of PolarRoute-server."
+                    ),
+                    "id": serializers.UUIDField(help_text="ID of the mesh."),
+                    "json": serializers.JSONField(help_text="Mesh JSON."),
+                    "geojson": serializers.JSONField(help_text="Mesh GeoJSON."),
+                },
+            ),
+            description="Mesh details retrieved successfully.",
+        ),
+        404: noMeshOpenApiResponse,
+    },
+)
+def get(self, request, id):
+    "GET Meshes by id"
+
+    logger.info(
+        f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
+    )
+
+    data = {"polarrouteserver-version": polarrouteserver_version}
+
+    try:
+        mesh = Mesh.objects.get(id=id)
+        data.update(
+            dict(
+                id=mesh.id,
+                json=mesh.json,
+                geojson=EnvironmentMesh.load_from_json(mesh.json).to_geojson(),
+            )
+        )
+
+        status = rest_framework.status.HTTP_200_OK
+
+    except Mesh.DoesNotExist:
+        status = rest_framework.status.HTTP_404_NOT_FOUND
+
+    return Response(
+        data,
+        headers={"Content-Type": "application/json"},
+        status=status,
+    )</code></pre>
+            </details>
+    </div>
+
+</div>
 
 
 

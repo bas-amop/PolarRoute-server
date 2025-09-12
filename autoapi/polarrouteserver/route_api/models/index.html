@@ -220,6 +220,70 @@
 
 
 
+<h2 id="polarrouteserver.route_api.models.Location" class="doc doc-heading">
+            <code>Location</code>
+
+
+</h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="django.db.models.Model">Model</span></code></p>
+
+
+        <p>Preset locations</p>
+
+
+
+
+
+
+
+
+              <details class="quote">
+                <summary>Source code in <code>polarrouteserver/route_api/models.py</code></summary>
+                <pre class="highlight"><code class="language-python">class Location(models.Model):
+    "Preset locations"
+
+    lat = models.FloatField()
+    lon = models.FloatField()
+    name = models.CharField(max_length=100)
+
+    @property
+    def latitude(self):
+        return self.lat
+
+    @property
+    def longitude(self):
+        return self.lon</code></pre>
+              </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
 <h2 id="polarrouteserver.route_api.models.Mesh" class="doc doc-heading">
             <code>Mesh</code>
 
