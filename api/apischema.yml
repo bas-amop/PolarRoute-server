@@ -31,18 +31,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/RouteEvaluationSuccess'
           description: Route evaluated successfully.
-        '204':
+        '404':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MeshNotFoundForEvaluation'
-          description: Mesh with the specified ID not found for evaluation.
-        '400':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RouteEvaluationBadRequest'
-          description: Invalid route data provided for evaluation.
+                $ref: '#/components/schemas/NoMesh'
+          description: No matching mesh found.
   /api/job/{id}:
     get:
       operationId: api_job_retrieve_status
@@ -119,12 +113,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/MeshDetailSuccess'
           description: Mesh details retrieved successfully.
-        '204':
+        '404':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MeshNotFound'
-          description: Mesh with the specified ID not found.
+                $ref: '#/components/schemas/NoMesh'
+          description: No matching mesh found.
   /api/recent_routes:
     get:
       operationId: api_recent_routes_list
@@ -179,12 +173,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/RouteCreationBadRequest'
           description: Invalid request data.
-        '200':
+        '404':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NoSuitableMesh'
-          description: No suitable mesh available for the requested route.
+                $ref: '#/components/schemas/NoMesh'
+          description: No matching mesh found.
   /api/route/{id}:
     get:
       operationId: api_route_retrieve_by_id
@@ -212,6 +206,150 @@ paths:
               schema:
                 $ref: '#/components/schemas/RouteNotFound'
           description: Route with the specified ID not found.
+  /api/schema/:
+    get:
+      operationId: schema_retrieve
+      description: |-
+        OpenApi3 schema for this API. Format can be selected via content negotiation.
+
+        - YAML: application/vnd.oai.openapi
+        - JSON: application/vnd.oai.openapi+json
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - json
+          - yaml
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - af
+          - ar
+          - ar-dz
+          - ast
+          - az
+          - be
+          - bg
+          - bn
+          - br
+          - bs
+          - ca
+          - ckb
+          - cs
+          - cy
+          - da
+          - de
+          - dsb
+          - el
+          - en
+          - en-au
+          - en-gb
+          - eo
+          - es
+          - es-ar
+          - es-co
+          - es-mx
+          - es-ni
+          - es-ve
+          - et
+          - eu
+          - fa
+          - fi
+          - fr
+          - fy
+          - ga
+          - gd
+          - gl
+          - he
+          - hi
+          - hr
+          - hsb
+          - hu
+          - hy
+          - ia
+          - id
+          - ig
+          - io
+          - is
+          - it
+          - ja
+          - ka
+          - kab
+          - kk
+          - km
+          - kn
+          - ko
+          - ky
+          - lb
+          - lt
+          - lv
+          - mk
+          - ml
+          - mn
+          - mr
+          - ms
+          - my
+          - nb
+          - ne
+          - nl
+          - nn
+          - os
+          - pa
+          - pl
+          - pt
+          - pt-br
+          - ro
+          - ru
+          - sk
+          - sl
+          - sq
+          - sr
+          - sr-latn
+          - sv
+          - sw
+          - ta
+          - te
+          - tg
+          - th
+          - tk
+          - tr
+          - tt
+          - udm
+          - ug
+          - uk
+          - ur
+          - uz
+          - vi
+          - zh-hans
+          - zh-hant
+      tags:
+      - schema
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.oai.openapi:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/yaml:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/vnd.oai.openapi+json:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
   /api/vehicle:
     get:
       operationId: api_vehicle_list_retrieve
@@ -422,22 +560,19 @@ components:
       - id
       - json
       - polarrouteserver-version
-    MeshNotFound:
+    NoMesh:
       type: object
       properties:
-        polarrouteserver-version:
+        info:
+          type: object
+          additionalProperties: {}
+          description: Error message indicating no mesh found.
+        status:
           type: string
-          description: Version of PolarRoute-server.
+          description: Status of the request (e.g., FAILURE).
       required:
-      - polarrouteserver-version
-    MeshNotFoundForEvaluation:
-      type: object
-      properties:
-        error:
-          type: string
-          description: Error message indicating mesh not found.
-      required:
-      - error
+      - info
+      - status
     NoRecentRoutesFound:
       type: object
       properties:
@@ -446,19 +581,6 @@ components:
           description: Message indicating no recent routes were found.
       required:
       - message
-    NoSuitableMesh:
-      type: object
-      properties:
-        info:
-          type: object
-          additionalProperties: {}
-          description: Error message indicating no suitable mesh.
-        status:
-          type: string
-          description: Status of the request (e.g., FAILURE).
-      required:
-      - info
-      - status
     NoVesselTypesFound:
       type: object
       properties:
@@ -582,14 +704,6 @@ components:
       - end_lon
       - start_lat
       - start_lon
-    RouteEvaluationBadRequest:
-      type: object
-      properties:
-        error:
-          type: string
-          description: Error message indicating invalid route data.
-      required:
-      - error
     RouteEvaluationRequest:
       type: object
       properties:

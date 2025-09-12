@@ -1093,20 +1093,7 @@ def get(self, request, id):
                 ),
                 description="Invalid request data.",
             ),
-            200: OpenApiResponse(
-                response=inline_serializer(
-                    name="NoSuitableMesh",
-                    fields={
-                        "info": serializers.DictField(
-                            help_text="Error message indicating no suitable mesh."
-                        ),
-                        "status": serializers.CharField(
-                            help_text="Status of the request (e.g., FAILURE)."
-                        ),
-                    },
-                ),
-                description="No suitable mesh available for the requested route.",
-            ),
+            404: noMeshOpenApiResponse,
         },
     )
     def post(self, request):
@@ -1154,20 +1141,13 @@ def get(self, request, id):
                         "status": "FAILURE",
                     },
                     headers={"Content-Type": "application/json"},
-                    status=rest_framework.status.HTTP_202_ACCEPTED,
+                    status=rest_framework.status.HTTP_404_NOT_FOUND,
                 )
         else:
             meshes = select_mesh(start_lat, start_lon, end_lat, end_lon)
 
         if meshes is None:
-            return Response(
-                data={
-                    "info": {"error": "No suitable mesh available."},
-                    "status": "FAILURE",
-                },
-                headers={"Content-Type": "application/json"},
-                status=rest_framework.status.HTTP_200_OK,
-            )
+            return noMeshResponse()
 
         logger.debug(f"Using meshes: {[mesh.id for mesh in meshes]}")
         # TODO Future: calculate an up to date mesh if none available
@@ -1353,20 +1333,7 @@ def get(self, request, id):
             ),
             description="Invalid request data.",
         ),
-        200: OpenApiResponse(
-            response=inline_serializer(
-                name="NoSuitableMesh",
-                fields={
-                    "info": serializers.DictField(
-                        help_text="Error message indicating no suitable mesh."
-                    ),
-                    "status": serializers.CharField(
-                        help_text="Status of the request (e.g., FAILURE)."
-                    ),
-                },
-            ),
-            description="No suitable mesh available for the requested route.",
-        ),
+        404: noMeshOpenApiResponse,
     },
 )
 def post(self, request):
@@ -1414,20 +1381,13 @@ def post(self, request):
                     "status": "FAILURE",
                 },
                 headers={"Content-Type": "application/json"},
-                status=rest_framework.status.HTTP_202_ACCEPTED,
+                status=rest_framework.status.HTTP_404_NOT_FOUND,
             )
     else:
         meshes = select_mesh(start_lat, start_lon, end_lat, end_lon)
 
     if meshes is None:
-        return Response(
-            data={
-                "info": {"error": "No suitable mesh available."},
-                "status": "FAILURE",
-            },
-            headers={"Content-Type": "application/json"},
-            status=rest_framework.status.HTTP_200_OK,
-        )
+        return noMeshResponse()
 
     logger.debug(f"Using meshes: {[mesh.id for mesh in meshes]}")
     # TODO Future: calculate an up to date mesh if none available
