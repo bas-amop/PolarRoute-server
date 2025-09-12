@@ -537,7 +537,7 @@ class RouteRequestView(LoggingMixin, GenericAPIView):
                         "status": "FAILURE",
                     },
                     headers={"Content-Type": "application/json"},
-                    status=rest_framework.status.HTTP_202_ACCEPTED,
+                    status=rest_framework.status.HTTP_404_NOT_FOUND,
                 )
         else:
             meshes = select_mesh(start_lat, start_lon, end_lat, end_lon)
@@ -791,7 +791,7 @@ class MeshView(LoggingMixin, APIView):
             status = rest_framework.status.HTTP_200_OK
 
         except Mesh.DoesNotExist:
-            status = rest_framework.status.HTTP_204_NO_CONTENT
+            status = rest_framework.status.HTTP_404_NOT_FOUND
 
         return Response(
             data,

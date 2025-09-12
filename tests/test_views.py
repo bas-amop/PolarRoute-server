@@ -300,7 +300,7 @@ class TestRouteRequest(TestCase):
 
         response = RouteRequestView.as_view()(request)
 
-        self.assertEqual(response.status_code, 202)
+        self.assertEqual(response.status_code, 404)
         self.assertIn("Does not exist.", response.data["info"]["error"])
 
     def test_request_route(self):
