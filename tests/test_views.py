@@ -639,3 +639,14 @@ class TestGetLocations(TestCase):
 
         assert response.status_code == 200
         assert response.data.get("name") == self.location_expected_name
+
+    def test_location_not_found(self):
+        """Test that requesting a non-existent location returns 404."""
+        non_existent_id = 99999
+        request = self.factory.get(f"/api/location/{non_existent_id}")
+
+        response = LocationViewSet.as_view({'get': 'retrieve'})(request, pk=non_existent_id)
+
+        assert response.status_code == 404
+        assert "detail" in response.data
+        assert "No Location matches the given query." in str(response.data["detail"])
