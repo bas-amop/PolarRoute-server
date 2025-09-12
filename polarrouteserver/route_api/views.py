@@ -2,7 +2,12 @@ from datetime import datetime
 import logging
 
 from celery.result import AsyncResult
-from drf_spectacular.utils import extend_schema, OpenApiResponse, inline_serializer
+from drf_spectacular.utils import (
+    extend_schema,
+    extend_schema_view,
+    OpenApiResponse,
+    inline_serializer,
+)
 from jsonschema.exceptions import ValidationError
 from meshiphi.mesh_generation.environment_mesh import EnvironmentMesh
 import rest_framework.status
@@ -10,18 +15,19 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
-from rest_framework import serializers
+from rest_framework import serializers, viewsets
 
 from polar_route.config_validation.config_validator import validate_vessel_config
 from polarrouteserver.version import __version__ as polarrouteserver_version
 from polarrouteserver.celery import app
 
-from .models import Job, Vehicle, Route, Mesh
+from .models import Job, Vehicle, Route, Mesh, Location
 from .tasks import optimise_route
 from .serializers import (
     VehicleSerializer,
     VesselTypeSerializer,
     RouteSerializer,
+    LocationSerializer,
     JobSerializer,
 )
 from .utils import (
@@ -772,6 +778,8 @@ class MeshView(LoggingMixin, APIView):
         },
     )
     def get(self, request, id):
+        "GET Meshes by id"
+
         logger.info(
             f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
         )
@@ -835,6 +843,7 @@ class EvaluateRouteView(LoggingMixin, APIView):
         },
     )
     def post(self, request):
+        "POST Endpoint to evaluate traveltime and fuel usage on a given route."
         data = request.data
         route_json = data.get("route", None)
         custom_mesh_id = data.get("custom_mesh_id", None)
@@ -1013,3 +1022,36 @@ class JobView(LoggingMixin, GenericAPIView):
             headers={"Content-Type": "application/json"},
             status=rest_framework.status.HTTP_202_ACCEPTED,
         )
+
+
+@extend_schema_view(
+    list=extend_schema(
+        responses={200: LocationSerializer(many=True)},
+        description="List all available locations",
+    ),
+    retrieve=extend_schema(
+        responses={
+            200: LocationSerializer,
+            404: OpenApiResponse(
+                response=inline_serializer(
+                    name="LocationNotFound",
+                    fields={
+                        "detail": serializers.CharField(
+                            help_text="Error message indicating location not found."
+                        )
+                    },
+                ),
+                description="Location with the specified ID not found.",
+            ),
+        },
+        description="Retrieve a specific location by ID",
+    ),
+)
+class LocationViewSet(LoggingMixin, viewsets.ReadOnlyModelViewSet):
+    queryset = Location.objects.all().order_by("name")
+    serializer_class = LocationSerializer
+
+    # At present this is just a GET endpoint.
+    # In future this endpoint and the Location model could support a lot of functionality,
+    # e.g. user ownership of locations, search of locations by name,
+    # return only locations which are covered by current meshes etc.

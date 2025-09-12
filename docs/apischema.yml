@@ -7,7 +7,8 @@ paths:
   /api/evaluate_route:
     post:
       operationId: api_route_evaluation
-      description: Provides full logging of requests and responses
+      description: POST Endpoint to evaluate traveltime and fuel usage on a given
+        route.
       tags:
       - evaluate_route
       requestBody:
@@ -92,10 +93,55 @@ paths:
               schema:
                 $ref: '#/components/schemas/JobCancelNotFound'
           description: Job with the specified ID not found.
+  /api/locations/:
+    get:
+      operationId: locations_list
+      description: List all available locations
+      tags:
+      - locations
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Location'
+          description: ''
+  /api/locations/{id}/:
+    get:
+      operationId: locations_retrieve
+      description: Retrieve a specific location by ID
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this location.
+        required: true
+      tags:
+      - locations
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LocationNotFound'
+          description: Location with the specified ID not found.
   /api/mesh/{id}:
     get:
       operationId: api_mesh_get
-      description: Provides full logging of requests and responses
+      description: GET Meshes by id
       parameters:
       - in: path
         name: id
@@ -541,6 +587,34 @@ components:
       - polarrouteserver-version
       - route_id
       - status
+    Location:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        lat:
+          type: number
+          format: double
+        lon:
+          type: number
+          format: double
+        name:
+          type: string
+          maxLength: 100
+      required:
+      - id
+      - lat
+      - lon
+      - name
+    LocationNotFound:
+      type: object
+      properties:
+        detail:
+          type: string
+          description: Error message indicating location not found.
+      required:
+      - detail
     MeshDetailSuccess:
       type: object
       properties:

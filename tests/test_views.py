@@ -18,6 +18,7 @@ from polarrouteserver.route_api.views import (
     RouteRequestView,
     RouteDetailView,
     RecentRoutesView,
+    LocationViewSet,
     JobView,
 )
 from polarrouteserver.route_api.models import Job, Route
@@ -614,3 +615,38 @@ class TestGetRecentRoutesAndMesh(TestCase):
         assert response.status_code == 200
         assert response.data.get("json") is not None
         assert response.data.get("geojson") is not None
+
+class TestGetLocations(TestCase):
+    fixtures = ["locations_bas.json"]
+
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.location_id = 1
+        self.location_expected_name = "Bird Island"
+
+    def test_location_list_request(self):
+        request = self.factory.get(f"/api/location")
+
+        response = LocationViewSet.as_view({'get': 'list'})(request)
+
+        assert response.status_code == 200
+        assert len(response.data) > 1
+    
+    def test_location_single_request(self):
+        request = self.factory.get(f"/api/location/{self.location_id}")
+
+        response = LocationViewSet.as_view({'get': 'retrieve'})(request, pk=self.location_id)
+
+        assert response.status_code == 200
+        assert response.data.get("name") == self.location_expected_name
+
+    def test_location_not_found(self):
+        """Test that requesting a non-existent location returns 404."""
+        non_existent_id = 99999
+        request = self.factory.get(f"/api/location/{non_existent_id}")
+
+        response = LocationViewSet.as_view({'get': 'retrieve'})(request, pk=non_existent_id)
+
+        assert response.status_code == 404
+        assert "detail" in response.data
+        assert "No Location matches the given query." in str(response.data["detail"])
