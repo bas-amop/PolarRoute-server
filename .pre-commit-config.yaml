@@ -7,3 +7,13 @@ repos:
     - id: ruff
     # Run the formatter.
     - id: ruff-format
+
+- repo: local
+  hooks:
+    - id: update-api-schema
+      name: Update API Schema
+      entry: bash -c 'python manage.py spectacular --color --validate --fail-on-warn --file docs/apischema.yml && git add docs/apischema.yml'
+      language: system
+      files: '^polarrouteserver/route_api/views\.py$'
+      pass_filenames: false
+      stages: [pre-commit]

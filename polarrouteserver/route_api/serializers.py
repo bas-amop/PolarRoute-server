@@ -1,6 +1,19 @@
 from rest_framework import serializers
 
-from .models import Mesh, Vehicle, Route
+from .models import Mesh, Vehicle, Route, Job
+
+
+class JobSerializer(serializers.ModelSerializer):
+    status = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = Job
+        fields = [
+            "id",
+            "datetime",
+            "route",
+            "status",
+        ]
 
 
 class VehicleSerializer(serializers.ModelSerializer):
