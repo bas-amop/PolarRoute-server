@@ -18,11 +18,8 @@ from polarrouteserver.route_api.views import (
     RouteRequestView,
     RouteDetailView,
     RecentRoutesView,
-<<<<<<< HEAD
     LocationView,
-=======
     JobView,
->>>>>>> main
 )
 from polarrouteserver.route_api.models import Job, Route
 from polarrouteserver.route_api.tasks import optimise_route
