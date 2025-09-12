@@ -300,7 +300,7 @@ class TestRouteRequest(TestCase):
 
         response = RouteRequestView.as_view()(request)
 
-        self.assertEqual(response.status_code, 202)
+        self.assertEqual(response.status_code, 404)
         self.assertIn("Does not exist.", response.data["info"]["error"])
 
     def test_request_route(self):
@@ -348,6 +348,19 @@ class TestRouteRequest(TestCase):
 
         response = EvaluateRouteView.as_view()(request)
         self.assertEqual(response.status_code, 200)
+
+    def test_evaluate_out_of_mesh_waypoints(self):
+        with open(settings.TEST_ROUTE_OOM_PATH) as fp:
+            route_json = json.load(fp)
+
+        data = dict(route=route_json)
+
+        request = self.factory.post(
+            "/api/evaluate_route", data=data, format="json"
+        )
+
+        response = EvaluateRouteView.as_view()(request)
+        self.assertEqual(response.status_code, 404)
 
 
 pytestmark = pytest.mark.django_db
@@ -439,8 +452,8 @@ class TestRouteStatus:
         except AssertionError:
             pass
 
-        assert post_response.status_code == 200
-        assert post_response.data["info"]["error"] == "No suitable mesh available."
+        assert post_response.status_code == 404
+        assert post_response.data["info"]["error"] == "No mesh available."
 
     def test_cancel_route(self):
 
