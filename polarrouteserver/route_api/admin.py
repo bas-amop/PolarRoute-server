@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Vehicle, Route, Mesh, Job
+from .models import Vehicle, Route, Mesh, Job, Location
 
 LIST_PER_PAGE = 20
 
@@ -101,7 +101,21 @@ class MeshAdmin(admin.ModelAdmin):
         queryset = super().get_queryset(request)
         return queryset.defer("json")
 
+
+class LocationAdmin(admin.ModelAdmin):
+    list_display = [
+        "id",
+        "name",
+        "lat",
+        "lon",
+    ]
+    list_filter = ["name"]
+    search_fields = ["name"]
+    ordering = ["name"]
+
+
 admin.site.register(Vehicle, VehicleAdmin)
 admin.site.register(Route, RouteAdmin)
 admin.site.register(Mesh, MeshAdmin)
 admin.site.register(Job, JobAdmin)
+admin.site.register(Location, LocationAdmin)
