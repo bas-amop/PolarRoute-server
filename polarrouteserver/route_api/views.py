@@ -11,9 +11,8 @@ from jsonschema.exceptions import ValidationError
 from meshiphi.mesh_generation.environment_mesh import EnvironmentMesh
 from rest_framework.generics import GenericAPIView
 from rest_framework.views import APIView
-from rest_framework.response import Response
 from rest_framework.reverse import reverse
-from rest_framework import serializers, viewsets, status
+from rest_framework import serializers, viewsets
 
 from polar_route.config_validation.config_validator import validate_vessel_config
 from polarrouteserver.version import __version__ as polarrouteserver_version
@@ -461,11 +460,7 @@ class RouteDetailView(LoggingMixin, ResponseMixin, GenericAPIView):
         try:
             route = Route.objects.get(id=id)
         except Route.DoesNotExist:
-            return Response(
-                {"error": f"Route with id {id} not found."},
-                headers={"Content-Type": "application/json"},
-                status=status.HTTP_404_NOT_FOUND,
-            )
+            return self.not_found_response(f"Route with id {id} not found.")
 
         data = RouteSerializer(route).data
         data["polarrouteserver-version"] = polarrouteserver_version
