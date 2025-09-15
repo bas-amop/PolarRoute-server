@@ -554,7 +554,7 @@ class TestRouteDetailView(TestCase):
         self.assertEqual(response.data["id"], str(self.route.id))
         self.assertEqual(response.data["name"], "Test Start to Test End")
         self.assertIn("error", response.data["info"])
-        self.assertEqual(response.data["info"]["error"], "No routes available for any optimization type.")
+        self.assertEqual(response.data["info"]["error"], "No routes available for any optimisation type.")
         self.assertIn("polarrouteserver-version", response.data)
 
     def test_get_route_not_found(self):
@@ -591,7 +591,7 @@ class TestRouteDetailView(TestCase):
         self.assertEqual(response.data["id"], str(minimal_route.id))
         self.assertEqual(response.data["name"], "Start to End")  # Default names when none provided
         self.assertIn("error", response.data["info"])
-        self.assertEqual(response.data["info"]["error"], "No routes available for any optimization type.")
+        self.assertEqual(response.data["info"]["error"], "No routes available for any optimisation type.")
         self.assertIn("polarrouteserver-version", response.data)
 
 

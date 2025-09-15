@@ -35,7 +35,7 @@ class TestRouteSerializer(TestCase):
             name="Test Mesh"
         )
 
-        # Sample route data with both optimization types
+        # Sample route data with both optimisation types
         self.sample_route_data = [
             [{
                 "type": "FeatureCollection",
@@ -68,8 +68,8 @@ class TestRouteSerializer(TestCase):
             }]
         ]
 
-    def test_route_with_both_optimization_types(self):
-        """Test route serialization with both traveltime and fuel optimization."""
+    def test_route_with_both_optimisation_types(self):
+        """Test route serialization with both traveltime and fuel optimisation."""
         route = Route.objects.create(
             start_lat=-54.3,
             start_lon=-36.5,
@@ -97,8 +97,8 @@ class TestRouteSerializer(TestCase):
         # Check version is included
         self.assertIn("polarrouteserver-version", data)
 
-    def test_route_with_single_optimization_type(self):
-        """Test route serialization with only one optimization type."""
+    def test_route_with_single_optimisation_type(self):
+        """Test route serialization with only one optimisation type."""
         single_route_data = [self.sample_route_data[0]]  # Only traveltime
         
         route = Route.objects.create(
@@ -120,7 +120,7 @@ class TestRouteSerializer(TestCase):
         self.assertEqual(data["type"], "traveltime")
         self.assertEqual(data["id"], str(route.id))
         self.assertIn("geometry", data)
-        self.assertIn("optimization", data)
+        self.assertIn("optimisation", data)
 
     def test_route_with_no_route_data(self):
         """Test route serialization when no route data is available."""
@@ -142,7 +142,7 @@ class TestRouteSerializer(TestCase):
         self.assertEqual(data["type"], "error")
         self.assertEqual(data["id"], str(route.id))
         self.assertIn("info", data)
-        self.assertEqual(data["info"]["error"], "No routes available for any optimization type.")
+        self.assertEqual(data["info"]["error"], "No routes available for any optimisation type.")
 
     def test_route_geometry_structure(self):
         """Test that route geometry is structured correctly."""
@@ -169,8 +169,8 @@ class TestRouteSerializer(TestCase):
         self.assertEqual(geometry["end"]["name"], "Rothera")
         self.assertIn("path", geometry)
 
-    def test_optimization_metrics_traveltime(self):
-        """Test traveltime optimization metrics extraction."""
+    def test_optimisation_metrics_traveltime(self):
+        """Test traveltime optimisation metrics extraction."""
         route = Route.objects.create(
             start_lat=-60.7,
             start_lon=-45.6,
@@ -185,13 +185,13 @@ class TestRouteSerializer(TestCase):
         serializer = RouteSerializer(route)
         data = serializer.data
 
-        metrics = data["optimization"]["metrics"]
+        metrics = data["optimisation"]["metrics"]
         self.assertIn("time", metrics)
         # Duration should be present as string
         self.assertEqual(metrics["time"]["duration"], "24.0")
 
-    def test_optimization_metrics_fuel(self):
-        """Test fuel optimization metrics extraction."""
+    def test_optimisation_metrics_fuel(self):
+        """Test fuel optimisation metrics extraction."""
         route = Route.objects.create(
             start_lat=-51.8,
             start_lon=-59.5,
@@ -206,13 +206,13 @@ class TestRouteSerializer(TestCase):
         serializer = RouteSerializer(route)
         data = serializer.data
 
-        metrics = data["optimization"]["metrics"]
+        metrics = data["optimisation"]["metrics"]
         self.assertIn("fuelConsumption", metrics)
         self.assertEqual(metrics["fuelConsumption"]["value"], 100.5)
         self.assertEqual(metrics["fuelConsumption"]["units"], "kg")
 
-    def test_optimization_metrics_fuel_without_units(self):
-        """Test fuel optimization metrics with default units."""
+    def test_optimisation_metrics_fuel_without_units(self):
+        """Test fuel optimisation metrics with default units."""
         # Create test data without fuel_units
         fuel_data_no_units = [{
             "type": "FeatureCollection", 
@@ -244,7 +244,7 @@ class TestRouteSerializer(TestCase):
         serializer = RouteSerializer(route)
         data = serializer.data
 
-        metrics = data["optimization"]["metrics"]
+        metrics = data["optimisation"]["metrics"]
         self.assertIn("fuelConsumption", metrics)
         self.assertEqual(metrics["fuelConsumption"]["value"], 75.2)
         self.assertEqual(metrics["fuelConsumption"]["units"], "tons")  # Should default to "tons"
