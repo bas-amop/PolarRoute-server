@@ -680,49 +680,6 @@ class RouteDetailView(LoggingMixin, GenericAPIView):
             status=rest_framework.status.HTTP_200_OK,
         )
 
-    @extend_schema(
-        operation_id="api_route_cancel_job",
-        responses={
-            202: OpenApiResponse(
-                response=None,
-                description="Route calculation job cancellation accepted.",
-            ),
-            400: OpenApiResponse(
-                response=None,
-                description="No corresponding job found.",
-            ),
-        },
-    )
-    def delete(self, request, id):
-        """Cancel route calculation"""
-
-        logger.info(
-            f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
-        )
-
-        try:
-            job = Job.objects.get(id=str(id))
-        except Job.DoesNotExist:
-            return Response(
-                {"error": f"Job {str(id)} not found."},
-                headers={"Content-Type": "application/json"},
-                status=rest_framework.status.HTTP_400_BAD_REQUEST,
-            )
-        except Exception as e:
-            raise (e)
-
-        # cancel the job's task
-        app.control.revoke(id)
-
-        # delete the corresponding route
-        job.route.delete()
-
-        return Response(
-            {},
-            headers={"Content-Type": "application/json"},
-            status=rest_framework.status.HTTP_202_ACCEPTED,
-        )
-
 
 class RecentRoutesView(LoggingMixin, GenericAPIView):
     serializer_class = RouteSerializer
@@ -1053,14 +1010,21 @@ class JobView(LoggingMixin, GenericAPIView):
                 status=rest_framework.status.HTTP_404_NOT_FOUND,
             )
 
+        # Store route ID for response before deletion
+        route_id = job.route.id
+
+        # Cancel the Celery task
         result = AsyncResult(id=str(id), app=app)
         result.revoke()
 
+        # Delete the corresponding route (this will also delete the job due to CASCADE)
+        job.route.delete()
+
         return Response(
             {
-                "message": f"Job {id} cancellation requested.",
+                "message": f"Job {id} cancellation requested and route {route_id} deleted.",
                 "job_id": str(job.id),
-                "route_id": job.route.id,
+                "route_id": route_id,
             },
             headers={"Content-Type": "application/json"},
             status=rest_framework.status.HTTP_202_ACCEPTED,

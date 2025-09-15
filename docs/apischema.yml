@@ -252,24 +252,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/RouteNotFound'
           description: Route with the specified ID not found.
-    delete:
-      operationId: api_route_cancel_job
-      description: Cancel route calculation
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: integer
-        required: true
-      tags:
-      - route
-      security:
-      - {}
-      responses:
-        '202':
-          description: Route calculation job cancellation accepted.
-        '400':
-          description: No corresponding job found.
   /api/schema/:
     get:
       operationId: schema_retrieve
