@@ -478,6 +478,9 @@ class TestCancelRoute:
             route=self.route,
         )
 
+        # Store route ID for checking deletion later
+        route_id = self.route.id
+        
         request = self.factory.delete(f"/api/job/{self.job.id}")
 
         response = JobView.as_view()(request, id=self.job.id)
@@ -490,7 +493,12 @@ class TestCancelRoute:
         assert "route_id" in response.data
         assert str(self.job.id) in response.data["message"]
         assert response.data["job_id"] == str(self.job.id)
-        assert response.data["route_id"] == self.route.id
+        assert response.data["route_id"] == route_id
+        assert "deleted" in response.data["message"]
+        
+        # Verify that the route has been deleted
+        with pytest.raises(Route.DoesNotExist):
+            Route.objects.get(id=route_id)
 
     def test_cancel_nonexistent_job(self):
         """
@@ -588,18 +596,6 @@ class TestRouteDetailView(TestCase):
         self.assertEqual(response.data["end_lon"], 1.0)
         self.assertIsNone(response.data.get("start_name"))
         self.assertIsNone(response.data.get("end_name"))
-
-        # assert that the route has been deleted
-        with pytest.raises(Route.DoesNotExist):
-            Route.objects.get(id=self.route.id)
-
-    def test_cancel_nonexistent_route(self):
-
-        self.setUp()
-        nonexistent_uuid = uuid.uuid1()
-        request = self.factory.delete(f"/api/route/{nonexistent_uuid}")
-        response = RouteDetailView.as_view()(request, nonexistent_uuid)
-        assert response.status_code == 400
 
 
 class TestGetRecentRoutesAndMesh(TestCase):
