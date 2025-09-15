@@ -10,6 +10,7 @@ on:
 
   pull_request:
     branches: [ "main" ]
+    types: [opened, synchronize, reopened, ready_for_review]
     paths-ignore:
       - "docs/**"
       - "mkdocs.yml"
@@ -19,7 +20,7 @@ on:
 
 jobs:
   test:
-
+    if: github.event.pull_request.draft == false || github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     strategy:
       fail-fast: true
@@ -40,6 +41,7 @@ jobs:
       run: pytest
 
   coverage:
+    if: github.event.pull_request.draft == false || github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -64,6 +66,7 @@ jobs:
           pytest-coverage-path: ./pytest-coverage.txt
 
   lint:
+    if: github.event.pull_request.draft == false || github.event_name != 'pull_request'
     runs-on: ubuntu-latest
 
     steps:

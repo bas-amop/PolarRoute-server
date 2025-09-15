@@ -2,22 +2,9 @@ from rest_framework import serializers
 from rest_framework.reverse import reverse
 from celery.result import AsyncResult
 
-from .models import Mesh, Vehicle, Route, Job
+from .models import Mesh, Vehicle, Route, Job, Location
 from polarrouteserver.celery import app
 from polarrouteserver.version import __version__ as polarrouteserver_version
-
-
-class JobSerializer(serializers.ModelSerializer):
-    status = serializers.CharField(read_only=True)
-
-    class Meta:
-        model = Job
-        fields = [
-            "id",
-            "datetime",
-            "route",
-            "status",
-        ]
 
 
 class JobStatusSerializer(serializers.ModelSerializer):
@@ -323,3 +310,14 @@ class ModelSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         return super().to_representation(instance)
+
+
+class LocationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Location
+        fields = [
+            "id",
+            "lat",
+            "lon",
+            "name",
+        ]

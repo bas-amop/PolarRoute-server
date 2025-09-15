@@ -2,7 +2,12 @@ from datetime import datetime
 import logging
 
 from celery.result import AsyncResult
-from drf_spectacular.utils import extend_schema, OpenApiResponse, inline_serializer
+from drf_spectacular.utils import (
+    extend_schema,
+    extend_schema_view,
+    OpenApiResponse,
+    inline_serializer,
+)
 from jsonschema.exceptions import ValidationError
 from meshiphi.mesh_generation.environment_mesh import EnvironmentMesh
 import rest_framework.status
@@ -10,19 +15,20 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.reverse import reverse
-from rest_framework import serializers
+from rest_framework import serializers, viewsets
 
 from polar_route.config_validation.config_validator import validate_vessel_config
 from polarrouteserver.version import __version__ as polarrouteserver_version
 from polarrouteserver.celery import app
 
-from .models import Job, Vehicle, Route, Mesh
+from .models import Job, Vehicle, Route, Mesh, Location
 from .tasks import optimise_route
 from .serializers import (
     VehicleSerializer,
     VesselTypeSerializer,
     RouteSerializer,
     JobStatusSerializer,
+    LocationSerializer,
 )
 from .utils import (
     evaluate_route,
@@ -32,6 +38,35 @@ from .utils import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+# No mesh Response object used in route optimisation and evaluation
+def noMeshResponse():
+    return Response(
+        data={
+            "info": {"error": "No mesh available."},
+            "status": "FAILURE",
+        },
+        headers={"Content-Type": "application/json"},
+        status=rest_framework.status.HTTP_404_NOT_FOUND,
+    )
+
+
+# No mesh OpenApiResponse object for Open API schema
+noMeshOpenApiResponse = OpenApiResponse(
+    response=inline_serializer(
+        name="NoMesh",
+        fields={
+            "info": serializers.DictField(
+                help_text="Error message indicating no mesh found."
+            ),
+            "status": serializers.CharField(
+                help_text="Status of the request (e.g., FAILURE)."
+            ),
+        },
+    ),
+    description="No matching mesh found.",
+)
 
 
 class LoggingMixin:
@@ -417,7 +452,7 @@ class RouteRequestView(LoggingMixin, GenericAPIView):
                     allow_null=True,
                     help_text="Optional: Custom mesh ID to use for route calculation.",
                 ),
-                "force_recalculate": serializers.BooleanField(
+                "force_new_route": serializers.BooleanField(
                     required=False,
                     default=False,
                     help_text="If true, forces recalculation even if an existing route is found.",
@@ -460,20 +495,7 @@ class RouteRequestView(LoggingMixin, GenericAPIView):
                 ),
                 description="Invalid request data.",
             ),
-            200: OpenApiResponse(
-                response=inline_serializer(
-                    name="NoSuitableMesh",
-                    fields={
-                        "info": serializers.DictField(
-                            help_text="Error message indicating no suitable mesh."
-                        ),
-                        "status": serializers.CharField(
-                            help_text="Status of the request (e.g., FAILURE)."
-                        ),
-                    },
-                ),
-                description="No suitable mesh available for the requested route.",
-            ),
+            404: noMeshOpenApiResponse,
         },
     )
     def post(self, request):
@@ -506,7 +528,7 @@ class RouteRequestView(LoggingMixin, GenericAPIView):
         start_name = data.get("start_name", None)
         end_name = data.get("end_name", None)
         custom_mesh_id = data.get("mesh_id", None)
-        force_recalculate = data.get("force_recalculate", False)
+        force_new_route = data.get("force_new_route", False)
 
         if custom_mesh_id:
             try:
@@ -521,20 +543,13 @@ class RouteRequestView(LoggingMixin, GenericAPIView):
                         "status": "FAILURE",
                     },
                     headers={"Content-Type": "application/json"},
-                    status=rest_framework.status.HTTP_202_ACCEPTED,
+                    status=rest_framework.status.HTTP_404_NOT_FOUND,
                 )
         else:
             meshes = select_mesh(start_lat, start_lon, end_lat, end_lon)
 
         if meshes is None:
-            return Response(
-                data={
-                    "info": {"error": "No suitable mesh available."},
-                    "status": "FAILURE",
-                },
-                headers={"Content-Type": "application/json"},
-                status=rest_framework.status.HTTP_200_OK,
-            )
+            return noMeshResponse()
 
         logger.debug(f"Using meshes: {[mesh.id for mesh in meshes]}")
         # TODO Future: calculate an up to date mesh if none available
@@ -542,7 +557,7 @@ class RouteRequestView(LoggingMixin, GenericAPIView):
         existing_route = route_exists(meshes, start_lat, start_lon, end_lat, end_lon)
 
         if existing_route is not None:
-            if not force_recalculate:
+            if not force_new_route:
                 logger.info(f"Existing route found: {existing_route}")
 
                 # Check if there's an existing job for this route
@@ -556,14 +571,14 @@ class RouteRequestView(LoggingMixin, GenericAPIView):
                         ),
                         "polarrouteserver-version": polarrouteserver_version,
                         "info": {
-                            "message": "Pre-existing route found. Job already exists. To force new calculation, include 'force_recalculate': true in POST request."
+                            "message": "Pre-existing route found. Job already exists. To force new calculation, include 'force_new_route': true in POST request."
                         },
                     }
                 else:
                     # Route exists but no job - manual route insertion, job deletion without route etc
                     response_data = {
                         "info": {
-                            "error": "Pre-existing route was found but there was an error with the job. To force new calculation, include 'force_recalculate': true in POST request."
+                            "error": "Pre-existing route was found but there was an error with the job. To force new calculation, include 'force_new_route': true in POST request."
                         }
                     }
 
@@ -574,7 +589,7 @@ class RouteRequestView(LoggingMixin, GenericAPIView):
                 )
             else:
                 logger.info(
-                    f"Found existing route(s) but got force_recalculate={force_recalculate}, beginning recalculation."
+                    f"Found existing route(s) but got force_new_route={force_new_route}, beginning recalculation."
                 )
 
         logger.debug(
@@ -675,33 +690,14 @@ class RecentRoutesView(LoggingMixin, GenericAPIView):
                 response=inline_serializer(
                     name="RecentRoutesSuccess",
                     fields={
-                        "jobs": serializers.ListField(
-                            child=inline_serializer(
-                                name="JobWithRoute",
-                                fields={
-                                    "job_id": serializers.UUIDField(),
-                                    "route_id": serializers.UUIDField(),
-                                    "status": serializers.CharField(),
-                                    "created": serializers.DateTimeField(),
-                                    "start_lat": serializers.FloatField(),
-                                    "start_lon": serializers.FloatField(),
-                                    "end_lat": serializers.FloatField(),
-                                    "end_lon": serializers.FloatField(),
-                                    "start_name": serializers.CharField(
-                                        allow_null=True
-                                    ),
-                                    "end_name": serializers.CharField(allow_null=True),
-                                    "job_url": serializers.URLField(),
-                                    "route_url": serializers.URLField(required=False),
-                                    "info": serializers.DictField(required=False),
-                                },
-                            ),
-                            help_text="List of recent jobs with associated route information.",
+                        "routes": serializers.ListField(
+                            child=RouteSerializer(),
+                            help_text="List of recent routes.",
                         ),
                         "polarrouteserver-version": serializers.CharField(),
                     },
                 ),
-                description="List of recent routes with job information retrieved successfully.",
+                description="List of recent routes retrieved successfully.",
             ),
             204: OpenApiResponse(
                 response=inline_serializer(
@@ -723,18 +719,32 @@ class RecentRoutesView(LoggingMixin, GenericAPIView):
             f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
         )
 
-        # Get recent jobs instead of routes directly
-        jobs_today = (
-            Job.objects.filter(datetime__date=datetime.now().date())
-            .select_related("route")
-            .order_by("-datetime")
-        )
+        # Only get today's routes
+        routes_today = Route.objects.filter(
+            calculated__date=datetime.now().date()
+        ).order_by("-calculated")
+
+        logger.debug(f"Found {len(routes_today)} routes calculated today.")
+
+        if not routes_today.exists():
+            return Response(
+                {
+                    "message": "No recent routes found for today.",
+                    "polarrouteserver-version": polarrouteserver_version,
+                },
+                status=rest_framework.status.HTTP_204_NO_CONTENT,
+            )
 
         jobs_data = []
-        logger.debug(f"Found {len(jobs_today)} jobs today.")
 
-        for job in jobs_today:
-            logger.debug(f"Processing job {job.id}")
+        # Process each route to get associated job data
+        for route in routes_today:
+            # Get the most recent job for this route
+            try:
+                job = route.job_set.latest("datetime")
+            except Job.DoesNotExist:
+                # Skip routes without jobs
+                continue
 
             # Use JobStatusSerializer for consistent job data formatting
             job_serializer = JobStatusSerializer(job, context={"request": request})
@@ -762,7 +772,7 @@ class RecentRoutesView(LoggingMixin, GenericAPIView):
             jobs_data.append(job_data)
 
         response_data = {
-            "jobs": jobs_data,
+            "routes": jobs_data,
             "polarrouteserver-version": polarrouteserver_version,
         }
 
@@ -793,20 +803,12 @@ class MeshView(LoggingMixin, APIView):
                 ),
                 description="Mesh details retrieved successfully.",
             ),
-            204: OpenApiResponse(
-                response=inline_serializer(
-                    name="MeshNotFound",
-                    fields={
-                        "polarrouteserver-version": serializers.CharField(
-                            help_text="Version of PolarRoute-server."
-                        )
-                    },
-                ),
-                description="Mesh with the specified ID not found.",
-            ),
+            404: noMeshOpenApiResponse,
         },
     )
     def get(self, request, id):
+        "GET Meshes by id"
+
         logger.info(
             f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
         )
@@ -826,7 +828,7 @@ class MeshView(LoggingMixin, APIView):
             status = rest_framework.status.HTTP_200_OK
 
         except Mesh.DoesNotExist:
-            status = rest_framework.status.HTTP_204_NO_CONTENT
+            status = rest_framework.status.HTTP_404_NOT_FOUND
 
         return Response(
             data,
@@ -866,31 +868,11 @@ class EvaluateRouteView(LoggingMixin, APIView):
                 ),
                 description="Route evaluated successfully.",
             ),
-            204: OpenApiResponse(
-                response=inline_serializer(
-                    name="MeshNotFoundForEvaluation",
-                    fields={
-                        "error": serializers.CharField(
-                            help_text="Error message indicating mesh not found."
-                        )
-                    },
-                ),
-                description="Mesh with the specified ID not found for evaluation.",
-            ),
-            400: OpenApiResponse(
-                response=inline_serializer(
-                    name="RouteEvaluationBadRequest",
-                    fields={
-                        "error": serializers.CharField(
-                            help_text="Error message indicating invalid route data."
-                        )
-                    },
-                ),
-                description="Invalid route data provided for evaluation.",
-            ),
+            404: noMeshOpenApiResponse,
         },
     )
     def post(self, request):
+        "POST Endpoint to evaluate traveltime and fuel usage on a given route."
         data = request.data
         route_json = data.get("route", None)
         custom_mesh_id = data.get("custom_mesh_id", None)
@@ -900,13 +882,12 @@ class EvaluateRouteView(LoggingMixin, APIView):
                 mesh = Mesh.objects.get(id=custom_mesh_id)
                 meshes = [mesh]
             except Mesh.DoesNotExist:
-                return Response(
-                    {"error": f"Mesh with id {custom_mesh_id} not found."},
-                    headers={"Content-Type": "application/json"},
-                    status=rest_framework.status.HTTP_204_NO_CONTENT,
-                )
+                return noMeshResponse()
         else:
             meshes = select_mesh_for_route_evaluation(route_json)
+
+            if meshes is None:
+                return noMeshResponse()
 
         response_data = {"polarrouteserver-version": polarrouteserver_version}
 
@@ -1040,15 +1021,55 @@ class JobView(LoggingMixin, GenericAPIView):
                 status=rest_framework.status.HTTP_404_NOT_FOUND,
             )
 
+        # Store route ID for response before deletion
+        route_id = job.route.id
+
+        # Cancel the Celery task
         result = AsyncResult(id=str(id), app=app)
         result.revoke()
 
+        # Delete the corresponding route (this will also delete the job due to CASCADE)
+        job.route.delete()
+
         return Response(
             {
-                "message": f"Job {id} cancellation requested.",
+                "message": f"Job {id} cancellation requested and route {route_id} deleted.",
                 "job_id": str(job.id),
-                "route_id": job.route.id,
+                "route_id": route_id,
             },
             headers={"Content-Type": "application/json"},
             status=rest_framework.status.HTTP_202_ACCEPTED,
         )
+
+
+@extend_schema_view(
+    list=extend_schema(
+        responses={200: LocationSerializer(many=True)},
+        description="List all available locations",
+    ),
+    retrieve=extend_schema(
+        responses={
+            200: LocationSerializer,
+            404: OpenApiResponse(
+                response=inline_serializer(
+                    name="LocationNotFound",
+                    fields={
+                        "detail": serializers.CharField(
+                            help_text="Error message indicating location not found."
+                        )
+                    },
+                ),
+                description="Location with the specified ID not found.",
+            ),
+        },
+        description="Retrieve a specific location by ID",
+    ),
+)
+class LocationViewSet(LoggingMixin, viewsets.ReadOnlyModelViewSet):
+    queryset = Location.objects.all().order_by("name")
+    serializer_class = LocationSerializer
+
+    # At present this is just a GET endpoint.
+    # In future this endpoint and the Location model could support a lot of functionality,
+    # e.g. user ownership of locations, search of locations by name,
+    # return only locations which are covered by current meshes etc.

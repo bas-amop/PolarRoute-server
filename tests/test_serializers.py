@@ -11,7 +11,6 @@ from polarrouteserver.route_api.serializers import (
     RouteSerializer,
     JobStatusSerializer,
     VehicleSerializer,
-    JobSerializer,
 )
 
 
@@ -443,45 +442,3 @@ class TestVehicleSerializer(TestCase):
         self.assertEqual(data["min_depth"], 10.0)
         self.assertEqual(data["beam"], 25.0)
         self.assertEqual(data["hull_type"], "slender")
-
-
-class TestJobSerializer(TestCase):
-    """Test the basic JobSerializer."""
-
-    def setUp(self):
-        """Set up test data."""
-        self.mesh = Mesh.objects.create(
-            meshiphi_version="1.0",
-            md5="test_hash",
-            valid_date_start="2023-01-01",
-            valid_date_end="2023-12-31",
-            created=timezone.now(),
-            lat_min=-90,
-            lat_max=90,
-            lon_min=-180,
-            lon_max=180,
-        )
-
-        self.route = Route.objects.create(
-            start_lat=-60.7,
-            start_lon=-45.6,
-            end_lat=-67.6,
-            end_lon=-68.1,
-            start_name="Signy",
-            end_name="Rothera",
-            mesh=self.mesh
-        )
-
-    def test_job_serialization(self):
-        """Test basic job serialization."""
-        job = Job.objects.create(
-            id=uuid.uuid4(),
-            route=self.route
-        )
-
-        serializer = JobSerializer(job)
-        data = serializer.data
-
-        self.assertEqual(data["id"], str(job.id))
-        self.assertEqual(data["route"], job.route.id)
-        self.assertIn("datetime", data)
