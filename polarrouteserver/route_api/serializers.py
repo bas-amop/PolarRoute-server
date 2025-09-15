@@ -130,7 +130,7 @@ class RouteSerializer(serializers.ModelSerializer):
         ]
 
     def _build_optimization_metrics(self, route_type, properties):
-        """Build optimization metrics based on route type and properties."""
+        """Build metrics based on route type and properties."""
         if route_type == "traveltime":
             # Convert duration to string as per TypeScript example
             duration = properties.get("total_traveltime")
@@ -181,7 +181,7 @@ class RouteSerializer(serializers.ModelSerializer):
         }
 
     def to_representation(self, instance):
-        """Transform route data into structured format matching the TypeScript interface."""
+        """Transform route data into structured format."""
         data = super().to_representation(instance)
 
         # Extract and organize route data by optimization type

@@ -5,14 +5,12 @@ import os
 from tempfile import NamedTemporaryFile
 from typing import Union
 
-from celery.result import AsyncResult
 from django.conf import settings
 import haversine
 from polar_route.route_calc import route_calc
 from polar_route.utils import convert_decimal_days
 
 from .models import Mesh, Route
-from polarrouteserver.celery import app
 
 logger = logging.getLogger(__name__)
 
@@ -78,9 +76,8 @@ def route_exists(
         for route in same_mesh_routes:
             # job_set can't be filtered since status is a property method
             for job in route.job_set.all():
-                # Get current status from Celery
-                result = AsyncResult(id=str(job.id), app=app)
-                if result.state != "FAILURE":
+                # Use the model's status property
+                if job.status != "FAILURE":
                     successful_route_ids.add(route.id)
 
         successful_routes = same_mesh_routes.filter(id__in=successful_route_ids)
