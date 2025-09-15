@@ -364,7 +364,7 @@ class RouteRequestView(LoggingMixin, ResponseMixin, GenericAPIView):
             meshes = select_mesh(start_lat, start_lon, end_lat, end_lon)
 
         if meshes is None:
-            return self.no_mesh_response()
+            return self.not_found_response("No mesh available.")
 
         logger.debug(f"Using meshes: {[mesh.id for mesh in meshes]}")
         # TODO Future: calculate an up to date mesh if none available
@@ -578,12 +578,12 @@ class EvaluateRouteView(LoggingMixin, ResponseMixin, APIView):
                 mesh = Mesh.objects.get(id=custom_mesh_id)
                 meshes = [mesh]
             except Mesh.DoesNotExist:
-                return self.no_mesh_response()
+                return self.not_found_response("No mesh available.")
         else:
             meshes = select_mesh_for_route_evaluation(route_json)
 
             if meshes is None:
-                return self.no_mesh_response()
+                return self.not_found_response("No mesh available.")
 
         response_data = {"polarrouteserver-version": polarrouteserver_version}
 

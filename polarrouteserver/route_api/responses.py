@@ -24,7 +24,6 @@ class ResponseMixin:
         - no_content_response() -> noContentResponseSchema (204)
         - bad_request_response() -> badRequestResponseSchema (400)
         - not_found_response() -> notFoundResponseSchema (404)
-        - no_mesh_response() -> notFoundResponseSchema (404)
         - not_acceptable_response() -> notAcceptableResponseSchema (406)
     """
 
@@ -84,17 +83,6 @@ class ResponseMixin:
         """
         return Response(
             {"error": message},
-            headers={"Content-Type": "application/json"},
-            status=rest_framework.status.HTTP_404_NOT_FOUND,
-        )
-
-    def no_mesh_response(self):
-        """
-        Return standardized response for when no mesh is available.
-        Corresponds to: notFoundResponseSchema (404)
-        """
-        return Response(
-            data={"error": "No mesh available."},
             headers={"Content-Type": "application/json"},
             status=rest_framework.status.HTTP_404_NOT_FOUND,
         )
