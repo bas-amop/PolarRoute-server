@@ -561,26 +561,18 @@ class RouteRequestView(LoggingMixin, GenericAPIView):
                 logger.info(f"Existing route found: {existing_route}")
 
                 # Check if there's an existing job for this route
-                if existing_route.job_set.count() > 0:
-                    existing_job = existing_route.job_set.latest("datetime")
+                existing_job = existing_route.job_set.latest("datetime")
 
-                    response_data = {
-                        "id": str(existing_job.id),
-                        "status-url": reverse(
-                            "job_detail", args=[existing_job.id], request=request
-                        ),
-                        "polarrouteserver-version": polarrouteserver_version,
-                        "info": {
-                            "message": "Pre-existing route found. Job already exists. To force new calculation, include 'force_new_route': true in POST request."
-                        },
-                    }
-                else:
-                    # Route exists but no job - manual route insertion, job deletion without route etc
-                    response_data = {
-                        "info": {
-                            "error": "Pre-existing route was found but there was an error with the job. To force new calculation, include 'force_new_route': true in POST request."
-                        }
-                    }
+                response_data = {
+                    "id": str(existing_job.id),
+                    "status-url": reverse(
+                        "job_detail", args=[existing_job.id], request=request
+                    ),
+                    "polarrouteserver-version": polarrouteserver_version,
+                    "info": {
+                        "message": "Pre-existing route found. Job already exists. To force new calculation, include 'force_new_route': true in POST request."
+                    },
+                }
 
                 return Response(
                     data=response_data,
@@ -740,11 +732,7 @@ class RecentRoutesView(LoggingMixin, GenericAPIView):
         # Process each route to get associated job data
         for route in routes_today:
             # Get the most recent job for this route
-            try:
-                job = route.job_set.latest("datetime")
-            except Job.DoesNotExist:
-                # Skip routes without jobs
-                continue
+            job = route.job_set.latest("datetime")
 
             # Use JobStatusSerializer for consistent job data formatting
             job_serializer = JobStatusSerializer(job, context={"request": request})

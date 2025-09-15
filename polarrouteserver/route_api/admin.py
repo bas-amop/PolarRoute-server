@@ -57,11 +57,8 @@ class RouteAdmin(admin.ModelAdmin):
             return f"({obj.end_lat},{obj.end_lon})"
 
     def job_id(self, obj):
-        if obj.job_set.count() == 0:
-            return "-"
-        else:
-            job = obj.job_set.latest("datetime")
-            return f"{job.id}"
+        job = obj.job_set.latest("datetime")
+        return f"{job.id}"
 
     def mesh_id(self, obj):
         if obj.mesh:
