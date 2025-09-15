@@ -7,7 +7,8 @@ paths:
   /api/evaluate_route:
     post:
       operationId: api_route_evaluation
-      description: Provides full logging of requests and responses
+      description: POST Endpoint to evaluate traveltime and fuel usage on a given
+        route.
       tags:
       - evaluate_route
       requestBody:
@@ -37,10 +38,110 @@ paths:
               schema:
                 $ref: '#/components/schemas/NoMeshResponse'
           description: No matching mesh found.
+  /api/job/{id}:
+    get:
+      operationId: api_job_retrieve_status
+      description: Return status of job and route URL if complete.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - job
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+          description: Operation completed successfully.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: Requested resource not found.
+    delete:
+      operationId: api_job_cancel
+      description: Cancel job
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - job
+      security:
+      - {}
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcceptedResponse'
+          description: Request accepted for processing.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: Requested resource not found.
+  /api/locations/:
+    get:
+      operationId: locations_list
+      description: List all available locations
+      tags:
+      - locations
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Location'
+          description: ''
+  /api/locations/{id}/:
+    get:
+      operationId: locations_retrieve
+      description: Retrieve a specific location by ID
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this location.
+        required: true
+      tags:
+      - locations
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: Requested resource not found.
   /api/mesh/{id}:
     get:
       operationId: api_mesh_get
-      description: Provides full logging of requests and responses
+      description: GET Meshes by id
       parameters:
       - in: path
         name: id
@@ -126,14 +227,13 @@ paths:
           description: No matching mesh found.
   /api/route/{id}:
     get:
-      operationId: api_route_retrieve_status
-      description: Return status of route calculation and route itself if complete.
+      operationId: api_route_retrieve_by_id
+      description: Return route data by route ID.
       parameters:
       - in: path
         name: id
         schema:
-          type: string
-          format: uuid
+          type: integer
         required: true
       tags:
       - route
@@ -152,27 +252,150 @@ paths:
               schema:
                 $ref: '#/components/schemas/NotFoundResponse'
           description: Requested resource not found.
-    delete:
-      operationId: api_route_cancel_job
-      description: Cancel route calculation
+  /api/schema/:
+    get:
+      operationId: schema_retrieve
+      description: |-
+        OpenApi3 schema for this API. Format can be selected via content negotiation.
+
+        - YAML: application/vnd.oai.openapi
+        - JSON: application/vnd.oai.openapi+json
       parameters:
-      - in: path
-        name: id
+      - in: query
+        name: format
         schema:
           type: string
-          format: uuid
-        required: true
+          enum:
+          - json
+          - yaml
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - af
+          - ar
+          - ar-dz
+          - ast
+          - az
+          - be
+          - bg
+          - bn
+          - br
+          - bs
+          - ca
+          - ckb
+          - cs
+          - cy
+          - da
+          - de
+          - dsb
+          - el
+          - en
+          - en-au
+          - en-gb
+          - eo
+          - es
+          - es-ar
+          - es-co
+          - es-mx
+          - es-ni
+          - es-ve
+          - et
+          - eu
+          - fa
+          - fi
+          - fr
+          - fy
+          - ga
+          - gd
+          - gl
+          - he
+          - hi
+          - hr
+          - hsb
+          - hu
+          - hy
+          - ia
+          - id
+          - ig
+          - io
+          - is
+          - it
+          - ja
+          - ka
+          - kab
+          - kk
+          - km
+          - kn
+          - ko
+          - ky
+          - lb
+          - lt
+          - lv
+          - mk
+          - ml
+          - mn
+          - mr
+          - ms
+          - my
+          - nb
+          - ne
+          - nl
+          - nn
+          - os
+          - pa
+          - pl
+          - pt
+          - pt-br
+          - ro
+          - ru
+          - sk
+          - sl
+          - sq
+          - sr
+          - sr-latn
+          - sv
+          - sw
+          - ta
+          - te
+          - tg
+          - th
+          - tk
+          - tr
+          - tt
+          - udm
+          - ug
+          - uk
+          - ur
+          - uz
+          - vi
+          - zh-hans
+          - zh-hant
       tags:
-      - route
+      - schema
       security:
       - {}
       responses:
-        '202':
+        '200':
           content:
+            application/vnd.oai.openapi:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/yaml:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/vnd.oai.openapi+json:
+              schema:
+                type: object
+                additionalProperties: {}
             application/json:
               schema:
-                $ref: '#/components/schemas/AcceptedResponse'
-          description: Request accepted for processing.
+                type: object
+                additionalProperties: {}
+          description: ''
   /api/vehicle:
     get:
       operationId: api_vehicle_list_retrieve
@@ -186,10 +409,8 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Vehicle'
-          description: List of vehicles retrieved successfully.
+                $ref: '#/components/schemas/SuccessResponse'
+          description: Operation completed successfully.
         '204':
           content:
             application/json:
@@ -220,8 +441,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Vehicle'
-          description: Vehicle operation completed successfully.
+                $ref: '#/components/schemas/SuccessResponse'
+          description: Operation completed successfully.
         '400':
           content:
             application/json:
@@ -253,10 +474,8 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Vehicle'
-          description: List of vehicles retrieved successfully.
+                $ref: '#/components/schemas/SuccessResponse'
+          description: Operation completed successfully.
         '404':
           content:
             application/json:
@@ -327,6 +546,26 @@ components:
           description: Error message describing what went wrong.
       required:
       - error
+    Location:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        lat:
+          type: number
+          format: double
+        lon:
+          type: number
+          format: double
+        name:
+          type: string
+          maxLength: 100
+      required:
+      - id
+      - lat
+      - lon
+      - name
     MeshDetailResponse:
       type: object
       properties:
@@ -447,7 +686,7 @@ components:
           format: uuid
           nullable: true
           description: 'Optional: Custom mesh ID to use for route calculation.'
-        force_recalculate:
+        force_new_route:
           type: boolean
           default: false
           description: If true, forces recalculation even if an existing route is
@@ -527,6 +766,13 @@ components:
       - start_lon
       - start_name
       - status
+    SuccessResponse:
+      type: object
+      properties:
+        data:
+          description: Response data
+      required:
+      - data
     Vehicle:
       type: object
       properties:

@@ -1,5 +1,6 @@
 import json
 import uuid
+from datetime import datetime, timezone
 from unittest.mock import patch, PropertyMock
 
 import celery.states
@@ -17,8 +18,11 @@ from polarrouteserver.route_api.views import (
     RouteRequestView,
     RouteDetailView,
     RecentRoutesView,
+    LocationViewSet,
+    JobView,
 )
 from polarrouteserver.route_api.models import Job, Route
+from polarrouteserver.route_api.tasks import optimise_route
 from .utils import add_test_mesh_to_db
 
 
@@ -91,11 +95,10 @@ class TestVehicleRequest(TestCase):
         response = self.post_vehicle(missing_property)
 
         self.assertEqual(response.status_code, 400)
-        self.assertIn("info", response.data)
-        self.assertIn("error", response.data["info"])
+        self.assertIn("error", response.data)
         self.assertIn(
             "Validation error: 'max_speed' is a required property",
-            response.data["info"]["error"],
+            response.data["error"],
         )
 
     def test_wrong_type(self, data=data):
@@ -107,21 +110,22 @@ class TestVehicleRequest(TestCase):
         response = self.post_vehicle(wrong_type)
 
         self.assertEqual(response.status_code, 400)
-        self.assertIn("info", response.data)
-        self.assertIn("error", response.data["info"])
+        self.assertIn("error", response.data)
         self.assertIn(
             "Validation error: 'really fast' is not of type 'number'",
-            response.data["info"]["error"],
+            response.data["error"],
         )
 
     def test_type_error_on_invalid_input(self):
         """
-        Test that submitting a non-dictionary raises a TypeError.
+        Test that submitting a non-dictionary returns a validation error.
         """
         invalid_data = ["this", "is", "not", "a", "dict"]
+        response = self.post_vehicle(invalid_data)
 
-        with self.assertRaises(TypeError):
-            self.post_vehicle(invalid_data)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("error", response.data)
+        self.assertIn("Expected 'str' or 'dict'", response.data["error"])
 
     def test_get_vehicle(self):
         """
@@ -297,8 +301,8 @@ class TestRouteRequest(TestCase):
 
         response = RouteRequestView.as_view()(request)
 
-        self.assertEqual(response.status_code, 202)
-        self.assertIn("Does not exist.", response.data["info"]["error"])
+        self.assertEqual(response.status_code, 404)
+        self.assertIn("Does not exist.", response.data["error"])
 
     def test_request_route(self):
         data = {
@@ -316,7 +320,7 @@ class TestRouteRequest(TestCase):
 
         self.assertEqual(response.status_code, 202)
 
-        assert f"api/route/{response.data.get('id')}" in response.data.get("status-url")
+        assert f"api/job/{response.data.get('id')}" in response.data.get("status-url")
         assert isinstance(uuid.UUID(response.data.get("id")), uuid.UUID)
 
         # Test that requesting the same route doesn't start a new job.
@@ -324,12 +328,12 @@ class TestRouteRequest(TestCase):
         request = self.factory.post(
             "/api/route", data=data, format="json"
         )
-        response2 = RouteRequestView.as_view()(request)  # Changed View
+        response2 = RouteRequestView.as_view()(request) # Changed View
         assert response.data.get("id") == response2.data.get("id")
         assert response.data.get("polarrouteserver-version") == response2.data.get(
             "polarrouteserver-version"
         )
-        assert f"api/route/{response.data.get('id')}" in response2.data.get(
+        assert f"api/job/{response.data.get('id')}" in response2.data.get(
             "status-url"
         )
 
@@ -375,22 +379,20 @@ class TestRouteStatus:
         self.route = Route.objects.create(
             start_lat=1.1, start_lon=1.1, end_lat=2.0, end_lon=2.0, mesh=mesh
         )
-        from polarrouteserver.route_api.tasks import optimise_route
-
         optimise_route(self.route.id)
 
     def test_get_status_pending(self):
-
+        
         self.setUp()
-
+        
         self.job = Job.objects.create(
             id=uuid.uuid1(),
             route=self.route,
         )
 
-        request = self.factory.get(f"/api/route/{self.job.id}")
+        request = self.factory.get(f"/api/job/{self.job.id}")
 
-        response = RouteDetailView.as_view()(request, self.job.id)
+        response = JobView.as_view()(request, id=self.job.id)
 
         assert response.status_code == 200
 
@@ -411,14 +413,13 @@ class TestRouteStatus:
                 route=self.route,
             )
 
-            request = self.factory.get(f"/api/route/{self.job.id}")
+            request = self.factory.get(f"/api/job/{self.job.id}")
 
-            response = RouteDetailView.as_view()(request, self.job.id)
+            response = JobView.as_view()(request, id=self.job.id)
 
             assert response.status_code == 200
             assert response.data.get("status") == "SUCCESS"
-            assert isinstance(response.data.get("json_unsmoothed"), list)
-            assert isinstance(response.data.get("json"), list)
+            assert "route_url" in response.data
 
     def test_request_out_of_mesh(self):
 
@@ -455,20 +456,146 @@ class TestRouteStatus:
         assert post_response.status_code == 404
         assert post_response.data["info"]["error"] == "No mesh available."
 
+
+@pytest.mark.usefixtures("celery_app", "celery_worker", "celery_enable_logging")
+@pytest.mark.django_db
+class TestCancelRoute:
+
+    pytestmark = pytest.mark.django_db
+
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        mesh = add_test_mesh_to_db()
+        self.route = Route.objects.create(
+            start_lat=1.1, start_lon=1.1, end_lat=2.0, end_lon=2.0, mesh=mesh
+        )
+
     def test_cancel_route(self):
 
         self.setUp()
-
         self.job = Job.objects.create(
             id=uuid.uuid1(),
             route=self.route,
         )
 
-        request = self.factory.delete(f"/api/route/{self.job.id}")
+        # Store route ID for checking deletion later
+        route_id = self.route.id
+        
+        request = self.factory.delete(f"/api/job/{self.job.id}")
 
-        response = RouteDetailView.as_view()(request, self.job.id)
+        response = JobView.as_view()(request, id=self.job.id)
 
         assert response.status_code == 202
+        
+        # Test the response includes job and route info
+        assert "message" in response.data
+        assert "job_id" in response.data
+        assert "route_id" in response.data
+        assert str(self.job.id) in response.data["message"]
+        assert response.data["job_id"] == str(self.job.id)
+        assert response.data["route_id"] == route_id
+        assert "deleted" in response.data["message"]
+        
+        # Verify that the route has been deleted
+        with pytest.raises(Route.DoesNotExist):
+            Route.objects.get(id=route_id)
+
+    def test_cancel_nonexistent_job(self):
+        """
+        Test that attempting to cancel a non-existent job returns 404.
+        """
+        self.setUp()
+        
+        fake_job_id = uuid.uuid4()
+        request = self.factory.delete(f"/api/job/{fake_job_id}")
+
+        response = JobView.as_view()(request, id=fake_job_id)
+
+        assert response.status_code == 404
+        assert "error" in response.data
+        assert str(fake_job_id) in response.data["error"]
+
+
+class TestRouteDetailView(TestCase):
+    """
+    Test case for the RouteDetailView endpoint that returns route data by route ID.
+    """
+
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.mesh = add_test_mesh_to_db()
+        
+        # Create a test route with minimal data
+        self.route = Route.objects.create(
+            start_lat=60.0,
+            start_lon=-1.0,
+            end_lat=61.0,
+            end_lon=-2.0,
+            mesh=self.mesh,
+            start_name="Test Start",
+            end_name="Test End",
+            json=None,
+            json_unsmoothed=None,
+            polar_route_version="0.2.0",
+            info={"message": "Test route"}
+        )
+
+    def test_get_route_success(self):
+        """
+        Test successful retrieval of route data by ID.
+        """
+        request = self.factory.get(f"/api/route/{self.route.id}")
+        response = RouteDetailView.as_view()(request, id=self.route.id)
+
+        self.assertEqual(response.status_code, 200)
+        
+        # Check that route data is included
+        self.assertEqual(response.data["start_lat"], 60.0)
+        self.assertEqual(response.data["start_lon"], -1.0)
+        self.assertEqual(response.data["end_lat"], 61.0)
+        self.assertEqual(response.data["end_lon"], -2.0)
+        self.assertEqual(response.data["start_name"], "Test Start")
+        self.assertEqual(response.data["end_name"], "Test End")
+        self.assertEqual(response.data["json"], [])
+        self.assertEqual(response.data["json_unsmoothed"], None)
+        self.assertEqual(response.data["polar_route_version"], "0.2.0")
+        self.assertIn("error", response.data["info"])
+
+    def test_get_route_not_found(self):
+        """
+        Test that requesting a non-existent route ID returns 404.
+        """
+        non_existent_id = 99999
+        request = self.factory.get(f"/api/route/{non_existent_id}")
+        response = RouteDetailView.as_view()(request, id=non_existent_id)
+
+        self.assertEqual(response.status_code, 404)
+        self.assertIn("error", response.data)
+        self.assertIn(str(non_existent_id), response.data["error"])
+
+    def test_get_route_with_minimal_data(self):
+        """
+        Test retrieval of route with minimal required data (no optional fields).
+        """
+        minimal_route = Route.objects.create(
+            start_lat=50.0,
+            start_lon=0.0,
+            end_lat=51.0,
+            end_lon=1.0,
+            mesh=self.mesh
+            # No optional fields like start_name, end_name, json, etc.
+        )
+
+        request = self.factory.get(f"/api/route/{minimal_route.id}")
+        response = RouteDetailView.as_view()(request, id=minimal_route.id)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["start_lat"], 50.0)
+        self.assertEqual(response.data["start_lon"], 0.0)
+        self.assertEqual(response.data["end_lat"], 51.0)
+        self.assertEqual(response.data["end_lon"], 1.0)
+        self.assertIsNone(response.data.get("start_name"))
+        self.assertIsNone(response.data.get("end_name"))
 
 
 class TestGetRecentRoutesAndMesh(TestCase):
@@ -476,11 +603,15 @@ class TestGetRecentRoutesAndMesh(TestCase):
     def setUp(self):
         self.factory = APIRequestFactory()
         self.mesh = add_test_mesh_to_db()
+        # Create routes with calculated timestamps so they'll be found by the recent routes filter
+        now = datetime.now(timezone.utc)
         self.route1 = Route.objects.create(
-            start_lat=0.0, start_lon=0.0, end_lat=0.0, end_lon=0.0, mesh=self.mesh
+            start_lat=0.0, start_lon=0.0, end_lat=0.0, end_lon=0.0, 
+            mesh=self.mesh, calculated=now
         )
         self.route2 = Route.objects.create(
-            start_lat=1.0, start_lon=1.0, end_lat=1.0, end_lon=0.0, mesh=self.mesh
+            start_lat=1.0, start_lon=1.0, end_lat=1.0, end_lon=0.0, 
+            mesh=self.mesh, calculated=now
         )
         self.job1 = Job.objects.create(id=uuid.uuid1(), route=self.route1)
         self.job2 = Job.objects.create(id=uuid.uuid1(), route=self.route2)
@@ -492,7 +623,9 @@ class TestGetRecentRoutesAndMesh(TestCase):
         response = RecentRoutesView.as_view()(request)
 
         assert response.status_code == 200
-        assert len(response.data) == 2
+        assert "routes" in response.data
+        assert "polarrouteserver-version" in response.data
+        assert len(response.data["routes"]) == 2
 
     def test_mesh_get(self):
 
@@ -503,3 +636,38 @@ class TestGetRecentRoutesAndMesh(TestCase):
         assert response.status_code == 200
         assert response.data.get("json") is not None
         assert response.data.get("geojson") is not None
+
+class TestGetLocations(TestCase):
+    fixtures = ["locations_bas.json"]
+
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        self.location_id = 1
+        self.location_expected_name = "Bird Island"
+
+    def test_location_list_request(self):
+        request = self.factory.get(f"/api/location")
+
+        response = LocationViewSet.as_view({'get': 'list'})(request)
+
+        assert response.status_code == 200
+        assert len(response.data) > 1
+    
+    def test_location_single_request(self):
+        request = self.factory.get(f"/api/location/{self.location_id}")
+
+        response = LocationViewSet.as_view({'get': 'retrieve'})(request, pk=self.location_id)
+
+        assert response.status_code == 200
+        assert response.data.get("name") == self.location_expected_name
+
+    def test_location_not_found(self):
+        """Test that requesting a non-existent location returns 404."""
+        non_existent_id = 99999
+        request = self.factory.get(f"/api/location/{non_existent_id}")
+
+        response = LocationViewSet.as_view({'get': 'retrieve'})(request, pk=non_existent_id)
+
+        assert response.status_code == 404
+        assert "detail" in response.data
+        assert "No Location matches the given query." in str(response.data["detail"])
