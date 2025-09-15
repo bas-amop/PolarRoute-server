@@ -28,7 +28,7 @@ class JobStatusSerializer(serializers.ModelSerializer):
         ]
 
     def _get_celery_result(self, obj):
-        """Get Celery result object for this job (cached per serializer instance)."""
+        """Get Celery result object for this job."""
         if not hasattr(self, "_celery_result_cache"):
             self._celery_result_cache = {}
 
@@ -111,7 +111,7 @@ class RouteSerializer(serializers.ModelSerializer):
         ]
 
     def _extract_routes_by_type(self, route_data, route_type):
-        """Extract routes of a specific optimization type from route data."""
+        """Extract routes of a specific optimisation type from route data."""
         if route_data is None:
             return []
 
@@ -129,31 +129,16 @@ class RouteSerializer(serializers.ModelSerializer):
             )
         ]
 
-    def _build_optimization_metrics(self, route_type, properties):
+    def _build_optimisation_metrics(self, route_type, properties):
         """Build metrics based on route type and properties."""
         if route_type == "traveltime":
-            # Convert duration to string as per TypeScript example
-            duration = properties.get("total_traveltime")
-            duration_str = str(duration) if duration is not None else "0"
-
-            # Only include start/end if they exist in the route data
-            time_metrics = {"duration": duration_str}
-
-            if properties.get("start_time"):
-                time_metrics["start"] = properties.get("start_time")
-            if properties.get("end_time"):
-                time_metrics["end"] = properties.get("end_time")
-
-            return {"time": time_metrics}
+            duration = properties.get("total_traveltime", 0)
+            return {"time": {"duration": str(duration)}}
         elif route_type == "fuel":
-            # Default units to "tons" if not specified
-            units = properties.get("fuel_units") or "tons"
-            value = properties.get("total_fuel")
-
             return {
                 "fuelConsumption": {
-                    "value": value,
-                    "units": units,
+                    "value": properties.get("total_fuel"),
+                    "units": properties.get("fuel_units") or "tons",
                 }
             }
         return {}
@@ -184,7 +169,7 @@ class RouteSerializer(serializers.ModelSerializer):
         """Transform route data into structured format."""
         data = super().to_representation(instance)
 
-        # Extract and organize route data by optimization type
+        # Extract and organise route data by optimisation type
         smoothed_routes = {}
         unsmoothed_routes = {}
 
@@ -218,19 +203,19 @@ class RouteSerializer(serializers.ModelSerializer):
                     0
                 ]  # Extract the actual GeoJSON from the nested structure
                 info_message = {
-                    "warning": f"Smoothing failed for {route_type}-optimization, returning unsmoothed route."
+                    "warning": f"Smoothing failed for {route_type}-optimisation, returning unsmoothed route."
                 }
             else:
                 # No route available for this type - skip it
                 continue
 
-            # Extract optimization metrics from route properties
+            # Extract optimisation metrics from route properties
             properties = (
                 route_geojson["features"][0].get("properties", {})
                 if route_geojson
                 else {}
             )
-            optimization_metrics = self._build_optimization_metrics(
+            optimisation_metrics = self._build_optimisation_metrics(
                 route_type, properties
             )
 
@@ -260,7 +245,7 @@ class RouteSerializer(serializers.ModelSerializer):
                     "path": route_geojson,
                     "unsmoothedPath": unsmoothed_geojson,
                 },
-                "optimization": {"metrics": optimization_metrics},
+                "optimisation": {"metrics": optimisation_metrics},
             }
 
             if mesh_info:
@@ -285,7 +270,7 @@ class RouteSerializer(serializers.ModelSerializer):
                     "requestedAt": data["requested"],
                     "calculatedAt": data["calculated"],
                 },
-                "info": {"error": "No routes available for any optimization type."},
+                "info": {"error": "No routes available for any optimisation type."},
             }
         elif len(available_routes) == 1:
             # Single route type - return the route directly
