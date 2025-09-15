@@ -19,8 +19,7 @@ from .tasks import optimise_route
 from .serializers import VehicleSerializer, VesselTypeSerializer, RouteSerializer
 from .responses import (
     ResponseMixin,
-    vehicleSuccessResponseSchema,
-    vehicleListResponseSchema,
+    successResponseSchema,
     vehicleTypeListResponseSchema,
     routeAcceptedResponseSchema,
     routeStatusResponseSchema,
@@ -94,7 +93,7 @@ class VehicleRequestView(LoggingMixin, ResponseMixin, GenericAPIView):
         operation_id="api_vehicle_create_request",
         request=VehicleSerializer,
         responses={
-            200: vehicleSuccessResponseSchema,
+            200: successResponseSchema,
             400: badRequestResponseSchema,
             406: notAcceptableResponseSchema,
         },
@@ -166,7 +165,7 @@ class VehicleRequestView(LoggingMixin, ResponseMixin, GenericAPIView):
     @extend_schema(
         operation_id="api_vehicle_list_retrieve",
         responses={
-            200: vehicleListResponseSchema,
+            200: successResponseSchema,
             204: noContentResponseSchema,
         },
     )
@@ -191,7 +190,7 @@ class VehicleDetailView(LoggingMixin, ResponseMixin, GenericAPIView):
     @extend_schema(
         operation_id="api_vehicle_retrieve_by_type",
         responses={
-            200: vehicleListResponseSchema,
+            200: successResponseSchema,
             404: notFoundResponseSchema,
         },
     )

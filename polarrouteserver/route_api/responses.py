@@ -3,14 +3,12 @@ from rest_framework.response import Response
 from rest_framework import serializers
 import rest_framework.status
 
-from .serializers import VehicleSerializer
-
 
 class ResponseMixin:
     """
-    Mixin providing standardized API response methods that integrate with OpenAPI schema.
+    Mixin providing standardized API response methods.
 
-    This mixin ensures consistent response formatting across all API endpoints and
+    Ensures consistent response formatting across all API endpoints and
     provides response methods that correspond to the standardized schema objects
     defined in this module.
 
@@ -22,27 +20,13 @@ class ResponseMixin:
     Schema Integration:
         Each method in this mixin corresponds to a schema object:
         - success_response() -> successResponseSchema (200)
-        - bad_request_response() -> badRequestResponseSchema (400) - for validation and input errors
-        - not_found_response() -> notFoundResponseSchema (404)
-        - not_acceptable_response() -> notAcceptableResponseSchema (406) - for resource conflicts
-        - no_content_response() -> noContentResponseSchema (204)
         - accepted_response() -> acceptedResponseSchema (202)
+        - no_content_response() -> noContentResponseSchema (204)
+        - bad_request_response() -> badRequestResponseSchema (400)
+        - not_found_response() -> notFoundResponseSchema (404)
         - no_mesh_response() -> noMeshResponseSchema (404)
+        - not_acceptable_response() -> notAcceptableResponseSchema (406)
     """
-
-    def no_mesh_response(self):
-        """
-        Return standardized response for when no mesh is available.
-        Corresponds to: noMeshResponseSchema (404)
-        """
-        return Response(
-            data={
-                "info": {"error": "No mesh available."},
-                "status": "FAILURE",
-            },
-            headers={"Content-Type": "application/json"},
-            status=rest_framework.status.HTTP_404_NOT_FOUND,
-        )
 
     def success_response(self, data, status_code=rest_framework.status.HTTP_200_OK):
         """
@@ -53,6 +37,31 @@ class ResponseMixin:
             data,
             headers={"Content-Type": "application/json"},
             status=status_code,
+        )
+
+    def accepted_response(self, data):
+        """
+        Return standardized accepted response.
+        Corresponds to: acceptedResponseSchema (202)
+        """
+        return Response(
+            data,
+            headers={"Content-Type": "application/json"},
+            status=rest_framework.status.HTTP_202_ACCEPTED,
+        )
+
+    def no_content_response(self, data=None, message=None):
+        """
+        Return standardized no content response.
+        Corresponds to: noContentResponseSchema (204)
+        """
+        response_data = data or {}
+        if message:
+            response_data["message"] = message
+        return Response(
+            data=response_data,
+            headers={"Content-Type": "application/json"},
+            status=rest_framework.status.HTTP_204_NO_CONTENT,
         )
 
     def bad_request_response(
@@ -79,6 +88,20 @@ class ResponseMixin:
             status=rest_framework.status.HTTP_404_NOT_FOUND,
         )
 
+    def no_mesh_response(self):
+        """
+        Return standardized response for when no mesh is available.
+        Corresponds to: noMeshResponseSchema (404)
+        """
+        return Response(
+            data={
+                "info": {"error": "No mesh available."},
+                "status": "FAILURE",
+            },
+            headers={"Content-Type": "application/json"},
+            status=rest_framework.status.HTTP_404_NOT_FOUND,
+        )
+
     def not_acceptable_response(self, data, error_message):
         """
         Return standardized not acceptable response.
@@ -93,41 +116,16 @@ class ResponseMixin:
             status=rest_framework.status.HTTP_406_NOT_ACCEPTABLE,
         )
 
-    def no_content_response(self, data=None, message=None):
-        """
-        Return standardized no content response.
-        Corresponds to: noContentResponseSchema (204)
-        """
-        response_data = data or {}
-        if message:
-            response_data["message"] = message
-        return Response(
-            data=response_data,
-            headers={"Content-Type": "application/json"},
-            status=rest_framework.status.HTTP_204_NO_CONTENT,
-        )
 
-    def accepted_response(self, data):
-        """
-        Return standardized accepted response.
-        Corresponds to: acceptedResponseSchema (202)
-        """
-        return Response(
-            data,
-            headers={"Content-Type": "application/json"},
-            status=rest_framework.status.HTTP_202_ACCEPTED,
-        )
-
-
-# Specific response schemas for different endpoint types
-vehicleSuccessResponseSchema = OpenApiResponse(
-    response=VehicleSerializer,
-    description="Vehicle operation completed successfully.",
-)
-
-vehicleListResponseSchema = OpenApiResponse(
-    response=VehicleSerializer(many=True),
-    description="List of vehicles retrieved successfully.",
+# HTTP 200 Response Schemas
+successResponseSchema = OpenApiResponse(
+    response=inline_serializer(
+        name="SuccessResponse",
+        fields={
+            "data": serializers.JSONField(help_text="Response data"),
+        },
+    ),
+    description="Operation completed successfully.",
 )
 
 vehicleTypeListResponseSchema = OpenApiResponse(
@@ -141,23 +139,6 @@ vehicleTypeListResponseSchema = OpenApiResponse(
         },
     ),
     description="List of available vessel types retrieved successfully.",
-)
-
-routeAcceptedResponseSchema = OpenApiResponse(
-    response=inline_serializer(
-        name="RouteAcceptedResponse",
-        fields={
-            "id": serializers.UUIDField(help_text="Job ID for route calculation"),
-            "status-url": serializers.URLField(help_text="URL to check job status"),
-            "polarrouteserver-version": serializers.CharField(
-                help_text="Server version"
-            ),
-            "info": serializers.DictField(
-                required=False, help_text="Additional information"
-            ),
-        },
-    ),
-    description="Route calculation job accepted.",
 )
 
 routeStatusResponseSchema = OpenApiResponse(
@@ -226,52 +207,37 @@ routeEvaluationResponseSchema = OpenApiResponse(
     description="Route evaluated successfully.",
 )
 
-successResponseSchema = OpenApiResponse(
+# HTTP 202 Response Schemas
+acceptedResponseSchema = OpenApiResponse(
     response=inline_serializer(
-        name="SuccessResponse",
+        name="AcceptedResponse",
         fields={
-            "data": serializers.JSONField(help_text="Response data"),
-        },
-    ),
-    description="Operation completed successfully.",
-)
-
-badRequestResponseSchema = OpenApiResponse(
-    response=inline_serializer(
-        name="BadRequestResponse",
-        fields={
-            "error": serializers.CharField(
-                help_text="Error message describing what went wrong."
+            "data": serializers.JSONField(
+                help_text="Response data for accepted request"
             ),
         },
     ),
-    description="Bad request - invalid input data or malformed request.",
+    description="Request accepted for processing.",
 )
 
-notFoundResponseSchema = OpenApiResponse(
+routeAcceptedResponseSchema = OpenApiResponse(
     response=inline_serializer(
-        name="NotFoundResponse",
+        name="RouteAcceptedResponse",
         fields={
-            "error": serializers.CharField(
-                help_text="Error message indicating resource not found."
+            "id": serializers.UUIDField(help_text="Job ID for route calculation"),
+            "status-url": serializers.URLField(help_text="URL to check job status"),
+            "polarrouteserver-version": serializers.CharField(
+                help_text="Server version"
             ),
-        },
-    ),
-    description="Requested resource not found.",
-)
-
-notAcceptableResponseSchema = OpenApiResponse(
-    response=inline_serializer(
-        name="NotAcceptableResponse",
-        fields={
             "info": serializers.DictField(
-                help_text="Details about the conflict, including error message."
+                required=False, help_text="Additional information"
             ),
         },
     ),
-    description="Not acceptable - request conflicts with current resource state.",
+    description="Route calculation job accepted.",
 )
 
+# HTTP 204 Response Schemas
 noContentResponseSchema = OpenApiResponse(
     response=inline_serializer(
         name="NoContentResponse",
@@ -285,19 +251,32 @@ noContentResponseSchema = OpenApiResponse(
     description="No content available.",
 )
 
-acceptedResponseSchema = OpenApiResponse(
+# HTTP 400 Response Schemas
+badRequestResponseSchema = OpenApiResponse(
     response=inline_serializer(
-        name="AcceptedResponse",
+        name="BadRequestResponse",
         fields={
-            "data": serializers.JSONField(
-                help_text="Response data for accepted request"
+            "error": serializers.CharField(
+                help_text="Error message describing what went wrong."
             ),
         },
     ),
-    description="Request accepted for processing.",
+    description="Bad request - invalid input data or malformed request.",
 )
 
-# No mesh OpenApiResponse object for Open API schema (matches no_mesh_response method)
+# HTTP 404 Response Schemas
+notFoundResponseSchema = OpenApiResponse(
+    response=inline_serializer(
+        name="NotFoundResponse",
+        fields={
+            "error": serializers.CharField(
+                help_text="Error message indicating resource not found."
+            ),
+        },
+    ),
+    description="Requested resource not found.",
+)
+
 noMeshResponseSchema = OpenApiResponse(
     response=inline_serializer(
         name="NoMeshResponse",
@@ -311,4 +290,17 @@ noMeshResponseSchema = OpenApiResponse(
         },
     ),
     description="No matching mesh found.",
+)
+
+# HTTP 406 Response Schemas
+notAcceptableResponseSchema = OpenApiResponse(
+    response=inline_serializer(
+        name="NotAcceptableResponse",
+        fields={
+            "info": serializers.DictField(
+                help_text="Details about the conflict, including error message."
+            ),
+        },
+    ),
+    description="Not acceptable - request conflicts with current resource state.",
 )
