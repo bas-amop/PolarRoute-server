@@ -49,6 +49,11 @@ Aim to resolve any warnings/errors before committing.
 
 The generated schema can be checked by building the docs and checking the [API reference page](api.md) or serving using swagger (`make start-swagger`).
 
+## Error codes and response schemas
+Standard error codes and responses are defined in the `ResponseMixin` class in `responses.py`. Where possible, try to align standard responses (e.g. 200 SUCCESS, 202 ACCEPTED, 400 BAD REQUESTS, 404 NOT FOUND) to these standard codes and responses.
+
+Views in `views.py` can inherit `ResponseMixin` class to make use of these standard responses.
+
 ## Docker containers and compose configuration
 PolarRoute-server relies on four different services, orchestrated by [docker compose](https://docs.docker.com/compose/install/), to each be running in their own docker container.
 
