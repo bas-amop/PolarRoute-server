@@ -36,8 +36,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NoMeshResponse'
-          description: No matching mesh found.
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: Requested resource not found.
   /api/job/{id}:
     get:
       operationId: api_job_retrieve_status
@@ -163,8 +163,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NoMeshResponse'
-          description: No matching mesh found.
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: Requested resource not found.
   /api/recent_routes:
     get:
       operationId: api_recent_routes_list
@@ -223,8 +223,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NoMeshResponse'
-          description: No matching mesh found.
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: Requested resource not found.
   /api/route/{id}:
     get:
       operationId: api_route_retrieve_by_id
@@ -591,19 +591,6 @@ components:
         message:
           type: string
           description: Optional message describing the empty result.
-    NoMeshResponse:
-      type: object
-      properties:
-        info:
-          type: object
-          additionalProperties: {}
-          description: Error message indicating no mesh found.
-        status:
-          type: string
-          description: Status of the request (e.g., FAILURE).
-      required:
-      - info
-      - status
     NotAcceptableResponse:
       type: object
       properties:

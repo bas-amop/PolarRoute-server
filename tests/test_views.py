@@ -454,7 +454,7 @@ class TestRouteStatus:
             pass
 
         assert post_response.status_code == 404
-        assert post_response.data["info"]["error"] == "No mesh available."
+        assert post_response.data["error"] == "No mesh available."
 
 
 @pytest.mark.usefixtures("celery_app", "celery_worker", "celery_enable_logging")

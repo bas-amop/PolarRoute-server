@@ -34,7 +34,6 @@ from .responses import (
     notAcceptableResponseSchema,
     noContentResponseSchema,
     acceptedResponseSchema,
-    noMeshResponseSchema,
 )
 from .serializers import (
     VehicleSerializer,
@@ -325,7 +324,7 @@ class RouteRequestView(LoggingMixin, ResponseMixin, GenericAPIView):
         responses={
             202: routeAcceptedResponseSchema,
             400: badRequestResponseSchema,
-            404: noMeshResponseSchema,
+            404: notFoundResponseSchema,
         },
     )
     def post(self, request):
@@ -519,7 +518,7 @@ class MeshView(LoggingMixin, ResponseMixin, APIView):
         operation_id="api_mesh_get",
         responses={
             200: meshDetailResponseSchema,
-            404: noMeshResponseSchema,
+            404: notFoundResponseSchema,
         },
     )
     def get(self, request, id):
@@ -565,7 +564,7 @@ class EvaluateRouteView(LoggingMixin, ResponseMixin, APIView):
         ),
         responses={
             200: routeEvaluationResponseSchema,
-            404: noMeshResponseSchema,
+            404: notFoundResponseSchema,
         },
     )
     def post(self, request):

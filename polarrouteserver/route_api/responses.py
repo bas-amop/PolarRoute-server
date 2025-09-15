@@ -24,7 +24,7 @@ class ResponseMixin:
         - no_content_response() -> noContentResponseSchema (204)
         - bad_request_response() -> badRequestResponseSchema (400)
         - not_found_response() -> notFoundResponseSchema (404)
-        - no_mesh_response() -> noMeshResponseSchema (404)
+        - no_mesh_response() -> notFoundResponseSchema (404)
         - not_acceptable_response() -> notAcceptableResponseSchema (406)
     """
 
@@ -91,13 +91,10 @@ class ResponseMixin:
     def no_mesh_response(self):
         """
         Return standardized response for when no mesh is available.
-        Corresponds to: noMeshResponseSchema (404)
+        Corresponds to: notFoundResponseSchema (404)
         """
         return Response(
-            data={
-                "info": {"error": "No mesh available."},
-                "status": "FAILURE",
-            },
+            data={"error": "No mesh available."},
             headers={"Content-Type": "application/json"},
             status=rest_framework.status.HTTP_404_NOT_FOUND,
         )
@@ -275,21 +272,6 @@ notFoundResponseSchema = OpenApiResponse(
         },
     ),
     description="Requested resource not found.",
-)
-
-noMeshResponseSchema = OpenApiResponse(
-    response=inline_serializer(
-        name="NoMeshResponse",
-        fields={
-            "info": serializers.DictField(
-                help_text="Error message indicating no mesh found."
-            ),
-            "status": serializers.CharField(
-                help_text="Status of the request (e.g., FAILURE)."
-            ),
-        },
-    ),
-    description="No matching mesh found.",
 )
 
 # HTTP 406 Response Schemas
