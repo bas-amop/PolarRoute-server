@@ -1010,14 +1010,21 @@ class JobView(LoggingMixin, GenericAPIView):
                 status=rest_framework.status.HTTP_404_NOT_FOUND,
             )
 
+        # Store route ID for response before deletion
+        route_id = job.route.id
+
+        # Cancel the Celery task
         result = AsyncResult(id=str(id), app=app)
         result.revoke()
 
+        # Delete the corresponding route (this will also delete the job due to CASCADE)
+        job.route.delete()
+
         return Response(
             {
-                "message": f"Job {id} cancellation requested.",
+                "message": f"Job {id} cancellation requested and route {route_id} deleted.",
                 "job_id": str(job.id),
-                "route_id": job.route.id,
+                "route_id": route_id,
             },
             headers={"Content-Type": "application/json"},
             status=rest_framework.status.HTTP_202_ACCEPTED,

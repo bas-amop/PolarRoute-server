@@ -456,15 +456,31 @@ class TestRouteStatus:
         assert post_response.status_code == 404
         assert post_response.data["info"]["error"] == "No mesh available."
 
+
+@pytest.mark.usefixtures("celery_app", "celery_worker", "celery_enable_logging")
+@pytest.mark.django_db
+class TestCancelRoute:
+
+    pytestmark = pytest.mark.django_db
+
+    def setUp(self):
+        self.factory = APIRequestFactory()
+        mesh = add_test_mesh_to_db()
+        self.route = Route.objects.create(
+            start_lat=1.1, start_lon=1.1, end_lat=2.0, end_lon=2.0, mesh=mesh
+        )
+
     def test_cancel_route(self):
 
         self.setUp()
-
         self.job = Job.objects.create(
             id=uuid.uuid1(),
             route=self.route,
         )
 
+        # Store route ID for checking deletion later
+        route_id = self.route.id
+        
         request = self.factory.delete(f"/api/job/{self.job.id}")
 
         response = JobView.as_view()(request, id=self.job.id)
@@ -477,7 +493,12 @@ class TestRouteStatus:
         assert "route_id" in response.data
         assert str(self.job.id) in response.data["message"]
         assert response.data["job_id"] == str(self.job.id)
-        assert response.data["route_id"] == self.route.id
+        assert response.data["route_id"] == route_id
+        assert "deleted" in response.data["message"]
+        
+        # Verify that the route has been deleted
+        with pytest.raises(Route.DoesNotExist):
+            Route.objects.get(id=route_id)
 
     def test_cancel_nonexistent_job(self):
         """
