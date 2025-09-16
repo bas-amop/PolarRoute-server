@@ -98,9 +98,18 @@ curl --header "Content-Type: application/json" \
 
 The response will include:
 
-- `status`: Current job status (PENDING, SUCCESS, FAILURE).
+- `status`: Current job status. Possible values (these are [Celery states](https://docs.celeryq.dev/en/latest/reference/celery.states.html)):
+
+    - `PENDING`: Task is waiting for execution
+    - `STARTED`: Task has been started
+    - `SUCCESS`: Task executed successfully (route data is ready)
+    - `FAILURE`: Task failed with an exception
+    - `RETRY`: Task is being retried after failure
+    - `REVOKED`: Task was revoked/cancelled
+
 - `route_id`: The route ID for data retrieval (available when status is SUCCESS).
 - `route_url`: Direct URL to retrieve the route data (e.g., `http://localhost:8000/api/route/{route_id}`).
+- `info`: Error details (only present when status is FAILURE).
 
 ### 3. Retrieve Route Data
 

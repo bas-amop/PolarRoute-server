@@ -902,11 +902,22 @@ class JobView(LoggingMixin, GenericAPIView):
         responses={
             200: OpenApiResponse(
                 response=inline_serializer(
-                    name="JobStatusSuccess",
+                    name="JobStatusResponse",
                     fields={
                         "id": serializers.UUIDField(help_text="ID of the job."),
-                        "status": serializers.CharField(
-                            help_text="Current status of the job (PENDING, SUCCESS, FAILURE, etc.)."
+                        "status": serializers.ChoiceField(
+                            choices=[
+                                (
+                                    "PENDING",
+                                    "Task is waiting for execution or unknown task id",
+                                ),
+                                ("STARTED", "Task has been started"),
+                                ("SUCCESS", "Task executed successfully"),
+                                ("FAILURE", "Task failed with an exception"),
+                                ("RETRY", "Task is being retried after failure"),
+                                ("REVOKED", "Task was revoked/cancelled"),
+                            ],
+                            help_text="Current status of the job. These are standard Celery task states.",
                         ),
                         "polarrouteserver-version": serializers.CharField(
                             help_text="Version of PolarRoute-server."

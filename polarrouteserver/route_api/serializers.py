@@ -8,7 +8,17 @@ from polarrouteserver.version import __version__ as polarrouteserver_version
 
 
 class JobStatusSerializer(serializers.ModelSerializer):
-    """Serializer for job status responses with dynamic status and route URL."""
+    """
+    Serializer for job status responses with dynamic status and route URL.
+
+    The status field returns Celery task states:
+    - PENDING: Task is waiting for execution or unknown task id
+    - STARTED: Task has been started
+    - SUCCESS: Task executed successfully
+    - FAILURE: Task failed with an exception
+    - RETRY: Task is being retried after failure
+    - REVOKED: Task was revoked/cancelled
+    """
 
     status = serializers.SerializerMethodField()
     route_url = serializers.SerializerMethodField()
