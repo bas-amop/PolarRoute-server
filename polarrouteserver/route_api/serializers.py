@@ -231,7 +231,7 @@ class RouteSerializer(serializers.ModelSerializer):
                     "requestedAt": data["requested"],
                     "calculatedAt": data["calculated"],
                 },
-                "geometry": {
+                "waypoints": {
                     "start": {
                         "lat": data["start_lat"],
                         "lon": data["start_lon"],
@@ -242,9 +242,9 @@ class RouteSerializer(serializers.ModelSerializer):
                         "lon": data["end_lon"],
                         "name": data.get("end_name"),
                     },
-                    "path": route_geojson,
-                    "unsmoothedPath": unsmoothed_geojson,
                 },
+                "path": route_geojson,
+                "unsmoothedPath": unsmoothed_geojson,
                 "optimisation": {"metrics": optimisation_metrics},
             }
 

@@ -119,7 +119,8 @@ class TestRouteSerializer(TestCase):
         self.assertNotIn("routes", data)
         self.assertEqual(data["type"], "traveltime")
         self.assertEqual(data["id"], str(route.id))
-        self.assertIn("geometry", data)
+        self.assertIn("waypoints", data)
+        self.assertIn("path", data)
         self.assertIn("optimisation", data)
 
     def test_route_with_no_route_data(self):
@@ -144,8 +145,8 @@ class TestRouteSerializer(TestCase):
         self.assertIn("info", data)
         self.assertEqual(data["info"]["error"], "No routes available for any optimisation type.")
 
-    def test_route_geometry_structure(self):
-        """Test that route geometry is structured correctly."""
+    def test_route_waypoints_structure(self):
+        """Test that route waypoints are structured correctly."""
         route = Route.objects.create(
             start_lat=-51.8,
             start_lon=-59.5,
@@ -160,14 +161,14 @@ class TestRouteSerializer(TestCase):
         serializer = RouteSerializer(route)
         data = serializer.data
 
-        geometry = data["geometry"]
-        self.assertEqual(geometry["start"]["lat"], -51.8)
-        self.assertEqual(geometry["start"]["lon"], -59.5)
-        self.assertEqual(geometry["start"]["name"], "Falklands")
-        self.assertEqual(geometry["end"]["lat"], -67.6)
-        self.assertEqual(geometry["end"]["lon"], -68.1)
-        self.assertEqual(geometry["end"]["name"], "Rothera")
-        self.assertIn("path", geometry)
+        waypoints = data["waypoints"]
+        self.assertEqual(waypoints["start"]["lat"], -51.8)
+        self.assertEqual(waypoints["start"]["lon"], -59.5)
+        self.assertEqual(waypoints["start"]["name"], "Falklands")
+        self.assertEqual(waypoints["end"]["lat"], -67.6)
+        self.assertEqual(waypoints["end"]["lon"], -68.1)
+        self.assertEqual(waypoints["end"]["name"], "Rothera")
+        self.assertIn("path", data)
 
     def test_optimisation_metrics_traveltime(self):
         """Test traveltime optimisation metrics extraction."""
