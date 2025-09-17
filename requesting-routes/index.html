@@ -212,9 +212,22 @@ options:
 </code></pre>
 <p>The response will include:</p>
 <ul>
-<li><code>status</code>: Current job status (PENDING, SUCCESS, FAILURE).</li>
-<li><code>route_id</code>: The route ID for data retrieval (available when status is SUCCESS).</li>
+<li>
+<p><code>status</code>: Current job status. Possible values (these are <a href="https://docs.celeryq.dev/en/latest/reference/celery.states.html">Celery states</a>):</p>
+<ul>
+<li><code>PENDING</code>: Task is waiting for execution</li>
+<li><code>STARTED</code>: Task has been started</li>
+<li><code>SUCCESS</code>: Task executed successfully (route data is ready)</li>
+<li><code>FAILURE</code>: Task failed with an exception</li>
+<li><code>RETRY</code>: Task is being retried after failure</li>
+<li><code>REVOKED</code>: Task was revoked/cancelled</li>
+</ul>
+</li>
+<li>
+<p><code>route_id</code>: The route ID for data retrieval (available when status is SUCCESS).</p>
+</li>
 <li><code>route_url</code>: Direct URL to retrieve the route data (e.g., <code>http://localhost:8000/api/route/{route_id}</code>).</li>
+<li><code>info</code>: Error details (only present when status is FAILURE).</li>
 </ul>
 <h3 id="3-retrieve-route-data">3. Retrieve Route Data</h3>
 <p>Once the job status is SUCCESS, retrieve the actual route data using the route ID:</p>

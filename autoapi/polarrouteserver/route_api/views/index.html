@@ -376,18 +376,29 @@ def post(self, request):
     View for handling job status requests
     """
 
-    serializer_class = JobSerializer
+    serializer_class = JobStatusSerializer
 
     @extend_schema(
         operation_id="api_job_retrieve_status",
         responses={
             200: OpenApiResponse(
                 response=inline_serializer(
-                    name="JobStatusSuccess",
+                    name="JobStatusResponse",
                     fields={
                         "id": serializers.UUIDField(help_text="ID of the job."),
-                        "status": serializers.CharField(
-                            help_text="Current status of the job (PENDING, SUCCESS, FAILURE, etc.)."
+                        "status": serializers.ChoiceField(
+                            choices=[
+                                (
+                                    "PENDING",
+                                    "Task is waiting for execution or unknown task id",
+                                ),
+                                ("STARTED", "Task has been started"),
+                                ("SUCCESS", "Task executed successfully"),
+                                ("FAILURE", "Task failed with an exception"),
+                                ("RETRY", "Task is being retried after failure"),
+                                ("REVOKED", "Task was revoked/cancelled"),
+                            ],
+                            help_text="Current status of the job. These are standard Celery task states.",
                         ),
                         "polarrouteserver-version": serializers.CharField(
                             help_text="Version of PolarRoute-server."
@@ -439,28 +450,10 @@ def post(self, request):
                 status=rest_framework.status.HTTP_404_NOT_FOUND,
             )
 
-        # Get current status from Celery
-        result = AsyncResult(id=str(id), app=app)
-        status = result.state
-
-        data = {
-            "id": id,
-            "status": status,
-            "polarrouteserver-version": polarrouteserver_version,
-            "route_id": job.route.id,
-            "created": job.datetime.isoformat(),
-        }
-
-        if status == "SUCCESS":
-            # Include route URL when job is complete
-            data["route_url"] = reverse(
-                "route_detail", args=[job.route.id], request=request
-            )
-        elif status == "FAILURE":
-            data["info"] = {"error": job.route.info}
+        serializer = JobStatusSerializer(job, context={"request": request})
 
         return Response(
-            data,
+            serializer.data,
             headers={"Content-Type": "application/json"},
             status=rest_framework.status.HTTP_200_OK,
         )
@@ -646,11 +639,22 @@ def delete(self, request, id):
     responses={
         200: OpenApiResponse(
             response=inline_serializer(
-                name="JobStatusSuccess",
+                name="JobStatusResponse",
                 fields={
                     "id": serializers.UUIDField(help_text="ID of the job."),
-                    "status": serializers.CharField(
-                        help_text="Current status of the job (PENDING, SUCCESS, FAILURE, etc.)."
+                    "status": serializers.ChoiceField(
+                        choices=[
+                            (
+                                "PENDING",
+                                "Task is waiting for execution or unknown task id",
+                            ),
+                            ("STARTED", "Task has been started"),
+                            ("SUCCESS", "Task executed successfully"),
+                            ("FAILURE", "Task failed with an exception"),
+                            ("RETRY", "Task is being retried after failure"),
+                            ("REVOKED", "Task was revoked/cancelled"),
+                        ],
+                        help_text="Current status of the job. These are standard Celery task states.",
                     ),
                     "polarrouteserver-version": serializers.CharField(
                         help_text="Version of PolarRoute-server."
@@ -702,28 +706,10 @@ def get(self, request, id):
             status=rest_framework.status.HTTP_404_NOT_FOUND,
         )
 
-    # Get current status from Celery
-    result = AsyncResult(id=str(id), app=app)
-    status = result.state
-
-    data = {
-        "id": id,
-        "status": status,
-        "polarrouteserver-version": polarrouteserver_version,
-        "route_id": job.route.id,
-        "created": job.datetime.isoformat(),
-    }
-
-    if status == "SUCCESS":
-        # Include route URL when job is complete
-        data["route_url"] = reverse(
-            "route_detail", args=[job.route.id], request=request
-        )
-    elif status == "FAILURE":
-        data["info"] = {"error": job.route.info}
+    serializer = JobStatusSerializer(job, context={"request": request})
 
     return Response(
-        data,
+        serializer.data,
         headers={"Content-Type": "application/json"},
         status=rest_framework.status.HTTP_200_OK,
     )</code></pre>
@@ -1079,14 +1065,40 @@ def get(self, request, id):
                 status=rest_framework.status.HTTP_204_NO_CONTENT,
             )
 
-        routes_data = []
+        jobs_data = []
+
+        # Process each route to get associated job data
         for route in routes_today:
-            logger.debug(f"Processing route {route.id}")
-            route_data = RouteSerializer(route).data
-            routes_data.append(route_data)
+            # Get the most recent job for this route
+            job = route.job_set.latest("datetime")
+
+            # Use JobStatusSerializer for consistent job data formatting
+            job_serializer = JobStatusSerializer(job, context={"request": request})
+            job_data = job_serializer.data
+
+            # Add additional fields specific to recent routes view
+            job_data.update(
+                {
+                    "job_id": job.id,
+                    "start_lat": job.route.start_lat,
+                    "start_lon": job.route.start_lon,
+                    "end_lat": job.route.end_lat,
+                    "end_lon": job.route.end_lon,
+                    "start_name": job.route.start_name,
+                    "end_name": job.route.end_name,
+                    "job_url": reverse("job_detail", args=[job.id], request=request),
+                }
+            )
+
+            # Include full route data if job is successful
+            if job_data.get("status") == "SUCCESS":
+                route_data = RouteSerializer(job.route).data
+                job_data.update(route_data)
+
+            jobs_data.append(job_data)
 
         response_data = {
-            "routes": routes_data,
+            "routes": jobs_data,
             "polarrouteserver-version": polarrouteserver_version,
         }
 
@@ -1178,14 +1190,40 @@ def get(self, request):
             status=rest_framework.status.HTTP_204_NO_CONTENT,
         )
 
-    routes_data = []
+    jobs_data = []
+
+    # Process each route to get associated job data
     for route in routes_today:
-        logger.debug(f"Processing route {route.id}")
-        route_data = RouteSerializer(route).data
-        routes_data.append(route_data)
+        # Get the most recent job for this route
+        job = route.job_set.latest("datetime")
+
+        # Use JobStatusSerializer for consistent job data formatting
+        job_serializer = JobStatusSerializer(job, context={"request": request})
+        job_data = job_serializer.data
+
+        # Add additional fields specific to recent routes view
+        job_data.update(
+            {
+                "job_id": job.id,
+                "start_lat": job.route.start_lat,
+                "start_lon": job.route.start_lon,
+                "end_lat": job.route.end_lat,
+                "end_lon": job.route.end_lon,
+                "start_name": job.route.start_name,
+                "end_name": job.route.end_name,
+                "job_url": reverse("job_detail", args=[job.id], request=request),
+            }
+        )
+
+        # Include full route data if job is successful
+        if job_data.get("status") == "SUCCESS":
+            route_data = RouteSerializer(job.route).data
+            job_data.update(route_data)
+
+        jobs_data.append(job_data)
 
     response_data = {
-        "routes": routes_data,
+        "routes": jobs_data,
         "polarrouteserver-version": polarrouteserver_version,
     }
 
@@ -1272,7 +1310,6 @@ def get(self, request):
             )
 
         data = RouteSerializer(route).data
-        data["polarrouteserver-version"] = polarrouteserver_version
 
         return Response(
             data,
@@ -1347,7 +1384,6 @@ def get(self, request, id):
         )
 
     data = RouteSerializer(route).data
-    data["polarrouteserver-version"] = polarrouteserver_version
 
     return Response(
         data,
@@ -1535,26 +1571,18 @@ def get(self, request, id):
                 logger.info(f"Existing route found: {existing_route}")
 
                 # Check if there's an existing job for this route
-                if existing_route.job_set.count() &gt; 0:
-                    existing_job = existing_route.job_set.latest("datetime")
+                existing_job = existing_route.job_set.latest("datetime")
 
-                    response_data = {
-                        "id": str(existing_job.id),
-                        "status-url": reverse(
-                            "job_detail", args=[existing_job.id], request=request
-                        ),
-                        "polarrouteserver-version": polarrouteserver_version,
-                        "info": {
-                            "message": "Pre-existing route found. Job already exists. To force new calculation, include 'force_new_route': true in POST request."
-                        },
-                    }
-                else:
-                    # Route exists but no job - manual route insertion, job deletion without route etc
-                    response_data = {
-                        "info": {
-                            "error": "Pre-existing route was found but there was an error with the job. To force new calculation, include 'force_new_route': true in POST request."
-                        }
-                    }
+                response_data = {
+                    "id": str(existing_job.id),
+                    "status-url": reverse(
+                        "job_detail", args=[existing_job.id], request=request
+                    ),
+                    "polarrouteserver-version": polarrouteserver_version,
+                    "info": {
+                        "message": "Pre-existing route found. Job already exists. To force new calculation, include 'force_new_route': true in POST request."
+                    },
+                }
 
                 return Response(
                     data=response_data,
@@ -1775,26 +1803,18 @@ def post(self, request):
             logger.info(f"Existing route found: {existing_route}")
 
             # Check if there's an existing job for this route
-            if existing_route.job_set.count() &gt; 0:
-                existing_job = existing_route.job_set.latest("datetime")
+            existing_job = existing_route.job_set.latest("datetime")
 
-                response_data = {
-                    "id": str(existing_job.id),
-                    "status-url": reverse(
-                        "job_detail", args=[existing_job.id], request=request
-                    ),
-                    "polarrouteserver-version": polarrouteserver_version,
-                    "info": {
-                        "message": "Pre-existing route found. Job already exists. To force new calculation, include 'force_new_route': true in POST request."
-                    },
-                }
-            else:
-                # Route exists but no job - manual route insertion, job deletion without route etc
-                response_data = {
-                    "info": {
-                        "error": "Pre-existing route was found but there was an error with the job. To force new calculation, include 'force_new_route': true in POST request."
-                    }
-                }
+            response_data = {
+                "id": str(existing_job.id),
+                "status-url": reverse(
+                    "job_detail", args=[existing_job.id], request=request
+                ),
+                "polarrouteserver-version": polarrouteserver_version,
+                "info": {
+                    "message": "Pre-existing route found. Job already exists. To force new calculation, include 'force_new_route': true in POST request."
+                },
+            }
 
             return Response(
                 data=response_data,
