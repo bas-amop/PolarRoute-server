@@ -549,17 +549,13 @@ class TestRouteDetailView(TestCase):
 
         self.assertEqual(response.status_code, 200)
         
-        # Check that route data is included
-        self.assertEqual(response.data["start_lat"], 60.0)
-        self.assertEqual(response.data["start_lon"], -1.0)
-        self.assertEqual(response.data["end_lat"], 61.0)
-        self.assertEqual(response.data["end_lon"], -2.0)
-        self.assertEqual(response.data["start_name"], "Test Start")
-        self.assertEqual(response.data["end_name"], "Test End")
-        self.assertEqual(response.data["json"], [])
-        self.assertEqual(response.data["json_unsmoothed"], None)
-        self.assertEqual(response.data["polar_route_version"], "0.2.0")
+        # Since route has no json data, it should return error format
+        self.assertEqual(response.data["type"], "error")
+        self.assertEqual(response.data["id"], str(self.route.id))
+        self.assertEqual(response.data["name"], "Test Start to Test End")
         self.assertIn("error", response.data["info"])
+        self.assertEqual(response.data["info"]["error"], "No routes available for any optimisation type.")
+        self.assertIn("polarrouteserver-version", response.data)
 
     def test_get_route_not_found(self):
         """
@@ -590,12 +586,13 @@ class TestRouteDetailView(TestCase):
         response = RouteDetailView.as_view()(request, id=minimal_route.id)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data["start_lat"], 50.0)
-        self.assertEqual(response.data["start_lon"], 0.0)
-        self.assertEqual(response.data["end_lat"], 51.0)
-        self.assertEqual(response.data["end_lon"], 1.0)
-        self.assertIsNone(response.data.get("start_name"))
-        self.assertIsNone(response.data.get("end_name"))
+        
+        self.assertEqual(response.data["type"], "error")
+        self.assertEqual(response.data["id"], str(minimal_route.id))
+        self.assertEqual(response.data["name"], "Start to End")  # Default names when none provided
+        self.assertIn("error", response.data["info"])
+        self.assertEqual(response.data["info"]["error"], "No routes available for any optimisation type.")
+        self.assertIn("polarrouteserver-version", response.data)
 
 
 class TestGetRecentRoutesAndMesh(TestCase):

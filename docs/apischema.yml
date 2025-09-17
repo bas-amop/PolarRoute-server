@@ -58,7 +58,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/JobStatusSuccess'
+                $ref: '#/components/schemas/JobStatusResponse'
           description: Job status retrieved successfully.
         '404':
           content:
@@ -552,7 +552,7 @@ components:
           description: Error message indicating job not found.
       required:
       - error
-    JobStatusSuccess:
+    JobStatusResponse:
       type: object
       properties:
         id:
@@ -560,8 +560,17 @@ components:
           format: uuid
           description: ID of the job.
         status:
-          type: string
-          description: Current status of the job (PENDING, SUCCESS, FAILURE, etc.).
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          description: |-
+            Current status of the job. These are standard Celery task states.
+
+            * `PENDING` - Task is waiting for execution or unknown task id
+            * `STARTED` - Task has been started
+            * `SUCCESS` - Task executed successfully
+            * `FAILURE` - Task failed with an exception
+            * `RETRY` - Task is being retried after failure
+            * `REVOKED` - Task was revoked/cancelled
         polarrouteserver-version:
           type: string
           description: Version of PolarRoute-server.
@@ -685,6 +694,9 @@ components:
     Route:
       type: object
       properties:
+        id:
+          type: integer
+          readOnly: true
         start_lat:
           type: number
           format: double
@@ -718,9 +730,17 @@ components:
         mesh:
           type: integer
           nullable: true
+        requested:
+          type: string
+          format: date-time
+        calculated:
+          type: string
+          format: date-time
+          nullable: true
       required:
       - end_lat
       - end_lon
+      - id
       - start_lat
       - start_lon
     RouteCreationBadRequest:
@@ -833,6 +853,22 @@ components:
       - job_id
       - polarrouteserver-version
       - status-url
+    StatusEnum:
+      enum:
+      - PENDING
+      - STARTED
+      - SUCCESS
+      - FAILURE
+      - RETRY
+      - REVOKED
+      type: string
+      description: |-
+        * `PENDING` - Task is waiting for execution or unknown task id
+        * `STARTED` - Task has been started
+        * `SUCCESS` - Task executed successfully
+        * `FAILURE` - Task failed with an exception
+        * `RETRY` - Task is being retried after failure
+        * `REVOKED` - Task was revoked/cancelled
     Vehicle:
       type: object
       properties:
