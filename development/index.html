@@ -73,6 +73,8 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#making-changes-to-the-api">Making changes to the API</a>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#error-codes-and-response-schemas">Error codes and response schemas</a>
+    </li>
     <li class="toctree-l2"><a class="reference internal" href="#docker-containers-and-compose-configuration">Docker containers and compose configuration</a>
     </li>
     </ul>
@@ -91,6 +93,8 @@
                 <li class="toctree-l2"><a class="reference internal" href="../autoapi/polarrouteserver/route_api/">route_api</a>
     <ul>
                 <li class="toctree-l3"><a class="reference internal" href="../autoapi/polarrouteserver/route_api/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../autoapi/polarrouteserver/route_api/responses/">responses</a>
                 </li>
                 <li class="toctree-l3"><a class="reference internal" href="../autoapi/polarrouteserver/route_api/serializers/">serializers</a>
                 </li>
@@ -167,6 +171,9 @@ python manage.py spectacular --color --validate --file docs/apischema.yml
 </code></pre>
 <p>Aim to resolve any warnings/errors before committing.</p>
 <p>The generated schema can be checked by building the docs and checking the <a href="../api/">API reference page</a> or serving using swagger (<code>make start-swagger</code>).</p>
+<h2 id="error-codes-and-response-schemas">Error codes and response schemas</h2>
+<p>Standard error codes and responses are defined in the <code>ResponseMixin</code> class in <code>responses.py</code>. Where possible, try to align standard responses (e.g. 200 SUCCESS, 202 ACCEPTED, 400 BAD REQUESTS, 404 NOT FOUND) to these standard codes and responses.</p>
+<p>Views in <code>views.py</code> can inherit <code>ResponseMixin</code> class to make use of these standard responses.</p>
 <h2 id="docker-containers-and-compose-configuration">Docker containers and compose configuration</h2>
 <p>PolarRoute-server relies on four different services, orchestrated by <a href="https://docs.docker.com/compose/install/">docker compose</a>, to each be running in their own docker container.</p>
 <p>As a user, you run a single <code>docker compose up</code> command to build and start these services.</p>
