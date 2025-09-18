@@ -25,9 +25,9 @@ from .responses import (
     successResponseSchema,
     vehicleTypeListResponseSchema,
     routeAcceptedResponseSchema,
-    routeStatusResponseSchema,
     recentRoutesResponseSchema,
     meshDetailResponseSchema,
+    routeSchema,
     routeEvaluationResponseSchema,
     badRequestResponseSchema,
     notFoundResponseSchema,
@@ -436,8 +436,9 @@ class RouteDetailView(LoggingMixin, ResponseMixin, GenericAPIView):
 
     @extend_schema(
         operation_id="api_route_retrieve_by_id",
+        description="Retrieve route details by ID. Returns the route data.",
         responses={
-            200: routeStatusResponseSchema,
+            200: routeSchema,
             404: notFoundResponseSchema,
         },
     )
