@@ -981,8 +981,9 @@ def get(self, request):
 
     @extend_schema(
         operation_id="api_route_retrieve_by_id",
+        description="Retrieve route details by ID. Returns the route data.",
         responses={
-            200: routeStatusResponseSchema,
+            200: routeSchema,
             404: notFoundResponseSchema,
         },
     )
@@ -1034,8 +1035,9 @@ def get(self, request):
               <summary>Source code in <code>polarrouteserver/route_api/views.py</code></summary>
               <pre class="highlight"><code class="language-python">@extend_schema(
     operation_id="api_route_retrieve_by_id",
+    description="Retrieve route details by ID. Returns the route data.",
     responses={
-        200: routeStatusResponseSchema,
+        200: routeSchema,
         404: notFoundResponseSchema,
     },
 )

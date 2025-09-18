@@ -228,7 +228,7 @@ paths:
   /api/route/{id}:
     get:
       operationId: api_route_retrieve_by_id
-      description: Return route data by route ID.
+      description: Retrieve route details by ID. Returns the route data.
       parameters:
       - in: path
         name: id
@@ -244,8 +244,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RouteStatusResponse'
-          description: Route status retrieved successfully.
+                $ref: '#/components/schemas/Route'
+          description: Route details retrieved successfully.
         '404':
           content:
             application/json:
@@ -663,6 +663,60 @@ components:
           description: List of recent routes with status information
       required:
       - routes
+    Route:
+      type: object
+      properties:
+        type:
+          type: string
+          description: Route optimization type (traveltime/fuel)
+        id:
+          type: string
+          description: Route ID
+        name:
+          type: string
+          description: Descriptive route name
+        job:
+          type: object
+          additionalProperties: {}
+          description: Job information with requested/calculated timestamps
+        waypoints:
+          type: object
+          additionalProperties: {}
+          description: Start and end waypoint information
+        path:
+          description: GeoJSON route data
+        unsmoothedPath:
+          nullable: true
+          description: Unsmoothed GeoJSON route data
+        optimisation:
+          type: object
+          additionalProperties: {}
+          description: Optimization metrics
+        mesh:
+          type: object
+          additionalProperties: {}
+          nullable: true
+          description: Mesh information
+        info:
+          type: object
+          additionalProperties: {}
+          nullable: true
+          description: Additional route information or warnings
+        polarrouteserver-version:
+          type: string
+          description: Server version
+      required:
+      - id
+      - info
+      - job
+      - mesh
+      - name
+      - optimisation
+      - path
+      - polarrouteserver-version
+      - type
+      - unsmoothedPath
+      - waypoints
     RouteAcceptedResponse:
       type: object
       properties:
@@ -752,51 +806,6 @@ components:
       required:
       - evaluation_results
       - polarrouteserver-version
-    RouteStatusResponse:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: Job ID
-        status:
-          type: string
-          description: Job status
-        polarrouteserver-version:
-          type: string
-          description: Server version
-        start_lat:
-          type: number
-          format: double
-        start_lon:
-          type: number
-          format: double
-        end_lat:
-          type: number
-          format: double
-        end_lon:
-          type: number
-          format: double
-        start_name:
-          type: string
-          nullable: true
-        end_name:
-          type: string
-          nullable: true
-        info:
-          type: object
-          additionalProperties: {}
-          description: Additional info or errors
-      required:
-      - end_lat
-      - end_lon
-      - end_name
-      - id
-      - polarrouteserver-version
-      - start_lat
-      - start_lon
-      - start_name
-      - status
     StatusEnum:
       enum:
       - PENDING
