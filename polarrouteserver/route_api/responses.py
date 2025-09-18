@@ -123,29 +123,6 @@ vehicleTypeListResponseSchema = OpenApiResponse(
     description="List of available vessel types retrieved successfully.",
 )
 
-routeStatusResponseSchema = OpenApiResponse(
-    response=inline_serializer(
-        name="RouteStatusResponse",
-        fields={
-            "id": serializers.UUIDField(help_text="Job ID"),
-            "status": serializers.CharField(help_text="Job status"),
-            "polarrouteserver-version": serializers.CharField(
-                help_text="Server version"
-            ),
-            "start_lat": serializers.FloatField(),
-            "start_lon": serializers.FloatField(),
-            "end_lat": serializers.FloatField(),
-            "end_lon": serializers.FloatField(),
-            "start_name": serializers.CharField(allow_null=True),
-            "end_name": serializers.CharField(allow_null=True),
-            "info": serializers.DictField(
-                required=False, help_text="Additional info or errors"
-            ),
-        },
-    ),
-    description="Route status retrieved successfully.",
-)
-
 recentRoutesResponseSchema = OpenApiResponse(
     response=inline_serializer(
         name="RecentRoutesResponse",
@@ -187,6 +164,40 @@ routeEvaluationResponseSchema = OpenApiResponse(
         },
     ),
     description="Route evaluated successfully.",
+)
+
+routeSchema = OpenApiResponse(
+    response=inline_serializer(
+        name="Route",
+        fields={
+            "type": serializers.CharField(
+                help_text="Route optimization type (traveltime/fuel)"
+            ),
+            "id": serializers.CharField(help_text="Route ID"),
+            "name": serializers.CharField(help_text="Descriptive route name"),
+            "job": serializers.DictField(
+                help_text="Job information with requested/calculated timestamps"
+            ),
+            "waypoints": serializers.DictField(
+                help_text="Start and end waypoint information"
+            ),
+            "path": serializers.JSONField(help_text="GeoJSON route data"),
+            "unsmoothedPath": serializers.JSONField(
+                allow_null=True, help_text="Unsmoothed GeoJSON route data"
+            ),
+            "optimisation": serializers.DictField(help_text="Optimization metrics"),
+            "mesh": serializers.DictField(
+                allow_null=True, help_text="Mesh information"
+            ),
+            "info": serializers.DictField(
+                allow_null=True, help_text="Additional route information or warnings"
+            ),
+            "polarrouteserver-version": serializers.CharField(
+                help_text="Server version"
+            ),
+        },
+    ),
+    description="Route details retrieved successfully.",
 )
 
 # HTTP 202 Response Schemas
