@@ -144,10 +144,9 @@ class VehicleRequestView(LoggingMixin, ResponseMixin, GenericAPIView):
 
             if not force_properties:
                 return self.not_acceptable_response(
-                    data,
                     "Pre-existing vehicle was found. "
                     "To force new properties on an existing vehicle, "
-                    "include 'force_properties': true in POST request.",
+                    "include 'force_properties': true in POST request."
                 )
 
             # If a user has specified force_properties, update that vessel_type's properties

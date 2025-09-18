@@ -126,14 +126,10 @@ class TestResponseMixin(TestCase):
 
     def test_not_acceptable_response(self):
         """Test not_acceptable_response returns correct 406 status."""
-        test_data = {"existing_field": "value"}
         error_message = "Conflict with existing resource"
-        response = self.view.not_acceptable_response(test_data, error_message)
+        response = self.view.not_acceptable_response(error_message)
 
-        expected_data = {
-            "existing_field": "value",
-            "info": {"error": error_message}
-        }
+        expected_data = {"error": error_message}
         self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
         self.assertEqual(response.data, expected_data)
         self.assertEqual(response["Content-Type"], "application/json")
@@ -141,9 +137,9 @@ class TestResponseMixin(TestCase):
     def test_not_acceptable_response_empty_data(self):
         """Test not_acceptable_response with empty data dict."""
         error_message = "Not acceptable"
-        response = self.view.not_acceptable_response({}, error_message)
+        response = self.view.not_acceptable_response(error_message)
 
-        expected_data = {"info": {"error": error_message}}
+        expected_data = {"error": error_message}
         self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
         self.assertEqual(response.data, expected_data)
         self.assertEqual(response["Content-Type"], "application/json")
@@ -164,17 +160,19 @@ class TestResponseConsistency(TestCase):
             self.view.no_content_response(),
             self.view.bad_request_response("Error"),
             self.view.not_found_response("Not found"),
-            self.view.not_acceptable_response({}, "Not acceptable"),
+            self.view.not_acceptable_response("Not acceptable"),
         ]
 
         for response in responses:
             self.assertEqual(response["Content-Type"], "application/json")
+
 
     def test_error_responses_have_error_field(self):
         """Test that error responses consistently use 'error' field."""
         error_responses = [
             self.view.bad_request_response("Bad request"),
             self.view.not_found_response("Not found"),
+            self.view.not_acceptable_response("Not acceptable"),
         ]
 
         for response in error_responses:
@@ -189,7 +187,7 @@ class TestResponseConsistency(TestCase):
             (self.view.no_content_response(), 204),
             (self.view.bad_request_response("Error"), 400),
             (self.view.not_found_response("Not found"), 404),
-            (self.view.not_acceptable_response({}, "Error"), 406),
+            (self.view.not_acceptable_response("Error"), 406),
         ]
 
         for response, expected_status in test_cases:

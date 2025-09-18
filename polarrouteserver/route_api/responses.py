@@ -87,16 +87,13 @@ class ResponseMixin:
             status=rest_framework.status.HTTP_404_NOT_FOUND,
         )
 
-    def not_acceptable_response(self, data, error_message):
+    def not_acceptable_response(self, message):
         """
         Return standardized not acceptable response.
         Corresponds to: notAcceptableResponseSchema (406)
         """
         return Response(
-            data={
-                **data,
-                "info": {"error": error_message},
-            },
+            {"error": message},
             headers={"Content-Type": "application/json"},
             status=rest_framework.status.HTTP_406_NOT_ACCEPTABLE,
         )
@@ -268,8 +265,8 @@ notAcceptableResponseSchema = OpenApiResponse(
     response=inline_serializer(
         name="NotAcceptableResponse",
         fields={
-            "info": serializers.DictField(
-                help_text="Details about the conflict, including error message."
+            "error": serializers.CharField(
+                help_text="Error message describing the conflict or why the request is not acceptable."
             ),
         },
     ),

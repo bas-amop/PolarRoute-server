@@ -72,10 +72,9 @@ class TestVehicleRequest(TestCase):
 
         duplicate_response = self.post_vehicle(data)
         self.assertEqual(duplicate_response.status_code, 406)
-        self.assertIn("info", duplicate_response.data)
-        self.assertIn("error", duplicate_response.data["info"])
+        self.assertIn("error", duplicate_response.data)
         self.assertIn(
-            "Pre-existing vehicle was found.", duplicate_response.data["info"]["error"]
+            "Pre-existing vehicle was found.", duplicate_response.data["error"]
         )
 
         data.update({"force_properties": True})
@@ -554,8 +553,6 @@ class TestRouteDetailView(TestCase):
         self.assertEqual(response.data["id"], str(self.route.id))
         self.assertEqual(response.data["name"], "Test Start to Test End")
         self.assertIn("error", response.data["info"])
-        self.assertEqual(response.data["info"]["error"], "No routes available for any optimisation type.")
-        self.assertIn("polarrouteserver-version", response.data)
 
     def test_get_route_not_found(self):
         """

@@ -638,12 +638,12 @@ components:
     NotAcceptableResponse:
       type: object
       properties:
-        info:
-          type: object
-          additionalProperties: {}
-          description: Details about the conflict, including error message.
+        error:
+          type: string
+          description: Error message describing the conflict or why the request is
+            not acceptable.
       required:
-      - info
+      - error
     NotFoundResponse:
       type: object
       properties:
