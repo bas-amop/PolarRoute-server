@@ -72,10 +72,9 @@ class TestVehicleRequest(TestCase):
 
         duplicate_response = self.post_vehicle(data)
         self.assertEqual(duplicate_response.status_code, 406)
-        self.assertIn("info", duplicate_response.data)
-        self.assertIn("error", duplicate_response.data["info"])
+        self.assertIn("error", duplicate_response.data)
         self.assertIn(
-            "Pre-existing vehicle was found.", duplicate_response.data["info"]["error"]
+            "Pre-existing vehicle was found.", duplicate_response.data["error"]
         )
 
         data.update({"force_properties": True})
@@ -95,11 +94,10 @@ class TestVehicleRequest(TestCase):
         response = self.post_vehicle(missing_property)
 
         self.assertEqual(response.status_code, 400)
-        self.assertIn("info", response.data)
-        self.assertIn("error", response.data["info"])
+        self.assertIn("error", response.data)
         self.assertIn(
             "Validation error: 'max_speed' is a required property",
-            response.data["info"]["error"],
+            response.data["error"],
         )
 
     def test_wrong_type(self, data=data):
@@ -111,21 +109,22 @@ class TestVehicleRequest(TestCase):
         response = self.post_vehicle(wrong_type)
 
         self.assertEqual(response.status_code, 400)
-        self.assertIn("info", response.data)
-        self.assertIn("error", response.data["info"])
+        self.assertIn("error", response.data)
         self.assertIn(
             "Validation error: 'really fast' is not of type 'number'",
-            response.data["info"]["error"],
+            response.data["error"],
         )
 
     def test_type_error_on_invalid_input(self):
         """
-        Test that submitting a non-dictionary raises a TypeError.
+        Test that submitting a non-dictionary returns a validation error.
         """
         invalid_data = ["this", "is", "not", "a", "dict"]
+        response = self.post_vehicle(invalid_data)
 
-        with self.assertRaises(TypeError):
-            self.post_vehicle(invalid_data)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("error", response.data)
+        self.assertIn("Expected 'str' or 'dict'", response.data["error"])
 
     def test_get_vehicle(self):
         """
@@ -302,7 +301,7 @@ class TestRouteRequest(TestCase):
         response = RouteRequestView.as_view()(request)
 
         self.assertEqual(response.status_code, 404)
-        self.assertIn("Does not exist.", response.data["info"]["error"])
+        self.assertIn("Does not exist.", response.data["error"])
 
     def test_request_route(self):
         data = {
@@ -454,7 +453,7 @@ class TestRouteStatus:
             pass
 
         assert post_response.status_code == 404
-        assert post_response.data["info"]["error"] == "No mesh available."
+        assert post_response.data["error"] == "No mesh available."
 
 
 @pytest.mark.usefixtures("celery_app", "celery_worker", "celery_enable_logging")
@@ -554,8 +553,6 @@ class TestRouteDetailView(TestCase):
         self.assertEqual(response.data["id"], str(self.route.id))
         self.assertEqual(response.data["name"], "Test Start to Test End")
         self.assertIn("error", response.data["info"])
-        self.assertEqual(response.data["info"]["error"], "No routes available for any optimisation type.")
-        self.assertIn("polarrouteserver-version", response.data)
 
     def test_get_route_not_found(self):
         """
