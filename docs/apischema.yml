@@ -58,8 +58,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
-          description: Operation completed successfully.
+                $ref: '#/components/schemas/JobStatusResponse'
+          description: Job status retrieved successfully.
         '404':
           content:
             application/json:
@@ -546,6 +546,50 @@ components:
           description: Error message describing what went wrong.
       required:
       - error
+    JobStatusResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ID of the job.
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          description: |-
+            Current status of the job. These are standard Celery task states.
+
+            * `PENDING` - Task is waiting for execution or unknown task id
+            * `STARTED` - Task has been started
+            * `SUCCESS` - Task executed successfully
+            * `FAILURE` - Task failed with an exception
+            * `RETRY` - Task is being retried after failure
+            * `REVOKED` - Task was revoked/cancelled
+        polarrouteserver-version:
+          type: string
+          description: Version of PolarRoute-server.
+        route_id:
+          type: string
+          format: uuid
+          description: ID of the associated route.
+        created:
+          type: string
+          format: date-time
+          description: When the job was created.
+        info:
+          type: object
+          additionalProperties: {}
+          description: Additional information or error details if status is FAILURE.
+        route_url:
+          type: string
+          format: uri
+          description: URL to retrieve the route data when status is SUCCESS.
+      required:
+      - created
+      - id
+      - polarrouteserver-version
+      - route_id
+      - status
     Location:
       type: object
       properties:
@@ -753,6 +797,22 @@ components:
       - start_lon
       - start_name
       - status
+    StatusEnum:
+      enum:
+      - PENDING
+      - STARTED
+      - SUCCESS
+      - FAILURE
+      - RETRY
+      - REVOKED
+      type: string
+      description: |-
+        * `PENDING` - Task is waiting for execution or unknown task id
+        * `STARTED` - Task has been started
+        * `SUCCESS` - Task executed successfully
+        * `FAILURE` - Task failed with an exception
+        * `RETRY` - Task is being retried after failure
+        * `REVOKED` - Task was revoked/cancelled
     SuccessResponse:
       type: object
       properties:

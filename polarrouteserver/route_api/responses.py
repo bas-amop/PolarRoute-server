@@ -262,6 +262,7 @@ notFoundResponseSchema = OpenApiResponse(
     description="Requested resource not found.",
 )
 
+
 # HTTP 406 Response Schemas
 notAcceptableResponseSchema = OpenApiResponse(
     response=inline_serializer(
@@ -273,4 +274,38 @@ notAcceptableResponseSchema = OpenApiResponse(
         },
     ),
     description="Not acceptable - request conflicts with current resource state.",
+)
+
+jobStatusResponseSchema = OpenApiResponse(
+    response=inline_serializer(
+        name="JobStatusResponse",
+        fields={
+            "id": serializers.UUIDField(help_text="ID of the job."),
+            "status": serializers.ChoiceField(
+                choices=[
+                    ("PENDING", "Task is waiting for execution or unknown task id"),
+                    ("STARTED", "Task has been started"),
+                    ("SUCCESS", "Task executed successfully"),
+                    ("FAILURE", "Task failed with an exception"),
+                    ("RETRY", "Task is being retried after failure"),
+                    ("REVOKED", "Task was revoked/cancelled"),
+                ],
+                help_text="Current status of the job. These are standard Celery task states.",
+            ),
+            "polarrouteserver-version": serializers.CharField(
+                help_text="Version of PolarRoute-server."
+            ),
+            "route_id": serializers.UUIDField(help_text="ID of the associated route."),
+            "created": serializers.DateTimeField(help_text="When the job was created."),
+            "info": serializers.DictField(
+                required=False,
+                help_text="Additional information or error details if status is FAILURE.",
+            ),
+            "route_url": serializers.URLField(
+                required=False,
+                help_text="URL to retrieve the route data when status is SUCCESS.",
+            ),
+        },
+    ),
+    description="Job status retrieved successfully.",
 )

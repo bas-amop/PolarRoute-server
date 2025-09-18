@@ -31,7 +31,9 @@ class RouteAdmin(admin.ModelAdmin):
             "start_lat",
             "start_lon",
             "end_lat",
-            "end_lat",
+            "end_lon",
+            "start_name",
+            "end_name",
             "requested",
             "calculated",
             "job",
@@ -55,11 +57,8 @@ class RouteAdmin(admin.ModelAdmin):
             return f"({obj.end_lat},{obj.end_lon})"
 
     def job_id(self, obj):
-        if obj.job_set.count() == 0:
-            return "-"
-        else:
-            job = obj.job_set.latest("datetime")
-            return f"{job.id}"
+        job = obj.job_set.latest("datetime")
+        return f"{job.id}"
 
     def mesh_id(self, obj):
         if obj.mesh:
@@ -76,9 +75,18 @@ class JobAdmin(admin.ModelAdmin):
         "id",
         "datetime",
         "route",
-        "status",
+        "get_status",
     ]
     ordering = ("-datetime",)
+
+    def get_status(self, obj):
+        """Get current job status from Celery."""
+        try:
+            return obj.status if obj.status is not None else "UNKNOWN"
+        except Exception as e:
+            return f"Error: {type(e).__name__}"
+
+    get_status.short_description = "Status"
 
 
 class MeshAdmin(admin.ModelAdmin):

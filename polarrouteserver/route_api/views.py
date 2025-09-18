@@ -34,13 +34,14 @@ from .responses import (
     notAcceptableResponseSchema,
     noContentResponseSchema,
     acceptedResponseSchema,
+    jobStatusResponseSchema,
 )
 from .serializers import (
     VehicleSerializer,
     VesselTypeSerializer,
     RouteSerializer,
+    JobStatusSerializer,
     LocationSerializer,
-    JobSerializer,
 )
 from .utils import (
     evaluate_route,
@@ -376,26 +377,18 @@ class RouteRequestView(LoggingMixin, ResponseMixin, GenericAPIView):
                 logger.info(f"Existing route found: {existing_route}")
 
                 # Check if there's an existing job for this route
-                if existing_route.job_set.count() > 0:
-                    existing_job = existing_route.job_set.latest("datetime")
+                existing_job = existing_route.job_set.latest("datetime")
 
-                    response_data = {
-                        "id": str(existing_job.id),
-                        "status-url": reverse(
-                            "job_detail", args=[existing_job.id], request=request
-                        ),
-                        "polarrouteserver-version": polarrouteserver_version,
-                        "info": {
-                            "message": "Pre-existing route found. Job already exists. To force new calculation, include 'force_new_route': true in POST request."
-                        },
-                    }
-                else:
-                    # Route exists but no job - manual route insertion, job deletion without route etc
-                    response_data = {
-                        "info": {
-                            "error": "Pre-existing route was found but there was an error with the job. To force new calculation, include 'force_new_route': true in POST request."
-                        }
-                    }
+                response_data = {
+                    "id": str(existing_job.id),
+                    "status-url": reverse(
+                        "job_detail", args=[existing_job.id], request=request
+                    ),
+                    "polarrouteserver-version": polarrouteserver_version,
+                    "info": {
+                        "message": "Pre-existing route found. Job already exists. To force new calculation, include 'force_new_route': true in POST request."
+                    },
+                }
 
                 return self.accepted_response(response_data)
             else:
@@ -462,7 +455,6 @@ class RouteDetailView(LoggingMixin, ResponseMixin, GenericAPIView):
             return self.not_found_response(f"Route with id {id} not found.")
 
         data = RouteSerializer(route).data
-        data["polarrouteserver-version"] = polarrouteserver_version
 
         return self.success_response(data)
 
@@ -497,14 +489,40 @@ class RecentRoutesView(LoggingMixin, ResponseMixin, GenericAPIView):
                 message="No recent routes found for today.",
             )
 
-        routes_data = []
+        jobs_data = []
+
+        # Process each route to get associated job data
         for route in routes_today:
-            logger.debug(f"Processing route {route.id}")
-            route_data = RouteSerializer(route).data
-            routes_data.append(route_data)
+            # Get the most recent job for this route
+            job = route.job_set.latest("datetime")
+
+            # Use JobStatusSerializer for consistent job data formatting
+            job_serializer = JobStatusSerializer(job, context={"request": request})
+            job_data = job_serializer.data
+
+            # Add additional fields specific to recent routes view
+            job_data.update(
+                {
+                    "job_id": job.id,
+                    "start_lat": job.route.start_lat,
+                    "start_lon": job.route.start_lon,
+                    "end_lat": job.route.end_lat,
+                    "end_lon": job.route.end_lon,
+                    "start_name": job.route.start_name,
+                    "end_name": job.route.end_name,
+                    "job_url": reverse("job_detail", args=[job.id], request=request),
+                }
+            )
+
+            # Include full route data if job is successful
+            if job_data.get("status") == "SUCCESS":
+                route_data = RouteSerializer(job.route).data
+                job_data.update(route_data)
+
+            jobs_data.append(job_data)
 
         response_data = {
-            "routes": routes_data,
+            "routes": jobs_data,
             "polarrouteserver-version": polarrouteserver_version,
         }
 
@@ -599,12 +617,12 @@ class JobView(LoggingMixin, ResponseMixin, GenericAPIView):
     View for handling job status requests
     """
 
-    serializer_class = JobSerializer
+    serializer_class = JobStatusSerializer
 
     @extend_schema(
         operation_id="api_job_retrieve_status",
         responses={
-            200: successResponseSchema,
+            200: jobStatusResponseSchema,
             404: notFoundResponseSchema,
         },
     )
@@ -620,27 +638,9 @@ class JobView(LoggingMixin, ResponseMixin, GenericAPIView):
         except Job.DoesNotExist:
             return self.not_found_response(f"Job with id {id} not found.")
 
-        # Get current status from Celery
-        result = AsyncResult(id=str(id), app=app)
-        celery_status = result.state
+        serializer = JobStatusSerializer(job, context={"request": request})
 
-        data = {
-            "id": id,
-            "status": celery_status,
-            "polarrouteserver-version": polarrouteserver_version,
-            "route_id": job.route.id,
-            "created": job.datetime.isoformat(),
-        }
-
-        if celery_status == "SUCCESS":
-            # Include route URL when job is complete
-            data["route_url"] = reverse(
-                "route_detail", args=[job.route.id], request=request
-            )
-        elif celery_status == "FAILURE":
-            data["info"] = {"error": job.route.info}
-
-        return self.success_response(data)
+        return self.success_response(serializer.data)
 
     @extend_schema(
         operation_id="api_job_cancel",
