@@ -9,7 +9,6 @@ from drf_spectacular.utils import (
 )
 from jsonschema.exceptions import ValidationError
 from meshiphi.mesh_generation.environment_mesh import EnvironmentMesh as EnvMeshLoader
-import rest_framework.status
 from rest_framework.generics import GenericAPIView
 from rest_framework.views import APIView
 from rest_framework.reverse import reverse
@@ -19,7 +18,7 @@ from polar_route.config_validation.config_validator import validate_vessel_confi
 from polarrouteserver.version import __version__ as polarrouteserver_version
 from polarrouteserver.celery import app
 
-from .models import Job, Vehicle, Route, EnvironmentMesh, VehicleMesh
+from .models import Job, Vehicle, Route, EnvironmentMesh, VehicleMesh, Location
 from .tasks import create_and_calculate_route
 from .responses import (
     ResponseMixin,
@@ -321,6 +320,9 @@ class RouteRequestView(LoggingMixin, ResponseMixin, GenericAPIView):
                     default=False,
                     help_text="If true, forces recalculation even if an existing route is found.",
                 ),
+                "vehicle_type": serializers.CharField(
+                    help_text="The type of vehicle to use for route calculation."
+                ),
             },
         ),
         responses={
@@ -353,17 +355,19 @@ class RouteRequestView(LoggingMixin, ResponseMixin, GenericAPIView):
         end_name = data.get("end_name", None)
         custom_mesh_id = data.get("mesh_id", None)
         force_new_route = data.get("force_new_route", False)
+        vehicle_type = data.get("vehicle_type")
+
+        # Validate required vehicle_type parameter
+        if not vehicle_type:
+            return self.bad_request_response("Missing required field: vehicle_type")
 
         # Validate vehicle exists before fetching meshes
         try:
             vehicle = Vehicle.objects.get(vessel_type=vehicle_type)
             logger.debug(f"Found vehicle type '{vehicle_type}' in database")
         except Vehicle.DoesNotExist:
-            return Response(
-                data={"error": f"Vehicle type '{vehicle_type}' not found in database."},
-                headers={"Content-Type": "application/json"},
-                status=rest_framework.status.HTTP_400_BAD_REQUEST,
-            )
+            msg = f"Vehicle type '{vehicle_type}' not found in database."
+            return self.not_found_response(msg)
 
         # Get meshes (either custom or auto-selected)
         if custom_mesh_id:
@@ -381,7 +385,7 @@ class RouteRequestView(LoggingMixin, ResponseMixin, GenericAPIView):
         else:
             meshes = select_mesh(start_lat, start_lon, end_lat, end_lon, vehicle_type)
             if meshes is None:
-              return self.not_found_response("No mesh available.")
+                return self.not_found_response("No mesh available.")
 
             logger.debug(f"Using meshes: {[mesh.id for mesh in meshes]}")
 
@@ -432,11 +436,7 @@ class RouteRequestView(LoggingMixin, ResponseMixin, GenericAPIView):
                     f"Found existing route(s) but got force_new_route={force_new_route}, beginning recalculation."
                 )
 
-            return Response(
-                data=response_data,
-                headers={"Content-Type": "application/json"},
-                status=rest_framework.status.HTTP_202_ACCEPTED,
-            )
+            return self.accepted_response(response_data)
 
         # Create and start new route calculation
         logger.debug(
@@ -473,7 +473,7 @@ class RouteRequestView(LoggingMixin, ResponseMixin, GenericAPIView):
         }
 
         return self.accepted_response(data)
-  
+
 
 class RouteDetailView(LoggingMixin, ResponseMixin, GenericAPIView):
     serializer_class = RouteSerializer
@@ -646,18 +646,10 @@ class EvaluateRouteView(LoggingMixin, ResponseMixin, APIView):
 
         # Validate required parameters
         if not route_json:
-            return Response(
-                {"error": "Missing required field: route"},
-                headers={"Content-Type": "application/json"},
-                status=rest_framework.status.HTTP_400_BAD_REQUEST,
-            )
+            return self.bad_request_response("Missing required field: route")
 
         if not vehicle_type:
-            return Response(
-                {"error": "Missing required field: vehicle_type"},
-                headers={"Content-Type": "application/json"},
-                status=rest_framework.status.HTTP_400_BAD_REQUEST,
-            )
+            return self.bad_request_response("Missing required field: vehicle_type")
 
         # Get meshes (either custom or auto-selected)
         if custom_mesh_id:
@@ -669,12 +661,8 @@ class EvaluateRouteView(LoggingMixin, ResponseMixin, APIView):
         else:
             meshes = select_mesh_for_route_evaluation(route_json, vehicle_type)
             if meshes is None or len(meshes) == 0:
-                return Response(
-                    {
-                        "error": f"No suitable VehicleMesh found for route evaluation with vehicle type '{vehicle_type}'."
-                    },
-                    headers={"Content-Type": "application/json"},
-                    status=rest_framework.status.HTTP_400_BAD_REQUEST,
+                return self.bad_request_response(
+                    f"No suitable VehicleMesh found for route evaluation with vehicle type '{vehicle_type}'."
                 )
 
             if meshes is None:
