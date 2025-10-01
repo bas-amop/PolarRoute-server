@@ -71,7 +71,7 @@ def reverse_migrate_mesh_data(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("route_api", "0012_vehicle"),
+        ("route_api", "0013_location"),
     ]
 
     operations = [
