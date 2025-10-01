@@ -23,6 +23,7 @@ from polarrouteserver.route_api.views import (
 )
 from polarrouteserver.route_api.models import Job, Route, VehicleMesh, Vehicle
 from polarrouteserver.route_api.tasks import create_and_calculate_route
+from tests.utils import add_test_vehicle_mesh_to_db
 from .utils import add_test_vehicle_mesh_to_db, create_test_vehicle
 
 
@@ -477,7 +478,7 @@ class TestCancelRoute:
 
     def setUp(self):
         self.factory = APIRequestFactory()
-        mesh = add_test_mesh_to_db()
+        mesh = add_test_vehicle_mesh_to_db()
         self.route = Route.objects.create(
             start_lat=1.1, start_lon=1.1, end_lat=2.0, end_lon=2.0, mesh=mesh
         )

@@ -6,12 +6,13 @@ from unittest.mock import Mock, patch
 from django.test import TestCase, RequestFactory
 from django.utils import timezone
 
-from polarrouteserver.route_api.models import Job, Route, Mesh, Vehicle
+from polarrouteserver.route_api.models import Job, Route, VehicleMesh, Vehicle
 from polarrouteserver.route_api.serializers import (
     RouteSerializer,
     JobStatusSerializer,
     VehicleSerializer,
 )
+from tests.utils import add_test_vehicle_mesh_to_db
 
 
 class TestRouteSerializer(TestCase):
@@ -22,18 +23,7 @@ class TestRouteSerializer(TestCase):
         self.factory = RequestFactory()
         
         # Create test mesh
-        self.mesh = Mesh.objects.create(
-            meshiphi_version="1.0",
-            md5="test_hash",
-            valid_date_start=datetime(2023, 1, 1, tzinfo=dt_timezone.utc),
-            valid_date_end=datetime(2023, 12, 31, tzinfo=dt_timezone.utc),
-            created=timezone.now(),
-            lat_min=-90,
-            lat_max=90,
-            lon_min=-180,
-            lon_max=180,
-            name="Test Mesh"
-        )
+        self.mesh = add_test_vehicle_mesh_to_db()
 
         # Sample route data with both optimisation types
         self.sample_route_data = [
@@ -268,10 +258,10 @@ class TestRouteSerializer(TestCase):
 
         mesh_info = data["mesh"]
         self.assertEqual(mesh_info["id"], self.mesh.id)
-        self.assertEqual(mesh_info["name"], "Test Mesh")
+        self.assertEqual(mesh_info["name"], "Test Mesh Vehicle")
         self.assertIn("bounds", mesh_info)
-        self.assertEqual(mesh_info["bounds"]["latMin"], -90)
-        self.assertEqual(mesh_info["bounds"]["latMax"], 90)
+        self.assertEqual(mesh_info["bounds"]["latMin"], -50)
+        self.assertEqual(mesh_info["bounds"]["latMax"], 50)
 
     def test_unsmoothed_route_fallback(self):
         """Test fallback to unsmoothed route when smoothed is not available."""
@@ -304,17 +294,7 @@ class TestJobStatusSerializer(TestCase):
         """Set up test data."""
         self.factory = RequestFactory()
         
-        self.mesh = Mesh.objects.create(
-            meshiphi_version="1.0",
-            md5="test_hash",
-            valid_date_start="2023-01-01",
-            valid_date_end="2023-12-31",
-            created=timezone.now(),
-            lat_min=-90,
-            lat_max=90,
-            lon_min=-180,
-            lon_max=180,
-        )
+        self.mesh = add_test_vehicle_mesh_to_db()
 
         self.route = Route.objects.create(
             start_lat=-60.7,

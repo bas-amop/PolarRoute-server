@@ -17,6 +17,7 @@ def add_test_environment_mesh_to_db():
             created = datetime.datetime.now(datetime.timezone.utc),
             md5 = md5,
             meshiphi_version = "test",
+            name="Test Mesh",
             lat_min = mesh["config"]["mesh_info"]["region"]["lat_min"],
             lat_max = mesh["config"]["mesh_info"]["region"]["lat_max"],
             lon_min = mesh["config"]["mesh_info"]["region"]["long_min"],
@@ -59,7 +60,7 @@ def add_test_vehicle_mesh_to_db():
             "lat_max": environment_mesh.lat_max,
             "lon_min": environment_mesh.lon_min,
             "lon_max": environment_mesh.lon_max,
-            "name": f"{environment_mesh.name}_vehicle_test",
+            "name": f"{environment_mesh.name} Vehicle",
             "json": environment_mesh.json  # Using same JSON for test purposes
         }
     )
