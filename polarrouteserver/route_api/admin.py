@@ -1,6 +1,9 @@
 from django.contrib import admin
 
-from .models import Vehicle, Route, Job, VehicleMesh, EnvironmentMesh
+from .models import Vehicle, Route, Job, VehicleMesh, EnvironmentMesh, Location
+
+LIST_PER_PAGE = 20
+
 
 # Shared list_display for all mesh-based admin classes
 MESH_LIST_DISPLAY = [
@@ -47,9 +50,6 @@ class EnvironmentMeshAdmin(BaseMeshAdmin):
     search_fields = ("name",)
 
 
-LIST_PER_PAGE = 20
-
-
 class VehicleAdmin(admin.ModelAdmin):
     list_display = ["vessel_type"]
 
@@ -77,7 +77,9 @@ class RouteAdmin(admin.ModelAdmin):
             "start_lat",
             "start_lon",
             "end_lat",
-            "end_lat",
+            "end_lon",
+            "start_name",
+            "end_name",
             "requested",
             "calculated",
             "job",
@@ -102,11 +104,8 @@ class RouteAdmin(admin.ModelAdmin):
             return f"({obj.end_lat},{obj.end_lon})"
 
     def job_id(self, obj):
-        if obj.job_set.count() == 0:
-            return "-"
-        else:
-            job = obj.job_set.latest("datetime")
-            return f"{job.id}"
+        job = obj.job_set.latest("datetime")
+        return f"{job.id}"
 
     def mesh_id(self, obj):
         if obj.mesh:
@@ -129,9 +128,30 @@ class JobAdmin(admin.ModelAdmin):
         "id",
         "datetime",
         "route",
-        "status",
+        "get_status",
     ]
     ordering = ("-datetime",)
+
+    def get_status(self, obj):
+        """Get current job status from Celery."""
+        try:
+            return obj.status if obj.status is not None else "UNKNOWN"
+        except Exception as e:
+            return f"Error: {type(e).__name__}"
+
+    get_status.short_description = "Status"
+
+
+class LocationAdmin(admin.ModelAdmin):
+    list_display = [
+        "id",
+        "name",
+        "lat",
+        "lon",
+    ]
+    list_filter = ["name"]
+    search_fields = ["name"]
+    ordering = ["name"]
 
 
 admin.site.register(Vehicle, VehicleAdmin)
@@ -139,3 +159,4 @@ admin.site.register(Route, RouteAdmin)
 admin.site.register(Job, JobAdmin)
 admin.site.register(VehicleMesh, VehicleMeshAdmin)
 admin.site.register(EnvironmentMesh, EnvironmentMeshAdmin)
+admin.site.register(Location, LocationAdmin)

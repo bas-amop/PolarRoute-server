@@ -20,6 +20,8 @@ BASE_DIR = os.getenv("POLARROUTE_BASE_DIR", os.getcwd())
 MESH_DIR = os.getenv("POLARROUTE_MESH_DIR", None)
 MESH_METADATA_DIR = os.getenv("POLARROUTE_MESH_METADATA_DIR", None)
 
+# FIXTURE_DIRS = []
+
 # NOTE: set this in production
 SECRET_KEY = os.getenv("POLARROUTE_SECRET_KEY", secrets.token_hex(100))
 DEBUG = os.getenv("POLARROUTE_DEBUG", "False").lower() == "True"
@@ -87,6 +89,7 @@ INSTALLED_APPS = [
     "django_celery_results",
     "django_celery_beat",
     "drf_spectacular",
+    "drf_spectacular_sidecar",
     "polarrouteserver.route_api",
     "corsheaders",
 ]
@@ -116,7 +119,9 @@ SPECTACULAR_SETTINGS = {
     "TITLE": "PolarRoute-Server",
     "DESCRIPTION": "Backend server for serving PolarRoute and MeshiPhi assets",
     "VERSION": polarrouteserver_version,
-    "SERVE_INCLUDE_SCHEMA": False,
+    "SERVE_INCLUDE_SCHEMA": True,
+    "SWAGGER_UI_DIST": "SIDECAR",
+    "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
     "SECURITY": [],
     "AUTHENTICATION_WHITELIST": [],
 }

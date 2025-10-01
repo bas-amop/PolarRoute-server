@@ -179,7 +179,7 @@ def request_route(
                 )
 
                 if str(route_status).startswith("2"):
-                    return route_response.get("json")
+                    return route_response
                 else:
                     print(f"Failed to fetch route data: {route_status}")
                     return None

@@ -125,6 +125,7 @@ def route_exists(
         for route in same_mesh_routes:
             # job_set can't be filtered since status is a property method
             for job in route.job_set.all():
+                # Use the model's status property
                 if job.status != "FAILURE":
                     successful_route_ids.add(route.id)
 

@@ -100,9 +100,25 @@ class Job(models.Model):
     )  # use uuids for primary keys to align with celery
 
     datetime = models.DateTimeField(default=timezone.now)
-    route = models.ForeignKey(Route, on_delete=models.SET_NULL, null=True)
+    route = models.ForeignKey(Route, on_delete=models.CASCADE)
 
     @property
     def status(self):
         result = AsyncResult(self.id, app=app)
         return result.state
+
+
+class Location(models.Model):
+    "Preset locations"
+
+    lat = models.FloatField()
+    lon = models.FloatField()
+    name = models.CharField(max_length=100)
+
+    @property
+    def latitude(self):
+        return self.lat
+
+    @property
+    def longitude(self):
+        return self.lon
