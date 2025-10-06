@@ -175,6 +175,36 @@ class RouteSerializer(serializers.ModelSerializer):
             },
         }
 
+    def _build_vehicle_info(self, instance):
+        """Build vehicle information from the route instance."""
+        if not instance.vehicle:
+            return None
+
+        vehicle_data = {
+            "vessel_type": instance.vehicle.vessel_type,
+            "max_speed": instance.vehicle.max_speed,
+            "unit": instance.vehicle.unit,
+        }
+
+        # Add optional fields if they exist
+        optional_fields = [
+            "max_ice_conc",
+            "min_depth",
+            "max_wave",
+            "excluded_zones",
+            "neighbour_splitting",
+            "beam",
+            "hull_type",
+            "force_limit",
+        ]
+
+        for field in optional_fields:
+            value = getattr(instance.vehicle, field, None)
+            if value is not None:
+                vehicle_data[field] = value
+
+        return vehicle_data
+
     def to_representation(self, instance):
         """Transform route data into structured format."""
         data = super().to_representation(instance)
@@ -229,8 +259,9 @@ class RouteSerializer(serializers.ModelSerializer):
                 route_type, properties
             )
 
-            # Build mesh information
+            # Build mesh and vehicle information
             mesh_info = self._build_mesh_info(instance)
+            vehicle_info = self._build_vehicle_info(instance)
 
             # Build structured route object
             route_obj = {
@@ -261,6 +292,9 @@ class RouteSerializer(serializers.ModelSerializer):
             if mesh_info:
                 route_obj["mesh"] = mesh_info
 
+            if vehicle_info:
+                route_obj["vehicle"] = vehicle_info
+
             # Add any info/warnings
             if info_message:
                 route_obj["info"] = info_message
@@ -272,6 +306,9 @@ class RouteSerializer(serializers.ModelSerializer):
         # Return the appropriate format
         if len(available_routes) == 0:
             # No routes available - return error
+            mesh_info = self._build_mesh_info(instance)
+            vehicle_info = self._build_vehicle_info(instance)
+
             result = {
                 "type": "error",
                 "id": str(instance.id),
@@ -282,6 +319,12 @@ class RouteSerializer(serializers.ModelSerializer):
                 },
                 "info": {"error": "No routes available for any optimisation type."},
             }
+
+            if mesh_info:
+                result["mesh"] = mesh_info
+
+            if vehicle_info:
+                result["vehicle"] = vehicle_info
         elif len(available_routes) == 1:
             # Single route type - return the route directly
             result = available_routes[0]
@@ -319,7 +362,7 @@ class EnvironmentMeshSerializer(serializers.ModelSerializer):
         model = EnvironmentMesh
         fields = MESH_FIELDS
 
-        
+
 class VehicleMeshSerializer(serializers.ModelSerializer):
     class Meta:
         model = VehicleMesh
