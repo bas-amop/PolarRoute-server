@@ -436,8 +436,6 @@ class RouteRequestView(LoggingMixin, ResponseMixin, GenericAPIView):
                     f"Found existing route(s) but got force_new_route={force_new_route}, beginning recalculation."
                 )
 
-            return self.accepted_response(response_data)
-
         # Create and start new route calculation
         logger.debug(
             f"Using mesh {processed_meshes[0].id} as primary mesh with {[mesh.id for mesh in processed_meshes[1:]]} as backup."

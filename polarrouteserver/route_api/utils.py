@@ -17,6 +17,7 @@ from polar_route.utils import extract_geojson_routes
 from polar_route.vessel_performance.vessel_performance_modeller import (
     VesselPerformanceModeller,
 )
+from polar_route.vessel_performance.vessels.example_ship import ExampleShip
 from polar_route.route_calc import route_calc
 from polar_route.utils import convert_decimal_days
 
@@ -712,11 +713,26 @@ def add_vehicle_to_environment_mesh(environment_mesh, vehicle):
     try:
         # Use VesselPerformanceModeller to add vehicle performance to the mesh
         logger.info(f"Running vessel performance modelling for {vehicle.vessel_type}")
+        logger.info("Initialising Vessel Performance Modeller")
 
-        # Initialize the vessel performance modeller
-        vp = VesselPerformanceModeller(
-            env_mesh_json=environment_mesh.json, vessel_config=vehicle_config
-        )
+        # Try to initialize with the vessel_type first
+        try:
+            vp = VesselPerformanceModeller(
+                env_mesh_json=environment_mesh.json, vessel_config=vehicle_config
+            )
+        except ValueError as e:
+            if "not in known list of vessels" in str(e):
+                # If vessel type is not recognized, use custom_vessel with ExampleShip as base
+                logger.info(
+                    f"Vessel type '{vehicle.vessel_type}' does not have a performance model in PolarRoute {polar_route.__version__}, using ExampleShip as base model"
+                )
+                vp = VesselPerformanceModeller(
+                    env_mesh_json=environment_mesh.json,
+                    vessel_config=vehicle_config,
+                    custom_vessel=ExampleShip,
+                )
+            else:
+                raise
 
         # Model accessibility (determines which cells are accessible to this vessel)
         vp.model_accessibility()
