@@ -22,7 +22,7 @@ dependencies = [
     "django-rest-framework",
     "drf-spectacular[sidecar]",
     "haversine",
-    "polar-route==1.0.0",
+    "polar-route @ git+https://github.com/antarctica/PolarRoute.git@tz/installation_fix",
     "psycopg>=3",
     "pyyaml",
     "SQLAlchemy",

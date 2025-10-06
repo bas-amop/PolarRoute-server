@@ -1,7 +1,6 @@
 import hashlib
 import json
 import logging
-import os
 import copy
 from datetime import datetime
 from tempfile import NamedTemporaryFile
@@ -225,7 +224,7 @@ def evaluate_route(route_json: dict, mesh: VehicleMesh) -> dict:
 
     Args:
         route_json (dict): route to evaluate in geojson format.
-        mesh (VehicleMesh): VehicleMesh object on which to evaluate the rout.
+        mesh (VehicleMesh): VehicleMesh object on which to evaluate the route.
 
     Returns:
         dict: evaluated route
@@ -234,26 +233,38 @@ def evaluate_route(route_json: dict, mesh: VehicleMesh) -> dict:
     if route_json["features"][0].get("properties", None) is None:
         route_json["features"][0]["properties"] = {"from": "Start", "to": "End"}
 
-    # route_calc only supports files, write out both route and mesh as temporary files
-    route_file = NamedTemporaryFile(delete=False, suffix=".json")
-    with open(route_file.name, "w") as fp:
-        json.dump(route_json, fp)
+    # Extract coordinates from GeoJSON
+    coordinates = route_json["features"][0]["geometry"]["coordinates"]
 
-    mesh_file = NamedTemporaryFile(delete=False, suffix=".json")
-    with open(mesh_file.name, "w") as fp:
-        json.dump(mesh.json, fp)
+    # Create DataFrame with all waypoints and required columns for new route_calc API
+    waypoints = []
+    for i, coord in enumerate(coordinates):
+        name = "Start" if i == 0 else ("End" if i == len(coordinates) - 1 else f"WP{i}")
+        source = "X" if i == 0 else np.nan
+        dest = "X" if i == len(coordinates) - 1 else np.nan
+
+        waypoints.append(
+            {
+                "Name": name,
+                "Lat": coord[1],
+                "Long": coord[0],
+                "Source": source,
+                "Destination": dest,
+                "order": i,
+                "id": 0,  # Single route ID
+            }
+        )
+
+    df = pd.DataFrame(waypoints)
 
     try:
-        calc_route = route_calc(route_file.name, mesh_file.name)
+        # Use route_calc API signature: (df, from_wp, to_wp, mesh, route_type)
+        calc_route = route_calc(
+            df=df, from_wp="Start", to_wp="End", mesh=mesh.json, route_type="smoothed"
+        )
     except Exception as e:
         logger.error(e)
         return None
-    finally:
-        for file in (route_file, mesh_file):
-            try:
-                os.remove(file.name)
-            except Exception as e:
-                logger.warning(f"{file} not removed due to {e}")
 
     time_days = calc_route["features"][0]["properties"]["traveltime"][-1]
     time_str = convert_decimal_days(time_days)
@@ -377,13 +388,49 @@ def ingest_mesh(
     if expected_md5 and md5 != expected_md5:
         raise ValueError(f"Mesh MD5 {md5} does not match expected MD5 {expected_md5}")
 
-    # Clean JSON data to handle NaN values that are invalid in PostgreSQL JSON fields
-    def clean_json_data(obj):
-        """Recursively clean JSON data to replace NaN with None."""
+    # Clean JSON data to handle NaN values and None in critical fields
+    def clean_json_data(obj, path=""):
+        """
+        Recursively clean JSON data to replace NaN with None and handle None in critical fields.
+
+        Args:
+            obj: Object to clean
+            path: Current path in the JSON structure (for debugging)
+        """
         if isinstance(obj, dict):
-            return {k: clean_json_data(v) for k, v in obj.items()}
+            # Special handling for cellbox agg_data
+            if "agg_data" in obj and isinstance(obj["agg_data"], dict):
+                if obj["agg_data"].get("SIC") is None:
+                    # SIC (Sea Ice Concentration): None -> 0.0 (no ice)
+                    obj["agg_data"]["SIC"] = 0.0
+                    logger.debug(f"Replaced None SIC value with 0.0 at {path}")
+
+                if obj["agg_data"].get("thickness") is None:
+                    # Ice thickness: None -> 0.0 (no ice)
+                    obj["agg_data"]["thickness"] = 0.0
+
+                if obj["agg_data"].get("density") is None:
+                    # Ice density: None -> 0.0 (no ice)
+                    obj["agg_data"]["density"] = 0.0
+
+            # Special handling for cellboxes with direct SIC/thickness/density fields
+            if "id" in obj and any(
+                key in obj for key in ["SIC", "thickness", "density"]
+            ):
+                # This looks like a cellbox - clean the environmental data fields
+                if obj.get("SIC") is None:
+                    obj["SIC"] = 0.0
+                    logger.debug(f"Replaced None SIC value with 0.0 at {path}")
+
+                if obj.get("thickness") is None:
+                    obj["thickness"] = 0.0
+
+                if obj.get("density") is None:
+                    obj["density"] = 0.0
+
+            return {k: clean_json_data(v, f"{path}.{k}") for k, v in obj.items()}
         elif isinstance(obj, list):
-            return [clean_json_data(item) for item in obj]
+            return [clean_json_data(item, f"{path}[{i}]") for i, item in enumerate(obj)]
         elif isinstance(obj, float):
             import math
 
