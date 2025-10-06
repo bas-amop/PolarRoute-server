@@ -12,6 +12,7 @@ from django.conf import settings
 from django.test import TestCase, TransactionTestCase
 import pytest
 import yaml
+from polar_route.exceptions import NoRouteFoundError
 
 from polarrouteserver.celery import app
 from polarrouteserver.route_api.models import VehicleMesh, EnvironmentMesh, Route, Vehicle
@@ -68,7 +69,7 @@ class TestOptimiseRoute(TestCase):
             vehicle=self.vehicle
         )
 
-        with pytest.raises(AssertionError, match="outside of mesh boundary"):
+        with pytest.raises(NoRouteFoundError, match="Invalid waypoints. No accessible source waypoints specified"):
             optimise_route(self.mesh.json, self.out_of_mesh_route)
 
     def test_stale_mesh_warning(self):
