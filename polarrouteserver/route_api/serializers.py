@@ -140,15 +140,13 @@ class RouteSerializer(serializers.ModelSerializer):
         ]
 
     def _build_optimisation_metrics(self, route_type, properties):
-        """Build all available metrics from route properties, not just the optimization type."""
+        """Build all available metrics from route properties."""
         metrics = {}
 
-        # Always include time metrics if available
         total_traveltime = properties.get("total_traveltime")
         if total_traveltime is not None:
             metrics["time"] = {"duration": str(total_traveltime)}
 
-        # Always include fuel consumption metrics if available
         total_fuel = properties.get("total_fuel")
         if total_fuel is not None:
             metrics["fuelConsumption"] = {
@@ -156,7 +154,6 @@ class RouteSerializer(serializers.ModelSerializer):
                 "units": properties.get("fuel_units") or "tons",
             }
 
-        # Include distance if available
         distance_data = properties.get("distance")
         if distance_data and isinstance(distance_data, list) and len(distance_data) > 0:
             # Take the last value which should be the total distance
