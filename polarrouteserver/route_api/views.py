@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 
 from celery.result import AsyncResult
 from drf_spectacular.utils import (
@@ -475,23 +476,27 @@ class RecentRoutesView(LoggingMixin, ResponseMixin, GenericAPIView):
             f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
         )
 
-        # Get all recent routes with only essential fields
-        routes_recent = Route.objects.values(
-            "id",
-            "start_lat",
-            "start_lon",
-            "end_lat",
-            "end_lon",
-            "start_name",
-            "end_name",
-            "polar_route_version",
-            "requested",
-            "calculated",
-            "mesh_id",
-            "mesh__name",
-        ).order_by("-requested")
+        # Only get today's routes, just essential fields
+        routes_recent = (
+            Route.objects.filter(requested__date=datetime.now().date())
+            .values(
+                "id",
+                "start_lat",
+                "start_lon",
+                "end_lat",
+                "end_lon",
+                "start_name",
+                "end_name",
+                "polar_route_version",
+                "requested",
+                "calculated",
+                "mesh_id",
+                "mesh__name",
+            )
+            .order_by("-requested")
+        )
 
-        logger.debug(f"Found {len(routes_recent)} recent routes.")
+        logger.debug(f"Found {len(routes_recent)} routes for today.")
 
         if not routes_recent:
             return self.no_content_response(
