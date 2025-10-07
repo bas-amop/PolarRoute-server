@@ -496,12 +496,12 @@ class RecentRoutesView(LoggingMixin, ResponseMixin, GenericAPIView):
             .order_by("-requested")
         )
 
-        logger.debug(f"Found {len(routes_recent)} routes for today.")
+        logger.debug(f"Found {len(routes_recent)} routes calculated today.")
 
         if not routes_recent:
             return self.no_content_response(
                 data={"polarrouteserver-version": polarrouteserver_version},
-                message="No recent routes found.",
+                message="No recent routes found for today.",
             )
 
         routes_data = []
