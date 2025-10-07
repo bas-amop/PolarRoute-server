@@ -269,25 +269,8 @@ class RouteSerializer(serializers.ModelSerializer):
 
             available_routes.append(route_obj)
 
-        # Always return consistent structure
+        # Always return consistent structure - routes array with version
         result = {
-            "id": str(instance.id),
-            "job": {
-                "requestedAt": data["requested"],
-                "calculatedAt": data["calculated"],
-            },
-            "waypoints": {
-                "start": {
-                    "lat": data["start_lat"],
-                    "lon": data["start_lon"],
-                    "name": data.get("start_name"),
-                },
-                "end": {
-                    "lat": data["end_lat"],
-                    "lon": data["end_lon"],
-                    "name": data.get("end_name"),
-                },
-            },
             "routes": available_routes,
             "polarrouteserver-version": polarrouteserver_version,
         }
