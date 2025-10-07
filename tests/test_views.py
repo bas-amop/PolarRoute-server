@@ -548,11 +548,11 @@ class TestRouteDetailView(TestCase):
 
         self.assertEqual(response.status_code, 200)
         
-        # Since route has no json data, it should return error format
-        self.assertEqual(response.data["type"], "error")
-        self.assertEqual(response.data["id"], str(self.route.id))
-        self.assertEqual(response.data["name"], "Test Start to Test End")
-        self.assertIn("error", response.data["info"])
+        # Since route has no json data, it should return error
+        self.assertIn("routes", response.data)
+        self.assertEqual(len(response.data["routes"]), 0)
+        self.assertIn("error", response.data)
+        self.assertIn("polarrouteserver-version", response.data)
 
     def test_get_route_not_found(self):
         """
@@ -584,11 +584,11 @@ class TestRouteDetailView(TestCase):
 
         self.assertEqual(response.status_code, 200)
         
-        self.assertEqual(response.data["type"], "error")
-        self.assertEqual(response.data["id"], str(minimal_route.id))
-        self.assertEqual(response.data["name"], "Start to End")  # Default names when none provided
-        self.assertIn("error", response.data["info"])
-        self.assertEqual(response.data["info"]["error"], "No routes available for any optimisation type.")
+        # Should return consistent structure with empty routes and error
+        self.assertIn("routes", response.data)
+        self.assertEqual(len(response.data["routes"]), 0)
+        self.assertIn("error", response.data)
+        self.assertEqual(response.data["error"], "No routes available for any optimisation type.")
         self.assertIn("polarrouteserver-version", response.data)
 
 
