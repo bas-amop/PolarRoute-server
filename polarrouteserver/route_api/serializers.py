@@ -140,18 +140,30 @@ class RouteSerializer(serializers.ModelSerializer):
         ]
 
     def _build_optimisation_metrics(self, route_type, properties):
-        """Build metrics based on route type and properties."""
-        if route_type == "traveltime":
-            duration = properties.get("total_traveltime", 0)
-            return {"time": {"duration": str(duration)}}
-        elif route_type == "fuel":
-            return {
-                "fuelConsumption": {
-                    "value": properties.get("total_fuel"),
-                    "units": properties.get("fuel_units") or "tons",
-                }
+        """Build all available metrics from route properties, not just the optimization type."""
+        metrics = {}
+
+        # Always include time metrics if available
+        total_traveltime = properties.get("total_traveltime")
+        if total_traveltime is not None:
+            metrics["time"] = {"duration": str(total_traveltime)}
+
+        # Always include fuel consumption metrics if available
+        total_fuel = properties.get("total_fuel")
+        if total_fuel is not None:
+            metrics["fuelConsumption"] = {
+                "value": total_fuel,
+                "units": properties.get("fuel_units") or "tons",
             }
-        return {}
+
+        # Include distance if available
+        distance_data = properties.get("distance")
+        if distance_data and isinstance(distance_data, list) and len(distance_data) > 0:
+            # Take the last value which should be the total distance
+            total_distance = distance_data[-1]
+            metrics["distance"] = {"value": total_distance, "units": "meters"}
+
+        return metrics
 
     def _build_mesh_info(self, instance):
         """Build mesh information from the route instance."""
