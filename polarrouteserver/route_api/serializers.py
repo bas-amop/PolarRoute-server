@@ -269,29 +269,32 @@ class RouteSerializer(serializers.ModelSerializer):
 
             available_routes.append(route_obj)
 
-        # Return the appropriate format
-        if len(available_routes) == 0:
-            # No routes available - return error
-            result = {
-                "type": "error",
-                "id": str(instance.id),
-                "name": f"{data.get('start_name') or 'Start'} to {data.get('end_name') or 'End'}",
-                "job": {
-                    "requestedAt": data["requested"],
-                    "calculatedAt": data["calculated"],
+        # Always return consistent structure
+        result = {
+            "id": str(instance.id),
+            "job": {
+                "requestedAt": data["requested"],
+                "calculatedAt": data["calculated"],
+            },
+            "waypoints": {
+                "start": {
+                    "lat": data["start_lat"],
+                    "lon": data["start_lon"],
+                    "name": data.get("start_name"),
                 },
-                "info": {"error": "No routes available for any optimisation type."},
-            }
-        elif len(available_routes) == 1:
-            # Single route type - return the route directly
-            result = available_routes[0]
-        else:
-            # Multiple route types - return as array
-            result = {"routes": available_routes}
+                "end": {
+                    "lat": data["end_lat"],
+                    "lon": data["end_lon"],
+                    "name": data.get("end_name"),
+                },
+            },
+            "routes": available_routes,
+            "polarrouteserver-version": polarrouteserver_version,
+        }
 
-        # Add version to all responses
-        if isinstance(result, dict):
-            result["polarrouteserver-version"] = polarrouteserver_version
+        # Add error if no routes available
+        if len(available_routes) == 0:
+            result["error"] = "No routes available for any optimisation type."
 
         return result
 
