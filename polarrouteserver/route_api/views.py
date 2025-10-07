@@ -1,5 +1,5 @@
-from datetime import datetime
 import logging
+from datetime import datetime
 
 from celery.result import AsyncResult
 from drf_spectacular.utils import (
@@ -460,7 +460,7 @@ class RouteDetailView(LoggingMixin, ResponseMixin, GenericAPIView):
 
 
 class RecentRoutesView(LoggingMixin, ResponseMixin, GenericAPIView):
-    serializer_class = RouteSerializer
+    serializer_class = None  # No serializer needed - using manual response building
 
     @extend_schema(
         operation_id="api_recent_routes_list",
@@ -476,53 +476,69 @@ class RecentRoutesView(LoggingMixin, ResponseMixin, GenericAPIView):
             f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
         )
 
-        # Only get today's routes
-        routes_today = Route.objects.filter(
-            calculated__date=datetime.now().date()
-        ).order_by("-calculated")
+        # Only get today's routes, just essential fields
+        routes_recent = (
+            Route.objects.filter(requested__date=datetime.now().date())
+            .values(
+                "id",
+                "start_lat",
+                "start_lon",
+                "end_lat",
+                "end_lon",
+                "start_name",
+                "end_name",
+                "polar_route_version",
+                "requested",
+                "calculated",
+                "mesh_id",
+                "mesh__name",
+            )
+            .order_by("-requested")
+        )
 
-        logger.debug(f"Found {len(routes_today)} routes calculated today.")
+        logger.debug(f"Found {len(routes_recent)} routes calculated today.")
 
-        if not routes_today.exists():
+        if not routes_recent:
             return self.no_content_response(
                 data={"polarrouteserver-version": polarrouteserver_version},
                 message="No recent routes found for today.",
             )
 
-        jobs_data = []
+        routes_data = []
+        for route in routes_recent:
+            # Build lightweight route data
+            route_data = {
+                "id": route["id"],
+                "start_lat": route["start_lat"],
+                "start_lon": route["start_lon"],
+                "end_lat": route["end_lat"],
+                "end_lon": route["end_lon"],
+                "start_name": route["start_name"],
+                "end_name": route["end_name"],
+                "polar_route_version": route["polar_route_version"],
+                "requested": route["requested"].isoformat()
+                if route["requested"]
+                else None,
+                "calculated": route["calculated"].isoformat()
+                if route["calculated"]
+                else None,
+                "status": "completed" if route["calculated"] else "pending",
+                "route_url": reverse(
+                    "route_detail", args=[route["id"]], request=request
+                ),
+            }
 
-        # Process each route to get associated job data
-        for route in routes_today:
-            # Get the most recent job for this route
-            job = route.job_set.latest("datetime")
-
-            # Use JobStatusSerializer for consistent job data formatting
-            job_serializer = JobStatusSerializer(job, context={"request": request})
-            job_data = job_serializer.data
-
-            # Add additional fields specific to recent routes view
-            job_data.update(
-                {
-                    "job_id": job.id,
-                    "start_lat": job.route.start_lat,
-                    "start_lon": job.route.start_lon,
-                    "end_lat": job.route.end_lat,
-                    "end_lon": job.route.end_lon,
-                    "start_name": job.route.start_name,
-                    "end_name": job.route.end_name,
-                    "job_url": reverse("job_detail", args=[job.id], request=request),
+            # Add minimal mesh info without loading the heavy JSON
+            if route["mesh_id"]:
+                route_data["mesh"] = {
+                    "id": route["mesh_id"],
+                    "name": route["mesh__name"],
                 }
-            )
 
-            # Include full route data if job is successful
-            if job_data.get("status") == "SUCCESS":
-                route_data = RouteSerializer(job.route).data
-                job_data.update(route_data)
-
-            jobs_data.append(job_data)
+            routes_data.append(route_data)
 
         response_data = {
-            "routes": jobs_data,
+            "routes": routes_data,
             "polarrouteserver-version": polarrouteserver_version,
         }
 
