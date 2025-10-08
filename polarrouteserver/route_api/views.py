@@ -462,6 +462,23 @@ class RouteDetailView(LoggingMixin, ResponseMixin, GenericAPIView):
 class RecentRoutesView(LoggingMixin, ResponseMixin, GenericAPIView):
     serializer_class = None  # No serializer needed - using manual response building
 
+    def _get_celery_task_status(self, job_id, calculated_timestamp, route_info):
+        """
+        Get Celery task status. Uses database state to avoid Celery broker calls.
+        """
+        if calculated_timestamp:
+            return "SUCCESS"
+
+        if route_info and "error" in str(route_info).lower():
+            return "FAILURE"
+
+        # Handle missing job scenarios
+        if not job_id:
+            return "PENDING"
+
+        # Job exists but no calculation yet - also PENDING
+        return "PENDING"
+
     @extend_schema(
         operation_id="api_recent_routes_list",
         responses={
@@ -479,6 +496,7 @@ class RecentRoutesView(LoggingMixin, ResponseMixin, GenericAPIView):
         # Only get today's routes, just essential fields
         routes_recent = (
             Route.objects.filter(requested__date=datetime.now().date())
+            .select_related("job")
             .values(
                 "id",
                 "start_lat",
@@ -490,8 +508,10 @@ class RecentRoutesView(LoggingMixin, ResponseMixin, GenericAPIView):
                 "polar_route_version",
                 "requested",
                 "calculated",
+                "info",
                 "mesh_id",
                 "mesh__name",
+                "job__id",
             )
             .order_by("-requested")
         )
@@ -506,6 +526,10 @@ class RecentRoutesView(LoggingMixin, ResponseMixin, GenericAPIView):
 
         routes_data = []
         for route in routes_recent:
+            status = self._get_celery_task_status(
+                route["job__id"], route["calculated"], route["info"]
+            )
+
             # Build lightweight route data
             route_data = {
                 "id": route["id"],
@@ -522,11 +546,16 @@ class RecentRoutesView(LoggingMixin, ResponseMixin, GenericAPIView):
                 "calculated": route["calculated"].isoformat()
                 if route["calculated"]
                 else None,
-                "status": "completed" if route["calculated"] else "pending",
+                "status": status,
                 "route_url": reverse(
                     "route_detail", args=[route["id"]], request=request
                 ),
             }
+
+            if route["job__id"]:
+                route_data["job_status_url"] = reverse(
+                    "job_detail", args=[route["job__id"]], request=request
+                )
 
             # Add minimal mesh info without loading the heavy JSON
             if route["mesh_id"]:
