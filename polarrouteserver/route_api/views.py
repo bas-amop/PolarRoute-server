@@ -553,6 +553,7 @@ class RecentRoutesView(LoggingMixin, ResponseMixin, GenericAPIView):
             }
 
             if route["job__id"]:
+                route_data["job_id"] = route["job__id"]
                 route_data["job_status_url"] = reverse(
                     "job_detail", args=[route["job__id"]], request=request
                 )
