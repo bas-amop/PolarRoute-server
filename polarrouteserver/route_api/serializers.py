@@ -140,18 +140,27 @@ class RouteSerializer(serializers.ModelSerializer):
         ]
 
     def _build_optimisation_metrics(self, route_type, properties):
-        """Build metrics based on route type and properties."""
-        if route_type == "traveltime":
-            duration = properties.get("total_traveltime", 0)
-            return {"time": {"duration": str(duration)}}
-        elif route_type == "fuel":
-            return {
-                "fuelConsumption": {
-                    "value": properties.get("total_fuel"),
-                    "units": properties.get("fuel_units") or "tons",
-                }
+        """Build all available metrics from route properties."""
+        metrics = {}
+
+        total_traveltime = properties.get("total_traveltime")
+        if total_traveltime is not None:
+            metrics["time"] = {"duration": str(total_traveltime)}
+
+        total_fuel = properties.get("total_fuel")
+        if total_fuel is not None:
+            metrics["fuelConsumption"] = {
+                "value": total_fuel,
+                "units": properties.get("fuel_units") or "tons",
             }
-        return {}
+
+        distance_data = properties.get("distance")
+        if distance_data and isinstance(distance_data, list) and len(distance_data) > 0:
+            # Take the last value which should be the total distance
+            total_distance = distance_data[-1]
+            metrics["distance"] = {"value": total_distance, "units": "meters"}
+
+        return metrics
 
     def _build_mesh_info(self, instance):
         """Build mesh information from the route instance."""
@@ -269,29 +278,15 @@ class RouteSerializer(serializers.ModelSerializer):
 
             available_routes.append(route_obj)
 
-        # Return the appropriate format
-        if len(available_routes) == 0:
-            # No routes available - return error
-            result = {
-                "type": "error",
-                "id": str(instance.id),
-                "name": f"{data.get('start_name') or 'Start'} to {data.get('end_name') or 'End'}",
-                "job": {
-                    "requestedAt": data["requested"],
-                    "calculatedAt": data["calculated"],
-                },
-                "info": {"error": "No routes available for any optimisation type."},
-            }
-        elif len(available_routes) == 1:
-            # Single route type - return the route directly
-            result = available_routes[0]
-        else:
-            # Multiple route types - return as array
-            result = {"routes": available_routes}
+        # Always return consistent structure - routes array with version
+        result = {
+            "routes": available_routes,
+            "polarrouteserver-version": polarrouteserver_version,
+        }
 
-        # Add version to all responses
-        if isinstance(result, dict):
-            result["polarrouteserver-version"] = polarrouteserver_version
+        # Add error if no routes available
+        if len(available_routes) == 0:
+            result["error"] = "No routes available for any optimisation type."
 
         return result
 
