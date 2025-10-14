@@ -621,6 +621,174 @@ class TestGetRecentRoutesAndMesh(TestCase):
         assert "polarrouteserver-version" in response.data
         assert len(response.data["routes"]) == 2
 
+    def test_recent_routes_response_structure(self):
+        """Test that RecentRoutesView response has correct structure and field types"""
+        request = self.factory.get("/api/recent_routes")
+        response = RecentRoutesView.as_view()(request)
+
+        # Top level response structure
+        assert response.status_code == 200
+        assert isinstance(response.data, dict)
+        assert "routes" in response.data
+        assert "polarrouteserver-version" in response.data
+        assert isinstance(response.data["polarrouteserver-version"], str)
+        
+        # Routes array validation  
+        routes = response.data["routes"]
+        assert isinstance(routes, list)
+        assert len(routes) == 2
+
+        # Individual route structure validation
+        for route in routes:
+            assert isinstance(route, dict)
+            
+            required_fields = [
+                "id", "start_lat", "start_lon", "end_lat", "end_lon", 
+                "requested", "status", "route_url"
+            ]
+            for field in required_fields:
+                assert field in route, f"Missing required field: {field}"
+            
+            assert isinstance(route["id"], int)
+            assert isinstance(route["start_lat"], float)
+            assert isinstance(route["start_lon"], float) 
+            assert isinstance(route["end_lat"], float)
+            assert isinstance(route["end_lon"], float)
+            assert isinstance(route["requested"], str)
+            assert isinstance(route["status"], str)
+            assert isinstance(route["route_url"], str)
+            
+            # Optional fields that may be present
+            if "start_name" in route:
+                assert route["start_name"] is None or isinstance(route["start_name"], str)
+            if "end_name" in route:
+                assert route["end_name"] is None or isinstance(route["end_name"], str)
+            if "calculated" in route:
+                assert route["calculated"] is None or isinstance(route["calculated"], str)
+            if "polar_route_version" in route:
+                assert route["polar_route_version"] is None or isinstance(route["polar_route_version"], str)
+            if "job_id" in route:
+                assert isinstance(route["job_id"], (str, type(uuid.uuid4())))
+            if "job_status_url" in route:
+                assert isinstance(route["job_status_url"], str)
+            if "mesh" in route:
+                assert isinstance(route["mesh"], dict)
+                assert "id" in route["mesh"]
+                assert "name" in route["mesh"]
+
+    def test_recent_routes_status_calculation(self):
+        """Test that status is calculated correctly based on route state"""
+        # Create route without calculated timestamp (PENDING)
+        pending_route = Route.objects.create(
+            start_lat=2.0, start_lon=2.0, end_lat=2.0, end_lon=2.0,
+            mesh=self.mesh
+        )
+        # Job is required for route to appear in recent routes query
+        Job.objects.create(id=uuid.uuid4(), route=pending_route)
+        
+        # Create route with error info (FAILURE)
+        error_route = Route.objects.create(
+            start_lat=3.0, start_lon=3.0, end_lat=3.0, end_lon=3.0,
+            mesh=self.mesh,
+            info="Route calculation error occurred"
+        )
+        # Job is required for route to appear in recent routes query  
+        Job.objects.create(id=uuid.uuid4(), route=error_route)
+
+        request = self.factory.get("/api/recent_routes")
+        response = RecentRoutesView.as_view()(request)
+
+        routes_by_lat = {route["start_lat"]: route for route in response.data["routes"]}
+        
+        # Calculated routes should be SUCCESS
+        assert routes_by_lat[0.0]["status"] == "SUCCESS"
+        assert routes_by_lat[1.0]["status"] == "SUCCESS"
+        
+        # Pending route should be PENDING
+        assert routes_by_lat[2.0]["status"] == "PENDING"
+        
+        # Error route should be FAILURE  
+        assert routes_by_lat[3.0]["status"] == "FAILURE"
+
+    def test_recent_routes_no_content_response(self):
+        """Test response when no routes exist for today"""
+        # Clear all routes created in setUp
+        Route.objects.all().delete()
+        
+        request = self.factory.get("/api/recent_routes")
+        response = RecentRoutesView.as_view()(request)
+        
+        assert response.status_code == 204
+        assert "polarrouteserver-version" in response.data
+        assert isinstance(response.data["polarrouteserver-version"], str)
+
+    def test_recent_routes_includes_job_info_when_present(self):
+        """Test that job_id and job_status_url are included when job exists"""
+        request = self.factory.get("/api/recent_routes") 
+        response = RecentRoutesView.as_view()(request)
+        
+        routes = response.data["routes"]
+        for route in routes:
+            # All test routes have jobs, so these fields should be present
+            assert "job_id" in route
+            assert "job_status_url" in route
+            assert isinstance(route["job_id"], (str, type(uuid.uuid4())))
+            assert "/api/job/" in route["job_status_url"]
+
+    def test_recent_routes_includes_mesh_info(self):
+        """Test that mesh information is included correctly"""
+        request = self.factory.get("/api/recent_routes")
+        response = RecentRoutesView.as_view()(request)
+        
+        routes = response.data["routes"]
+        for route in routes:
+            assert "mesh" in route
+            mesh_info = route["mesh"]
+            assert isinstance(mesh_info, dict)
+            assert "id" in mesh_info
+            assert "name" in mesh_info
+            assert isinstance(mesh_info["id"], int)
+            # mesh name could be None or string
+            assert mesh_info["name"] is None or isinstance(mesh_info["name"], str)
+
+    def test_recent_routes_datetime_formatting(self):
+        """Test that datetime fields are properly formatted as ISO strings"""
+        request = self.factory.get("/api/recent_routes")
+        response = RecentRoutesView.as_view()(request)
+        
+        routes = response.data["routes"]
+        for route in routes:
+            # Requested should always be present and ISO formatted
+            assert "requested" in route
+            requested = route["requested"]
+            assert isinstance(requested, str)
+            # Basic ISO format check (should contain T and end with timezone)
+            assert "T" in requested
+            
+            # Calculated should be present since setUp routes have calculated timestamps
+            if "calculated" in route and route["calculated"]:
+                calculated = route["calculated"]
+                assert isinstance(calculated, str)
+                assert "T" in calculated
+
+    def test_recent_routes_url_generation(self):
+        """Test that URLs are properly generated with request context"""
+        request = self.factory.get("/api/recent_routes")
+        response = RecentRoutesView.as_view()(request)
+        
+        routes = response.data["routes"]
+        for route in routes:
+            # Route URL should be present and contain route ID
+            route_url = route["route_url"]
+            assert isinstance(route_url, str)
+            assert f"/api/route/{route['id']}" in route_url
+            
+            # Job status URL should contain job ID
+            if "job_status_url" in route:
+                job_status_url = route["job_status_url"] 
+                assert isinstance(job_status_url, str)
+                assert f"/api/job/{route['job_id']}" in job_status_url
+
     def test_mesh_get(self):
 
         request = self.factory.get(f"/api/mesh/{self.mesh.id}")
