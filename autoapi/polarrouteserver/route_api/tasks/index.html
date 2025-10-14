@@ -416,7 +416,7 @@ def optimise_route(
 
             # save the initial unsmoothed route
             logger.info(
-                f"Saving unsmoothed Dijkstra paths for {config['objective_function']}-optimised route."
+                f"Calculating unsmoothed Dijkstra paths for {config['objective_function']}-optimised route."
             )
             if len(rp.routes_dijkstra) == 0:
                 raise ValueError("Inaccessible. No routes found.")
@@ -425,10 +425,11 @@ def optimise_route(
                 config["objective_function"]
             )
             unsmoothed_routes.append(route_geojson)
-            route.json_unsmoothed = unsmoothed_routes
-            route.calculated = timezone.now()
-            route.polar_route_version = polar_route.__version__
-            route.save()
+
+        # Save unsmoothed routes (but don't set calculated timestamp yet)
+        route.json_unsmoothed = unsmoothed_routes
+        route.polar_route_version = polar_route.__version__
+        route.save()  # Save progress but no calculated timestamp
 
         smoothed_routes = []
         for i, rp in enumerate(route_planners):
@@ -442,11 +443,13 @@ def optimise_route(
             )
             smoothed_routes.append(route_geojson)
 
-            # Update the database
-            route.json = smoothed_routes
-            route.calculated = timezone.now()
-            route.polar_route_version = polar_route.__version__
-            route.save()
+        # Update the database with all routes at once
+        route.json = smoothed_routes
+
+        # Set calculated timestamp when all routes ready
+        route.calculated = timezone.now()
+        route.polar_route_version = polar_route.__version__
+        route.save()
 
         return smoothed_routes
 
