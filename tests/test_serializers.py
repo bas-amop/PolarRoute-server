@@ -105,13 +105,16 @@ class TestRouteSerializer(TestCase):
         serializer = RouteSerializer(route)
         data = serializer.data
 
-        # Should return single route object when only one type
-        self.assertNotIn("routes", data)
-        self.assertEqual(data["type"], "traveltime")
-        self.assertEqual(data["id"], str(route.id))
-        self.assertIn("waypoints", data)
-        self.assertIn("path", data)
-        self.assertIn("optimisation", data)
+        # Should return consistent structure with routes array even for single route
+        self.assertIn("routes", data)
+        self.assertEqual(len(data["routes"]), 1)
+        
+        route_obj = data["routes"][0]
+        self.assertEqual(route_obj["type"], "traveltime")
+        self.assertEqual(route_obj["id"], str(route.id))
+        self.assertIn("waypoints", route_obj)
+        self.assertIn("path", route_obj)
+        self.assertIn("optimisation", route_obj)
 
     def test_route_with_no_route_data(self):
         """Test route serialization when no route data is available."""
@@ -129,11 +132,11 @@ class TestRouteSerializer(TestCase):
         serializer = RouteSerializer(route)
         data = serializer.data
 
-        # Should return error format
-        self.assertEqual(data["type"], "error")
-        self.assertEqual(data["id"], str(route.id))
-        self.assertIn("info", data)
-        self.assertEqual(data["info"]["error"], "No routes available for any optimisation type.")
+        # Should return consistent structure with empty routes array and error
+        self.assertIn("routes", data)
+        self.assertEqual(len(data["routes"]), 0)
+        self.assertIn("error", data)
+        self.assertEqual(data["error"], "No routes available for any optimisation type.")
 
     def test_route_waypoints_structure(self):
         """Test that route waypoints are structured correctly."""
@@ -151,14 +154,17 @@ class TestRouteSerializer(TestCase):
         serializer = RouteSerializer(route)
         data = serializer.data
 
-        waypoints = data["waypoints"]
+        self.assertIn("routes", data)
+        route_obj = data["routes"][0]
+        
+        waypoints = route_obj["waypoints"]
         self.assertEqual(waypoints["start"]["lat"], -51.8)
         self.assertEqual(waypoints["start"]["lon"], -59.5)
         self.assertEqual(waypoints["start"]["name"], "Falklands")
         self.assertEqual(waypoints["end"]["lat"], -67.6)
         self.assertEqual(waypoints["end"]["lon"], -68.1)
         self.assertEqual(waypoints["end"]["name"], "Rothera")
-        self.assertIn("path", data)
+        self.assertIn("path", route_obj)
 
     def test_optimisation_metrics_traveltime(self):
         """Test traveltime optimisation metrics extraction."""
@@ -176,7 +182,8 @@ class TestRouteSerializer(TestCase):
         serializer = RouteSerializer(route)
         data = serializer.data
 
-        metrics = data["optimisation"]["metrics"]
+        route_obj = data["routes"][0]
+        metrics = route_obj["optimisation"]["metrics"]
         self.assertIn("time", metrics)
         # Duration should be present as string
         self.assertEqual(metrics["time"]["duration"], "24.0")
@@ -197,7 +204,8 @@ class TestRouteSerializer(TestCase):
         serializer = RouteSerializer(route)
         data = serializer.data
 
-        metrics = data["optimisation"]["metrics"]
+        route_obj = data["routes"][0]
+        metrics = route_obj["optimisation"]["metrics"]
         self.assertIn("fuelConsumption", metrics)
         self.assertEqual(metrics["fuelConsumption"]["value"], 100.5)
         self.assertEqual(metrics["fuelConsumption"]["units"], "kg")
@@ -235,7 +243,8 @@ class TestRouteSerializer(TestCase):
         serializer = RouteSerializer(route)
         data = serializer.data
 
-        metrics = data["optimisation"]["metrics"]
+        route_obj = data["routes"][0]
+        metrics = route_obj["optimisation"]["metrics"]
         self.assertIn("fuelConsumption", metrics)
         self.assertEqual(metrics["fuelConsumption"]["value"], 75.2)
         self.assertEqual(metrics["fuelConsumption"]["units"], "tons")  # Should default to "tons"
@@ -256,7 +265,8 @@ class TestRouteSerializer(TestCase):
         serializer = RouteSerializer(route)
         data = serializer.data
 
-        mesh_info = data["mesh"]
+        route_obj = data["routes"][0]
+        mesh_info = route_obj["mesh"]
         self.assertEqual(mesh_info["id"], self.mesh.id)
         self.assertEqual(mesh_info["name"], "Test Mesh Vehicle")
         self.assertIn("bounds", mesh_info)
@@ -282,9 +292,10 @@ class TestRouteSerializer(TestCase):
         data = serializer.data
 
         # Should include warning about smoothing failure
-        self.assertIn("info", data)
-        self.assertIn("warning", data["info"])
-        self.assertIn("Smoothing failed", data["info"]["warning"])
+        route_obj = data["routes"][0]
+        self.assertIn("info", route_obj)
+        self.assertIn("warning", route_obj["info"])
+        self.assertIn("Smoothing failed", route_obj["info"]["warning"])
 
 
 class TestJobStatusSerializer(TestCase):
