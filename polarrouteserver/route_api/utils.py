@@ -237,7 +237,6 @@ def evaluate_route(route_json: dict, mesh: VehicleMesh) -> dict:
     # Extract coordinates from GeoJSON
     coordinates = route_json["features"][0]["geometry"]["coordinates"]
 
-    # Create DataFrame with all waypoints and required columns for new route_calc API
     waypoints = []
     for i, coord in enumerate(coordinates):
         name = "Start" if i == 0 else ("End" if i == len(coordinates) - 1 else f"WP{i}")
@@ -407,18 +406,15 @@ def ingest_mesh(
                     logger.debug(f"Replaced None SIC value with 0.0 at {path}")
 
                 if obj["agg_data"].get("thickness") is None:
-                    # Ice thickness: None -> 0.0 (no ice)
                     obj["agg_data"]["thickness"] = 0.0
 
                 if obj["agg_data"].get("density") is None:
-                    # Ice density: None -> 0.0 (no ice)
                     obj["agg_data"]["density"] = 0.0
 
             # Special handling for cellboxes with direct SIC/thickness/density fields
             if "id" in obj and any(
                 key in obj for key in ["SIC", "thickness", "density"]
             ):
-                # This looks like a cellbox - clean the environmental data fields
                 if obj.get("SIC") is None:
                     obj["SIC"] = 0.0
                     logger.debug(f"Replaced None SIC value with 0.0 at {path}")
@@ -711,14 +707,52 @@ def add_vehicle_to_environment_mesh(environment_mesh, vehicle):
             vehicle_config[field] = value
 
     try:
+        # Clean the environment mesh data before processing to handle None values
+        def clean_mesh_data(obj, path=""):
+            """Clean mesh data to handle None values in critical fields."""
+            if isinstance(obj, dict):
+                if "agg_data" in obj and isinstance(obj["agg_data"], dict):
+                    if obj["agg_data"].get("SIC") is None:
+                        obj["agg_data"]["SIC"] = 0.0
+                        logger.debug(f"Replaced None SIC value with 0.0 at {path}")
+                    if obj["agg_data"].get("thickness") is None:
+                        obj["agg_data"]["thickness"] = 0.0
+                    if obj["agg_data"].get("density") is None:
+                        obj["agg_data"]["density"] = 0.0
+
+                if "id" in obj and any(
+                    key in obj for key in ["SIC", "thickness", "density"]
+                ):
+                    if obj.get("SIC") is None:
+                        obj["SIC"] = 0.0
+                        logger.debug(f"Replaced None SIC value with 0.0 at {path}")
+                    if obj.get("thickness") is None:
+                        obj["thickness"] = 0.0
+                    if obj.get("density") is None:
+                        obj["density"] = 0.0
+
+                return {k: clean_mesh_data(v, f"{path}.{k}") for k, v in obj.items()}
+            elif isinstance(obj, list):
+                return [
+                    clean_mesh_data(item, f"{path}[{i}]") for i, item in enumerate(obj)
+                ]
+            elif isinstance(obj, float):
+                import math
+
+                if math.isnan(obj) or math.isinf(obj):
+                    return None
+                return obj
+            return obj
+
+        cleaned_mesh_json = clean_mesh_data(copy.deepcopy(environment_mesh.json))
+
         # Use VesselPerformanceModeller to add vehicle performance to the mesh
         logger.info(f"Running vessel performance modelling for {vehicle.vessel_type}")
-        logger.info("Initialising Vessel Performance Modeller")
 
         # Try to initialize with the vessel_type first
         try:
             vp = VesselPerformanceModeller(
-                env_mesh_json=environment_mesh.json, vessel_config=vehicle_config
+                env_mesh_json=cleaned_mesh_json, vessel_config=vehicle_config
             )
         except ValueError as e:
             if "not in known list of vessels" in str(e):
@@ -727,7 +761,7 @@ def add_vehicle_to_environment_mesh(environment_mesh, vehicle):
                     f"Vessel type '{vehicle.vessel_type}' does not have a performance model in PolarRoute {polar_route.__version__}, using ExampleShip as base model"
                 )
                 vp = VesselPerformanceModeller(
-                    env_mesh_json=environment_mesh.json,
+                    env_mesh_json=cleaned_mesh_json,
                     vessel_config=vehicle_config,
                     custom_vessel=ExampleShip,
                 )
