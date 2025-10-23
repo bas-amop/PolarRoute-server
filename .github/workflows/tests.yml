@@ -23,7 +23,7 @@ jobs:
     if: github.event.pull_request.draft == false || github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         python-version: ["3.10", "3.11", "3.12", "3.13"]
 
