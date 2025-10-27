@@ -28,7 +28,7 @@ services:
       POSTGRES_DB: polarroute
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
-      - ./data/db:/var/lib/postgresql/data
+      - db-data:/var/lib/postgresql/data
     ports:
       - 5432:5432
 
@@ -63,3 +63,6 @@ services:
       - BASE_URL=/swagger
     volumes:
       - ./schema.yml:/app/schema.yml
+
+volumes:
+  db-data:
