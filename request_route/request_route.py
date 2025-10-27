@@ -11,13 +11,10 @@ import http.client
 import json
 import pprint
 import re
-import os
 import ssl
 import sys
 import time
 from urllib import request
-
-os.environ["DJANGO_SETTINGS_MODULE"] = "polarrouteserver.settings.development"
 
 
 class Location:

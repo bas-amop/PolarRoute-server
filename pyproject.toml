@@ -78,7 +78,7 @@ cov-badge = [
 ]
 
 [project.scripts]
-request_route = "polarrouteserver.demo:main"
+request_route = "request_route.request_route:main"
 
 [tool.ruff]
 exclude = ["tests/*"]
