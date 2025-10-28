@@ -51,7 +51,7 @@
               <ul class="current">
                 <li class="toctree-l1 current"><a class="reference internal current" href="#">Requesting Routes</a>
     <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#using-the-in-built-demo-utility-simplest">Using the in-built demo utility (simplest)</a>
+    <li class="toctree-l2"><a class="reference internal" href="#using-the-in-built-request_route-utility-simplest">Using the in-built request_route utility (simplest)</a>
         <ul>
     <li class="toctree-l3"><a class="reference internal" href="#usage">Usage</a>
     </li>
@@ -96,8 +96,6 @@
               <ul>
                   <li class="toctree-l1"><a class="reference internal" href="../autoapi/polarrouteserver/">polarrouteserver</a>
     <ul>
-                <li class="toctree-l2"><a class="reference internal" href="../autoapi/polarrouteserver/demo/">demo</a>
-                </li>
                 <li class="toctree-l2"><a class="reference internal" href="../autoapi/polarrouteserver/route_api/">route_api</a>
     <ul>
                 <li class="toctree-l3"><a class="reference internal" href="../autoapi/polarrouteserver/route_api/models/">models</a>
@@ -115,6 +113,12 @@
     </ul>
                 </li>
                 <li class="toctree-l2"><a class="reference internal" href="../autoapi/polarrouteserver/version/">version</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../autoapi/request_route/">request_route</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../autoapi/request_route/request_route/">request_route</a>
                 </li>
     </ul>
                   </li>
@@ -144,25 +148,25 @@
             <div class="section" itemprop="articleBody">
               
                 <h1 id="requesting-routes">Requesting Routes</h1>
-<h2 id="using-the-in-built-demo-utility-simplest">Using the in-built demo utility (simplest)</h2>
-<p>A demo script is available in this repo (<code>polarrouteserver/demo.py</code>) to be used as a utility for making route requests.</p>
+<h2 id="using-the-in-built-request_route-utility-simplest">Using the in-built <code>request_route</code> utility (simplest)</h2>
+<p>A route request script is available in this repo (<code>./request_route/request_route.py</code>) to be used as a utility for making route requests.</p>
 <p>To obtain, either:</p>
 <ul>
 <li>Clone this whole repo</li>
-<li>Download the file from its GitHub page here: https://github.com/bas-amop/PolarRoute-server/blob/main/demo.py</li>
+<li>Download the file from its GitHub page here: https://github.com/bas-amop/PolarRoute-server/blob/main/request_route/route_request.py</li>
 </ul>
 <p>This can be done with <code>wget</code> by running:</p>
-<pre><code>wget https://raw.githubusercontent.com/bas-amop/PolarRoute-server/refs/heads/main/polarrouteserver/demo.py
+<pre><code>wget https://raw.githubusercontent.com/bas-amop/PolarRoute-server/refs/heads/main/request_route/request_route.py
 </code></pre>
 <p>To run, you'll just need python ~3.11 installed. Earlier versions of python may work, but are untested.</p>
 <h3 id="usage">Usage</h3>
-<p>Help for the utility can be printed out by running <code>python demo.py --help</code>.</p>
+<p>Help for the utility can be printed out by running <code>python request_route.py --help</code>.</p>
 <p>Alternatively, if you have the package installed, a command named <code>request_route</code> is made available.</p>
 <pre><code class="language-sh">$ request_route --help
 # OR
-$ python demo.py --help
+$ python request_route.py --help
 
-usage: demo.py [-h] [-u URL] -s [START] -e [END] [-d [DELAY]] [-n [REQUESTS]] [-m [MESHID]] [-f] [-o [OUTPUT]]
+usage: request_route.py [-h] [-u URL] -s [START] -e [END] [-d [DELAY]] [-n [REQUESTS]] [-m [MESHID]] [-f] [-o [OUTPUT]]
 
 Requests a route from polarRouteServer, monitors job status until complete, then retrieves the route data. Specify start and end points by coordinates or from one of the standard locations: ['bird', 'falklands', 'halley', 'rothera', 'kep', 'signy', 'nyalesund', 'harwich', 'rosyth']
 
@@ -184,7 +188,7 @@ options:
                         File path to write out route to. (Default: None and print to stdout)
 </code></pre>
 <p>So to request a route from Falklands to Rothera, for example:</p>
-<pre><code class="language-sh">python demo.py --url http://example-polar-route-server.com -s falklands -e rothera --delay 120 --output demo_output.json
+<pre><code class="language-sh">python request_route.py --url http://example-polar-route-server.com -s falklands -e rothera --delay 120 --output demo_output.json
 </code></pre>
 <p>This will request the route from the server running at <code>http://example-polar-route-server.com</code>, and initiate a route calculation if one is not already available.</p>
 <p>The utility will then monitor the job status every <code>120</code> seconds until the route calculation is complete.</p>
