@@ -52,6 +52,7 @@ def make_request(
 
     Returns:
         http.client.HTTPResponse
+        status
     """
     sending_str = f"Sending {type} request to {url}{endpoint}: \nHeaders: {headers}\n"
 
@@ -71,7 +72,7 @@ def make_request(
         print(
             "One possibility is that there is no mesh available."
         )  # this is a quick and dirty workaround since urllib throws errors on 404, even though this is a valid use of a that error code
-        return
+        return None, err.status
 
     print(f"Response: {response.status} {response.reason}")
 
