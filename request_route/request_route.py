@@ -59,8 +59,8 @@ def make_request(
 
     print(sending_str)
 
-    # data = parse.urlencode(body).encode("utf-8") if body else None
-    req = request.Request(url + endpoint, data=body, headers=headers)
+    request_url = url + endpoint if endpoint else url
+    req = request.Request(request_url, data=body, headers=headers)
     unverified_context = ssl._create_unverified_context()
     response = request.urlopen(req, context=unverified_context)
 
@@ -137,23 +137,23 @@ def request_route(
     status_request_count = 0
     while status_request_count <= num_requests:
         status_request_count += 1
-        print(
-            f"\nWaiting for {status_update_delay} seconds before sending status request."
-        )
-        time.sleep(status_update_delay)
 
         # make job status request
         print(f"Status request #{status_request_count} of {num_requests}")
         status_response, status_code = make_request(
             "GET",
-            url,
-            f"/api/job/{job_id}",
+            status_url,
+            None,
             headers={"Content-Type": "application/json"},
         )
 
         print(f"Route calculation {status_response.get('status')}.")
         print(pprint.pprint(status_response))
         if status_response.get("status") == "PENDING":
+            print(
+                f"\nWaiting for {status_update_delay} seconds before sending status request."
+            )
+            time.sleep(status_update_delay)
             continue
         elif status_response.get("status") == "FAILURE":
             return None
@@ -162,13 +162,13 @@ def request_route(
             route_url = status_response.get("route_url")
             if route_url:
                 # Extract route ID from the route_url (e.g., "/api/route/123")
-                route_id = route_url.split("/")[-1]
+                route_id = status_response.get("route_id")
                 print(f"Job complete! Fetching route data from route ID: {route_id}")
 
                 route_response, route_status = make_request(
                     "GET",
-                    url,
-                    f"/api/route/{route_id}",
+                    route_url,
+                    None,
                     headers={"Content-Type": "application/json"},
                 )
 
