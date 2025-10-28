@@ -15,6 +15,7 @@ import ssl
 import sys
 import time
 from urllib import request
+from urllib.error import HTTPError
 
 
 class Location:
@@ -62,7 +63,15 @@ def make_request(
     request_url = url + endpoint if endpoint else url
     req = request.Request(request_url, data=body, headers=headers)
     unverified_context = ssl._create_unverified_context()
-    response = request.urlopen(req, context=unverified_context)
+
+    try:
+        response = request.urlopen(req, context=unverified_context)
+    except HTTPError as err:
+        print(f"A HTTPError was thrown: {err.code} {err.reason}")
+        print(
+            "One possibility is that there is no mesh available."
+        )  # this is a quick and dirty workaround since urllib throws errors on 404, even though this is a valid use of a that error code
+        return
 
     print(f"Response: {response.status} {response.reason}")
 
