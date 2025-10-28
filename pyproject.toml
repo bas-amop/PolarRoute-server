@@ -78,7 +78,7 @@ cov-badge = [
 ]
 
 [project.scripts]
-request_route = "polarrouteserver.demo:main"
+request_route = "request_route.request_route:main"
 
 [tool.ruff]
 exclude = ["tests/*"]
@@ -106,8 +106,7 @@ omit = [
     "polarrouteserver/route_api/apps.py",
     "polarrouteserver/asgi.py",
     "polarrouteserver/admin.py",
-    "polarrouteserver/demo.py",
     "polarrouteserver/urls.py",
     "polarrouteserver/wsgi.py",
-
+    "route_request/*",
     ]

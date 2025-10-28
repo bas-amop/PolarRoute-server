@@ -1,33 +1,33 @@
 # Requesting Routes
 
-## Using the in-built demo utility (simplest)
+## Using the in-built `request_route` utility (simplest)
 
-A demo script is available in this repo (`polarrouteserver/demo.py`) to be used as a utility for making route requests.
+A route request script is available in this repo (`./request_route/request_route.py`) to be used as a utility for making route requests.
 
 To obtain, either:
 
 + Clone this whole repo
-+ Download the file from its GitHub page here: https://github.com/bas-amop/PolarRoute-server/blob/main/demo.py
++ Download the file from its GitHub page here: https://github.com/bas-amop/PolarRoute-server/blob/main/request_route/route_request.py
 
 This can be done with `wget` by running:
 
 ```
-wget https://raw.githubusercontent.com/bas-amop/PolarRoute-server/refs/heads/main/polarrouteserver/demo.py
+wget https://raw.githubusercontent.com/bas-amop/PolarRoute-server/refs/heads/main/request_route/request_route.py
 ```
 
 To run, you'll just need python ~3.11 installed. Earlier versions of python may work, but are untested.
 
 ### Usage
-Help for the utility can be printed out by running `python demo.py --help`.
+Help for the utility can be printed out by running `python request_route.py --help`.
 
 Alternatively, if you have the package installed, a command named `request_route` is made available.
 
 ```sh
 $ request_route --help
 # OR
-$ python demo.py --help
+$ python request_route.py --help
 
-usage: demo.py [-h] [-u URL] -s [START] -e [END] [-d [DELAY]] [-n [REQUESTS]] [-m [MESHID]] [-f] [-o [OUTPUT]]
+usage: request_route.py [-h] [-u URL] -s [START] -e [END] [-d [DELAY]] [-n [REQUESTS]] [-m [MESHID]] [-f] [-o [OUTPUT]]
 
 Requests a route from polarRouteServer, monitors job status until complete, then retrieves the route data. Specify start and end points by coordinates or from one of the standard locations: ['bird', 'falklands', 'halley', 'rothera', 'kep', 'signy', 'nyalesund', 'harwich', 'rosyth']
 
@@ -52,7 +52,7 @@ options:
 So to request a route from Falklands to Rothera, for example:
 
 ```sh
-python demo.py --url http://example-polar-route-server.com -s falklands -e rothera --delay 120 --output demo_output.json
+python request_route.py --url http://example-polar-route-server.com -s falklands -e rothera --delay 120 --output demo_output.json
 ```
 
 This will request the route from the server running at `http://example-polar-route-server.com`, and initiate a route calculation if one is not already available.

@@ -11,13 +11,11 @@ import http.client
 import json
 import pprint
 import re
-import os
 import ssl
 import sys
 import time
 from urllib import request
-
-os.environ["DJANGO_SETTINGS_MODULE"] = "polarrouteserver.settings.development"
+from urllib.error import HTTPError
 
 
 class Location:
@@ -54,6 +52,7 @@ def make_request(
 
     Returns:
         http.client.HTTPResponse
+        status
     """
     sending_str = f"Sending {type} request to {url}{endpoint}: \nHeaders: {headers}\n"
 
@@ -62,10 +61,18 @@ def make_request(
 
     print(sending_str)
 
-    # data = parse.urlencode(body).encode("utf-8") if body else None
-    req = request.Request(url + endpoint, data=body, headers=headers)
+    request_url = url + endpoint if endpoint else url
+    req = request.Request(request_url, data=body, headers=headers)
     unverified_context = ssl._create_unverified_context()
-    response = request.urlopen(req, context=unverified_context)
+
+    try:
+        response = request.urlopen(req, context=unverified_context)
+    except HTTPError as err:
+        print(f"A HTTPError was thrown: {err.code} {err.reason}")
+        print(
+            "One possibility is that there is no mesh available."
+        )  # this is a quick and dirty workaround since urllib throws errors on 404, even though this is a valid use of a that error code
+        return None, err.status
 
     print(f"Response: {response.status} {response.reason}")
 
@@ -140,23 +147,23 @@ def request_route(
     status_request_count = 0
     while status_request_count <= num_requests:
         status_request_count += 1
-        print(
-            f"\nWaiting for {status_update_delay} seconds before sending status request."
-        )
-        time.sleep(status_update_delay)
 
         # make job status request
         print(f"Status request #{status_request_count} of {num_requests}")
         status_response, status_code = make_request(
             "GET",
-            url,
-            f"/api/job/{job_id}",
+            status_url,
+            None,
             headers={"Content-Type": "application/json"},
         )
 
         print(f"Route calculation {status_response.get('status')}.")
         print(pprint.pprint(status_response))
         if status_response.get("status") == "PENDING":
+            print(
+                f"\nWaiting for {status_update_delay} seconds before sending status request."
+            )
+            time.sleep(status_update_delay)
             continue
         elif status_response.get("status") == "FAILURE":
             return None
@@ -165,13 +172,13 @@ def request_route(
             route_url = status_response.get("route_url")
             if route_url:
                 # Extract route ID from the route_url (e.g., "/api/route/123")
-                route_id = route_url.split("/")[-1]
+                route_id = status_response.get("route_id")
                 print(f"Job complete! Fetching route data from route ID: {route_id}")
 
                 route_response, route_status = make_request(
                     "GET",
-                    url,
-                    f"/api/route/{route_id}",
+                    route_url,
+                    None,
                     headers={"Content-Type": "application/json"},
                 )
 
