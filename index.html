@@ -156,22 +156,26 @@ implemented using <a href="https://www.djangoproject.com/">Django</a>, <a href="
 <p>Use <a href="https://docs.docker.com/compose/install/">docker compose</a> for development deployment to orchestrate celery and rabbitmq alongside the django development server.</p>
 <p>Clone this repository and run <code>docker compose up</code> to build and start the services.</p>
 <p><strong>Note</strong>: In development, meshes are not automatically ingested into the database. Follow these steps to add a mesh to the database.</p>
-<ol>
+<ul>
 <li>Make a local directory structure with <code>mkdir -p data/mesh</code> (if it has not been created by <code>docker compose</code>).</li>
 <li>If you have a vessel mesh file from MeshiPhi or PolarRoute-pipeline, copy it into <code>./data/mesh</code>, which is bind-mounted into the app container. Alternatively, download an example mesh using </li>
-</ol>
-<p>```sh
-  pushd data/mesh</p>
-<p>wget http://files.bas.ac.uk/twins/polarroute/example_vehicle_meshes/amsr_southern_SDA.json.gz &amp;&amp; \
-  wget http://files.bas.ac.uk/twins/polarroute/example_vehicle_meshes/amsr_central_SDA.json.gz &amp;&amp; \
-  wget http://files.bas.ac.uk/twins/polarroute/example_vehicle_meshes/amsr_northern_SDA.json.gz</p>
-<p>gunzip amsr_*_SDA.json.gz</p>
-<p>popd
-  ```</p>
-<ol>
+</ul>
+<pre><code class="language-sh">
+pushd data/mesh
+
+wget http://files.bas.ac.uk/twins/polarroute/example_vehicle_meshes/amsr_southern_SDA.json.gz &amp;&amp; \
+wget http://files.bas.ac.uk/twins/polarroute/example_vehicle_meshes/amsr_central_SDA.json.gz &amp;&amp; \
+wget http://files.bas.ac.uk/twins/polarroute/example_vehicle_meshes/amsr_northern_SDA.json.gz
+
+gunzip amsr_*_SDA.json.gz
+
+popd
+
+</code></pre>
+<ul>
 <li>Run <code>docker compose exec app /bin/bash</code> to open a shell inside the running app container.</li>
 <li>Run <code>django-admin insert_mesh /usr/src/app/data/mesh/&lt;MESH FILENAME&gt;</code> to insert the mesh into the database manually.</li>
-</ol>
+</ul>
 <p>Test that the app is working using the <code>request_route</code> tool (see <a href="https://bas-amop.github.io/PolarRoute-server/requesting-routes/#using-the-in-built-route-request-utility-simplest">Documentation</a>). The URL of the service should be <code>localhost:8000</code>.</p>
 <p>The django development server supports hot reloading and the source code is bind-mounted into the container, so changes should be reflected in the running app. Any changes to <code>polarrouteserver.route_api.models.py</code> will necessitate a migration to the database. To create and run migrations, run:</p>
 <pre><code>docker compose exec app django-admin makemigrations
@@ -232,5 +236,5 @@ docker compose exec app django-admin migrate
 
 <!--
 MkDocs version : 1.6.1
-Build Date UTC : 2025-10-28 15:33:33.294792+00:00
+Build Date UTC : 2025-10-28 15:58:47.858894+00:00
 -->
