@@ -81,6 +81,10 @@
                 </li>
               </ul>
               <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../changelog/">Changelog</a>
+                </li>
+              </ul>
+              <ul>
                 <li class="toctree-l1"><a class="reference internal" href="../api/">API Reference</a>
                 </li>
               </ul>
@@ -157,8 +161,10 @@
 <p>For development, also install and use the development tools with <code>pre-commit install</code></p>
 <p>The pre-commit hooks include automatic API schema generation. When you commit changes to <code>polarrouteserver/route_api/views.py</code>, the API schema (<code>docs/apischema.yml</code>) will be automatically updated and included in your commit.</p>
 <p>A number of helpful development tools are made available through the <code>Makefile</code>, to see a description of each of these commands, run <code>make</code> (with no arguments) from the top-level of this directory.</p>
+<p><strong>Important</strong>: Please ensure all changes are included in <code>CHANGELOG.md</code> in a human-friendly format.</p>
 <h2 id="releaseversioning">Release/Versioning</h2>
 <p>Version numbers should be used in tagging commits on the <code>main</code> branch and reflected in the <code>pyproject.toml</code> file and should be of the form <code>v0.1.7</code> using the semantic versioning convention.</p>
+<p>The <code>Unreleased</code> section of <code>CHANGELOG.md</code> should be amended to the new version number.</p>
 <h2 id="building-deploying-the-documentation">Building &amp; deploying the documentation</h2>
 <p>The documentation should build automatically on pushes to <code>main</code> using GitHub actions, if you want to build and deploy the docs manually, follow these steps:</p>
 <ul>
@@ -194,7 +200,7 @@ python manage.py spectacular --color --validate --file docs/apischema.yml
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
         <a href="../configuration/" class="btn btn-neutral float-left" title="Configuration"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../api/" class="btn btn-neutral float-right" title="API Reference">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../changelog/" class="btn btn-neutral float-right" title="Changelog">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -224,7 +230,7 @@ python manage.py spectacular --color --validate --file docs/apischema.yml
       <span><a href="../configuration/" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../api/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../changelog/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
