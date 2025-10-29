@@ -20,9 +20,13 @@ The pre-commit hooks include automatic API schema generation. When you commit ch
 
 A number of helpful development tools are made available through the `Makefile`, to see a description of each of these commands, run `make` (with no arguments) from the top-level of this directory.
 
+**Important**: Please ensure all changes are included in `CHANGELOG.md` in a human-friendly format.
+
 ## Release/Versioning
 
 Version numbers should be used in tagging commits on the `main` branch and reflected in the `pyproject.toml` file and should be of the form `v0.1.7` using the semantic versioning convention.
+
+The `Unreleased` section of `CHANGELOG.md` should be amended to the new version number.
 
 ## Building & deploying the documentation
 
