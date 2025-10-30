@@ -35,4 +35,5 @@ nav:
   - deployment.md
   - configuration.md
   - development.md
+  - changelog.md
   - API Reference: api.md

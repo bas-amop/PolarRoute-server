@@ -5,17 +5,17 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "polarrouteserver"
 authors = [
-  {name = "David Wilby", email = "dalby@bas.ac.uk"},
+  {name = "David Wyld", email = "dalby@bas.ac.uk"},
   {name = "Thomas Zwagerman", email = "thozwa@bas.ac.uk"},
 ]
 description = "Backend server for serving PolarRoute and MeshiPhi assets and managing their calcuation using Django & Celery."
 readme = "README.md"
 license = {file = "LICENSE"}
 version = "0.2.2"
-requires-python = ">= 3.9"
+requires-python = ">= 3.10"
 dependencies = [
     "celery",
-    "Django",
+    "Django>=5.2,<6",
     "django-celery-beat",
     "django-celery-results",
     "django-cors-headers",
@@ -78,7 +78,7 @@ cov-badge = [
 ]
 
 [project.scripts]
-request_route = "polarrouteserver.demo:main"
+request_route = "request_route.request_route:main"
 
 [tool.ruff]
 exclude = ["tests/*"]
@@ -106,8 +106,7 @@ omit = [
     "polarrouteserver/route_api/apps.py",
     "polarrouteserver/asgi.py",
     "polarrouteserver/admin.py",
-    "polarrouteserver/demo.py",
     "polarrouteserver/urls.py",
     "polarrouteserver/wsgi.py",
-
+    "route_request/*",
     ]

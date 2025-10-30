@@ -1,6 +1,6 @@
 # Dockerfile for polarrouteserver, intended for development use only
 
-FROM python:3.11
+FROM python:3.13
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
