@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework.reverse import reverse
 from celery.result import AsyncResult
 
-from .models import Mesh, Vehicle, Route, Job, Location
+from .models import EnvironmentMesh, VehicleMesh, Vehicle, Route, Job, Location
 from polarrouteserver.celery import app
 from polarrouteserver.version import __version__ as polarrouteserver_version
 
@@ -184,6 +184,36 @@ class RouteSerializer(serializers.ModelSerializer):
             },
         }
 
+    def _build_vehicle_info(self, instance):
+        """Build vehicle information from the route instance."""
+        if not instance.vehicle:
+            return None
+
+        vehicle_data = {
+            "vessel_type": instance.vehicle.vessel_type,
+            "max_speed": instance.vehicle.max_speed,
+            "unit": instance.vehicle.unit,
+        }
+
+        # Add optional fields if they exist
+        optional_fields = [
+            "max_ice_conc",
+            "min_depth",
+            "max_wave",
+            "excluded_zones",
+            "neighbour_splitting",
+            "beam",
+            "hull_type",
+            "force_limit",
+        ]
+
+        for field in optional_fields:
+            value = getattr(instance.vehicle, field, None)
+            if value is not None:
+                vehicle_data[field] = value
+
+        return vehicle_data
+
     def to_representation(self, instance):
         """Transform route data into structured format."""
         data = super().to_representation(instance)
@@ -238,8 +268,9 @@ class RouteSerializer(serializers.ModelSerializer):
                 route_type, properties
             )
 
-            # Build mesh information
+            # Build mesh and vehicle information
             mesh_info = self._build_mesh_info(instance)
+            vehicle_info = self._build_vehicle_info(instance)
 
             # Build structured route object
             route_obj = {
@@ -270,6 +301,9 @@ class RouteSerializer(serializers.ModelSerializer):
             if mesh_info:
                 route_obj["mesh"] = mesh_info
 
+            if vehicle_info:
+                route_obj["vehicle"] = vehicle_info
+
             # Add any info/warnings
             if info_message:
                 route_obj["info"] = info_message
@@ -291,15 +325,34 @@ class RouteSerializer(serializers.ModelSerializer):
         return result
 
 
-class ModelSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Mesh
-        fields = [
-            "id",
-        ]
+# Shared mesh fields for serializers
+MESH_FIELDS = [
+    "id",
+    "valid_date_start",
+    "valid_date_end",
+    "created",
+    "lat_min",
+    "lat_max",
+    "lon_min",
+    "lon_max",
+    "name",
+    "size",
+    "meshiphi_version",
+    "md5",
+    "json",
+]
 
-    def to_representation(self, instance):
-        return super().to_representation(instance)
+
+class EnvironmentMeshSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = EnvironmentMesh
+        fields = MESH_FIELDS
+
+
+class VehicleMeshSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = VehicleMesh
+        fields = ["vehicle"] + MESH_FIELDS[1:]
 
 
 class LocationSerializer(serializers.ModelSerializer):
