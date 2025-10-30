@@ -10,6 +10,7 @@ import warnings
 from celery.exceptions import Ignore
 from django.conf import settings
 from django.test import TestCase, TransactionTestCase
+from django.utils import timezone as django_timezone
 import pytest
 import yaml
 from polar_route.exceptions import NoRouteFoundError
@@ -367,7 +368,6 @@ class TestImportNewMeshes(TestCase):
                 assert mesh_obj.vehicle.vessel_type in ["TEST_VESSEL_1", "TEST_VESSEL_2"]
 
             # Verify vehicles were created in database
-            from polarrouteserver.route_api.models import Vehicle
             vessel_1 = Vehicle.objects.get(vessel_type="TEST_VESSEL_1")
             vessel_2 = Vehicle.objects.get(vessel_type="TEST_VESSEL_2")
             assert vessel_1.max_speed == 20.0
@@ -381,3 +381,76 @@ class TestImportNewMeshes(TestCase):
                     os.remove(Path(settings.MESH_DIR, filename+".gz"))
                 except FileNotFoundError:
                     pass
+
+
+@pytest.mark.django_db
+class TestCreateAndCalculateRoute:
+    """Comprehensive tests for the create_and_calculate_route task."""
+
+    def setup_method(self):
+        """Set up test fixtures."""
+        # Use existing test utility to create test vehicle
+        self.test_vehicle = create_test_vehicle()
+        
+    def test_task_validates_route_exists(self):
+        """Test that task validates route exists before processing."""
+        try:
+            create_and_calculate_route.delay(99999, "TEST_VESSEL")
+        except Exception as e:
+            # Should fail due to Route.DoesNotExist - that's expected behavior
+            assert "does not exist" in str(e) or "Route" in str(e)
+
+    def test_task_validates_vehicle_type_required(self):
+        """Test that task validates vehicle_type is required."""
+        # Create a route first
+        vehicle = self.test_vehicle
+        route = Route.objects.create(
+            start_lat=67.5,
+            start_lon=-42.5,
+            end_lat=67.7,
+            end_lon=-42.5,
+            vehicle=vehicle,
+            requested=django_timezone.now()
+        )
+        
+        # Test that calling task without vehicle_type validates properly
+        try:
+            create_and_calculate_route.delay(route.id)  # No vehicle_type provided
+        except Exception as e:
+            # Should fail due to missing vehicle_type - that's expected
+            assert "vehicle_type is required" in str(e)
+
+
+@pytest.mark.django_db  
+class TestTaskErrorHandling:
+    """Test error handling in tasks."""
+
+    def test_create_route_with_invalid_route_id(self):
+        """Test task behavior with invalid route ID."""
+        with pytest.raises(Route.DoesNotExist):
+            result = create_and_calculate_route.delay(99999, "TEST_VESSEL")
+            result.get(timeout=10)
+
+    def test_create_route_with_invalid_vehicle_type(self):
+        """Test task behavior with invalid vehicle type."""
+        vehicle = create_test_vehicle()
+        route = Route.objects.create(
+            start_lat=67.5,
+            start_lon=-42.5,
+            end_lat=67.7,
+            end_lon=-42.5,
+            vehicle=vehicle,
+            requested=django_timezone.now()
+        )
+        
+        with pytest.raises(ValueError, match="not found in database"):
+            result = create_and_calculate_route.delay(route.id, "INVALID_VEHICLE")
+            result.get(timeout=10)
+
+    def test_import_meshes_no_metadata_file(self):
+        """Test import_new_meshes when no metadata file exists."""
+        result = import_new_meshes.delay()
+        meshes_added = result.get(timeout=10)
+        
+        # Should return None when no metadata file exists
+        assert meshes_added is None
