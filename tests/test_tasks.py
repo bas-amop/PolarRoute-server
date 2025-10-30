@@ -19,7 +19,7 @@ from polarrouteserver.celery import app
 from polarrouteserver.route_api.models import VehicleMesh, EnvironmentMesh, Route, Vehicle
 from polarrouteserver.route_api.tasks import import_new_meshes, create_and_calculate_route
 from polarrouteserver.route_api.utils import calculate_md5, optimise_route
-from .utils import add_test_vehicle_mesh_to_db, create_test_vehicle
+from .utils import add_test_vehicle_mesh_to_db, create_test_vehicle, add_test_environment_mesh_to_db
 
 class TestOptimiseRoute(TestCase):
     def setUp(self):
@@ -419,6 +419,130 @@ class TestCreateAndCalculateRoute:
         except Exception as e:
             # Should fail due to missing vehicle_type - that's expected
             assert "vehicle_type is required" in str(e)
+
+
+@pytest.mark.django_db
+class TestVehicleMeshCreationWorkflow:
+    """Test VehicleMesh creation workflow in create_and_calculate_route task."""
+
+    def setup_method(self):
+        """Set up test fixtures."""
+        self.vehicle_sda = Vehicle.objects.create(
+            vessel_type="SDA",
+            max_speed=26.5,
+            unit="km/hr",
+            beam=24.0,
+            hull_type="slender",
+            force_limit=96634.5
+        )
+        
+        self.vehicle_test = create_test_vehicle()
+        self.env_mesh = add_test_environment_mesh_to_db()
+
+    def test_route_with_no_mesh_raises_error(self):
+        """Test that route with no mesh raises appropriate error."""
+        # Create route with no mesh
+        route = Route.objects.create(
+            start_lat=1.1,
+            start_lon=1.1, 
+            end_lat=8.9,
+            end_lon=8.9,
+            mesh=None,  # No mesh assigned
+            vehicle=self.vehicle_test,
+            requested=django_timezone.now()
+        )
+        
+        # Verify route starts with no mesh
+        assert route.mesh is None
+        
+        # Run task - should raise error about unexpected mesh type
+        with pytest.raises(ValueError, match="Unexpected mesh type"):
+            result = create_and_calculate_route.delay(route.id, "TEST_VESSEL")
+            result.get(timeout=10)
+
+    def test_route_with_wrong_vehicle_mesh_creates_correct_one(self):
+        """Test that route with VehicleMesh for wrong vehicle creates correct VehicleMesh."""
+        # Create VehicleMesh for SDA vehicle
+        sda_vehicle_mesh = VehicleMesh.objects.create(
+            environment_mesh=self.env_mesh,
+            vehicle=self.vehicle_sda,
+            valid_date_start=self.env_mesh.valid_date_start,
+            valid_date_end=self.env_mesh.valid_date_end,
+            created=self.env_mesh.created,
+            md5=self.env_mesh.md5 + "_sda",
+            meshiphi_version=self.env_mesh.meshiphi_version,
+            lat_min=self.env_mesh.lat_min,
+            lat_max=self.env_mesh.lat_max,
+            lon_min=self.env_mesh.lon_min,
+            lon_max=self.env_mesh.lon_max,
+            name=f"{self.env_mesh.name} SDA",
+            json=self.env_mesh.json
+        )
+        
+        # Create route with SDA VehicleMesh but request TEST_VESSEL
+        route = Route.objects.create(
+            start_lat=1.1,
+            start_lon=1.1,
+            end_lat=8.9, 
+            end_lon=8.9,
+            mesh=sda_vehicle_mesh,  # Wrong vehicle mesh
+            vehicle=self.vehicle_test,
+            requested=django_timezone.now()
+        )
+        
+        # Verify route starts with SDA VehicleMesh
+        assert isinstance(route.mesh, VehicleMesh)
+        assert route.mesh.vehicle.vessel_type == "SDA"
+        
+        # Run task requesting TEST_VESSEL - should create new VehicleMesh
+        result = create_and_calculate_route.delay(route.id, "TEST_VESSEL")
+        _ = result.get(timeout=30)
+        
+        # Verify route was calculated
+        route.refresh_from_db()
+        assert route.calculated is not None
+        assert route.json is not None
+        
+        # Verify route now has correct VehicleMesh
+        assert isinstance(route.mesh, VehicleMesh)
+        assert route.mesh.vehicle.vessel_type == "TEST_VESSEL"
+        assert route.mesh.environment_mesh == self.env_mesh
+        # Should be different mesh than the SDA one
+        assert route.mesh.id != sda_vehicle_mesh.id
+
+    def test_route_with_matching_vehicle_mesh_uses_existing(self):
+        """Test that route with correct VehicleMesh uses existing mesh without creating new one."""
+        # Create correct VehicleMesh for TEST_VESSEL
+        correct_vehicle_mesh = add_test_vehicle_mesh_to_db()
+        
+        initial_mesh_count = VehicleMesh.objects.count()
+        
+        # Create route with correct VehicleMesh
+        route = Route.objects.create(
+            start_lat=1.1,
+            start_lon=1.1,
+            end_lat=8.9,
+            end_lon=8.9, 
+            mesh=correct_vehicle_mesh,
+            vehicle=self.vehicle_test,
+            requested=django_timezone.now()
+        )
+        
+        # Run task - should use existing mesh
+        result = create_and_calculate_route.delay(route.id, "TEST_VESSEL")
+        _ = result.get(timeout=30)
+        
+        # Verify route was calculated
+        route.refresh_from_db()
+        assert route.calculated is not None
+        assert route.json is not None
+        
+        # Verify no new VehicleMesh was created
+        final_mesh_count = VehicleMesh.objects.count()
+        assert final_mesh_count == initial_mesh_count
+        
+        # Verify route still uses same mesh
+        assert route.mesh.id == correct_vehicle_mesh.id
 
 
 @pytest.mark.django_db  
