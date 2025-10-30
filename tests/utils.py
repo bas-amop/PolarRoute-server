@@ -1,4 +1,4 @@
-import datetime, hashlib, json
+import datetime, hashlib, json, os
 
 from polarrouteserver.route_api.models import EnvironmentMesh, VehicleMesh, Vehicle
 
@@ -7,10 +7,24 @@ from django.utils import timezone
 
 def add_test_environment_mesh_to_db():
     """utility function to add an environment mesh to the test db"""
-    with open(settings.TEST_MESH_PATH, 'r') as f:
+    fixture_path = os.path.join(os.path.dirname(__file__), 'fixtures', 'test_vessel_mesh.json')
+    
+    with open(fixture_path, 'r') as f:
         file_contents = f.read().encode('utf-8')
         md5 = hashlib.md5(file_contents).hexdigest()
+        
         mesh = json.loads(file_contents)
+        
+        # Create environment mesh by removing vehicle-specific data
+        if 'config' in mesh and 'vessel_info' in mesh['config']:
+            del mesh['config']['vessel_info']
+        
+        # Remove vehicle performance data from cellboxes if present
+        for cellbox in mesh.get('cellboxes', []):
+            for key in ['speed', 'resistance', 'fuel']:
+                if key in cellbox:
+                    del cellbox[key]
+    
     return EnvironmentMesh.objects.create(
             valid_date_start = timezone.now().date() - datetime.timedelta(days=3),
             valid_date_end = timezone.now().date(),
@@ -46,6 +60,10 @@ def add_test_vehicle_mesh_to_db():
     environment_mesh = add_test_environment_mesh_to_db()
     vehicle = create_test_vehicle()
     
+    vehicle_fixture_path = os.path.join(os.path.dirname(__file__), 'fixtures', 'test_vessel_mesh.json')
+    with open(vehicle_fixture_path, 'r') as f:
+        vehicle_mesh_data = json.load(f)
+    
     # Use get_or_create to avoid duplicate mesh issues
     vehicle_mesh, created = VehicleMesh.objects.get_or_create(
         environment_mesh=environment_mesh,
@@ -61,7 +79,7 @@ def add_test_vehicle_mesh_to_db():
             "lon_min": environment_mesh.lon_min,
             "lon_max": environment_mesh.lon_max,
             "name": f"{environment_mesh.name} Vehicle",
-            "json": environment_mesh.json  # Using same JSON for test purposes
+            "json": vehicle_mesh_data  # Use proper vehicle mesh JSON with vessel_info
         }
     )
     

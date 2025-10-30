@@ -481,10 +481,10 @@ class TestVehicleMeshCreationWorkflow:
         
         # Create route with SDA VehicleMesh but request TEST_VESSEL
         route = Route.objects.create(
-            start_lat=1.1,
-            start_lon=1.1,
-            end_lat=8.9, 
-            end_lon=8.9,
+            start_lat=-40.0,
+            start_lon=-40.0,
+            end_lat=40.0, 
+            end_lon=40.0,
             mesh=sda_vehicle_mesh,  # Wrong vehicle mesh
             vehicle=self.vehicle_test,
             requested=django_timezone.now()
@@ -519,10 +519,10 @@ class TestVehicleMeshCreationWorkflow:
         
         # Create route with correct VehicleMesh
         route = Route.objects.create(
-            start_lat=1.1,
-            start_lon=1.1,
-            end_lat=8.9,
-            end_lon=8.9, 
+            start_lat=-40.0,
+            start_lon=-40.0,
+            end_lat=40.0,
+            end_lon=40.0, 
             mesh=correct_vehicle_mesh,
             vehicle=self.vehicle_test,
             requested=django_timezone.now()
