@@ -11,7 +11,7 @@ authors = [
 description = "Backend server for serving PolarRoute and MeshiPhi assets and managing their calcuation using Django & Celery."
 readme = "README.md"
 license = {file = "LICENSE"}
-version = "0.2.2"
+version = "0.2.3"
 requires-python = ">= 3.10"
 dependencies = [
     "celery",
