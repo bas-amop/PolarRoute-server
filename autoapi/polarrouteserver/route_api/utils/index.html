@@ -177,7 +177,7 @@
         <p>create md5sum checksum for any file</p>
 
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>polarrouteserver/route_api/utils.py</code></summary>
               <pre class="highlight"><code class="language-python">def calculate_md5(filename):
     """create md5sum checksum for any file"""
@@ -253,7 +253,7 @@
   </tbody>
 </table>
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>polarrouteserver/route_api/utils.py</code></summary>
               <pre class="highlight"><code class="language-python">def check_mesh_data(mesh: Mesh) -&gt; str:
     """Check a mesh object for missing data sources.
@@ -370,7 +370,7 @@
   </tbody>
 </table>
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>polarrouteserver/route_api/utils.py</code></summary>
               <pre class="highlight"><code class="language-python">def evaluate_route(route_json: dict, mesh: Mesh) -&gt; dict:
     """Run calculate_route method from PolarRoute to evaluate the fuel usage and travel time of a route.
@@ -435,7 +435,7 @@ Works through list of meshes in order, returns first matching route
 Return None if not and the route object if it has.</p>
 
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>polarrouteserver/route_api/utils.py</code></summary>
               <pre class="highlight"><code class="language-python">def route_exists(
     meshes: Union[Mesh, list[Mesh]],
@@ -509,7 +509,7 @@ Return None if not and the route object if it has.</p>
 Returns either a list of Mesh objects or None.</p>
 
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>polarrouteserver/route_api/utils.py</code></summary>
               <pre class="highlight"><code class="language-python">def select_mesh(
     start_lat: float,
@@ -614,7 +614,7 @@ If no suitable meshes are available, return None.</p>
   </tbody>
 </table>
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>polarrouteserver/route_api/utils.py</code></summary>
               <pre class="highlight"><code class="language-python">def select_mesh_for_route_evaluation(route: dict) -&gt; Union[list[Mesh], None]:
     """Select a mesh from the database to be used for route evaluation.

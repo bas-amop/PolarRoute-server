@@ -178,8 +178,8 @@
               Bases: <code><span title="django.db.models.Model">Model</span></code></p>
 
 
-        <p>Route or mesh calculation jobs</p>
 
+        <p>Route or mesh calculation jobs</p>
 
 
 
@@ -224,6 +224,7 @@
 
     </div>
 
+
 </div>
 
 <div class="doc doc-object doc-class">
@@ -242,8 +243,8 @@
               Bases: <code><span title="django.db.models.Model">Model</span></code></p>
 
 
-        <p>Preset locations</p>
 
+        <p>Preset locations</p>
 
 
 
@@ -258,7 +259,7 @@
 
     lat = models.FloatField()
     lon = models.FloatField()
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100, unique=True)
 
     @property
     def latitude(self):
@@ -287,6 +288,7 @@
   </div>
 
     </div>
+
 
 </div>
 
@@ -379,6 +381,7 @@
   </div>
 
     </div>
+
 
 </div>
 

@@ -178,6 +178,7 @@
               Bases: <code><span title="rest_framework.serializers.ModelSerializer">ModelSerializer</span></code></p>
 
 
+
         <p>Serializer for job status responses with dynamic status and route URL.</p>
 <p>The status field returns Celery task states:
 - PENDING: Task is waiting for execution or unknown task id
@@ -186,7 +187,6 @@
 - FAILURE: Task failed with an exception
 - RETRY: Task is being retried after failure
 - REVOKED: Task was revoked/cancelled</p>
-
 
 
 
@@ -293,7 +293,7 @@
         <p>Include error info when job failed.</p>
 
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>polarrouteserver/route_api/serializers.py</code></summary>
               <pre class="highlight"><code class="language-python">def get_info(self, obj):
     """Include error info when job failed."""
@@ -320,7 +320,7 @@
         <p>Include route URL when job is successful.</p>
 
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>polarrouteserver/route_api/serializers.py</code></summary>
               <pre class="highlight"><code class="language-python">def get_route_url(self, obj):
     """Include route URL when job is successful."""
@@ -349,7 +349,7 @@
         <p>Get current job status from Celery.</p>
 
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>polarrouteserver/route_api/serializers.py</code></summary>
               <pre class="highlight"><code class="language-python">def get_status(self, obj):
     """Get current job status from Celery."""
@@ -374,7 +374,7 @@
         <p>Add version to response.</p>
 
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>polarrouteserver/route_api/serializers.py</code></summary>
               <pre class="highlight"><code class="language-python">def to_representation(self, instance):
     """Add version to response."""
@@ -393,6 +393,7 @@
   </div>
 
     </div>
+
 
 </div>
 
@@ -639,7 +640,7 @@
         <p>Transform route data into structured format.</p>
 
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>polarrouteserver/route_api/serializers.py</code></summary>
               <pre class="highlight"><code class="language-python">def to_representation(self, instance):
     """Transform route data into structured format."""
@@ -756,6 +757,7 @@
   </div>
 
     </div>
+
 
 </div>
 

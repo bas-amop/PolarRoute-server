@@ -176,6 +176,7 @@
     <div class="doc doc-contents ">
 
 
+
         <p>Mixin providing standardized API response methods.</p>
 <p>Ensures consistent response formatting across all API endpoints and
 provides response methods that correspond to the standardized schema objects
@@ -199,7 +200,6 @@ defined in this module.</p>
 - not_found_response() -&gt; notFoundResponseSchema (404)
 - not_acceptable_response() -&gt; notAcceptableResponseSchema (406)</p>
 </details>
-
 
 
 
@@ -331,7 +331,7 @@ defined in this module.</p>
 Corresponds to: acceptedResponseSchema (202)</p>
 
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>polarrouteserver/route_api/responses.py</code></summary>
               <pre class="highlight"><code class="language-python">def accepted_response(self, data):
     """
@@ -363,7 +363,7 @@ Corresponds to: acceptedResponseSchema (202)</p>
 Corresponds to: badRequestResponseSchema (400)</p>
 
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>polarrouteserver/route_api/responses.py</code></summary>
               <pre class="highlight"><code class="language-python">def bad_request_response(
     self, error_message, status_code=rest_framework.status.HTTP_400_BAD_REQUEST
@@ -397,7 +397,7 @@ Corresponds to: badRequestResponseSchema (400)</p>
 Corresponds to: noContentResponseSchema (204)</p>
 
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>polarrouteserver/route_api/responses.py</code></summary>
               <pre class="highlight"><code class="language-python">def no_content_response(self, data=None, message=None):
     """
@@ -432,7 +432,7 @@ Corresponds to: noContentResponseSchema (204)</p>
 Corresponds to: notAcceptableResponseSchema (406)</p>
 
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>polarrouteserver/route_api/responses.py</code></summary>
               <pre class="highlight"><code class="language-python">def not_acceptable_response(self, message):
     """
@@ -464,7 +464,7 @@ Corresponds to: notAcceptableResponseSchema (406)</p>
 Corresponds to: notFoundResponseSchema (404)</p>
 
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>polarrouteserver/route_api/responses.py</code></summary>
               <pre class="highlight"><code class="language-python">def not_found_response(self, message):
     """
@@ -496,7 +496,7 @@ Corresponds to: notFoundResponseSchema (404)</p>
 Corresponds to: successResponseSchema (200)</p>
 
 
-            <details class="quote">
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>polarrouteserver/route_api/responses.py</code></summary>
               <pre class="highlight"><code class="language-python">def success_response(self, data, status_code=rest_framework.status.HTTP_200_OK):
     """
@@ -518,6 +518,7 @@ Corresponds to: successResponseSchema (200)</p>
   </div>
 
     </div>
+
 
 </div>
 
