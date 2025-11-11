@@ -165,6 +165,7 @@
 <h2 id="releaseversioning">Release/Versioning</h2>
 <p>Version numbers should be used in tagging commits on the <code>main</code> branch and reflected in the <code>pyproject.toml</code> file and should be of the form <code>v0.1.7</code> using the semantic versioning convention.</p>
 <p>The <code>Unreleased</code> section of <code>CHANGELOG.md</code> should be amended to the new version number.</p>
+<p>Release preparation (i.e. updating version numbers in <code>CHANGELOG.md</code>, <code>pyproject.toml</code> and <code>apischema.yml</code>) can be done automatically with <code>make prep-release version=&lt;VERSION-NUMBER&gt;</code> (without the 'v'). Note that this does not rebuild the API schema, just changes the version number.</p>
 <h2 id="building-deploying-the-documentation">Building &amp; deploying the documentation</h2>
 <p>The documentation should build automatically on pushes to <code>main</code> using GitHub actions, if you want to build and deploy the docs manually, follow these steps:</p>
 <ul>
