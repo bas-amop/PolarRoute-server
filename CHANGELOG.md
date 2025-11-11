@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Added `add_vehicle_to_environment_mesh()` function. 
+- A new `create_and_calculate_route()` task which is used to calculate optimal route using `VehicleMesh`, creating one if necessary (replaces `optimise_route()` task, which is now a function).
+- Adds `Vehicle` information to route response.
+- Adds `Vehicle` fixtures, with the `SDA`.
+- Expands testing suite to cover mesh type ingestion and `create_and_calculate_route()` tasks.
+
+### Changed
+- Split instances of Mesh into `EnvironmentMesh` and `VehicleMesh`. `Mesh` has become an abstract class inherited by both.
+- Route requests now require a `Vehicle`.
+- Mesh ingestion has been adapted to handle the ingestion of both `EnvironmentMesh` and `VehicleMesh` files. If a `VehicleMesh` is ingested, it will identify the `Vehicle` and check if it exists in the database, if not it will create it.
+- `select_mesh()` updated to handle different types of meshes. In first instance search for a `VehicleMesh` that matches coordinates AND `Vehicle`. Should this not exists, then find an `EnvironmentMesh` within coordinates and create a `VehicleMesh` using supplied `Vehicle`.
+- `optimise_route()`is now a function which calls PolarRoute's optimisation functionality, not a task. The task has been replaced by `create_and_calculate_route()`.
+- Tests have been adapted (and where appropriate, expanded) to accommodate these changes.
+
 
 ## 0.2.3 - 2025-11-10
 
