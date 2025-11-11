@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `add_vehicle_to_environment_mesh()` function. 
 - A new `create_and_calculate_route()` task which is used to calculate optimal route using `VehicleMesh`, creating one if necessary (replaces `optimise_route()` task, which is now a function).
 - Adds `Vehicle` information to route response.
-- Adds `Vehicle` fixtures, with the `SDA`.
+- Adds `Vehicle` fixtures, with the `SDA`, `Slocum` and `BoatyMcBoatFace` vessel configs.
 - Expands testing suite to cover mesh type ingestion and `create_and_calculate_route()` tasks.
 
 ### Changed
