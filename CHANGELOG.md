@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Included migration for changes to location model.
+- Inclusion of fixtures in source code distribution by using `MANIFEST.in` in place of `package_data` in `pyproject.toml`.
 
 ## 0.2.3 - 2025-11-10
 
