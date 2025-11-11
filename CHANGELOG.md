@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Included migration for changes to location model.
 
 ## 0.2.3 - 2025-11-10
 
