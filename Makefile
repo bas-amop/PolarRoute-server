@@ -155,13 +155,25 @@ build: ## Build package
 	@echo "+ $@"
 	@python -m build
 
-.PHONY: release
-release: ## tag the HEAD commit and update version in pyproject.toml with the value of: "version=0.1.2", e.g. make release version=0.1.2
+.PHONY:prep-release
+prep-release: ## runs update-pkg-version, (re)builds the apischema, preps the changelog
 	@echo "+ $@"
+	@if [ -z "$(version)" ]; then \
+		echo "ERROR: version is not set."; \
+		echo "Usage: make prep-release version=1.2.3"; \
+		exit 1; \
+	fi
+
+	@echo "...Updating pyproject.toml..."
 	@sed -i "s/^version = \".*\"/version = \"$(version)\"/" pyproject.toml
-	@git add pyproject.toml
-	@git commit -m 'release version $(version)'
-	@git tag v$(version) HEAD
+
+	@echo "...Updating docs/apischema.yml..."
+	@sed -i "s/version: .*/version: $(version)/" docs/apischema.yml
+
+	@echo "...Updating CHANGELOG.md..."
+	@sed -i "/## \[Unreleased\]/ a\ \n## $(version) - $$(date '+%Y-%m-%d')" CHANGELOG.md
+
+	@echo "Done."
 
 .PHONY: help
 help:
