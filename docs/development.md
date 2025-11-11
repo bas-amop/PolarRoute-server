@@ -28,6 +28,8 @@ Version numbers should be used in tagging commits on the `main` branch and refle
 
 The `Unreleased` section of `CHANGELOG.md` should be amended to the new version number.
 
+Release preparation (i.e. updating version numbers in `CHANGELOG.md`, `pyproject.toml` and `apischema.yml`) can be done automatically with `make prep-release version=<VERSION-NUMBER>` (without the 'v'). Note that this does not rebuild the API schema, just changes the version number.
+
 ## Building & deploying the documentation
 
 The documentation should build automatically on pushes to `main` using GitHub actions, if you want to build and deploy the docs manually, follow these steps:
