@@ -39,6 +39,7 @@ exclude = ["tests*"]
 
 [tool.setuptools.package-data]
 polarrouteserver = [
+    "polarrouteserver/route_api/fixtures/*",
     "Makefile",
     "schema.yml",
 ]
