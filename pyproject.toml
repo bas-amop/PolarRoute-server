@@ -37,12 +37,6 @@ Issues = "https://github.com/bas-amop/PolarRoute-server/issues"
 where = ["."]
 exclude = ["tests*"]
 
-[tool.setuptools.package-data]
-polarrouteserver = [
-    "Makefile",
-    "schema.yml",
-]
-
 [tool.setuptools.exclude-package-data]
 polarrouteserver = [
     "*.sqlite3",
