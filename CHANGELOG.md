@@ -21,7 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `select_mesh()` updated to handle different types of meshes. In first instance search for a `VehicleMesh` that matches coordinates AND `Vehicle`. Should this not exists, then find an `EnvironmentMesh` within coordinates and create a `VehicleMesh` using supplied `Vehicle`.
 - `optimise_route()`is now a function which calls PolarRoute's optimisation functionality, not a task. The task has been replaced by `create_and_calculate_route()`.
 - Tests have been adapted (and where appropriate, expanded) to accommodate these changes.
-
+- PolarRoute 1.0.0 support, >= 1.1.8 required for custom vessel performance functionality.
 
 ## 0.2.3 - 2025-11-10
 
