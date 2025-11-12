@@ -18,7 +18,7 @@ RUN pip install --upgrade pip
 
 WORKDIR /usr/src/app
 
-COPY --chmod=775 entrypoint.sh .
+COPY --chmod=775 docker-entrypoint.sh .
 
 COPY pyproject.toml manage.py /usr/src/app/
 COPY polarrouteserver /usr/src/app/polarrouteserver

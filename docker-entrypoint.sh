@@ -2,8 +2,10 @@
 
 set -e
 
-python manage.py migrate
+env
 
+python manage.py migrate
+python manage.py ensure_adminuser --no-input
 python manage.py loaddata locations_bas.json
 
 exec "$@"
