@@ -88,6 +88,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django_celery_results",
     "django_celery_beat",
+    "rest_framework",
     "drf_spectacular",
     "drf_spectacular_sidecar",
     "polarrouteserver.route_api",

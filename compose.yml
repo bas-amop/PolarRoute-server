@@ -9,7 +9,9 @@ services:
       POLARROUTE_MESH_DIR: /usr/src/app/mesh
       POLARROUTE_DB_HOST: db
       POLARROUTE_DB_PORT: 5432
-    entrypoint: /usr/src/app/entrypoint.sh
+      POLARROUTE_SUPERUSER_USERNAME: admin
+      POLARROUTE_SUPERUSER_PASSWORD: password
+    entrypoint: /usr/src/app/docker-entrypoint.sh
     command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
     volumes:
       - ./manage.py:/usr/src/app/manage.py
