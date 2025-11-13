@@ -6,7 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
- 
+
+
+### Added
+- added ensure_adminuser command to add subtly more sophisticated behaviour to Django's createsuperuser - i.e. don't raise non-zero exit code if superuser already exists, add more useful output.
+- Use uv in the docker image.
+
+### Fixed
+- Add erroneously missing `rest_framework` into `INSTALLED_APPS`.
+- Remove unique constraint and add id field to locations fixture to prevent duplication.
+
+
 ## 0.2.4 - 2025-11-11
 
 ### Fixed
