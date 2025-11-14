@@ -23,6 +23,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tests have been adapted (and where appropriate, expanded) to accommodate these changes.
 - PolarRoute 1.0.0 support, >= 1.1.8 required for custom vessel performance functionality.
 
+### Added
+- added ensure_adminuser command to add subtly more sophisticated behaviour to Django's createsuperuser - i.e. don't raise non-zero exit code if superuser already exists, add more useful output.
+- Use uv in the docker image.
+- Empty arrays to empty responses for a consistent response structure.
+
+### Changed
+- Inappropriate use of 204 code: RecentRoutesView changed from 204 to 200 OK with an empty array and the original message ("No recent routes found for today.").
+- Inappropriate use of 204 code: VehicleTypeListView changed from 204 to 200 OK with and empty array and the original message.
+- MeshView - Changed from 204 to 404 Not Found when mesh doesn't exist.
+- Updated tests to reflect corrected HTTP status codes.
+
+### Fixed
+- Add erroneously missing `rest_framework` into `INSTALLED_APPS`.
+- Remove unique constraint and add id field to locations fixture to prevent duplication.
+
+
+
+
+
+## 0.2.4 - 2025-11-11
+
+### Fixed
+- Included migration for changes to location model.
+- Inclusion of fixtures in source code distribution by using `MANIFEST.in` in place of `package_data` in `pyproject.toml`.
+
 ## 0.2.3 - 2025-11-10
 
 ### Added

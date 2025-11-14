@@ -1,38 +1,38 @@
 [
   {
     "model": "route_api.location",
-    "fields": { "name": "Bird Island", "lat": -54.025, "lon": -38.044 }
+    "fields": { "id": 1, "name": "Bird Island", "lat": -54.025, "lon": -38.044 }
   },
   {
     "model": "route_api.location",
-    "fields": { "name": "Falklands", "lat": -51.731, "lon": -57.706 }
+    "fields": { "id": 2, "name": "Falklands", "lat": -51.731, "lon": -57.706 }
   },
   {
     "model": "route_api.location",
-    "fields": { "name": "Halley", "lat": -75.059, "lon": -25.84 }
+    "fields": { "id": 3, "name": "Halley", "lat": -75.059, "lon": -25.84 }
   },
   {
     "model": "route_api.location",
-    "fields": { "name": "Rothera", "lat": -67.764, "lon": -68.02 }
+    "fields": { "id": 4, "name": "Rothera", "lat": -67.764, "lon": -68.02 }
   },
   {
     "model": "route_api.location",
-    "fields": { "name": "King Edward Point", "lat": -54.22, "lon": -36.433 }
+    "fields": { "id": 5, "name": "King Edward Point", "lat": -54.22, "lon": -36.433 }
   },
   {
     "model": "route_api.location",
-    "fields": { "name": "Signy", "lat": -60.72, "lon": -45.48 }
+    "fields": { "id": 6, "name": "Signy", "lat": -60.72, "lon": -45.48 }
   },
   {
     "model": "route_api.location",
-    "fields": { "name": "Ny Ålesund", "lat": 78.929, "lon": 11.928 }
+    "fields": { "id": 7, "name": "Ny Ålesund", "lat": 78.929, "lon": 11.928 }
   },
   {
     "model": "route_api.location",
-    "fields": { "name": "Harwich", "lat": 51.949, "lon": 1.255 }
+    "fields": { "id": 8, "name": "Harwich", "lat": 51.949, "lon": 1.255 }
   },
   {
     "model": "route_api.location",
-    "fields": { "name": "Rosyth", "lat": 56.017, "lon": -3.44 }
+    "fields": { "id": 9, "name": "Rosyth", "lat": 56.017, "lon": -3.44 }
   }
 ]

@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: PolarRoute-Server
-  version: 0.2.3
+  version: 0.2.4
   description: Backend server for serving PolarRoute and MeshiPhi assets
 paths:
   /api/evaluate_route:
@@ -180,12 +180,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/RecentRoutesResponse'
           description: List of recent routes retrieved successfully.
-        '204':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NoContentResponse'
-          description: No content available.
   /api/route:
     post:
       operationId: api_route_create_request
@@ -523,12 +517,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/VehicleTypeListResponse'
           description: List of available vessel types retrieved successfully.
-        '204':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NoContentResponse'
-          description: No content available.
 components:
   schemas:
     AcceptedResponse:

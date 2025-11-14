@@ -113,7 +113,7 @@ class Location(models.Model):
 
     lat = models.FloatField()
     lon = models.FloatField()
-    name = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100)
 
     @property
     def latitude(self):

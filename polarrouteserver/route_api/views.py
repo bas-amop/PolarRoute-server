@@ -259,7 +259,6 @@ class VehicleTypeListView(LoggingMixin, ResponseMixin, GenericAPIView):
         operation_id="api_vehicle_available_list",
         responses={
             200: vehicleTypeListResponseSchema,
-            204: noContentResponseSchema,
         },
     )
     def get(self, request):
@@ -272,8 +271,8 @@ class VehicleTypeListView(LoggingMixin, ResponseMixin, GenericAPIView):
 
         if not vessel_types_list:
             logger.warning("No available vessel_types found in the database.")
-            return self.no_content_response(
-                data={"vessel_types": []}, message="No available vessel types found."
+            return self.success_response(
+                {"vessel_types": [], "message": "No available vessel types found."}
             )
 
         logger.info(f"Returning {len(vessel_types_list)} distinct vessel_types")
@@ -525,7 +524,6 @@ class RecentRoutesView(LoggingMixin, ResponseMixin, GenericAPIView):
         operation_id="api_recent_routes_list",
         responses={
             200: recentRoutesResponseSchema,
-            204: noContentResponseSchema,
         },
     )
     def get(self, request):
@@ -535,7 +533,7 @@ class RecentRoutesView(LoggingMixin, ResponseMixin, GenericAPIView):
             f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
         )
 
-        # Only get today's routes, just essential fields
+        # Only get today's routes
         routes_recent = (
             Route.objects.filter(requested__date=datetime.now().date())
             .select_related("job")
@@ -561,9 +559,12 @@ class RecentRoutesView(LoggingMixin, ResponseMixin, GenericAPIView):
         logger.debug(f"Found {len(routes_recent)} routes calculated today.")
 
         if not routes_recent:
-            return self.no_content_response(
-                data={"polarrouteserver-version": polarrouteserver_version},
-                message="No recent routes found for today.",
+            return self.success_response(
+                {
+                    "routes": [],
+                    "polarrouteserver-version": polarrouteserver_version,
+                    "message": "No recent routes found for today.",
+                }
             )
 
         routes_data = []
@@ -654,7 +655,7 @@ class MeshView(LoggingMixin, ResponseMixin, APIView):
             return self.success_response(data)
 
         except (VehicleMesh.DoesNotExist, EnvironmentMesh.DoesNotExist):
-            return self.no_content_response(data)
+            return self.not_found_response(f"Mesh with id {id} not found.")
 
 
 class EvaluateRouteView(LoggingMixin, ResponseMixin, APIView):
