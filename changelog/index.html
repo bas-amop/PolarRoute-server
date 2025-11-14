@@ -75,6 +75,8 @@
         <ul>
     <li class="toctree-l3"><a class="reference internal" href="#added">Added</a>
     </li>
+    <li class="toctree-l3"><a class="reference internal" href="#changed">Changed</a>
+    </li>
     <li class="toctree-l3"><a class="reference internal" href="#fixed">Fixed</a>
     </li>
         </ul>
@@ -89,7 +91,7 @@
         <ul>
     <li class="toctree-l3"><a class="reference internal" href="#added_1">Added</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#changed">Changed</a>
+    <li class="toctree-l3"><a class="reference internal" href="#changed_1">Changed</a>
         <ul>
     <li class="toctree-l4"><a class="reference internal" href="#request_route">request_route</a>
     </li>
@@ -105,7 +107,7 @@
         <ul>
     <li class="toctree-l3"><a class="reference internal" href="#added_2">Added</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#changed_1">Changed</a>
+    <li class="toctree-l3"><a class="reference internal" href="#changed_2">Changed</a>
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#fixed_3">Fixed</a>
     </li>
@@ -115,7 +117,7 @@
         <ul>
     <li class="toctree-l3"><a class="reference internal" href="#added_3">Added</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#changed_2">Changed</a>
+    <li class="toctree-l3"><a class="reference internal" href="#changed_3">Changed</a>
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#fixed_4">Fixed</a>
     </li>
@@ -210,6 +212,14 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <ul>
 <li>added ensure_adminuser command to add subtly more sophisticated behaviour to Django's createsuperuser - i.e. don't raise non-zero exit code if superuser already exists, add more useful output.</li>
 <li>Use uv in the docker image.</li>
+<li>Empty arrays to empty responses for a consistent response structure.</li>
+</ul>
+<h3 id="changed">Changed</h3>
+<ul>
+<li>Inappropriate use of 204 code: RecentRoutesView changed from 204 to 200 OK with an empty array and the original message ("No recent routes found for today.").</li>
+<li>Inappropriate use of 204 code: VehicleTypeListView changed from 204 to 200 OK with and empty array and the original message.</li>
+<li>MeshView - Changed from 204 to 404 Not Found when mesh doesn't exist.</li>
+<li>Updated tests to reflect corrected HTTP status codes.</li>
 </ul>
 <h3 id="fixed">Fixed</h3>
 <ul>
@@ -227,7 +237,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <ul>
 <li>This changelog!</li>
 </ul>
-<h3 id="changed">Changed</h3>
+<h3 id="changed_1">Changed</h3>
 <ul>
 <li>Restricted upper limit of Django support to version 5.2</li>
 <li>Name of maintainer from David Wilby to David Wyld.</li>
@@ -253,7 +263,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Job ID inclusion in <code>recent_routes</code> response for better tracking.</li>
 <li>Recent routes output validation tests.</li>
 </ul>
-<h3 id="changed_1">Changed</h3>
+<h3 id="changed_2">Changed</h3>
 <ul>
 <li><strong>Breaking</strong>: Route response structure now consistent regardless of optimisation types available.</li>
 <li>Improved <code>recent_routes</code> endpoint performance by removing repeated job status calls and heavy JSON processing.</li>
@@ -278,7 +288,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Location fixtures for standard locations (Bird Island, Falklands, Halley, Rothera, etc.).</li>
 <li>Swagger UI served alongside the application.</li>
 </ul>
-<h3 id="changed_2">Changed</h3>
+<h3 id="changed_3">Changed</h3>
 <ul>
 <li><strong>Breaking</strong>: Separated job and route endpoints - routes now accessed via job workflow.</li>
 <li><strong>Breaking</strong>: Route cancellation moved from route endpoint to job endpoint.</li>
