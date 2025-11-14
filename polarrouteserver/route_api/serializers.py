@@ -147,11 +147,21 @@ class RouteSerializer(serializers.ModelSerializer):
         if total_traveltime is not None:
             metrics["time"] = {"duration": str(total_traveltime)}
 
+        # Handle energy consumption with consistent structure
         total_fuel = properties.get("total_fuel")
+        total_battery = properties.get("total_battery")
+
         if total_fuel is not None:
-            metrics["fuelConsumption"] = {
+            metrics["energyConsumption"] = {
                 "value": total_fuel,
                 "units": properties.get("fuel_units") or "tons",
+                "source": "fuel",
+            }
+        elif total_battery is not None:
+            metrics["energyConsumption"] = {
+                "value": total_battery,
+                "units": properties.get("battery_units") or "Ah / day",
+                "source": "battery",
             }
 
         distance_data = properties.get("distance")
@@ -222,7 +232,10 @@ class RouteSerializer(serializers.ModelSerializer):
         smoothed_routes = {}
         unsmoothed_routes = {}
 
-        for route_type in ("traveltime", "fuel"):
+        # Support both fuel and battery energy sources
+        supported_route_types = ("traveltime", "fuel", "battery")
+
+        for route_type in supported_route_types:
             smoothed_routes[route_type] = self._extract_routes_by_type(
                 data["json"], route_type
             )
@@ -233,7 +246,7 @@ class RouteSerializer(serializers.ModelSerializer):
         # Build structured response for each available route type
         available_routes = []
 
-        for route_type in ("traveltime", "fuel"):
+        for route_type in supported_route_types:
             smoothed = smoothed_routes[route_type]
             unsmoothed = unsmoothed_routes[route_type]
 
@@ -272,11 +285,17 @@ class RouteSerializer(serializers.ModelSerializer):
             mesh_info = self._build_mesh_info(instance)
             vehicle_info = self._build_vehicle_info(instance)
 
+            # Normalize route type for consistent API response
+            # Convert fuel/battery to generic "energy" type for consistency
+            normalised_route_type = (
+                "energy" if route_type in ("fuel", "battery") else route_type
+            )
+
             # Build structured route object
             route_obj = {
-                "type": route_type,
+                "type": normalised_route_type,
                 "id": str(instance.id),
-                "name": f"{data.get('start_name') or 'Start'} to {data.get('end_name') or 'End'} ({route_type})",
+                "name": f"{data.get('start_name') or 'Start'} to {data.get('end_name') or 'End'} ({normalised_route_type})",
                 "job": {
                     "requestedAt": data["requested"],
                     "calculatedAt": data["calculated"],

@@ -597,6 +597,16 @@ def optimise_route(mesh_json: dict, route) -> list:
     """
     logger.info(f"Calculating route optimization for route {route.id}")
 
+    # Detect energy source based on vehicle type using configuration
+    vehicle = route.vehicle
+
+    # Get energy source from settings configuration
+    energy_source = settings.VEHICLE_ENERGY_SOURCES.get(
+        vehicle.vessel_type, settings.DEFAULT_ENERGY_SOURCE
+    )
+
+    logger.info(f"Detected energy source in mesh: {energy_source}")
+
     # convert waypoints into pandas dataframe for PolarRoute
     waypoints = pd.DataFrame(
         {
@@ -613,9 +623,18 @@ def optimise_route(mesh_json: dict, route) -> list:
 
     unsmoothed_routes = []
     route_planners = []
+
+    # Select the appropriate energy config based on detected energy source
+    if energy_source == "fuel":
+        energy_config = settings.FUEL_CONFIG
+    elif energy_source == "battery":
+        energy_config = settings.BATTERY_CONFIG
+    else:
+        raise ValueError(f"Unsupported energy source: {energy_source}")
+
     configs = (
         settings.TRAVELTIME_CONFIG,
-        settings.FUEL_CONFIG,
+        energy_config,
     )
 
     for config in configs:
