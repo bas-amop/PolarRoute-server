@@ -271,10 +271,7 @@ class VehicleTypeListView(LoggingMixin, ResponseMixin, GenericAPIView):
         if not vessel_types_list:
             logger.warning("No available vessel_types found in the database.")
             return self.success_response(
-                {
-                    "vessel_types": [],
-                    "message": "No available vessel types found."
-                }
+                {"vessel_types": [], "message": "No available vessel types found."}
             )
 
         logger.info(f"Returning {len(vessel_types_list)} distinct vessel_types")
@@ -494,7 +491,7 @@ class RecentRoutesView(LoggingMixin, ResponseMixin, GenericAPIView):
             f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
         )
 
-        # Only get today's routes, just essential fields
+        # Only get today's routes
         routes_recent = (
             Route.objects.filter(requested__date=datetime.now().date())
             .select_related("job")
