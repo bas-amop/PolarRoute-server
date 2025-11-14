@@ -15,7 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Inappropriate use of 204 code: RecentRoutesView changed from 204 to 200 OK with an empty array and the original message ("No recent routes found for today.").
 - Inappropriate use of 204 code: VehicleTypeListView changed from 204 to 200 OK with and empty array and the original message.
--MeshView - Changed from 204 to 404 Not Found when mesh doesn't exist.
+- MeshView - Changed from 204 to 404 Not Found when mesh doesn't exist.
+- Updated tests to reflect corrected HTTP status codes.
 
 ### Fixed
 - Add erroneously missing `rest_framework` into `INSTALLED_APPS`.
