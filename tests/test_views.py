@@ -230,12 +230,12 @@ class TestVehicleTypeListView(TestCase):
 
     def test_get_vessel_types_empty(self):
         """
-        Test the endpoint returns warning when no vehicles exist.
+        Test the endpoint returns 200 OK with empty array when no vehicles exist.
         """
         request = self.factory.get("/api/vehicle/available")
         response = VehicleTypeListView.as_view()(request)
 
-        self.assertEqual(response.status_code, 204)
+        self.assertEqual(response.status_code, 200)
         self.assertIn("vessel_types", response.data)
         self.assertEqual(response.data["vessel_types"], [])
         self.assertIn("message", response.data)
@@ -711,16 +711,20 @@ class TestGetRecentRoutesAndMesh(TestCase):
         assert routes_by_lat[3.0]["status"] == "FAILURE"
 
     def test_recent_routes_no_content_response(self):
-        """Test response when no routes exist for today"""
+        """Test response when no routes exist for today returns 200 OK with empty array"""
         # Clear all routes created in setUp
         Route.objects.all().delete()
         
         request = self.factory.get("/api/recent_routes")
         response = RecentRoutesView.as_view()(request)
         
-        assert response.status_code == 204
+        assert response.status_code == 200
+        assert "routes" in response.data
+        assert response.data["routes"] == []
         assert "polarrouteserver-version" in response.data
         assert isinstance(response.data["polarrouteserver-version"], str)
+        assert "message" in response.data
+        assert "No recent routes found" in response.data["message"]
 
     def test_recent_routes_includes_job_info_when_present(self):
         """Test that job_id and job_status_url are included when job exists"""
@@ -798,6 +802,17 @@ class TestGetRecentRoutesAndMesh(TestCase):
         assert response.status_code == 200
         assert response.data.get("json") is not None
         assert response.data.get("geojson") is not None
+
+    def test_mesh_not_found(self):
+        """Test that requesting a non-existent mesh returns 404."""
+        non_existent_id = 9999
+        request = self.factory.get(f"/api/mesh/{non_existent_id}")
+
+        response = MeshView.as_view()(request, id=non_existent_id)
+
+        assert response.status_code == 404
+        assert "error" in response.data
+        assert f"Mesh with id {non_existent_id} not found" in response.data["error"]
 
 class TestGetLocations(TestCase):
     fixtures = ["locations_bas.json"]
