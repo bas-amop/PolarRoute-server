@@ -764,16 +764,23 @@ components:
           default: false
           description: If true, forces recalculation even if an existing route is
             found.
+        vehicle_type:
+          type: string
+          description: The type of vehicle to use for route calculation.
       required:
       - end_lat
       - end_lon
       - start_lat
       - start_lon
+      - vehicle_type
     RouteEvaluationRequest:
       type: object
       properties:
         route:
           description: The route JSON to evaluate.
+        vehicle_type:
+          type: string
+          description: Vehicle type for route evaluation (required).
         custom_mesh_id:
           type: string
           format: uuid
@@ -781,6 +788,7 @@ components:
           description: 'Optional: Custom mesh ID to use for evaluation.'
       required:
       - route
+      - vehicle_type
     RouteEvaluationResponse:
       type: object
       properties:
