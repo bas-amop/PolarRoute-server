@@ -222,23 +222,30 @@ class VehicleDetailView(LoggingMixin, ResponseMixin, GenericAPIView):
         operation_id="api_vehicle_delete_by_type",
         responses={
             204: noContentResponseSchema,
+            400: badRequestResponseSchema,
             404: notFoundResponseSchema,
         },
     )
     def delete(self, request, vessel_type):
-        """Delete vehicle by vessel_type"""
+        """Delete vehicle by vessel_type
+
+        Note: Vehicles with created_by='fixture' are protected from deletion.
+        """
 
         logger.info(
             f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
         )
 
+        # Check if vehicle exists and is a fixture vehicle
         try:
             vehicle = Vehicle.objects.get(vessel_type=vessel_type)
-            vehicle.delete()
-            logger.info(f"Deleted vehicle with vessel_type={vessel_type}")
-            return self.no_content_response(
-                data={"message": f"Vehicle '{vessel_type}' deleted successfully."}
-            )
+            if vehicle.created_by == "fixture":
+                logger.warning(
+                    f"Attempted to delete fixture vehicle '{vessel_type}' - operation denied."
+                )
+                return self.bad_request_response(
+                    f"Cannot delete fixture vehicle '{vessel_type}'. Fixture vehicles are protected from deletion."
+                )
         except Vehicle.DoesNotExist:
             logger.error(
                 f"Vehicle with vessel_type={vessel_type} not found for deletion."
@@ -246,6 +253,13 @@ class VehicleDetailView(LoggingMixin, ResponseMixin, GenericAPIView):
             return self.not_found_response(
                 f"Vehicle with vessel_type '{vessel_type}' not found."
             )
+
+        # If we reach here, the vehicle exists and is not a fixture vehicle
+        vehicle.delete()
+        logger.info(f"Deleted vehicle with vessel_type={vessel_type}")
+        return self.no_content_response(
+            data={"message": f"Vehicle '{vessel_type}' deleted successfully."}
+        )
 
 
 class VehicleTypeListView(LoggingMixin, ResponseMixin, GenericAPIView):

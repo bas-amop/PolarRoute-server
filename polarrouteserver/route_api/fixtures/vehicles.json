@@ -9,7 +9,8 @@
        "hull_type": "slender",
        "force_limit": 96634.5,
        "max_ice_conc": 80,
-       "min_depth": 10 
+       "min_depth": 10,
+       "created_by": "fixture"
     }
   },
   {
@@ -19,7 +20,8 @@
       "max_speed": 1.25,
       "unit": "km/hr",
       "max_ice_conc": 10,
-      "min_depth": 10
+      "min_depth": 10,
+      "created_by": "fixture"
     }
   },
   {
@@ -29,7 +31,8 @@
       "max_speed": 3.6,
       "unit": "km/hr",
       "max_ice_conc": 10,
-      "min_depth": 10
+      "min_depth": 10,
+      "created_by": "fixture"
     }
   }
 ]

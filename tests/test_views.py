@@ -195,6 +195,59 @@ class TestVehicleRequest(TestCase):
         self.assertIn("error", response_delete.data)
         self.assertIn(vessel_type, response_delete.data["error"])
 
+    def test_delete_fixture_vehicle_protected(self):
+        """
+        Test that vehicles created via fixtures (created_by='fixture') cannot be deleted.
+        """
+        # Create a fixture vehicle to test with
+        from polarrouteserver.route_api.models import Vehicle
+        fixture_vehicle = Vehicle.objects.create(
+            vessel_type="test_fixture_vehicle",
+            max_speed=10.0,
+            unit="knots",
+            created_by="fixture"
+        )
+        
+        request_delete = self.factory.delete(f"/api/vehicle/{fixture_vehicle.vessel_type}/")
+        response_delete = VehicleDetailView.as_view()(
+            request_delete, vessel_type=fixture_vehicle.vessel_type
+        )
+        
+        self.assertEqual(response_delete.status_code, 400)
+        self.assertIn("error", response_delete.data)
+        self.assertIn("fixture vehicle", response_delete.data["error"].lower())
+        self.assertIn("protected", response_delete.data["error"].lower())
+        
+        # Clean up
+        fixture_vehicle.delete()
+
+    def test_delete_non_fixture_vehicle_allowed(self):
+        """
+        Test that vehicles not created via fixtures can be deleted normally.
+        """
+        # Create a regular (non-fixture) vehicle
+        from polarrouteserver.route_api.models import Vehicle
+        regular_vehicle = Vehicle.objects.create(
+            vessel_type="test_regular_vehicle",
+            max_speed=15.0,
+            unit="knots",
+            created_by="user"  # Not 'fixture'
+        )
+        
+        request_delete = self.factory.delete(f"/api/vehicle/{regular_vehicle.vessel_type}/")
+        response_delete = VehicleDetailView.as_view()(
+            request_delete, vessel_type=regular_vehicle.vessel_type
+        )
+        
+        self.assertEqual(response_delete.status_code, 204)
+        self.assertIn("message", response_delete.data)
+        self.assertIn("deleted successfully", response_delete.data["message"])
+        
+        # Verify vehicle was actually deleted
+        from django.core.exceptions import ObjectDoesNotExist
+        with self.assertRaises(ObjectDoesNotExist):
+            Vehicle.objects.get(vessel_type="test_regular_vehicle")
+
 
 class TestVehicleTypeListView(TestCase):
     """
