@@ -169,7 +169,7 @@ def import_new_meshes(self):
     file_list = [
         os.path.join(settings.MESH_METADATA_DIR, file)
         for file in files
-        if file.startswith("upload_metadata_") and file.endswith(".yaml.gz")
+        if file.startswith("upload_metadata") and file.endswith(".yaml.gz")
     ]
     if len(file_list) == 0:
         msg = "Upload metadata file not found."
