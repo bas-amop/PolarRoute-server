@@ -79,7 +79,7 @@ CELERY_LOGGING = {
             "level": "INFO",
             "class": "logging.FileHandler",
             "filename": os.path.join(
-                os.getenv("POLARROUTE_LOG_DIR", Path(BASE_DIR, "logs")),
+                os.getenv("CELERY_LOG_DIR", Path(BASE_DIR, "logs")),
                 "celery.log",
             ),
             "formatter": "default",
