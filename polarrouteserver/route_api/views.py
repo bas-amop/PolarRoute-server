@@ -654,8 +654,10 @@ class EvaluateRouteView(LoggingMixin, ResponseMixin, APIView):
 
         result_dict = evaluate_route(route_json, meshes[0])
 
-        response_data.update(result_dict)
+        if result_dict is None:
+            result_dict = {"error": "Route evaluation not possible."}
 
+        response_data.update(result_dict)
         return self.success_response(response_data)
 
 
