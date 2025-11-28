@@ -56,7 +56,9 @@ LOGGING = {
         },
         "file": {
             "level": os.getenv("POLARROUTE_LOG_LEVEL", "INFO"),
-            "class": "logging.handlers.RotatingFileHandler",
+            "class": "polarrouteserver.utils.loggers.GroupWriteRotatingFileHandler",
+            "maxBytes": 1024 * 1024 * 5,
+            "backupCount": 5,
             "filename": os.path.join(
                 polarroute_log_dir,
                 polarroute_log_file_name,
@@ -93,7 +95,9 @@ CELERY_LOGGING = {
     "handlers": {
         "celery": {
             "level": "INFO",
-            "class": "logging.FileHandler",
+            "class": "polarrouteserver.utils.loggers.GroupWriteRotatingFileHandler",
+            "maxBytes": 1024 * 1024 * 5,
+            "backupCount": 5,
             "filename": os.path.join(
                 celery_log_dir,
                 celery_log_file_name,
