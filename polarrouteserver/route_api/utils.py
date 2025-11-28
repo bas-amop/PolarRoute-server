@@ -196,6 +196,10 @@ def evaluate_route(route_json: dict, mesh: Mesh) -> dict:
 
     try:
         calc_route = route_calc(route_file.name, mesh_file.name)
+        time_days = calc_route["features"][0]["properties"]["traveltime"][-1]
+        time_str = convert_decimal_days(time_days)
+        fuel = round(calc_route["features"][0]["properties"]["fuel"][-1], 2)
+
     except Exception as e:
         logger.error(e)
         return None
@@ -205,10 +209,6 @@ def evaluate_route(route_json: dict, mesh: Mesh) -> dict:
                 os.remove(file.name)
             except Exception as e:
                 logger.warning(f"{file} not removed due to {e}")
-
-    time_days = calc_route["features"][0]["properties"]["traveltime"][-1]
-    time_str = convert_decimal_days(time_days)
-    fuel = round(calc_route["features"][0]["properties"]["fuel"][-1], 2)
 
     return dict(
         route=calc_route, time_days=time_days, time_str=time_str, fuel_tonnes=fuel
