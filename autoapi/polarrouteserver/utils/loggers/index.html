@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../../../../img/favicon.ico" />
-    <title>models - PolarRoute-Server</title>
+    <title>loggers - PolarRoute-Server</title>
     <link rel="stylesheet" href="../../../../css/theme.css" />
     <link rel="stylesheet" href="../../../../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
@@ -13,8 +13,8 @@
     
       <script>
         // Current page data
-        var mkdocs_page_name = "models";
-        var mkdocs_page_input_path = "autoapi/polarrouteserver/route_api/models.md";
+        var mkdocs_page_name = "loggers";
+        var mkdocs_page_input_path = "autoapi/polarrouteserver/utils/loggers.md";
         var mkdocs_page_url = null;
       </script>
     
@@ -80,27 +80,27 @@
               <ul class="current">
                   <li class="toctree-l1 current"><a class="reference internal current" href="../../">polarrouteserver</a>
     <ul class="current">
-                <li class="toctree-l2 current"><a class="reference internal current" href="../">route_api</a>
-    <ul class="current">
-                <li class="toctree-l3 current"><a class="reference internal current" href="#">models</a>
-    <ul class="current">
-    </ul>
-                </li>
-                <li class="toctree-l3"><a class="reference internal" href="../responses/">responses</a>
-                </li>
-                <li class="toctree-l3"><a class="reference internal" href="../serializers/">serializers</a>
-                </li>
-                <li class="toctree-l3"><a class="reference internal" href="../tasks/">tasks</a>
-                </li>
-                <li class="toctree-l3"><a class="reference internal" href="../utils/">utils</a>
-                </li>
-                <li class="toctree-l3"><a class="reference internal" href="../views/">views</a>
-                </li>
-    </ul>
-                </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../utils/">utils</a>
+                <li class="toctree-l2"><a class="reference internal" href="../../route_api/">route_api</a>
     <ul>
-                <li class="toctree-l3"><a class="reference internal" href="../../utils/loggers/">loggers</a>
+                <li class="toctree-l3"><a class="reference internal" href="../../route_api/models/">models</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../route_api/responses/">responses</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../route_api/serializers/">serializers</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../route_api/tasks/">tasks</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../route_api/utils/">utils</a>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" href="../../route_api/views/">views</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="../">utils</a>
+    <ul class="current">
+                <li class="toctree-l3 current"><a class="reference internal current" href="#">loggers</a>
+    <ul class="current">
+    </ul>
                 </li>
     </ul>
                 </li>
@@ -131,10 +131,10 @@
     <li><a href="../../../.." class="icon icon-home" aria-label="Docs"></a></li>
           <li class="breadcrumb-item">Python Package API Reference</li>
           <li class="breadcrumb-item"><a href="../../">polarrouteserver</a></li>
-          <li class="breadcrumb-item"><a href="../">route_api</a></li>
-      <li class="breadcrumb-item active">models</li>
+          <li class="breadcrumb-item"><a href="../">utils</a></li>
+      <li class="breadcrumb-item active">loggers</li>
     <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/home/runner/work/PolarRoute-server/PolarRoute-server/polarrouteserver/route_api/models.py" class="icon icon-github"> Edit on GitHub</a>
+          <a href="https://github.com/home/runner/work/PolarRoute-server/PolarRoute-server/polarrouteserver/utils/loggers.py" class="icon icon-github"> Edit on GitHub</a>
     </li>
   </ul>
   <hr/>
@@ -146,7 +146,7 @@
 
 
 
-<a id="polarrouteserver.route_api.models"></a>
+<a id="polarrouteserver.utils.loggers"></a>
     <div class="doc doc-contents first">
 
 
@@ -172,8 +172,8 @@
 
 
 
-<h2 id="polarrouteserver.route_api.models.Job" class="doc doc-heading">
-            <code>Job</code>
+<h2 id="polarrouteserver.utils.loggers.GroupWriteRotatingFileHandler" class="doc doc-heading">
+            <code>GroupWriteRotatingFileHandler</code>
 
 
 </h2>
@@ -181,11 +181,11 @@
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><span title="django.db.models.Model">Model</span></code></p>
+              Bases: <code><span title="logging.handlers.RotatingFileHandler">RotatingFileHandler</span></code></p>
 
 
 
-        <p>Route or mesh calculation jobs</p>
+        <p>A rotating file handler which allows group write permissions.</p>
 
 
 
@@ -194,21 +194,23 @@
 
 
               <details class="quote">
-                <summary>Source code in <code>polarrouteserver/route_api/models.py</code></summary>
-                <pre class="highlight"><code class="language-python">class Job(models.Model):
-    "Route or mesh calculation jobs"
+                <summary>Source code in <code>polarrouteserver/utils/loggers.py</code></summary>
+                <pre class="highlight"><code class="language-python">class GroupWriteRotatingFileHandler(logging.handlers.RotatingFileHandler):
+    """A rotating file handler which allows group write permissions."""
 
-    id = models.UUIDField(
-        primary_key=True
-    )  # use uuids for primary keys to align with celery
+    def _open(self):
+        # Open the file using the standard method
+        stream = super()._open()
 
-    datetime = models.DateTimeField(default=timezone.now)
-    route = models.ForeignKey(Route, on_delete=models.CASCADE)
+        # Explicitly change permissions to 664 (rw-rw-r--)
+        # 0o664 is the octal representation
+        try:
+            os.chmod(self.baseFilename, 0o664)
+        except OSError:
+            # Handle cases where the process isn't the owner (rare in proper setups)
+            pass
 
-    @property
-    def status(self):
-        result = AsyncResult(self.id, app=app)
-        return result.state</code></pre>
+        return stream</code></pre>
               </details>
 
 
@@ -220,164 +222,6 @@
 
 
 
-
-
-
-
-
-
-  </div>
-
-    </div>
-
-
-</div>
-
-<div class="doc doc-object doc-class">
-
-
-
-<h2 id="polarrouteserver.route_api.models.Location" class="doc doc-heading">
-            <code>Location</code>
-
-
-</h2>
-
-
-    <div class="doc doc-contents ">
-            <p class="doc doc-class-bases">
-              Bases: <code><span title="django.db.models.Model">Model</span></code></p>
-
-
-
-        <p>Preset locations</p>
-
-
-
-
-
-
-
-              <details class="quote">
-                <summary>Source code in <code>polarrouteserver/route_api/models.py</code></summary>
-                <pre class="highlight"><code class="language-python">class Location(models.Model):
-    "Preset locations"
-
-    lat = models.FloatField()
-    lon = models.FloatField()
-    name = models.CharField(max_length=100)
-
-    @property
-    def latitude(self):
-        return self.lat
-
-    @property
-    def longitude(self):
-        return self.lon</code></pre>
-              </details>
-
-
-
-  <div class="doc doc-children">
-
-
-
-
-
-
-
-
-
-
-
-
-  </div>
-
-    </div>
-
-
-</div>
-
-<div class="doc doc-object doc-class">
-
-
-
-<h2 id="polarrouteserver.route_api.models.Mesh" class="doc doc-heading">
-            <code>Mesh</code>
-
-
-</h2>
-
-
-    <div class="doc doc-contents ">
-            <p class="doc doc-class-bases">
-              Bases: <code><span title="django.db.models.Model">Model</span></code></p>
-
-
-
-
-
-
-
-
-
-              <details class="quote">
-                <summary>Source code in <code>polarrouteserver/route_api/models.py</code></summary>
-                <pre class="highlight"><code class="language-python">class Mesh(models.Model):
-    id = models.BigAutoField(primary_key=True)
-    meshiphi_version = models.CharField(max_length=60, null=True)
-    md5 = models.CharField(max_length=64)
-    valid_date_start = models.DateField()
-    valid_date_end = models.DateField()
-    created = models.DateTimeField()
-    lat_min = models.FloatField()
-    lat_max = models.FloatField()
-    lon_min = models.FloatField()
-    lon_max = models.FloatField()
-    json = models.JSONField(null=True)
-    name = models.CharField(max_length=150, null=True)
-
-    @property
-    def size(self) -&gt; float:
-        """Computes a metric for the size of a mesh."""
-
-        return abs(self.lat_max - self.lat_min) * abs(self.lon_max - self.lon_min)
-
-    class Meta:
-        verbose_name_plural = "Meshes"</code></pre>
-              </details>
-
-
-
-  <div class="doc doc-children">
-
-
-
-
-
-
-
-<div class="doc doc-object doc-attribute">
-
-
-
-<h3 id="polarrouteserver.route_api.models.Mesh.size" class="doc doc-heading">
-            <code class="highlight language-python">size</code>
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-property"><code>property</code></small>
-  </span>
-
-</h3>
-
-
-    <div class="doc doc-contents ">
-
-        <p>Computes a metric for the size of a mesh.</p>
-
-    </div>
-
-</div>
 
 
 
@@ -403,8 +247,8 @@
             </div>
           </div><footer>
     <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../" class="btn btn-neutral float-left" title="route_api"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../responses/" class="btn btn-neutral float-right" title="responses">Next <span class="icon icon-circle-arrow-right"></span></a>
+        <a href="../" class="btn btn-neutral float-left" title="utils"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../version/" class="btn btn-neutral float-right" title="version">Next <span class="icon icon-circle-arrow-right"></span></a>
     </div>
 
   <hr/>
@@ -434,7 +278,7 @@
       <span><a href="../" style="color: #fcfcfc">&laquo; Previous</a></span>
     
     
-      <span><a href="../responses/" style="color: #fcfcfc">Next &raquo;</a></span>
+      <span><a href="../../version/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
