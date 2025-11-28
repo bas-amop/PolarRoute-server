@@ -308,7 +308,7 @@ class RouteRequestView(LoggingMixin, ResponseMixin, GenericAPIView):
                 "end_name": serializers.CharField(
                     required=False, allow_null=True, help_text="Name of the end point."
                 ),
-                "mesh_id": serializers.UUIDField(
+                "mesh_id": serializers.IntegerField(
                     required=False,
                     allow_null=True,
                     help_text="Optional: Custom mesh ID to use for route calculation.",
@@ -620,7 +620,7 @@ class EvaluateRouteView(LoggingMixin, ResponseMixin, APIView):
             name="RouteEvaluationRequest",
             fields={
                 "route": serializers.JSONField(help_text="The route JSON to evaluate."),
-                "custom_mesh_id": serializers.UUIDField(
+                "custom_mesh_id": serializers.IntegerField(
                     required=False,
                     allow_null=True,
                     help_text="Optional: Custom mesh ID to use for evaluation.",
