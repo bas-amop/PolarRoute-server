@@ -3,6 +3,8 @@ import os
 
 
 class GroupWriteRotatingFileHandler(logging.handlers.RotatingFileHandler):
+    """A rotating file handler which allows group write permissions."""
+
     def _open(self):
         # Open the file using the standard method
         stream = super()._open()
