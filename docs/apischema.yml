@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: PolarRoute-Server
-  version: 0.2.4
+  version: 0.2.2
   description: Backend server for serving PolarRoute and MeshiPhi assets
 paths:
   /api/evaluate_route:
@@ -755,8 +755,7 @@ components:
           nullable: true
           description: Name of the end point.
         mesh_id:
-          type: string
-          format: uuid
+          type: integer
           nullable: true
           description: 'Optional: Custom mesh ID to use for route calculation.'
         force_new_route:
@@ -775,8 +774,7 @@ components:
         route:
           description: The route JSON to evaluate.
         custom_mesh_id:
-          type: string
-          format: uuid
+          type: integer
           nullable: true
           description: 'Optional: Custom mesh ID to use for evaluation.'
       required:
