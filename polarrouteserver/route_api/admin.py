@@ -26,7 +26,7 @@ class RouteAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         # Load only the fields necessary for the changelist view
         queryset = super().get_queryset(request)
-        return queryset.defer("json", "json_unsmoothed")
+        return queryset.defer("json", "json_unsmoothed", "mesh__json")
 
     list_select_related = ("mesh",)
 
