@@ -215,8 +215,8 @@ def register_callbacks(app: DjangoDash):
                     )
                 )
 
-            if r.get("fuel") and len(route.get("json")) > 0:
-                fuel_geojson = route["json"][1][0]["features"][0]
+            if r.get("fuel") and len(route.get("json")) > 1:
+                fuel_geojson = route["json"][0][0]["features"][0]
                 total_fuel = fuel_geojson["properties"]["total_fuel"]
                 total_traveltime = fuel_geojson["properties"]["total_traveltime"]
                 features.append(
@@ -230,8 +230,8 @@ def register_callbacks(app: DjangoDash):
                         ],
                     ),
                 )
-            if r.get("traveltime") and len(route.get("json")) > 0:
-                traveltime_geojson = route["json"][0][0]["features"][0]
+            if r.get("traveltime") and len(route.get("json")) > 1:
+                traveltime_geojson = route["json"][1][0]["features"][0]
                 total_fuel = traveltime_geojson["properties"]["total_fuel"]
                 total_traveltime = traveltime_geojson["properties"]["total_traveltime"]
                 features.append(
