@@ -389,7 +389,7 @@ class TestJobStatusSerializer(TestCase):
         )
 
         # Add error info to route
-        self.route.info = "Route calculation failed due to invalid coordinates"
+        self.route.info = {"error": "Route calculation failed due to invalid coordinates"}
         self.route.save()
 
         # Mock Celery result

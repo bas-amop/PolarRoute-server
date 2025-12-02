@@ -72,22 +72,7 @@ class RouteAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         # Load only the fields necessary for the changelist view
         queryset = super().get_queryset(request)
-        return queryset.only(
-            "id",
-            "start_lat",
-            "start_lon",
-            "end_lat",
-            "end_lon",
-            "start_name",
-            "end_name",
-            "requested",
-            "calculated",
-            "job",
-            "mesh_id",
-            "vehicle_id",
-            "info",
-            "polar_route_version",
-        )
+        return queryset.defer("json", "json_unsmoothed", "mesh__json")
 
     list_select_related = ("mesh", "vehicle")
 

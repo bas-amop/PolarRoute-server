@@ -764,8 +764,7 @@ components:
           nullable: true
           description: Name of the end point.
         mesh_id:
-          type: string
-          format: uuid
+          type: integer
           nullable: true
           description: 'Optional: Custom mesh ID to use for route calculation.'
         force_new_route:
@@ -791,8 +790,7 @@ components:
           type: string
           description: Vehicle type for route evaluation (required).
         custom_mesh_id:
-          type: string
-          format: uuid
+          type: integer
           nullable: true
           description: 'Optional: Custom mesh ID to use for evaluation.'
       required:

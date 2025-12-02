@@ -323,7 +323,7 @@ class RouteRequestView(LoggingMixin, ResponseMixin, GenericAPIView):
                 "end_name": serializers.CharField(
                     required=False, allow_null=True, help_text="Name of the end point."
                 ),
-                "mesh_id": serializers.UUIDField(
+                "mesh_id": serializers.IntegerField(
                     required=False,
                     allow_null=True,
                     help_text="Optional: Custom mesh ID to use for route calculation.",
@@ -684,7 +684,7 @@ class EvaluateRouteView(LoggingMixin, ResponseMixin, APIView):
                 "vehicle_type": serializers.CharField(
                     help_text="Vehicle type for route evaluation (required)."
                 ),
-                "custom_mesh_id": serializers.UUIDField(
+                "custom_mesh_id": serializers.IntegerField(
                     required=False,
                     allow_null=True,
                     help_text="Optional: Custom mesh ID to use for evaluation.",
@@ -731,8 +731,10 @@ class EvaluateRouteView(LoggingMixin, ResponseMixin, APIView):
 
         result_dict = evaluate_route(route_json, meshes[0])
 
-        response_data.update(result_dict)
+        if result_dict is None:
+            result_dict = {"error": "Route evaluation not possible."}
 
+        response_data.update(result_dict)
         return self.success_response(response_data)
 
 

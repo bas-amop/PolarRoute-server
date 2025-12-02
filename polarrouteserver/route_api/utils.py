@@ -262,13 +262,13 @@ def evaluate_route(route_json: dict, mesh: VehicleMesh) -> dict:
         calc_route = route_calc(
             df=df, from_wp="Start", to_wp="End", mesh=mesh.json, route_type="smoothed"
         )
+        time_days = calc_route["features"][0]["properties"]["traveltime"][-1]
+        time_str = convert_decimal_days(time_days)
+        fuel = round(calc_route["features"][0]["properties"]["fuel"][-1], 2)
+
     except Exception as e:
         logger.error(e)
         return None
-
-    time_days = calc_route["features"][0]["properties"]["traveltime"][-1]
-    time_str = convert_decimal_days(time_days)
-    fuel = round(calc_route["features"][0]["properties"]["fuel"][-1], 2)
 
     return dict(
         route=calc_route, time_days=time_days, time_str=time_str, fuel_tonnes=fuel

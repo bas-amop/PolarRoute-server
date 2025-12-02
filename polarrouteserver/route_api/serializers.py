@@ -65,7 +65,7 @@ class JobStatusSerializer(serializers.ModelSerializer):
         """Include error info when job failed."""
         result = self._get_celery_result(obj)
         if result.state == "FAILURE":
-            return {"error": obj.route.info}
+            return obj.route.info
         return None
 
     def to_representation(self, instance):
