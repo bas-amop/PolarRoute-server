@@ -99,7 +99,7 @@ def request_route(
         num_requests (int, optional): Max number of status requests before giving up. Defaults to 10.
         force_new_route (bool, optional): Force recalculation of an already existing route. Default: False.
         mesh_id (int, optional): Custom mesh ID to use for route calculation. Default: None.
-        tag (str, optional): Tag to assign to the route. Default: None.
+        tags (list, optional): Tags to assign to the route. Default: None.
 
     Raises:
         Exception: If no status URL is returned.
@@ -124,7 +124,7 @@ def request_route(
                 "end_name": end.name,
                 "force_new_route": force_new_route,
                 "mesh_id": mesh_id,
-                "tag": tags,
+                "tags": tags,
             },
         ).encode("utf-8"),
     )
