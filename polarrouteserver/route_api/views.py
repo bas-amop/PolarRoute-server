@@ -518,6 +518,7 @@ class RecentRoutesView(LoggingMixin, ResponseMixin, GenericAPIView):
                 "mesh_id",
                 "mesh__name",
                 "job__id",
+                "tag",
             )
             .order_by("-requested")
         )
@@ -559,6 +560,7 @@ class RecentRoutesView(LoggingMixin, ResponseMixin, GenericAPIView):
                 "route_url": reverse(
                     "route_detail", args=[route["id"]], request=request
                 ),
+                "tag": route["tag"],
             }
 
             if route["job__id"]:
