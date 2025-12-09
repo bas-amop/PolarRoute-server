@@ -322,7 +322,7 @@ class RouteRequestView(LoggingMixin, ResponseMixin, GenericAPIView):
                     required=False,
                     allow_null=True,
                     max_length=100,
-                    help_text="Optional tag for route categorization (e.g., 'archive', 'test_route', 'SD056').",
+                    help_text="Optional tag for route (e.g., 'archive', 'SD056').",
                 ),
             },
         ),

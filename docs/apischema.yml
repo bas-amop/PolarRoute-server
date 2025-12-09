@@ -766,8 +766,7 @@ components:
         tag:
           type: string
           nullable: true
-          description: Optional tag for route categorization (e.g., 'archive', 'test_route',
-            'SD056').
+          description: Optional tag for route (e.g., 'archive', 'SD056').
           maxLength: 100
       required:
       - end_lat
