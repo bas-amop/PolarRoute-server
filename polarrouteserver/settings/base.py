@@ -91,6 +91,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "drf_spectacular",
     "drf_spectacular_sidecar",
+    "taggit",
     "polarrouteserver.route_api",
     "corsheaders",
 ]

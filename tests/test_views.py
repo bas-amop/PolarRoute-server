@@ -336,7 +336,7 @@ class TestRouteRequest(TestCase):
             "status-url"
         )
 
-    def test_request_route_with_tag(self):
+    def test_request_route_with_tags(self):
         """Test that routes can be created with optional tags."""
         data = {
             "start_lat": 0.1,
@@ -345,7 +345,7 @@ class TestRouteRequest(TestCase):
             "end_lon": 0.9,
             "start_name": "Test Start",
             "end_name": "Test End",
-            "tag": "archive_test",
+            "tags": ["archive_test"],
         }
 
         request = self.factory.post(
@@ -366,7 +366,7 @@ class TestRouteRequest(TestCase):
         ).first()
 
         self.assertIsNotNone(route)
-        self.assertEqual(route.tag, "archive_test")
+        self.assertIn("archive_test", [tag.name for tag in route.tags.all()])
 
     def test_request_route_without_tag(self):
         """Test that routes can be created without tags (tag is optional)."""
@@ -385,7 +385,7 @@ class TestRouteRequest(TestCase):
 
         self.assertEqual(response.status_code, 202)
 
-        # Verify the route was created without a tag
+        # Verify the route was created without any tags
         from polarrouteserver.route_api.models import Route
         route = Route.objects.filter(
             start_lat=0.2,
@@ -395,7 +395,7 @@ class TestRouteRequest(TestCase):
         ).first()
 
         self.assertIsNotNone(route)
-        self.assertIsNone(route.tag)
+        self.assertEqual(route.tags.count(), 0)
 
     def test_evaluate_route(self):
         with open(settings.TEST_ROUTE_PATH) as fp:

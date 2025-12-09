@@ -87,7 +87,7 @@ def request_route(
     num_requests: int = 10,
     force_new_route: bool = False,
     mesh_id: int = None,
-    tag: str = None,
+    tags: list = None,
 ) -> str:
     """Requests a route from polarRouteServer, monitors job status until complete, then retrieves route data.
 
@@ -124,7 +124,7 @@ def request_route(
                 "end_name": end.name,
                 "force_new_route": force_new_route,
                 "mesh_id": mesh_id,
-                "tag": tag,
+                "tag": tags,
             },
         ).encode("utf-8"),
     )
@@ -280,10 +280,10 @@ def parse_args():
     )
     parser.add_argument(
         "-t",
-        "--tag",
+        "--tags",
         type=str,
-        nargs="?",
-        help="Tag to assign to the route (e.g., 'archive', 'SD056').",
+        nargs="*",
+        help="Tags to assign to the route (e.g., 'archive' 'SD056'). Can specify multiple tags separated by spaces.",
     )
     parser.add_argument(
         "-o",
@@ -306,7 +306,7 @@ def main():
         status_update_delay=args.delay,
         force_new_route=args.force,
         mesh_id=args.meshid,
-        tag=args.tag,
+        tags=args.tags,
     )
 
     if route is None:
