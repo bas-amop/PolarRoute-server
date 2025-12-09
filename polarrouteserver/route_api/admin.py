@@ -5,10 +5,12 @@ from .models import Vehicle, Route, Mesh, Job, Location
 LIST_PER_PAGE = 20
 
 
+@admin.register(Vehicle)
 class VehicleAdmin(admin.ModelAdmin):
     list_display = ["vessel_type"]
 
 
+@admin.register(Route)
 class RouteAdmin(admin.ModelAdmin):
     list_display = [
         "id",
@@ -23,12 +25,35 @@ class RouteAdmin(admin.ModelAdmin):
     ]
     ordering = ("-requested",)
 
+    list_select_related = ("mesh",)
+
     def get_queryset(self, request):
         # Load only the fields necessary for the changelist view
         queryset = super().get_queryset(request)
         return queryset.defer("json", "json_unsmoothed", "mesh__json")
 
-    list_select_related = ("mesh",)
+    def get_fieldsets(self, request, obj=None):
+        # contain the json fields in a collapsed section of the page
+        collapsed_fields = ("json", "json_unsmoothed")
+        if obj:
+            return [
+                (
+                    None,
+                    {
+                        "fields": [
+                            f.name
+                            for f in self.model._meta.fields
+                            if f.name not in collapsed_fields + ("id",)
+                        ]
+                    },
+                ),
+                (
+                    "Click to expand JSON fields",
+                    {"classes": ["collapse"], "fields": list(collapsed_fields)},
+                ),
+            ]
+
+        return self.fieldsets
 
     def display_start(self, obj):
         if obj.start_name:
@@ -46,16 +71,22 @@ class RouteAdmin(admin.ModelAdmin):
         job = obj.job_set.latest("datetime")
         return f"{job.id}"
 
-    def mesh_id(self, obj):
-        if obj.mesh:
-            return f"{obj.mesh.id}"
-
     display_start.short_description = "Start (lat,lon)"
     display_end.short_description = "End (lat,lon)"
     job_id.short_description = "Job ID (latest)"
-    mesh_id.short_description = "Mesh ID"
+
+    def get_readonly_fields(self, request, obj=None):
+        editable_fields = ("requested", "calculated", "start_name", "end_name")
+
+        if obj:
+            # Return a list of all field names on the model
+            return [
+                f.name for f in self.model._meta.fields if f.name not in editable_fields
+            ]
+        return self.readonly_fields
 
 
+@admin.register(Job)
 class JobAdmin(admin.ModelAdmin):
     list_display = [
         "id",
@@ -75,6 +106,7 @@ class JobAdmin(admin.ModelAdmin):
     get_status.short_description = "Status"
 
 
+@admin.register(Mesh)
 class MeshAdmin(admin.ModelAdmin):
     list_display = [
         "id",
@@ -96,6 +128,7 @@ class MeshAdmin(admin.ModelAdmin):
         return queryset.defer("json")
 
 
+@admin.register(Location)
 class LocationAdmin(admin.ModelAdmin):
     list_display = [
         "id",
@@ -106,10 +139,3 @@ class LocationAdmin(admin.ModelAdmin):
     list_filter = ["name"]
     search_fields = ["name"]
     ordering = ["name"]
-
-
-admin.site.register(Vehicle, VehicleAdmin)
-admin.site.register(Route, RouteAdmin)
-admin.site.register(Mesh, MeshAdmin)
-admin.site.register(Job, JobAdmin)
-admin.site.register(Location, LocationAdmin)
