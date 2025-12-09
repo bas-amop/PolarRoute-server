@@ -71,6 +71,12 @@ class Route(models.Model):
     json = models.JSONField(null=True)
     json_unsmoothed = models.JSONField(null=True)
     polar_route_version = models.CharField(max_length=60, null=True)
+    tag = models.CharField(
+        max_length=100,
+        null=True,
+        blank=True,
+        help_text="Optional tag for route categorization",
+    )
 
 
 class Job(models.Model):

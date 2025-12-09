@@ -118,6 +118,7 @@ class RouteSerializer(serializers.ModelSerializer):
             "mesh",
             "requested",
             "calculated",
+            "tag",
         ]
 
     def _extract_routes_by_type(self, route_data, route_type):

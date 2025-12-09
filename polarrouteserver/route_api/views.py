@@ -318,6 +318,12 @@ class RouteRequestView(LoggingMixin, ResponseMixin, GenericAPIView):
                     default=False,
                     help_text="If true, forces recalculation even if an existing route is found.",
                 ),
+                "tag": serializers.CharField(
+                    required=False,
+                    allow_null=True,
+                    max_length=100,
+                    help_text="Optional tag for route categorization (e.g., 'archive', 'test_route', 'SD056').",
+                ),
             },
         ),
         responses={
@@ -350,6 +356,7 @@ class RouteRequestView(LoggingMixin, ResponseMixin, GenericAPIView):
         end_name = data.get("end_name", None)
         custom_mesh_id = data.get("mesh_id", None)
         force_new_route = data.get("force_new_route", False)
+        tag = data.get("tag", None)
 
         if custom_mesh_id:
             try:
@@ -407,6 +414,7 @@ class RouteRequestView(LoggingMixin, ResponseMixin, GenericAPIView):
             mesh=meshes[0],
             start_name=start_name,
             end_name=end_name,
+            tag=tag,
         )
 
         # Start the task calculation

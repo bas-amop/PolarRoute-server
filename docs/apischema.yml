@@ -763,6 +763,12 @@ components:
           default: false
           description: If true, forces recalculation even if an existing route is
             found.
+        tag:
+          type: string
+          nullable: true
+          description: Optional tag for route categorization (e.g., 'archive', 'test_route',
+            'SD056').
+          maxLength: 100
       required:
       - end_lat
       - end_lon
