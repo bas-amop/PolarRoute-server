@@ -44,6 +44,7 @@ polarrouteserver = [
 
 [project.optional-dependencies]
 dev = [
+    "debugpy",
     "django-debug-toolbar",
     "pre-commit",
     "pytest",
