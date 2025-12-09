@@ -6,7 +6,7 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("route_api", "0017_add_route_tag"),
+        ("route_api", "0016_alter_location_name"),
         (
             "taggit",
             "0006_rename_taggeditem_content_type_object_id_taggit_tagg_content_8fc721_idx",
@@ -14,10 +14,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name="route",
-            name="tag",
-        ),
         migrations.AddField(
             model_name="route",
             name="tags",
