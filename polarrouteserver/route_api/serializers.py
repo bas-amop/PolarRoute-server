@@ -283,6 +283,7 @@ class RouteSerializer(serializers.ModelSerializer):
         result = {
             "routes": available_routes,
             "polarrouteserver-version": polarrouteserver_version,
+            "tag": data.get("tag"),
         }
 
         # Add error if no routes available
