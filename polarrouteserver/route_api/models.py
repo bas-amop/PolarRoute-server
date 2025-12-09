@@ -75,7 +75,7 @@ class Route(models.Model):
         max_length=100,
         null=True,
         blank=True,
-        help_text="Optional tag for route categorization",
+        help_text="Optional tag for route",
     )
 
 

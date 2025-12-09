@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
             name="tag",
             field=models.CharField(
                 blank=True,
-                help_text="Optional tag for route categorization",
+                help_text="Optional tag for route",
                 max_length=100,
                 null=True,
             ),
