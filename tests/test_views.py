@@ -368,7 +368,7 @@ class TestRouteRequest(TestCase):
         self.assertIsNotNone(route)
         self.assertIn("archive_test", [tag.name for tag in route.tags.all()])
 
-    def test_request_route_without_tag(self):
+    def test_request_route_without_tags(self):
         """Test that routes can be created without tags (tag is optional)."""
         data = {
             "start_lat": 0.2,
