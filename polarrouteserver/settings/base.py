@@ -230,7 +230,7 @@ FUEL_CONFIG = base_routeplanner_config | {"objective_function": "fuel"}
 # dictionary relating user-friendly name of data source with loader value used in vessel mesh json
 EXPECTED_MESH_DATA_SOURCES = {
     "bathymetry": "GEBCO",
-    "current": "duacs_current",
+    "current": "duacs_currents",
     "sea ice concentration": "amsr",
     "thickness": "thickness",
     "density": "density",

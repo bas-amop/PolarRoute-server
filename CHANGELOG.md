@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated tests to reflect corrected HTTP status codes.
 
 ### Fixed
+- Corrected mesh data source checking and improved warning message to reduce confusion for missing current data.
 - Add erroneously missing `rest_framework` into `INSTALLED_APPS`.
 - Remove unique constraint and add id field to locations fixture to prevent duplication.
 
