@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - added ensure_adminuser command to add subtly more sophisticated behaviour to Django's createsuperuser - i.e. don't raise non-zero exit code if superuser already exists, add more useful output.
 - Use uv in the docker image.
 - Empty arrays to empty responses for a consistent response structure.
+- Adding a "tags" field to the Route model. As an optional parameter, tags can be assigned to routes using a POST api/route request. This is implemented using [django-taggit](https://django-taggit.readthedocs.io/en/latest).
 
 ### Changed
 - Inappropriate use of 204 code: RecentRoutesView changed from 204 to 200 OK with an empty array and the original message ("No recent routes found for today.").

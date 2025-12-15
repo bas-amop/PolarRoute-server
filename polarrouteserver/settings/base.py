@@ -91,6 +91,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "drf_spectacular",
     "drf_spectacular_sidecar",
+    "taggit",
     "polarrouteserver.route_api",
     "corsheaders",
 ]
@@ -126,6 +127,8 @@ SPECTACULAR_SETTINGS = {
     "SECURITY": [],
     "AUTHENTICATION_WHITELIST": [],
 }
+
+TAGGIT_CASE_INSENSITIVE = True
 
 ROOT_URLCONF = "polarrouteserver.urls"
 
