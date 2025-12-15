@@ -72,8 +72,12 @@
                 <li class="toctree-l1 current"><a class="reference internal current" href="#">Changelog</a>
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#unreleased">[Unreleased]</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#025-2025-12-15">0.2.5 - 2025-12-15</a>
         <ul>
     <li class="toctree-l3"><a class="reference internal" href="#added">Added</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#improved">Improved</a>
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#changed">Changed</a>
     </li>
@@ -214,12 +218,20 @@
 <p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <h2 id="unreleased">[Unreleased]</h2>
+<h2 id="025-2025-12-15">0.2.5 - 2025-12-15</h2>
 <h3 id="added">Added</h3>
 <ul>
 <li>added ensure_adminuser command to add subtly more sophisticated behaviour to Django's createsuperuser - i.e. don't raise non-zero exit code if superuser already exists, add more useful output.</li>
-<li>Use uv in the docker image.</li>
 <li>Empty arrays to empty responses for a consistent response structure.</li>
 <li>Adding a "tags" field to the Route model. As an optional parameter, tags can be assigned to routes using a POST api/route request. This is implemented using <a href="https://django-taggit.readthedocs.io/en/latest">django-taggit</a>.</li>
+<li>Added environment variables for controlling logging behaviour: POLARROUTE_LOG_FILE_NAME, CELERY_LOG_DIR, CELERY_LOG_FILE_NAME (in addition to existing: POLARROUTE_LOG_DIR).</li>
+<li>Added rotating logging handler.</li>
+</ul>
+<h3 id="improved">Improved</h3>
+<ul>
+<li>Improved speed of route changelist admin page.</li>
+<li>Write logs with group-write permissions.</li>
+<li>Use uv in the docker image.</li>
 </ul>
 <h3 id="changed">Changed</h3>
 <ul>
@@ -227,12 +239,17 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Inappropriate use of 204 code: VehicleTypeListView changed from 204 to 200 OK with and empty array and the original message.</li>
 <li>MeshView - Changed from 204 to 404 Not Found when mesh doesn't exist.</li>
 <li>Updated tests to reflect corrected HTTP status codes.</li>
+<li>Remove one layer of error response nesting in failed job response.</li>
+<li>Made route admin panel more read-only and faster; hide full view of JSON fields.</li>
 </ul>
 <h3 id="fixed">Fixed</h3>
 <ul>
 <li>Corrected mesh data source checking and improved warning message to reduce confusion for missing current data.</li>
 <li>Add erroneously missing <code>rest_framework</code> into <code>INSTALLED_APPS</code>.</li>
 <li>Remove unique constraint and add id field to locations fixture to prevent duplication.</li>
+<li>Corrected mesh metadata filename pattern.</li>
+<li>Corrected mesh id type in api schema.</li>
+<li>Catch more errors in route evaluation, return a better error message from evaluate route endpoint.</li>
 </ul>
 <h2 id="024-2025-11-11">0.2.4 - 2025-11-11</h2>
 <h3 id="fixed_1">Fixed</h3>
