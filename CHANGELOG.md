@@ -6,25 +6,37 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+ 
+## 0.2.5 - 2025-12-15
 
 
 ### Added
 - added ensure_adminuser command to add subtly more sophisticated behaviour to Django's createsuperuser - i.e. don't raise non-zero exit code if superuser already exists, add more useful output.
-- Use uv in the docker image.
 - Empty arrays to empty responses for a consistent response structure.
 - Adding a "tags" field to the Route model. As an optional parameter, tags can be assigned to routes using a POST api/route request. This is implemented using [django-taggit](https://django-taggit.readthedocs.io/en/latest).
+- Added environment variables for controlling logging behaviour: POLARROUTE_LOG_FILE_NAME, CELERY_LOG_DIR, CELERY_LOG_FILE_NAME (in addition to existing: POLARROUTE_LOG_DIR).
+- Added rotating logging handler.
+
+### Improved
+- Improved speed of route changelist admin page.
+- Write logs with group-write permissions.
+- Use uv in the docker image.
 
 ### Changed
 - Inappropriate use of 204 code: RecentRoutesView changed from 204 to 200 OK with an empty array and the original message ("No recent routes found for today.").
 - Inappropriate use of 204 code: VehicleTypeListView changed from 204 to 200 OK with and empty array and the original message.
 - MeshView - Changed from 204 to 404 Not Found when mesh doesn't exist.
 - Updated tests to reflect corrected HTTP status codes.
+- Remove one layer of error response nesting in failed job response.
+- Made route admin panel more read-only and faster; hide full view of JSON fields.
 
 ### Fixed
 - Corrected mesh data source checking and improved warning message to reduce confusion for missing current data.
 - Add erroneously missing `rest_framework` into `INSTALLED_APPS`.
 - Remove unique constraint and add id field to locations fixture to prevent duplication.
-
+- Corrected mesh metadata filename pattern.
+- Corrected mesh id type in api schema.
+- Catch more errors in route evaluation, return a better error message from evaluate route endpoint.
 
 
 
