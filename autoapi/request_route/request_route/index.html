@@ -412,7 +412,7 @@
 
 
 <h2 id="request_route.request_route.request_route" class="doc doc-heading">
-            <code class="highlight language-python">request_route(url, start, end, status_update_delay=30, num_requests=10, force_new_route=False, mesh_id=None)</code>
+            <code class="highlight language-python">request_route(url, start, end, status_update_delay=30, num_requests=10, force_new_route=False, mesh_id=None, tags=None)</code>
 
 </h2>
 
@@ -496,6 +496,16 @@
                 <p>Custom mesh ID to use for route calculation. Default: None.</p>
               </div>
             </li>
+            <li>
+              <b><code>tags</code></b>
+                  (<code><span title="list">list</span></code>, default:
+                      <code>None</code>
+)
+              –
+              <div class="doc-md-description">
+                <p>Tags to assign to the route. Default: None.</p>
+              </div>
+            </li>
         </ul>
       </td>
     </tr>
@@ -558,6 +568,7 @@
     num_requests: int = 10,
     force_new_route: bool = False,
     mesh_id: int = None,
+    tags: list = None,
 ) -&gt; str:
     """Requests a route from polarRouteServer, monitors job status until complete, then retrieves route data.
 
@@ -569,6 +580,7 @@
         num_requests (int, optional): Max number of status requests before giving up. Defaults to 10.
         force_new_route (bool, optional): Force recalculation of an already existing route. Default: False.
         mesh_id (int, optional): Custom mesh ID to use for route calculation. Default: None.
+        tags (list, optional): Tags to assign to the route. Default: None.
 
     Raises:
         Exception: If no status URL is returned.
@@ -593,6 +605,7 @@
                 "end_name": end.name,
                 "force_new_route": force_new_route,
                 "mesh_id": mesh_id,
+                "tags": tags,
             },
         ).encode("utf-8"),
     )

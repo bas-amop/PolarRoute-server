@@ -416,7 +416,7 @@
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><span title="rest_framework.serializers.ModelSerializer">ModelSerializer</span></code></p>
+              Bases: <code><span title="taggit.serializers.TaggitSerializer">TaggitSerializer</span></code>, <code><span title="rest_framework.serializers.ModelSerializer">ModelSerializer</span></code></p>
 
 
 
@@ -428,7 +428,9 @@
 
               <details class="quote">
                 <summary>Source code in <code>polarrouteserver/route_api/serializers.py</code></summary>
-                <pre class="highlight"><code class="language-python">class RouteSerializer(serializers.ModelSerializer):
+                <pre class="highlight"><code class="language-python">class RouteSerializer(TaggitSerializer, serializers.ModelSerializer):
+    tags = TagListSerializerField()
+
     class Meta:
         model = Route
         fields = [
@@ -446,6 +448,7 @@
             "mesh",
             "requested",
             "calculated",
+            "tags",
         ]
 
     def _extract_routes_by_type(self, route_data, route_type):
@@ -610,6 +613,7 @@
         result = {
             "routes": available_routes,
             "polarrouteserver-version": polarrouteserver_version,
+            "tags": data.get("tags", []),
         }
 
         # Add error if no routes available
@@ -746,6 +750,7 @@
     result = {
         "routes": available_routes,
         "polarrouteserver-version": polarrouteserver_version,
+        "tags": data.get("tags", []),
     }
 
     # Add error if no routes available
