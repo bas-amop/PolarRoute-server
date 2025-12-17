@@ -72,6 +72,10 @@
                 <li class="toctree-l1 current"><a class="reference internal current" href="#">Changelog</a>
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#unreleased">[Unreleased]</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#fixed">Fixed</a>
+    </li>
+        </ul>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#025-2025-12-15">0.2.5 - 2025-12-15</a>
         <ul>
@@ -81,13 +85,13 @@
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#changed">Changed</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#fixed">Fixed</a>
+    <li class="toctree-l3"><a class="reference internal" href="#fixed_1">Fixed</a>
     </li>
         </ul>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#024-2025-11-11">0.2.4 - 2025-11-11</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#fixed_1">Fixed</a>
+    <li class="toctree-l3"><a class="reference internal" href="#fixed_2">Fixed</a>
     </li>
         </ul>
     </li>
@@ -101,7 +105,7 @@
     </li>
         </ul>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#fixed_2">Fixed</a>
+    <li class="toctree-l3"><a class="reference internal" href="#fixed_3">Fixed</a>
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#removed">Removed</a>
     </li>
@@ -113,7 +117,7 @@
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#changed_2">Changed</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#fixed_3">Fixed</a>
+    <li class="toctree-l3"><a class="reference internal" href="#fixed_4">Fixed</a>
     </li>
         </ul>
     </li>
@@ -123,7 +127,7 @@
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#changed_3">Changed</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#fixed_4">Fixed</a>
+    <li class="toctree-l3"><a class="reference internal" href="#fixed_5">Fixed</a>
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#removed_1">Removed</a>
     </li>
@@ -218,6 +222,10 @@
 <p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <h2 id="unreleased">[Unreleased]</h2>
+<h3 id="fixed">Fixed</h3>
+<ul>
+<li>Added a missing migration.</li>
+</ul>
 <h2 id="025-2025-12-15">0.2.5 - 2025-12-15</h2>
 <h3 id="added">Added</h3>
 <ul>
@@ -242,7 +250,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Remove one layer of error response nesting in failed job response.</li>
 <li>Made route admin panel more read-only and faster; hide full view of JSON fields.</li>
 </ul>
-<h3 id="fixed">Fixed</h3>
+<h3 id="fixed_1">Fixed</h3>
 <ul>
 <li>Corrected mesh data source checking and improved warning message to reduce confusion for missing current data.</li>
 <li>Add erroneously missing <code>rest_framework</code> into <code>INSTALLED_APPS</code>.</li>
@@ -252,7 +260,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Catch more errors in route evaluation, return a better error message from evaluate route endpoint.</li>
 </ul>
 <h2 id="024-2025-11-11">0.2.4 - 2025-11-11</h2>
-<h3 id="fixed_1">Fixed</h3>
+<h3 id="fixed_2">Fixed</h3>
 <ul>
 <li>Included migration for changes to location model.</li>
 <li>Inclusion of fixtures in source code distribution by using <code>MANIFEST.in</code> in place of <code>package_data</code> in <code>pyproject.toml</code>.</li>
@@ -272,7 +280,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <ul>
 <li>utility move to its own module.</li>
 </ul>
-<h3 id="fixed_2">Fixed</h3>
+<h3 id="fixed_3">Fixed</h3>
 <ul>
 <li><code>request_route</code> utility now does not wait for the delay period before the first status request, only after receipt of a 'PENDING' job status.</li>
 </ul>
@@ -296,7 +304,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Re-coupled <code>recent_routes</code> status to Celery state using database instead of broker for better reliability/performance.</li>
 <li>Removed top-level metadata duplication in route responses.</li>
 </ul>
-<h3 id="fixed_3">Fixed</h3>
+<h3 id="fixed_4">Fixed</h3>
 <ul>
 <li>Performance issues with <code>recent_routes</code> endpoint loading unnecessary data.</li>
 </ul>
@@ -322,7 +330,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Vehicle model expanded with additional SDA properties (<code>beam</code>, <code>hull_type</code>, <code>force_limit</code>).</li>
 <li>LocationView refactored to <code>LocationViewSet</code>.</li>
 </ul>
-<h3 id="fixed_4">Fixed</h3>
+<h3 id="fixed_5">Fixed</h3>
 <ul>
 <li>Route schema missing from API documentation after merge conflicts.</li>
 <li>Inconsistent error response formats across endpoints.</li>
