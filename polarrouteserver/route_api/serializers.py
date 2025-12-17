@@ -5,7 +5,7 @@ from taggit.serializers import TaggitSerializer, TagListSerializerField
 
 from .models import Mesh, Vehicle, Route, Job, Location
 from polarrouteserver.celery import app
-from polarrouteserver.version import __version__ as polarrouteserver_version
+from polarrouteserver._version import __version__ as polarrouteserver_version
 
 
 class JobStatusSerializer(serializers.ModelSerializer):
