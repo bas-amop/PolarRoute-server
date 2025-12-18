@@ -1,0 +1,189 @@
+<!-- 
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Help</title>
+        <script src="https://unpkg.com/maplibre-gl@^5.15.0/dist/maplibre-gl.js"></script>
+        <link href="https://unpkg.com/maplibre-gl@^5.15.0/dist/maplibre-gl.css" rel="stylesheet" />
+    </head>
+
+    <style>
+        #map { 
+        height: 1000px;
+        width: 100%;
+        }
+    </style>
+
+    <body>
+
+        <div id="map"></div>
+        <script>
+            
+            var map = new maplibregl.Map({
+                container: 'map', // container id
+                style: 'https://demotiles.maplibre.org/style.json', // style URL
+                center: [-60, -60], // starting position [lng, lat]
+                zoom: 2 // starting zoom
+            });
+
+            map.on('load', () => {
+                map.addSource('mesh', {
+                    type: 'vector',
+                    url:
+                        'http://localhost:3000/style/mesh.json'
+                });
+                map.addLayer({
+                    'id': 'mesh-outline',
+                    'type': 'line',
+                    'source': 'mesh',
+                    'source-layer': 'get_mesh_zxy'
+                })
+            });
+        </script>
+
+
+    </body>
+</html> -->
+
+
+<!DOCTYPE html>
+<title>PolarRouteServer Leaflet</title>
+<head>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""/>
+    
+    <!-- Make sure you put this AFTER Leaflet's CSS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""></script>
+
+    <script src="https://unpkg.com/leaflet.vectorgrid@latest/dist/Leaflet.VectorGrid.bundled.js"></script>
+    
+</head>
+<style>
+    /* #map { height: 1000px; } */
+    body {
+      margin: 0;
+      padding: 0;
+    }
+    /* make map fill whole page */
+    html, body, #map {
+      height: 100%;
+      width: 100vw;
+    }
+
+    .leaflet-container {
+        background: #fff;
+        outline: 0;
+    }
+</style>
+
+<body>
+ <div id="map"></div>
+
+<script type="text/javascript">
+
+
+    var map = L.map('map', {
+      center: [-60, -60],
+      zoom: 5,
+    });
+
+    var basemap = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+
+
+    const sicRanges = [
+        { min: 99, color: "#78005a"},
+        { min: 95, color: "#9400d3"},
+        { min: 90, color: "#ba55d3"},
+        { min: 85, color: "#fa0000"},
+        { min: 80, color: "#fa7d00"},
+        { min: 70, color: "#fafa00"},
+        { min: 60, color: "#adff2f"},
+        { min: 50, color: "#7dfa00"},
+        { min: 40, color: "#00fa00"},
+        { min: 30, color: "#228b22"},
+        { min: 20, color: "#1efaa0"},
+        { min: 10, color: "#1e90ff"},
+        { min: 0, color: "#4590f7"}
+    ];
+
+    const getSicColor = (val) => sicRanges.find(range => val >= range.min);
+
+    var meshLayer = L.vectorGrid.protobuf("http://localhost:3000/mesh/{z}/{x}/{y}?mesh_id=5", {
+        maxNativeZoom: 14,
+        interactive:true,
+        vectorTileLayerStyles: {
+            get_mesh_zxy: function(properties){
+                var sic = properties.SIC;
+                var land = properties.land;
+                var fillColor = "#000";
+                var fillopacity = 0.8;
+                if (land == true){
+                    fillColor = "#646464"
+                }else if (sic < 10){
+                    fillopacity = 0;
+                }else{
+                    var colorrange = getSicColor(sic);
+                    fillColor = colorrange.color;
+                }
+                return {
+                    fill: true,
+                    weight: 1,
+                    color: "#333",
+                    opacity: 0.8,
+                    fillColor: fillColor,
+                    fillOpacity: fillopacity
+                }
+            }
+        }
+    }).addTo(map);
+
+    meshLayer.on('click', function(e) {
+        // Access the properties from the MVT feature
+        var properties = e.layer.properties;
+
+        // Construct the tooltip content
+        var content = `
+            <strong>id</strong>: ${properties.id}<br>
+            <strong>sic:</strong> ${properties.SIC.toLocaleString({maximumSignificantDigits: 4})}%<br>
+            <strong>land:</strong> ${properties.land}<br>
+            <strong>cx</strong>: ${properties.cx.toLocaleString({maximumSignificantDigits: 4})}<br>
+            <strong>cy</strong>:  ${properties.cy.toLocaleString({maximumSignificantDigits: 4})}<br>
+            <strong>dcx</strong>: ${properties.dcx.toLocaleString({maximumSignificantDigits: 4})}<br>
+            <strong>dcy</strong>: ${properties.dcy.toLocaleString({maximumSignificantDigits: 4})}<br>
+            <strong>density</strong>:  ${properties.density}<br>
+            <strong>elevation</strong>:  ${properties.elevation}<br>
+            <strong>ext_ice</strong>:  ${properties.ext_ice}<br>
+            <strong>inaccessible</strong>:  ${properties.inaccessible}<br>
+            <strong>thickness</strong>:  ${properties.thickness.toLocaleString({maximumSignificantDigits: 4})}<br>
+            <strong>uC</strong>: ${properties.uC.toLocaleString({maximumSignificantDigits: 4})}<br>
+            <strong>vC</strong>: ${properties.vC.toLocaleString({maximumSignificantDigits: 4})}
+        `;
+
+        L.tooltip()
+            .setLatLng(e.latlng)
+            .setContent(content)
+            .openOn(map);
+    });
+
+    var baseLayers = {
+        "OpenStreetMap": basemap,
+    };
+
+    var overlays = {
+        "Mesh": meshLayer,
+    };
+
+    L.control.layers(baseLayers, overlays).addTo(map);
+
+
+    map.invalidateSize();
+
+</script>
+
+</body>

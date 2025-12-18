@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Vehicle, Route, Mesh, Job, Location
+from .models import Vehicle, Route, Mesh, Job, Location, MeshPolygon
 
 LIST_PER_PAGE = 20
 
@@ -95,6 +95,10 @@ class MeshAdmin(admin.ModelAdmin):
         queryset = super().get_queryset(request)
         return queryset.defer("json")
 
+class MeshPolygonAdmin(admin.ModelAdmin):
+    list_display = [
+        "mesh_id",
+    ]
 
 class LocationAdmin(admin.ModelAdmin):
     list_display = [
@@ -113,3 +117,4 @@ admin.site.register(Route, RouteAdmin)
 admin.site.register(Mesh, MeshAdmin)
 admin.site.register(Job, JobAdmin)
 admin.site.register(Location, LocationAdmin)
+admin.site.register(MeshPolygon, MeshPolygonAdmin)

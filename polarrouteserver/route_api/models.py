@@ -1,7 +1,8 @@
 import logging
 
 from celery.result import AsyncResult
-from django.db import models
+from django.contrib.gis.db import models
+from django.contrib.gis.geos import GEOSGeometry
 from django.utils import timezone
 
 from polarrouteserver.celery import app
@@ -32,6 +33,52 @@ class Mesh(models.Model):
     class Meta:
         verbose_name_plural = "Meshes"
 
+class MeshPolygon(models.Model):
+    default_srid=3857
+    mesh = models.ForeignKey(Mesh, on_delete=models.CASCADE)
+    properties = models.JSONField()
+    geometry = models.GeometryField(srid=default_srid)
+    # use 3857: web mercator as the default projection
+    # we will store based on the most appropriate projection for a given mesh,
+    # eg 3031: antarctic stereographic for south polar
+    # or 3431 for north polar
+
+    @classmethod
+    def create_from_mesh(cls, mesh_id:int):
+        # NOTE: This method is currently only called from the corresponding signal from a mesh save, see signals.py module.
+
+        source_srid = 4326
+
+        # get mesh object
+        try:
+            mesh = Mesh.objects.get(id=mesh_id)
+        except Mesh.DoesNotExist:
+            raise Exception
+        
+        # delete previous polygons for this mesh
+        try:
+            cls.objects.get(mesh=mesh).delete()
+        except MeshPolygon.DoesNotExist:
+            pass
+
+        # create new mesh polygons
+        new_polygons = []
+        for feature in mesh.json['cellboxes']:
+            geometry = feature.pop('geometry')
+            properties = feature
+
+            new_polygons.append(cls(
+                mesh=mesh,
+                properties=properties,
+                geometry = GEOSGeometry(geometry, source_srid).transform(cls.default_srid, clone=True),
+            ))
+
+        cls.objects.bulk_create(new_polygons)
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['mesh']),
+        ]
 
 class Vehicle(models.Model):
     # Required properties

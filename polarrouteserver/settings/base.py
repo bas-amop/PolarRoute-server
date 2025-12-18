@@ -33,29 +33,48 @@ ALLOWED_HOSTS = [
 if os.getenv("POLARROUTE_ALLOWED_HOSTS", None) is not None:
     ALLOWED_HOSTS.extend(os.getenv("POLARROUTE_ALLOWED_HOSTS").split(","))
 
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "simple": {
-            "format": "{levelname} {message}",
-            "style": "{",
-        },
-    },
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
-            "formatter": "simple",
-        },
-    },
-    "loggers": {
-        "root": {
-            "handlers": ["console"],
-            "level": os.getenv("POLARROUTE_LOG_LEVEL", "INFO"),
-            "propagate": True,
-        },
-    },
-}
+# LOGGING = {
+#     "version": 1,
+#     "disable_existing_loggers": False,
+#     "formatters": {
+#         "simple": {
+#             "format": "{levelname} {message}",
+#             "style": "{",
+#         },
+#         "django.server": {
+#             "()": "django.utils.log.ServerFormatter",
+#             "format": "[{server_time}] {message}",
+#             "style": "{",
+#         }
+#     },
+#     "handlers": {
+#         "console": {
+#             "class": "logging.StreamHandler",
+#             "formatter": "simple",
+#         },
+#         "django.server": {
+#             "level": "INFO",
+#             "class": "logging.StreamHandler",
+#             "formatter": "django.server",
+#         },
+#     },
+#     "loggers": {
+#         "root": {
+#             "handlers": ["console"],
+#             "level": os.getenv("POLARROUTE_LOG_LEVEL", "INFO"),
+#             "propagate": True,
+#         },
+#         "django": {
+#             "handlers": ["console"],
+#             "level": "INFO",
+#         },
+#         "django.server": {
+#             "handlers": ["django.server"],
+#             "level": "INFO",
+#             "propagate": False,
+#         },
+#     },
+# }
 
 CELERY_LOGGING = {
     "version": 1,
@@ -83,6 +102,7 @@ INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
+    "django.contrib.gis",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
@@ -95,7 +115,7 @@ INSTALLED_APPS = [
     "corsheaders",
 ]
 
-CORS_ALLOWED_ORIGINS = ["http://localhost:8000"]
+CORS_ALLOWED_ORIGINS = ["http://localhost:8000", "http://localhost:3000"]
 if os.getenv("POLARROUTE_CORS_ALLOWED_ORIGINS", None) is not None:
     CORS_ALLOWED_ORIGINS.extend(os.getenv("POLARROUTE_CORS_ALLOWED_ORIGINS").split(","))
 
@@ -149,7 +169,7 @@ WSGI_APPLICATION = "polarrouteserver.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
+        "ENGINE": "django.contrib.gis.db.backends.postgis",
         "NAME": os.getenv("POLARROUTE_DB_NAME", "polarroute"),
         "USER": os.getenv("POLARROUTE_DB_USER", "polarroute"),
         "PASSWORD": os.getenv("POLARROUTE_DB_PASSWORD", "polarroute"),

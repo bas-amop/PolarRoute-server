@@ -1,0 +1,76 @@
+{
+  "version": 8,
+  "name": "PolarRoute Mesh Style",
+  "metadata": {
+    "mapbox:autocomposite": true
+  },
+  "sources": {
+    "mesh": {
+      "type": "vector",
+      
+      "tiles": [
+        "http://localhost:3000/mesh/{z}/{x}/{y}?mesh_id=5"
+      ],
+      
+      "minzoom": 0,
+      "maxzoom": 14
+    }
+  },
+  "layers": [
+  
+    {
+      "id": "mesh-fill",
+      "type": "fill",
+      "source": "mesh",
+      "source-layer": "get_mesh_zxy",
+      "paint": {
+        "fill-color": [
+          "case",
+          ["boolean", ["get", "land"], true], 
+          "#646464",
+          ["step",
+          ["get", "SIC"],
+          "#4590f7",
+          10, "#1e90ff",
+          20, "#1efaa0",
+          30, "#228b22",
+          40, "#00fa00",
+          50, "#7dfa00",
+          60, "#adff2f",
+          70, "#fafa00",
+          80, "#fa7d00",
+          85, "#fa0000",
+          90, "#ba55d3",
+          95, "#9400d3",
+          99, "#78005a"]
+        ],
+        "fill-opacity": [
+          "step",
+          ["get", "SIC"],
+          0, 9,
+          1.0
+        ]
+      }
+    },
+        {
+      "id": "mesh-outline",
+      "type": "line",
+      "source": "mesh",
+      "source-layer": "get_mesh_zxy",
+      "minzoom": 0,
+      "filter": ["==", "$type", "Polygon"],
+      "paint": {
+        "line-color": "#111111",
+        "line-width": [
+          "interpolate",
+          ["linear"],
+          ["zoom"],
+          10, 0.5,
+          16, 2
+        ]
+      }
+    }
+    
+  ]
+}
+
