@@ -12,7 +12,7 @@ import logging
 import os
 import secrets
 
-from polarrouteserver.version import __version__ as polarrouteserver_version
+from polarrouteserver._version import __version__ as polarrouteserver_version
 
 logger = logging.getLogger(__name__)
 
