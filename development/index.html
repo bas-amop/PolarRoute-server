@@ -114,8 +114,6 @@
                 </li>
     </ul>
                 </li>
-                <li class="toctree-l2"><a class="reference internal" href="../autoapi/polarrouteserver/version/">version</a>
-                </li>
     </ul>
                   </li>
                   <li class="toctree-l1"><a class="reference internal" href="../autoapi/request_route/">request_route</a>
@@ -170,8 +168,8 @@
 <p><strong>Important</strong>: Please ensure all changes are included in <code>CHANGELOG.md</code> in a human-friendly format.</p>
 <h2 id="releaseversioning">Release/Versioning</h2>
 <p>Version numbers should be used in tagging commits on the <code>main</code> branch and reflected in the <code>pyproject.toml</code> file and should be of the form <code>v0.1.7</code> using the semantic versioning convention.</p>
-<p>The <code>Unreleased</code> section of <code>CHANGELOG.md</code> should be amended to the new version number.</p>
-<p>Release preparation (i.e. updating version numbers in <code>CHANGELOG.md</code>, <code>pyproject.toml</code> and <code>apischema.yml</code>) can be done automatically with <code>make prep-release version=&lt;VERSION-NUMBER&gt;</code> (without the 'v'). Note that this does not rebuild the API schema, just changes the version number.</p>
+<p><strong>Note on version numbers</strong>: Setuptools-scm requires version numbers that begin with a <code>v</code> and setuptools requires <a href="https://peps.python.org/pep-0440/">PEP 440-compliant version numbers</a>, e.g. <code>v0.1.7</code>, or for non release versions: <code>v0.1.7a1</code> for alphas, <code>v0.1.7rc1</code> for release candidates. Installing the package will fail if tags have version numbers deviating from this format.</p>
+<p>Release preparation (i.e. updating version numbers in <code>CHANGELOG.md</code> and <code>apischema.yml</code>) can be done automatically with <code>make prep-release version=&lt;VERSION-NUMBER&gt;</code> (without the 'v'). Note that this does not rebuild the API schema, just changes the version number.</p>
 <h2 id="building-deploying-the-documentation">Building &amp; deploying the documentation</h2>
 <p>The documentation should build automatically on pushes to <code>main</code> using GitHub actions, if you want to build and deploy the docs manually, follow these steps:</p>
 <ul>
