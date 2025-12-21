@@ -96,7 +96,7 @@ INSTALLED_APPS = [
     "corsheaders",
 ]
 
-CORS_ALLOWED_ORIGINS = ["http://localhost:8000"]
+CORS_ALLOWED_ORIGINS = ["http://localhost:8000", "http://localhost:5173"]
 if os.getenv("POLARROUTE_CORS_ALLOWED_ORIGINS", None) is not None:
     CORS_ALLOWED_ORIGINS.extend(os.getenv("POLARROUTE_CORS_ALLOWED_ORIGINS").split(","))
 
