@@ -133,10 +133,15 @@ serve-dev: start-rabbitmq start-celery start-dev-server ## Run all the component
 export DJANGO_SETTINGS_MODULE=polarrouteserver.settings.development
 stop-serve-dev: stop-rabbitmq stop-celery stop-dev-server # stop all dev serve components (rabbitmq, celery, devserver)
 
+.PHONY: build-apischema
+build-apischema: ## (Re)Build api schema file from changes to views
+	@echo "+ $@"
+	@python manage.py spectacular --color --validate --file docs/apischema.yml
+
 .PHONY: start-swagger
 start-swagger: ## Start swagger-ui container with API schema
 	@echo "+ $@"
-	@docker run -d -p 80:8080 -e SWAGGER_JSON=/schema.yml -v ${PWD}/docs/apischema.yml:/schema.yml --name ${SWAGGER_CONTAINER} swaggerapi/swagger-ui
+	@docker run -d --rm -p 80:8080 -e SWAGGER_JSON=/schema.yml -v ${PWD}/docs/apischema.yml:/schema.yml --name ${SWAGGER_CONTAINER} swaggerapi/swagger-ui
 	@python -m webbrowser localhost:80
 
 .PHONY: stop-swagger
@@ -150,13 +155,22 @@ build: ## Build package
 	@echo "+ $@"
 	@python -m build
 
-.PHONY: release
-release: ## tag the HEAD commit and update version in pyproject.toml with the value of: "version=0.1.2", e.g. make release version=0.1.2
+.PHONY:prep-release
+prep-release: ## runs update-pkg-version, (re)builds the apischema, preps the changelog
 	@echo "+ $@"
-	@sed -i "s/^version = \".*\"/version = \"$(version)\"/" pyproject.toml
-	@git add pyproject.toml
-	@git commit -m 'release version $(version)'
-	@git tag v$(version) HEAD
+	@if [ -z "$(version)" ]; then \
+		echo "ERROR: version is not set."; \
+		echo "Usage: make prep-release version=1.2.3"; \
+		exit 1; \
+	fi
+
+	@echo "...Updating docs/apischema.yml..."
+	@sed -i "s/version: .*/version: $(version)/" docs/apischema.yml
+
+	@echo "...Updating CHANGELOG.md..."
+	@sed -i "/## \[Unreleased\]/ a\ \n## $(version) - $$(date '+%Y-%m-%d')" CHANGELOG.md
+
+	@echo "Done."
 
 .PHONY: help
 help:

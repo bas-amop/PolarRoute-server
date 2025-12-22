@@ -1,17 +1,21 @@
-"""Demo script for requesting routes from PolarRouteServer API using Python standard library."""
+"""Demo script for requesting routes from PolarRouteServer API using Python standard library.
+
+This script demonstrates the two-step workflow:
+1. Submit a route request to /api/route, which returns a job ID
+2. Monitor job status at /api/job/{job_id} until completion
+3. When job is complete, retrieve route data from /api/route/{route_id}
+"""
 
 import argparse
 import http.client
 import json
 import pprint
 import re
-import os
 import ssl
 import sys
 import time
 from urllib import request
-
-os.environ["DJANGO_SETTINGS_MODULE"] = "polarrouteserver.settings.development"
+from urllib.error import HTTPError
 
 
 class Location:
@@ -23,7 +27,7 @@ class Location:
 
 STANDARD_LOCATIONS = {
     "bird": Location(-54.025, -38.044, "bird"),
-    "falklands": Location(-51.731, -57.706, "falklands"),
+    "mareharbour": Location(-51.902, -58.494, "mareharbour"),
     "halley": Location(-75.059, -25.840, "halley"),
     "rothera": Location(-67.764, -68.02, "rothera"),
     "kep": Location(-54.220, -36.433, "kep"),
@@ -48,6 +52,7 @@ def make_request(
 
     Returns:
         http.client.HTTPResponse
+        status
     """
     sending_str = f"Sending {type} request to {url}{endpoint}: \nHeaders: {headers}\n"
 
@@ -56,10 +61,18 @@ def make_request(
 
     print(sending_str)
 
-    # data = parse.urlencode(body).encode("utf-8") if body else None
-    req = request.Request(url + endpoint, data=body, headers=headers)
+    request_url = url + endpoint if endpoint else url
+    req = request.Request(request_url, data=body, headers=headers)
     unverified_context = ssl._create_unverified_context()
-    response = request.urlopen(req, context=unverified_context)
+
+    try:
+        response = request.urlopen(req, context=unverified_context)
+    except HTTPError as err:
+        print(f"A HTTPError was thrown: {err.code} {err.reason}")
+        print(
+            "One possibility is that there is no mesh available."
+        )  # this is a quick and dirty workaround since urllib throws errors on 404, even though this is a valid use of a that error code
+        return None, err.status
 
     print(f"Response: {response.status} {response.reason}")
 
@@ -72,10 +85,11 @@ def request_route(
     end: Location,
     status_update_delay: int = 30,
     num_requests: int = 10,
-    force_recalculation: bool = False,
+    force_new_route: bool = False,
     mesh_id: int = None,
+    tags: list = None,
 ) -> str:
-    """Requests a route from polarRouteServer, repeating the request for status until the route is available.
+    """Requests a route from polarRouteServer, monitors job status until complete, then retrieves route data.
 
     Args:
         url (str): Base URL to send request to.
@@ -83,13 +97,15 @@ def request_route(
         end (Location): End location of route
         status_update_delay (int, optional): Delay in seconds between each status request. Defaults to 10.
         num_requests (int, optional): Max number of status requests before giving up. Defaults to 10.
-        force_recalculation (bool, optional): Force recalculation of an already existing route. Default: False.
+        force_new_route (bool, optional): Force recalculation of an already existing route. Default: False.
+        mesh_id (int, optional): Custom mesh ID to use for route calculation. Default: None.
+        tags (list, optional): Tags to assign to the route. Default: None.
 
     Raises:
         Exception: If no status URL is returned.
 
     Returns:
-        str: JSON response of route request.
+        str: JSON response of route data, or None if request failed.
     """
 
     # make route request
@@ -106,8 +122,9 @@ def request_route(
                 "end_lon": end.lon,
                 "start_name": start.name,
                 "end_name": end.name,
-                "force_recalculate": force_recalculation,
+                "force_new_route": force_new_route,
                 "mesh_id": mesh_id,
+                "tags": tags,
             },
         ).encode("utf-8"),
     )
@@ -124,36 +141,60 @@ def request_route(
     # if no route returned, request status at status-url
     status_url = response_body.get("status-url")
     if status_url is None:
-        raise Exception("No status URL returned.")
-    id = response_body.get("id")
+        print(
+            "No status URL returned. Route may have failed or been returned immediately."
+        )
+        return None
+    job_id = response_body.get("id")
 
     status_request_count = 0
     while status_request_count <= num_requests:
         status_request_count += 1
-        print(
-            f"\nWaiting for {status_update_delay} seconds before sending status request."
-        )
-        time.sleep(status_update_delay)
 
-        # make route request
+        # make job status request
         print(f"Status request #{status_request_count} of {num_requests}")
-        response_body, status = make_request(
+        status_response, status_code = make_request(
             "GET",
-            url,
-            f"/api/route/{id}",
+            status_url,
+            None,
             headers={"Content-Type": "application/json"},
         )
 
-        print(f"Route calculation {response_body.get('status')}.")
-        print(pprint.pprint(response_body))
-        if response_body.get("status") == "PENDING":
+        print(f"Route calculation {status_response.get('status')}.")
+        print(pprint.pprint(status_response))
+        if status_response.get("status") == "PENDING":
+            print(
+                f"\nWaiting for {status_update_delay} seconds before sending status request."
+            )
+            time.sleep(status_update_delay)
             continue
-        elif response_body.get("status") == "FAILURE":
+        elif status_response.get("status") == "FAILURE":
             return None
-        elif response_body.get("status") == "SUCCESS":
-            return response_body.get("json")
+        elif status_response.get("status") == "SUCCESS":
+            # Job is complete, now get the actual route data
+            route_url = status_response.get("route_url")
+            if route_url:
+                # Extract route ID from the route_url (e.g., "/api/route/123")
+                route_id = status_response.get("route_id")
+                print(f"Job complete! Fetching route data from route ID: {route_id}")
+
+                route_response, route_status = make_request(
+                    "GET",
+                    route_url,
+                    None,
+                    headers={"Content-Type": "application/json"},
+                )
+
+                if str(route_status).startswith("2"):
+                    return route_response
+                else:
+                    print(f"Failed to fetch route data: {route_status}")
+                    return None
+            else:
+                print("Job completed but no route_url provided")
+                return None
     print(
-        f'Max number of requests sent. Quitting.\nTo send more status requests, run: "curl {url}/api/route/{id}"'
+        f'Max number of requests sent. Quitting.\nTo send more status requests, run: "curl {url}/api/job/{job_id}"'
     )
     return None
 
@@ -181,7 +222,7 @@ def parse_location(location: str) -> Location:
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description=f"Requests a route from polarRouteServer, repeating the request for status until the route is available. \
+        description=f"Requests a route from polarRouteServer, monitors job status until complete, then retrieves the route data. \
         Specify start and end points by coordinates or from one of the standard locations: {[loc for loc in STANDARD_LOCATIONS.keys()]}"
     )
     parser.add_argument(
@@ -189,8 +230,8 @@ def parse_args():
         "--url",
         type=str,
         nargs="?",
-        default="localhost:8000",
-        help="Base URL to send request to. Default: localhost:8000",
+        default="http://localhost:8000",
+        help="Base URL to send request to. Default: http://localhost:8000",
     )
     parser.add_argument(
         "-s",
@@ -235,7 +276,14 @@ def parse_args():
         "-f",
         "--force",
         action="store_true",
-        help="Force polarRouteServer to recalculate the route even if it is already available.",
+        help="Force polarRouteServer to create a new route even if one is already available.",
+    )
+    parser.add_argument(
+        "-t",
+        "--tags",
+        type=str,
+        nargs="*",
+        help="Tags to assign to the route (e.g., 'archive' 'SD056'). Can specify multiple tags separated by spaces.",
     )
     parser.add_argument(
         "-o",
@@ -256,8 +304,9 @@ def main():
         parse_location(args.start),
         parse_location(args.end),
         status_update_delay=args.delay,
-        force_recalculation=args.force,
+        force_new_route=args.force,
         mesh_id=args.meshid,
+        tags=args.tags,
     )
 
     if route is None:

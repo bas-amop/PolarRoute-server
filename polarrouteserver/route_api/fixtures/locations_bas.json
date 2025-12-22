@@ -1,0 +1,38 @@
+[
+  {
+    "model": "route_api.location",
+    "fields": { "id": 1, "name": "Bird Island", "lat": -54.025, "lon": -38.044 }
+  },
+  {
+    "model": "route_api.location",
+    "fields": { "id": 2, "name": "Mare Harbour, Falklands", "lat": -51.902, "lon": -58.494 } 
+  },
+  {
+    "model": "route_api.location",
+    "fields": { "id": 3, "name": "Halley", "lat": -75.059, "lon": -25.84 }
+  },
+  {
+    "model": "route_api.location",
+    "fields": { "id": 4, "name": "Rothera", "lat": -67.764, "lon": -68.02 }
+  },
+  {
+    "model": "route_api.location",
+    "fields": { "id": 5, "name": "King Edward Point", "lat": -54.22, "lon": -36.433 }
+  },
+  {
+    "model": "route_api.location",
+    "fields": { "id": 6, "name": "Signy", "lat": -60.72, "lon": -45.48 }
+  },
+  {
+    "model": "route_api.location",
+    "fields": { "id": 7, "name": "Ny Ålesund", "lat": 78.929, "lon": 11.928 }
+  },
+  {
+    "model": "route_api.location",
+    "fields": { "id": 8, "name": "Harwich", "lat": 51.949, "lon": 1.255 }
+  },
+  {
+    "model": "route_api.location",
+    "fields": { "id": 9, "name": "Rosyth", "lat": 56.017, "lon": -3.44 }
+  }
+]

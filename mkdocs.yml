@@ -29,9 +29,11 @@ markdown_extensions:
   - attr_list
 nav:
   - Home: index.md
+  - vehicle-management.md
   - requesting-routes.md
   - how-polarroute-server-works.md
   - deployment.md
   - configuration.md
   - development.md
+  - changelog.md
   - API Reference: api.md

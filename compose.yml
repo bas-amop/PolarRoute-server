@@ -11,7 +11,9 @@ services:
       POLARROUTE_DB_PORT: 5432
       POLARROUTE_FRONTEND: True
       POLARROUTE_LOG_LEVEL: DEBUG
-    entrypoint: /usr/src/app/entrypoint.sh
+      POLARROUTE_SUPERUSER_USERNAME: admin
+      POLARROUTE_SUPERUSER_PASSWORD: password
+    entrypoint: /usr/src/app/docker-entrypoint.sh
     command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
     volumes:
       - ./manage.py:/usr/src/app/manage.py
@@ -31,7 +33,7 @@ services:
       POSTGRES_DB: polarroute
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
-      - ./data/db:/var/lib/postgresql/data
+      - db-data:/var/lib/postgresql/data
     ports:
       - 5432:5432
 
@@ -66,3 +68,6 @@ services:
       - BASE_URL=/swagger
     volumes:
       - ./schema.yml:/app/schema.yml
+
+volumes:
+  db-data:

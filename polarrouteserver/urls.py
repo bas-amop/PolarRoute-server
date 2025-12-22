@@ -1,20 +1,3 @@
-"""
-URL configuration for polarrouteserver project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.0/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
-
 import os
 
 from django.conf import settings
@@ -22,19 +5,60 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 from django.views.generic import TemplateView
+from rest_framework.routers import DefaultRouter
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 from polarrouteserver.route_api import views
 
+# Create a router and register our ViewSets with it.
+router = DefaultRouter()
+router.register(r"locations", views.LocationViewSet, basename="location")
+
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("api/", include(router.urls)),
+    path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
-        "api/route", views.RouteView.as_view(), name="route"
-    ),  # url for requesting(post)/deleting routes
+        "api/schema/swagger-ui/",
+        SpectacularSwaggerView.as_view(url_name="schema"),
+        name="swagger-ui",
+    ),
     path(
-        "api/route/<uuid:id>", views.RouteView.as_view(), name="route"
-    ),  # url for retrieving routes (get)
-    path("api/recent_routes", views.RecentRoutesView.as_view(), name="recent_routes"),
-    path("api/mesh/<int:id>", views.MeshView.as_view(), name="mesh"),
+        "api/route",
+        views.RouteRequestView.as_view(),
+        name="route_list_create",
+    ),
+    path(
+        "api/route/<int:id>",
+        views.RouteDetailView.as_view(),
+        name="route_detail",
+    ),
+    path(
+        "api/job/<uuid:id>",
+        views.JobView.as_view(),
+        name="job_detail",
+    ),
+    path(
+        "api/recent_routes",
+        views.RecentRoutesView.as_view(),
+        name="recent_routes_list",
+    ),
+    path(
+        "api/vehicle",
+        views.VehicleRequestView.as_view(),  # POST and GET (list all)
+        name="vehicle_list_create",
+    ),
+    path(
+        "api/vehicle/<str:vessel_type>/",
+        views.VehicleDetailView.as_view(),  # GET/DELETE by vessel_type
+        name="vehicle_detail",
+    ),
+    path(
+        "api/vehicle/available",
+        views.VehicleTypeListView.as_view(),
+        name="vehicle_type_list",
+    ),
+    path("api/mesh/<int:id>", views.MeshView.as_view(), name="mesh_detail"),
     path(
         "api/evaluate_route", views.EvaluateRouteView.as_view(), name="evaluate_route"
     ),
@@ -57,6 +81,7 @@ if os.getenv("POLARROUTE_FRONTEND", True):
 # noqa
 try:
     from debug_toolbar.toolbar import debug_toolbar_urls
+
     urlpatterns += debug_toolbar_urls()
-except:#noqa
+except:  # noqa
     pass

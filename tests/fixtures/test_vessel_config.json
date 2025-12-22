@@ -1,0 +1,12 @@
+{
+    "vessel_type": "SDA",
+    "max_speed": 26.5,
+    "unit": "km/hr",
+    "beam": 24.0,
+    "hull_type": "slender",
+    "neighbour_splitting": true,
+    "force_limit": 96634.5,
+    "max_ice_conc": 80,
+    "min_depth": 10,
+    "excluded_zones": ["offshore_platforms"]
+}

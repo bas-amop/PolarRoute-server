@@ -1,51 +1,47 @@
 openapi: 3.0.3
 info:
   title: PolarRoute-Server
-  version: 0.2.0
+  version: 0.2.1.dev121+g8ccd1f2f8.d20251222
   description: Backend server for serving PolarRoute and MeshiPhi assets
 paths:
-  /api/route:
+  /api/evaluate_route:
     post:
-      operationId: api_route_request
-      description: Entry point for route requests
+      operationId: api_route_evaluation
+      description: POST Endpoint to evaluate traveltime and fuel usage on a given
+        route.
       tags:
-      - api
+      - evaluate_route
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/route-request'
+              $ref: '#/components/schemas/RouteEvaluationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RouteEvaluationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RouteEvaluationRequest'
         required: true
-      responses:
-        '202':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/route-request-response'
-          description: ''
-  /api/route/{id}:
-    get:
-      operationId: api_route_retrieve
-      description: Return status of route calculation and route itself if complete.
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: string
-          format: uuid
-        required: true
-      tags:
-      - api
+      security:
+      - {}
       responses:
         '200':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/route-status-response'
-          description: ''
-    delete:
-      operationId: api_route_destroy
-      description: Cancel route calculation
+                $ref: '#/components/schemas/RouteEvaluationResponse'
+          description: Route evaluated successfully.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: Requested resource not found.
+  /api/job/{id}:
+    get:
+      operationId: api_job_retrieve_status
+      description: Return status of job and route URL if complete.
       parameters:
       - in: path
         name: id
@@ -54,14 +50,57 @@ paths:
           format: uuid
         required: true
       tags:
-      - api
+      - job
+      security:
+      - {}
       responses:
-        '204':
-          description: No response body
-  /api/recent_routes:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobStatusResponse'
+          description: Job status retrieved successfully.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: Requested resource not found.
+    delete:
+      operationId: api_job_cancel
+      description: Cancel job
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - job
+      security:
+      - {}
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcceptedResponse'
+          description: Request accepted for processing.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: Requested resource not found.
+  /api/locations/:
     get:
-      operationId: api_recent_routes
-      description: Return routes calculated within the last day.
+      operationId: locations_list
+      description: List all available locations
+      tags:
+      - locations
+      security:
+      - {}
       responses:
         '200':
           content:
@@ -69,14 +108,40 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/route-status-response'
+                  $ref: '#/components/schemas/Location'
           description: ''
+  /api/locations/{id}/:
+    get:
+      operationId: locations_retrieve
+      description: Retrieve a specific location by ID
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this location.
+        required: true
       tags:
-      - api
+      - locations
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Location'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: Requested resource not found.
   /api/mesh/{id}:
-     get:
+    get:
       operationId: api_mesh_get
-      description: Get mesh.
+      description: GET Meshes by id
       parameters:
       - in: path
         name: id
@@ -84,132 +149,731 @@ paths:
           type: integer
         required: true
       tags:
-      - api
+      - mesh
+      security:
+      - {}
       responses:
         '200':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/mesh-response'
-          description: ''
-  /api/evaluate_route:
-    post:
-      operationId: api_route_evaluation
-      description: Entry point for requests to evaluate a pre-existing GeoJSON route
+                $ref: '#/components/schemas/MeshDetailResponse'
+          description: Mesh details retrieved successfully.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: Requested resource not found.
+  /api/recent_routes:
+    get:
+      operationId: api_recent_routes_list
+      description: Get recent routes
       tags:
-      - api
+      - recent_routes
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecentRoutesResponse'
+          description: List of recent routes retrieved successfully.
+  /api/route:
+    post:
+      operationId: api_route_create_request
+      description: Entry point for route requests
+      tags:
+      - route
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/route-evaluation-request'
+              $ref: '#/components/schemas/RouteCreationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RouteCreationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RouteCreationRequest'
         required: true
+      security:
+      - {}
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RouteAcceptedResponse'
+          description: Route calculation job accepted.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+          description: Bad request - invalid input data or malformed request.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: Requested resource not found.
+  /api/route/{id}:
+    get:
+      operationId: api_route_retrieve_by_id
+      description: Retrieve route details by ID. Returns the route data.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - route
+      security:
+      - {}
       responses:
         '200':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/route-evaluation-response'
-          description: ''
+                $ref: '#/components/schemas/Route'
+          description: Route details retrieved successfully.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: Requested resource not found.
+  /api/schema/:
+    get:
+      operationId: schema_retrieve
+      description: |-
+        OpenApi3 schema for this API. Format can be selected via content negotiation.
 
+        - YAML: application/vnd.oai.openapi
+        - JSON: application/vnd.oai.openapi+json
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - json
+          - yaml
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - af
+          - ar
+          - ar-dz
+          - ast
+          - az
+          - be
+          - bg
+          - bn
+          - br
+          - bs
+          - ca
+          - ckb
+          - cs
+          - cy
+          - da
+          - de
+          - dsb
+          - el
+          - en
+          - en-au
+          - en-gb
+          - eo
+          - es
+          - es-ar
+          - es-co
+          - es-mx
+          - es-ni
+          - es-ve
+          - et
+          - eu
+          - fa
+          - fi
+          - fr
+          - fy
+          - ga
+          - gd
+          - gl
+          - he
+          - hi
+          - hr
+          - hsb
+          - hu
+          - hy
+          - ia
+          - id
+          - ig
+          - io
+          - is
+          - it
+          - ja
+          - ka
+          - kab
+          - kk
+          - km
+          - kn
+          - ko
+          - ky
+          - lb
+          - lt
+          - lv
+          - mk
+          - ml
+          - mn
+          - mr
+          - ms
+          - my
+          - nb
+          - ne
+          - nl
+          - nn
+          - os
+          - pa
+          - pl
+          - pt
+          - pt-br
+          - ro
+          - ru
+          - sk
+          - sl
+          - sq
+          - sr
+          - sr-latn
+          - sv
+          - sw
+          - ta
+          - te
+          - tg
+          - th
+          - tk
+          - tr
+          - tt
+          - udm
+          - ug
+          - uk
+          - ur
+          - uz
+          - vi
+          - zh-hans
+          - zh-hant
+      tags:
+      - schema
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.oai.openapi:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/yaml:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/vnd.oai.openapi+json:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/vehicle:
+    get:
+      operationId: api_vehicle_list_retrieve
+      description: Retrieve all vehicles
+      tags:
+      - vehicle
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+          description: Operation completed successfully.
+        '204':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoContentResponse'
+          description: No content available.
+    post:
+      operationId: api_vehicle_create_request
+      description: Entry point to create vehicles
+      tags:
+      - vehicle
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Vehicle'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Vehicle'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Vehicle'
+        required: true
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+          description: Operation completed successfully.
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+          description: Bad request - invalid input data or malformed request.
+        '406':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotAcceptableResponse'
+          description: Not acceptable - request conflicts with current resource state.
+  /api/vehicle/{vessel_type}/:
+    get:
+      operationId: api_vehicle_retrieve_by_type
+      description: Retrieve vehicle by vessel_type
+      parameters:
+      - in: path
+        name: vessel_type
+        schema:
+          type: string
+        required: true
+      tags:
+      - vehicle
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+          description: Operation completed successfully.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: Requested resource not found.
+    delete:
+      operationId: api_vehicle_delete_by_type
+      description: Delete vehicle by vessel_type
+      parameters:
+      - in: path
+        name: vessel_type
+        schema:
+          type: string
+        required: true
+      tags:
+      - vehicle
+      security:
+      - {}
+      responses:
+        '204':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoContentResponse'
+          description: No content available.
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundResponse'
+          description: Requested resource not found.
+  /api/vehicle/available:
+    get:
+      operationId: api_vehicle_available_list
+      description: Endpoint to list all distinct vessel_types available.
+      tags:
+      - vehicle
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleTypeListResponse'
+          description: List of available vessel types retrieved successfully.
 components:
   schemas:
-    route-request:
+    AcceptedResponse:
       type: object
       properties:
-        start_lat:
-          type: number
-          format: double
-        start_lon:
-          type: number
-          format: double
-        end_lat:
-          type: number
-          format: double
-        end_lon:
-          type: number
-          format: double
-        force_recalculate:
-          type: boolean
-        start_name:
-          type: string
-        end_name:
-          type: string
-        mesh_id:
-          type: integer
+        data:
+          description: Response data for accepted request
       required:
-      - start_lat
-      - start_lon
-      - end_lat
-      - end_lon
-    route-request-response:
+      - data
+    BadRequestResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message describing what went wrong.
+      required:
+      - error
+    JobStatusResponse:
       type: object
       properties:
         id:
           type: string
           format: uuid
-          nullable: false
+          description: ID of the job.
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          description: |-
+            Current status of the job. These are standard Celery task states.
+
+            * `PENDING` - Task is waiting for execution or unknown task id
+            * `STARTED` - Task has been started
+            * `SUCCESS` - Task executed successfully
+            * `FAILURE` - Task failed with an exception
+            * `RETRY` - Task is being retried after failure
+            * `REVOKED` - Task was revoked/cancelled
+        polarrouteserver-version:
+          type: string
+          description: Version of PolarRoute-server.
+        route_id:
+          type: string
+          format: uuid
+          description: ID of the associated route.
+        created:
+          type: string
+          format: date-time
+          description: When the job was created.
+        info:
+          type: object
+          additionalProperties: {}
+          description: Additional information or error details if status is FAILURE.
+        route_url:
+          type: string
+          format: uri
+          description: URL to retrieve the route data when status is SUCCESS.
+      required:
+      - created
+      - id
+      - polarrouteserver-version
+      - route_id
+      - status
+    Location:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        lat:
+          type: number
+          format: double
+        lon:
+          type: number
+          format: double
+        name:
+          type: string
+          maxLength: 100
+      required:
+      - id
+      - lat
+      - lon
+      - name
+    MeshDetailResponse:
+      type: object
+      properties:
+        polarrouteserver-version:
+          type: string
+          description: Server version
+        id:
+          type: string
+          format: uuid
+          description: Mesh ID
+        json:
+          description: Mesh JSON data
+        geojson:
+          description: Mesh GeoJSON data
+      required:
+      - geojson
+      - id
+      - json
+      - polarrouteserver-version
+    NoContentResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Optional message describing the empty result.
+    NotAcceptableResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message describing the conflict or why the request is
+            not acceptable.
+      required:
+      - error
+    NotFoundResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message indicating resource not found.
+      required:
+      - error
+    RecentRoutesResponse:
+      type: object
+      properties:
+        routes:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+          description: List of recent routes with status information
+      required:
+      - routes
+    Route:
+      type: object
+      properties:
+        type:
+          type: string
+          description: Route optimization type (traveltime/fuel)
+        id:
+          type: string
+          description: Route ID
+        name:
+          type: string
+          description: Descriptive route name
+        job:
+          type: object
+          additionalProperties: {}
+          description: Job information with requested/calculated timestamps
+        waypoints:
+          type: object
+          additionalProperties: {}
+          description: Start and end waypoint information
+        path:
+          description: GeoJSON route data
+        unsmoothedPath:
+          nullable: true
+          description: Unsmoothed GeoJSON route data
+        optimisation:
+          type: object
+          additionalProperties: {}
+          description: Optimization metrics
+        mesh:
+          type: object
+          additionalProperties: {}
+          nullable: true
+          description: Mesh information
+        info:
+          type: object
+          additionalProperties: {}
+          nullable: true
+          description: Additional route information or warnings
+        polarrouteserver-version:
+          type: string
+          description: Server version
+      required:
+      - id
+      - info
+      - job
+      - mesh
+      - name
+      - optimisation
+      - path
+      - polarrouteserver-version
+      - type
+      - unsmoothedPath
+      - waypoints
+    RouteAcceptedResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Job ID for route calculation
         status-url:
           type: string
-          format: url
-          nullable: false
+          format: uri
+          description: URL to check job status
         polarrouteserver-version:
           type: string
-          nullable: false
-
-    route-status-response:
+          description: Server version
+        info:
+          type: object
+          additionalProperties: {}
+          description: Additional information
+      required:
+      - id
+      - polarrouteserver-version
+      - status-url
+    RouteCreationRequest:
       type: object
       properties:
-        status:
-          type: string
-          nullable: false
-        json:
+        start_lat:
+          type: number
+          format: double
+          description: Starting latitude of the route.
+        start_lon:
+          type: number
+          format: double
+          description: Starting longitude of the route.
+        end_lat:
+          type: number
+          format: double
+          description: Ending latitude of the route.
+        end_lon:
+          type: number
+          format: double
+          description: Ending longitude of the route.
+        start_name:
           type: string
           nullable: true
-        polar_route_version:
+          description: Name of the start point.
+        end_name:
           type: string
           nullable: true
-          maxLength: 60
-        polarrouteserver-version:
-          type: string
-          nullable: false
-
-    mesh-response:
-      type: object
-      properties:
-        polarrouteserver-version:
-          type: string
-          nullable: false
-        id: 
+          description: Name of the end point.
+        mesh_id:
           type: integer
-        json: 
-          type: object
-        geojson: 
-          type: object
-    
-    route-evaluation-request:
+          nullable: true
+          description: 'Optional: Custom mesh ID to use for route calculation.'
+        force_new_route:
+          type: boolean
+          default: false
+          description: If true, forces recalculation even if an existing route is
+            found.
+        tags:
+          type: array
+          items:
+            type: string
+            maxLength: 50
+          nullable: true
+          description: Optional tags for route (e.g., ['archive', 'SD056']). Can also
+            accept a single string or comma-separated string.
+      required:
+      - end_lat
+      - end_lon
+      - start_lat
+      - start_lon
+    RouteEvaluationRequest:
       type: object
       properties:
         route:
-          type: object
+          description: The route JSON to evaluate.
         custom_mesh_id:
           type: integer
+          nullable: true
+          description: 'Optional: Custom mesh ID to use for evaluation.'
       required:
       - route
-    
-    route-evaluation-response:
+    RouteEvaluationResponse:
       type: object
       properties:
         polarrouteserver-version:
           type: string
-          nullable: false
-        route:
+          description: Server version
+        evaluation_results:
           type: object
-        fuel:
-          type: number
-        time_hours:
-          type: number
-        time_str:
+          additionalProperties: {}
+          description: Route evaluation results
+      required:
+      - evaluation_results
+      - polarrouteserver-version
+    StatusEnum:
+      enum:
+      - PENDING
+      - STARTED
+      - SUCCESS
+      - FAILURE
+      - RETRY
+      - REVOKED
+      type: string
+      description: |-
+        * `PENDING` - Task is waiting for execution or unknown task id
+        * `STARTED` - Task has been started
+        * `SUCCESS` - Task executed successfully
+        * `FAILURE` - Task failed with an exception
+        * `RETRY` - Task is being retried after failure
+        * `REVOKED` - Task was revoked/cancelled
+    SuccessResponse:
+      type: object
+      properties:
+        data:
+          description: Response data
+      required:
+      - data
+    Vehicle:
+      type: object
+      properties:
+        vessel_type:
           type: string
-
-
+          maxLength: 150
+        max_speed:
+          type: number
+          format: double
+        unit:
+          type: string
+          maxLength: 150
+        max_ice_conc:
+          type: number
+          format: double
+          nullable: true
+        min_depth:
+          type: number
+          format: double
+          nullable: true
+        max_wave:
+          type: number
+          format: double
+          nullable: true
+        excluded_zones:
+          nullable: true
+        neighbour_splitting:
+          type: boolean
+          nullable: true
+        beam:
+          type: number
+          format: double
+          nullable: true
+        hull_type:
+          type: string
+          nullable: true
+          maxLength: 150
+        force_limit:
+          type: number
+          format: double
+          nullable: true
+      required:
+      - max_speed
+      - unit
+    VehicleTypeListResponse:
+      type: object
+      properties:
+        vessel_types:
+          type: array
+          items:
+            type: string
+          description: List of available vessel types.
+      required:
+      - vessel_types

@@ -12,11 +12,15 @@ import logging
 import os
 import secrets
 
+from polarrouteserver._version import __version__ as polarrouteserver_version
+
 logger = logging.getLogger(__name__)
 
 BASE_DIR = os.getenv("POLARROUTE_BASE_DIR", os.getcwd())
 MESH_DIR = os.getenv("POLARROUTE_MESH_DIR", None)
 MESH_METADATA_DIR = os.getenv("POLARROUTE_MESH_METADATA_DIR", None)
+
+# FIXTURE_DIRS = []
 
 # NOTE: set this in production
 SECRET_KEY = os.getenv("POLARROUTE_SECRET_KEY", secrets.token_hex(100))
@@ -85,13 +89,24 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django_celery_results",
     "django_celery_beat",
+    "rest_framework",
+    "drf_spectacular",
+    "drf_spectacular_sidecar",
+    "taggit",
     "polarrouteserver.route_api",
     "corsheaders",
 ]
 
-CORS_ALLOWED_ORIGINS = ["http://localhost:8000"]
+CORS_ALLOWED_ORIGINS = []
 if os.getenv("POLARROUTE_CORS_ALLOWED_ORIGINS", None) is not None:
     CORS_ALLOWED_ORIGINS.extend(os.getenv("POLARROUTE_CORS_ALLOWED_ORIGINS").split(","))
+
+# Allow all localhost origins for CORS in development
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^(?:https*:\/\/)*localhost:\d{2,4}$",  # matches localhost with or without http(s):// and a port of 2-4 digits
+    r"^(?:https*:\/\/)*127.0.0.1:\d{2,4}$",  # same for 127.0.0.1
+    r"^(?:https*:\/\/)*0.0.0.0:\d{2,4}$",  # same for 0.0.0.0
+]
 
 CORS_ALLOW_METHODS = ("DELETE", "GET", "POST", "OPTIONS")
 
@@ -105,6 +120,23 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "corsheaders.middleware.CorsMiddleware",
 ]
+
+REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "PolarRoute-Server",
+    "DESCRIPTION": "Backend server for serving PolarRoute and MeshiPhi assets",
+    "VERSION": polarrouteserver_version,
+    "SERVE_INCLUDE_SCHEMA": True,
+    "SWAGGER_UI_DIST": "SIDECAR",
+    "SWAGGER_UI_FAVICON_HREF": "SIDECAR",
+    "SECURITY": [],
+    "AUTHENTICATION_WHITELIST": [],
+}
+
+TAGGIT_CASE_INSENSITIVE = True
 
 ROOT_URLCONF = "polarrouteserver.urls"
 
@@ -288,7 +320,7 @@ FUEL_CONFIG = base_routeplanner_config | {"objective_function": "fuel"}
 # dictionary relating user-friendly name of data source with loader value used in vessel mesh json
 EXPECTED_MESH_DATA_SOURCES = {
     "bathymetry": "GEBCO",
-    "current": "duacs_current",
+    "current": "duacs_currents",
     "sea ice concentration": "amsr",
     "thickness": "thickness",
     "density": "density",

@@ -1,6 +1,6 @@
 # Dockerfile for polarrouteserver, intended for development use only
 
-FROM python:3.11
+FROM ghcr.io/astral-sh/uv:python3.13-trixie
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
@@ -14,15 +14,13 @@ RUN apt-get update && apt-get install -y \
 
 ENV GDAL_CONFIG=/usr/bin/gdal-config
 
-RUN pip install --upgrade pip
-
 WORKDIR /usr/src/app
 
-COPY --chmod=775 entrypoint.sh .
+COPY --chmod=775 docker-entrypoint.sh .
 
 COPY pyproject.toml manage.py /usr/src/app/
 COPY polarrouteserver /usr/src/app/polarrouteserver
 COPY assets /usr/src/app/assets
 
-RUN pip install .[frontend]
-RUN pip install django-debug-toolbar
+RUN uv pip install --system -e .[frontend]
+RUN uv pip install --system django-debug-toolbar

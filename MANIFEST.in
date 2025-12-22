@@ -1,0 +1,4 @@
+include docs/apischema.yml
+include Makefile
+
+graft polarrouteserver/route_api/fixtures

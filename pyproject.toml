@@ -1,25 +1,27 @@
 [build-system]
-requires = ["setuptools >= 61.0"]
+requires = ["setuptools>=80", "setuptools-scm>=8"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "polarrouteserver"
 authors = [
-  {name = "David Wilby", email = "dalby@bas.ac.uk"},
+  {name = "David Wyld", email = "dalby@bas.ac.uk"},
   {name = "Thomas Zwagerman", email = "thozwa@bas.ac.uk"},
 ]
 description = "Backend server for serving PolarRoute and MeshiPhi assets and managing their calcuation using Django & Celery."
 readme = "README.md"
 license = {file = "LICENSE"}
-version = "0.2.0"
-requires-python = ">= 3.9"
+dynamic = ["version"]
+requires-python = ">= 3.10"
 dependencies = [
     "celery",
-    "Django",
+    "Django>=5.2,<6",
     "django-celery-beat",
     "django-celery-results",
     "django-cors-headers",
     "django-rest-framework",
+    "django-taggit",
+    "drf-spectacular[sidecar]",
     "haversine",
     "polar-route==1.0.0",
     "psycopg>=3",
@@ -36,11 +38,8 @@ Issues = "https://github.com/bas-amop/PolarRoute-server/issues"
 where = ["."]
 exclude = ["tests*"]
 
-[tool.setuptools.package-data]
-polarrouteserver = [
-    "Makefile",
-    "schema.yml",
-]
+[tool.setuptools_scm]
+version_file = "polarrouteserver/_version.py"
 
 [tool.setuptools.exclude-package-data]
 polarrouteserver = [
@@ -89,7 +88,7 @@ cov-badge = [
 ]
 
 [project.scripts]
-request_route = "polarrouteserver.demo:main"
+request_route = "request_route.request_route:main"
 
 [tool.ruff]
 exclude = ["tests/*"]
@@ -113,8 +112,11 @@ branch = true
 omit = [
     "polarrouteserver/settings/*",
     "polarrouteserver/route_api/migrations/*",
+    "polarrouteserver/route_api/admin.py",
+    "polarrouteserver/route_api/apps.py",
     "polarrouteserver/asgi.py",
-    "polarrouteserver/demo.py",
+    "polarrouteserver/admin.py",
     "polarrouteserver/urls.py",
     "polarrouteserver/wsgi.py",
+    "route_request/*",
     ]

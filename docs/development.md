@@ -16,11 +16,19 @@ Depends on:
 
 For development, also install and use the development tools with `pre-commit install`
 
+The pre-commit hooks include automatic API schema generation. When you commit changes to `polarrouteserver/route_api/views.py`, the API schema (`docs/apischema.yml`) will be automatically updated and included in your commit.
+
 A number of helpful development tools are made available through the `Makefile`, to see a description of each of these commands, run `make` (with no arguments) from the top-level of this directory.
+
+**Important**: Please ensure all changes are included in `CHANGELOG.md` in a human-friendly format.
 
 ## Release/Versioning
 
 Version numbers should be used in tagging commits on the `main` branch and reflected in the `pyproject.toml` file and should be of the form `v0.1.7` using the semantic versioning convention.
+
+**Note on version numbers**: Setuptools-scm requires version numbers that begin with a `v` and setuptools requires [PEP 440-compliant version numbers](https://peps.python.org/pep-0440/), e.g. `v0.1.7`, or for non release versions: `v0.1.7a1` for alphas, `v0.1.7rc1` for release candidates. Installing the package will fail if tags have version numbers deviating from this format.
+
+Release preparation (i.e. updating version numbers in `CHANGELOG.md` and `apischema.yml`) can be done automatically with `make prep-release version=<VERSION-NUMBER>` (without the 'v'). Note that this does not rebuild the API schema, just changes the version number.
 
 ## Building & deploying the documentation
 
@@ -33,7 +41,24 @@ The documentation should build automatically on pushes to `main` using GitHub ac
 
 The API is documented in `./docs/apischema.yml` using the OpenAPI 3.0 standard (formerly known as swagger).
 
-Any changes to the Web API should be **manually** reflected in the schema. These can be checked by building the docs and checking the [API reference page](api.md) or serving using swagger (`make start-swagger`).
+If you have pre-commit hooks installed (`pre-commit install`), the API schema will be automatically updated when you commit changes to Python files. The updated schema will be included in your commit.
+
+You can also manually re-generate the schema by running:
+
+```shell
+make build-apischema
+# or directly:
+python manage.py spectacular --color --validate --file docs/apischema.yml
+```
+
+Aim to resolve any warnings/errors before committing.
+
+The generated schema can be checked by building the docs and checking the [API reference page](api.md) or serving using swagger (`make start-swagger`).
+
+## Error codes and response schemas
+Standard error codes and responses are defined in the `ResponseMixin` class in `responses.py`. Where possible, try to align standard responses (e.g. 200 SUCCESS, 202 ACCEPTED, 400 BAD REQUESTS, 404 NOT FOUND) to these standard codes and responses.
+
+Views in `views.py` can inherit `ResponseMixin` class to make use of these standard responses.
 
 ## Docker containers and compose configuration
 PolarRoute-server relies on four different services, orchestrated by [docker compose](https://docs.docker.com/compose/install/), to each be running in their own docker container.

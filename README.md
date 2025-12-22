@@ -28,10 +28,11 @@ Clone this repository and run `docker compose up` to build and start the service
 
 **Note**: In development, meshes are not automatically ingested into the database. Follow these steps to add a mesh to the database.
 
-1. Make a local directory structure with `mkdir -p data/mesh` (if it has not been created by `docker compose`).
-2. If you have a vessel mesh file from MeshiPhi or PolarRoute-pipeline, copy it into `./data/mesh`, which is bind-mounted into the app container. Alternatively, download an example mesh using 
+- Make a local directory structure with `mkdir -p data/mesh` (if it has not been created by `docker compose`).
+- If you have a vessel mesh file from MeshiPhi or PolarRoute-pipeline, copy it into `./data/mesh`, which is bind-mounted into the app container. Alternatively, download an example mesh using 
 
 ```sh
+
 pushd data/mesh
 
 wget http://files.bas.ac.uk/twins/polarroute/example_vehicle_meshes/amsr_southern_SDA.json.gz && \
@@ -41,10 +42,11 @@ wget http://files.bas.ac.uk/twins/polarroute/example_vehicle_meshes/amsr_norther
 gunzip amsr_*_SDA.json.gz
 
 popd
+
 ```
 
-3. Run `docker compose exec app /bin/bash` to open a shell inside the running app container.
-4. Run `django-admin insert_mesh /usr/src/app/data/mesh/<MESH FILENAME>` to insert the mesh into the database manually.
+- Run `docker compose exec app /bin/bash` to open a shell inside the running app container.
+- Run `django-admin insert_mesh /usr/src/app/data/mesh/<MESH FILENAME>` to insert the mesh into the database manually.
 
 Test that the app is working using the demo tool (see [Documentation](https://bas-amop.github.io/PolarRoute-server/requesting-routes/#using-the-in-built-demo-utility-simplest)). The URL of the service should be `localhost:8000`, where the user interface will be served if `POLARROUTE_FRONTEND` is set to `True` (which it is in `compose.yml`).
 

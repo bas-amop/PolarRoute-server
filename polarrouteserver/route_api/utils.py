@@ -76,6 +76,7 @@ def route_exists(
         for route in same_mesh_routes:
             # job_set can't be filtered since status is a property method
             for job in route.job_set.all():
+                # Use the model's status property
                 if job.status != "FAILURE":
                     successful_route_ids.add(route.id)
 
@@ -195,6 +196,10 @@ def evaluate_route(route_json: dict, mesh: Mesh) -> dict:
 
     try:
         calc_route = route_calc(route_file.name, mesh_file.name)
+        time_days = calc_route["features"][0]["properties"]["traveltime"][-1]
+        time_str = convert_decimal_days(time_days)
+        fuel = round(calc_route["features"][0]["properties"]["fuel"][-1], 2)
+
     except Exception as e:
         logger.error(e)
         return None
@@ -204,10 +209,6 @@ def evaluate_route(route_json: dict, mesh: Mesh) -> dict:
                 os.remove(file.name)
             except Exception as e:
                 logger.warning(f"{file} not removed due to {e}")
-
-    time_days = calc_route["features"][0]["properties"]["traveltime"][-1]
-    time_str = convert_decimal_days(time_days)
-    fuel = round(calc_route["features"][0]["properties"]["fuel"][-1], 2)
 
     return dict(
         route=calc_route, time_days=time_days, time_str=time_str, fuel_tonnes=fuel
@@ -259,7 +260,7 @@ def check_mesh_data(mesh: Mesh) -> str:
         # check for missing individual data sources
         data_source = [d for d in mesh_data_sources if d["loader"] == data_loader]
         if len(data_source) == 0:
-            message += f"No {data_type} data available for this mesh.\n"
+            message += f"Warning: This mesh is missing data on the following parameters: {data_type}.\n"
 
             # skip to the next data source
             continue
@@ -271,6 +272,6 @@ def check_mesh_data(mesh: Mesh) -> str:
                 [f for f in data_source[0]["params"]["files"] if f != ""]
             )  # number of files removing empty strings
             if actual_num_files != data_source_num_expected_files:
-                message += f"{actual_num_files} of expected {data_source_num_expected_files} days' data available for {data_type}.\n"
+                message += f"Warning: {actual_num_files} of expected {data_source_num_expected_files} days' data available for {data_type}.\n"
 
     return message

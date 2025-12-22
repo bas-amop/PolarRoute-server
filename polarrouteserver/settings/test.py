@@ -4,6 +4,8 @@ from .base import *
 
 TEST_MESH_PATH = Path("tests", "fixtures", "test_vessel_mesh.json")
 TEST_ROUTE_PATH = Path("tests", "fixtures", "test_route.json")
+TEST_ROUTE_OOM_PATH = Path("tests", "fixtures", "test_route_out_of_mesh.json")
+TEST_VEHICLE_PATH = Path("tests", "fixtures", "test_vessel_config.json")
 MESH_DIR = Path("tests", "fixtures")
 MESH_METADATA_DIR = MESH_DIR
 
