@@ -1,8 +1,9 @@
 import logging
-from datetime import datetime
+from datetime import timedelta
 
 from celery.result import AsyncResult
 from django.contrib.contenttypes.models import ContentType
+from django.utils import timezone
 from drf_spectacular.utils import (
     extend_schema,
     extend_schema_view,
@@ -520,7 +521,7 @@ class RecentRoutesView(LoggingMixin, ResponseMixin, GenericAPIView):
 
         # Only get today's routes
         routes_recent = (
-            Route.objects.filter(requested__date=datetime.now().date())
+            Route.objects.filter(requested__gte=timezone.now() - timedelta(hours=24))
             .select_related("job")
             .values(
                 "id",
@@ -541,14 +542,12 @@ class RecentRoutesView(LoggingMixin, ResponseMixin, GenericAPIView):
             .order_by("-requested")
         )
 
-        logger.debug(f"Found {len(routes_recent)} routes calculated today.")
-
         if not routes_recent:
             return self.success_response(
                 {
                     "routes": [],
                     "polarrouteserver-version": polarrouteserver_version,
-                    "message": "No recent routes found for today.",
+                    "message": "No recent routes found for last 24 hours.",
                 }
             )
 
