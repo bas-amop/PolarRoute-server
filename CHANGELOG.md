@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added all ports on localhost, 127.0.0.1 and 0.0.0.0 to CORS allowed origins.
 ### Changed
 - Altered the `/api/recent_routes` endpoint to return routes from the last 24 hours. Previously it returned routes from the current calendar day.
+- Renamed and repositioned "Falklands" location to "Mare Harbour".
 
 ## 0.2.6 - 2025-12-17
 
