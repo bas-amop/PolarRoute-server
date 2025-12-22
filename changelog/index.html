@@ -73,6 +73,8 @@
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#unreleased">[Unreleased]</a>
         <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#added">Added</a>
+    </li>
     <li class="toctree-l3"><a class="reference internal" href="#changed">Changed</a>
     </li>
         </ul>
@@ -85,7 +87,7 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#025-2025-12-15">0.2.5 - 2025-12-15</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#added">Added</a>
+    <li class="toctree-l3"><a class="reference internal" href="#added_1">Added</a>
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#improved">Improved</a>
     </li>
@@ -103,7 +105,7 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#023-2025-11-10">0.2.3 - 2025-11-10</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#added_1">Added</a>
+    <li class="toctree-l3"><a class="reference internal" href="#added_2">Added</a>
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#changed_2">Changed</a>
         <ul>
@@ -119,7 +121,7 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#022-2025-10-14">0.2.2 - 2025-10-14</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#added_2">Added</a>
+    <li class="toctree-l3"><a class="reference internal" href="#added_3">Added</a>
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#changed_3">Changed</a>
     </li>
@@ -129,7 +131,7 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#021-2025-09-18">0.2.1 - 2025-09-18</a>
         <ul>
-    <li class="toctree-l3"><a class="reference internal" href="#added_3">Added</a>
+    <li class="toctree-l3"><a class="reference internal" href="#added_4">Added</a>
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#changed_4">Changed</a>
     </li>
@@ -226,6 +228,10 @@
 <p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <h2 id="unreleased">[Unreleased]</h2>
+<h3 id="added">Added</h3>
+<ul>
+<li>Added all ports on localhost, 127.0.0.1 and 0.0.0.0 to CORS allowed origins.</li>
+</ul>
 <h3 id="changed">Changed</h3>
 <ul>
 <li>Altered the <code>/api/recent_routes</code> endpoint to return routes from the last 24 hours. Previously it returned routes from the current calendar day.</li>
@@ -236,7 +242,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Added missing migration.</li>
 </ul>
 <h2 id="025-2025-12-15">0.2.5 - 2025-12-15</h2>
-<h3 id="added">Added</h3>
+<h3 id="added_1">Added</h3>
 <ul>
 <li>added ensure_adminuser command to add subtly more sophisticated behaviour to Django's createsuperuser - i.e. don't raise non-zero exit code if superuser already exists, add more useful output.</li>
 <li>Empty arrays to empty responses for a consistent response structure.</li>
@@ -275,7 +281,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Inclusion of fixtures in source code distribution by using <code>MANIFEST.in</code> in place of <code>package_data</code> in <code>pyproject.toml</code>.</li>
 </ul>
 <h2 id="023-2025-11-10">0.2.3 - 2025-11-10</h2>
-<h3 id="added_1">Added</h3>
+<h3 id="added_2">Added</h3>
 <ul>
 <li>This changelog!</li>
 </ul>
@@ -299,7 +305,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Support for Django &lt; 5.2</li>
 </ul>
 <h2 id="022-2025-10-14">0.2.2 - 2025-10-14</h2>
-<h3 id="added_2">Added</h3>
+<h3 id="added_3">Added</h3>
 <ul>
 <li>Optimisation metrics exposure (time, fuel, distance) in route responses.</li>
 <li>Job ID inclusion in <code>recent_routes</code> response for better tracking.</li>
@@ -318,7 +324,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Performance issues with <code>recent_routes</code> endpoint loading unnecessary data.</li>
 </ul>
 <h2 id="021-2025-09-18">0.2.1 - 2025-09-18</h2>
-<h3 id="added_3">Added</h3>
+<h3 id="added_4">Added</h3>
 <ul>
 <li>Response refactor for improved error code consistency.</li>
 <li>New <code>responses.py</code> module for centralized response handling.</li>
