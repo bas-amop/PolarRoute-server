@@ -72,6 +72,10 @@
                 <li class="toctree-l1 current"><a class="reference internal current" href="#">Changelog</a>
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#unreleased">[Unreleased]</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#changed">Changed</a>
+    </li>
+        </ul>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#026-2025-12-17">0.2.6 - 2025-12-17</a>
         <ul>
@@ -85,7 +89,7 @@
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#improved">Improved</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#changed">Changed</a>
+    <li class="toctree-l3"><a class="reference internal" href="#changed_1">Changed</a>
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#fixed_1">Fixed</a>
     </li>
@@ -101,7 +105,7 @@
         <ul>
     <li class="toctree-l3"><a class="reference internal" href="#added_1">Added</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#changed_1">Changed</a>
+    <li class="toctree-l3"><a class="reference internal" href="#changed_2">Changed</a>
         <ul>
     <li class="toctree-l4"><a class="reference internal" href="#request_route">request_route</a>
     </li>
@@ -117,7 +121,7 @@
         <ul>
     <li class="toctree-l3"><a class="reference internal" href="#added_2">Added</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#changed_2">Changed</a>
+    <li class="toctree-l3"><a class="reference internal" href="#changed_3">Changed</a>
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#fixed_4">Fixed</a>
     </li>
@@ -127,7 +131,7 @@
         <ul>
     <li class="toctree-l3"><a class="reference internal" href="#added_3">Added</a>
     </li>
-    <li class="toctree-l3"><a class="reference internal" href="#changed_3">Changed</a>
+    <li class="toctree-l3"><a class="reference internal" href="#changed_4">Changed</a>
     </li>
     <li class="toctree-l3"><a class="reference internal" href="#fixed_5">Fixed</a>
     </li>
@@ -222,6 +226,10 @@
 <p>The format is based on <a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a>,
 and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semantic Versioning</a>.</p>
 <h2 id="unreleased">[Unreleased]</h2>
+<h3 id="changed">Changed</h3>
+<ul>
+<li>Altered the <code>/api/recent_routes</code> endpoint to return routes from the last 24 hours. Previously it returned routes from the current calendar day.</li>
+</ul>
 <h2 id="026-2025-12-17">0.2.6 - 2025-12-17</h2>
 <h3 id="fixed">Fixed</h3>
 <ul>
@@ -242,7 +250,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Write logs with group-write permissions.</li>
 <li>Use uv in the docker image.</li>
 </ul>
-<h3 id="changed">Changed</h3>
+<h3 id="changed_1">Changed</h3>
 <ul>
 <li>Inappropriate use of 204 code: RecentRoutesView changed from 204 to 200 OK with an empty array and the original message ("No recent routes found for today.").</li>
 <li>Inappropriate use of 204 code: VehicleTypeListView changed from 204 to 200 OK with and empty array and the original message.</li>
@@ -271,7 +279,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <ul>
 <li>This changelog!</li>
 </ul>
-<h3 id="changed_1">Changed</h3>
+<h3 id="changed_2">Changed</h3>
 <ul>
 <li>Restricted upper limit of Django support to version 5.2</li>
 <li>Name of maintainer from David Wilby to David Wyld.</li>
@@ -297,7 +305,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Job ID inclusion in <code>recent_routes</code> response for better tracking.</li>
 <li>Recent routes output validation tests.</li>
 </ul>
-<h3 id="changed_2">Changed</h3>
+<h3 id="changed_3">Changed</h3>
 <ul>
 <li><strong>Breaking</strong>: Route response structure now consistent regardless of optimisation types available.</li>
 <li>Improved <code>recent_routes</code> endpoint performance by removing repeated job status calls and heavy JSON processing.</li>
@@ -322,7 +330,7 @@ and this project adheres to <a href="https://semver.org/spec/v2.0.0.html">Semant
 <li>Location fixtures for standard locations (Bird Island, Falklands, Halley, Rothera, etc.).</li>
 <li>Swagger UI served alongside the application.</li>
 </ul>
-<h3 id="changed_3">Changed</h3>
+<h3 id="changed_4">Changed</h3>
 <ul>
 <li><strong>Breaking</strong>: Separated job and route endpoints - routes now accessed via job workflow.</li>
 <li><strong>Breaking</strong>: Route cancellation moved from route endpoint to job endpoint.</li>
