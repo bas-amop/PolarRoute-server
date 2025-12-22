@@ -96,9 +96,16 @@ INSTALLED_APPS = [
     "corsheaders",
 ]
 
-CORS_ALLOWED_ORIGINS = ["http://localhost:8000", "http://localhost:5173"]
+CORS_ALLOWED_ORIGINS = []
 if os.getenv("POLARROUTE_CORS_ALLOWED_ORIGINS", None) is not None:
     CORS_ALLOWED_ORIGINS.extend(os.getenv("POLARROUTE_CORS_ALLOWED_ORIGINS").split(","))
+
+# Allow all localhost origins for CORS in development
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^(?:https*:\/\/)*localhost:\d{2,4}$",  # matches localhost with or without http(s):// and a port of 2-4 digits
+    r"^(?:https*:\/\/)*127.0.0.1:\d{2,4}$",  # same for 127.0.0.1
+    r"^(?:https*:\/\/)*0.0.0.0:\d{2,4}$",  # same for 0.0.0.0
+]
 
 CORS_ALLOW_METHODS = ("DELETE", "GET", "POST", "OPTIONS")
 
