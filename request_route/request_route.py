@@ -27,7 +27,7 @@ class Location:
 
 STANDARD_LOCATIONS = {
     "bird": Location(-54.025, -38.044, "bird"),
-    "falklands": Location(-51.731, -57.706, "falklands"),
+    "mareharbour": Location(-51.902, -58.494, "mareharbour"),
     "halley": Location(-75.059, -25.840, "halley"),
     "rothera": Location(-67.764, -68.02, "rothera"),
     "kep": Location(-54.220, -36.433, "kep"),
