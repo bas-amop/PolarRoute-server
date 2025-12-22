@@ -29,6 +29,7 @@ DEBUG = os.getenv("POLARROUTE_DEBUG", "False").lower() == "True"
 ALLOWED_HOSTS = [
     "localhost",
     "0.0.0.0",
+    "127.0.0.1",
 ]
 if os.getenv("POLARROUTE_ALLOWED_HOSTS", None) is not None:
     ALLOWED_HOSTS.extend(os.getenv("POLARROUTE_ALLOWED_HOSTS").split(","))
