@@ -67,6 +67,8 @@
               <ul class="current">
                 <li class="toctree-l1 current"><a class="reference internal current" href="#">Development</a>
     <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#debugging-with-docker-compose">Debugging with docker compose</a>
+    </li>
     <li class="toctree-l2"><a class="reference internal" href="#releaseversioning">Release/Versioning</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#building-deploying-the-documentation">Building &amp; deploying the documentation</a>
@@ -166,6 +168,30 @@
 <p>The pre-commit hooks include automatic API schema generation. When you commit changes to <code>polarrouteserver/route_api/views.py</code>, the API schema (<code>docs/apischema.yml</code>) will be automatically updated and included in your commit.</p>
 <p>A number of helpful development tools are made available through the <code>Makefile</code>, to see a description of each of these commands, run <code>make</code> (with no arguments) from the top-level of this directory.</p>
 <p><strong>Important</strong>: Please ensure all changes are included in <code>CHANGELOG.md</code> in a human-friendly format.</p>
+<h2 id="debugging-with-docker-compose">Debugging with docker compose</h2>
+<p>To run using a debugger in e.g. VS Code, run with the additional compose file <code>compose.debug.yml</code> which adds some additional settings to enable this.</p>
+<p>Do so with: <code>docker compose -f compose.yml -f compose.debug.yml up</code></p>
+<p>This will launch the containers, but the <code>app</code> service will stop until a debugger is attached.</p>
+<p>For VS Code, the launch config should look like:</p>
+<pre><code class="language-json">{
+    &quot;version&quot;: &quot;0.2.0&quot;,
+    &quot;configurations&quot;: [
+        {
+            &quot;name&quot;: &quot;Debug Dockerised Django&quot;,
+            &quot;type&quot;: &quot;debugpy&quot;,
+            &quot;request&quot;: &quot;attach&quot;,
+            &quot;pathMappings&quot;: [
+                {
+                &quot;localRoot&quot;: &quot;${workspaceFolder}&quot;,
+                &quot;remoteRoot&quot;: &quot;/usr/src/app&quot;
+                }
+            ],
+            &quot;connect&quot;: {&quot;host&quot;: &quot;127.0.0.1&quot;, &quot;port&quot;: 5678},
+        }
+    ]
+}
+</code></pre>
+<p>Run the debugger using this config to run the debugger listening to the debugging port configured.</p>
 <h2 id="releaseversioning">Release/Versioning</h2>
 <p>Version numbers should be used in tagging commits on the <code>main</code> branch and reflected in the <code>pyproject.toml</code> file and should be of the form <code>v0.1.7</code> using the semantic versioning convention.</p>
 <p><strong>Note on version numbers</strong>: Setuptools-scm requires version numbers that begin with a <code>v</code> and setuptools requires <a href="https://peps.python.org/pep-0440/">PEP 440-compliant version numbers</a>, e.g. <code>v0.1.7</code>, or for non release versions: <code>v0.1.7a1</code> for alphas, <code>v0.1.7rc1</code> for release candidates. Installing the package will fail if tags have version numbers deviating from this format.</p>
