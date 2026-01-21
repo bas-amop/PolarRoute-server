@@ -24,4 +24,4 @@ COPY assets /usr/src/app/assets
 
 ENV SETUPTOOLS_SCM_PRETEND_VERSION=99.99.99
 RUN uv pip install --system -e .[frontend]
-RUN uv pip install --system django-debug-toolbar
+RUN uv pip install --system django-debug-toolbar debugpy
