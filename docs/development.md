@@ -24,7 +24,7 @@ A number of helpful development tools are made available through the `Makefile`,
 
 ## Debugging with docker compose
 
-To run using a debugger in e.g. vs code, run with the additional compose file `compose.debug.yml` which adds some additional settings to enable this.
+To run using a debugger in e.g. VS Code, run with the additional compose file `compose.debug.yml` which adds some additional settings to enable this.
 
 Do so with: `docker compose -f compose.yml -f compose.debug.yml up`
 
