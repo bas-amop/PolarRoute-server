@@ -1,4 +1,5 @@
 import datetime
+import json
 import os
 
 import requests
@@ -45,6 +46,14 @@ def request_route(
 
 def get_route_geojson(route: dict):
     return route["json"][0][0]
+
+
+def get_locations() -> requests.Response:
+    response = requests.get(
+        url=server_url() + "/api/locations",
+    )
+
+    return json.loads(response.text)
 
 
 def _summarise_route(route):

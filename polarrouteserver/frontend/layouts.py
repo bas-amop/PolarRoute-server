@@ -1,20 +1,17 @@
-import json
-
 import dash_bootstrap_components as dbc
 from dash_extensions.enrich import html
 
+from .utils import get_locations
 
-def coords_input(loc, favourites):
+
+def coords_input(loc, locations):
     return html.Div(
         [
             dbc.InputGroup(
                 [
                     dbc.InputGroupText(loc),
                     dbc.Select(
-                        options=[
-                            {"label": v["display_name"], "value": json.dumps(v)}
-                            for v in favourites.values()
-                        ],
+                        options=[{"label": f["name"], "value": f} for f in locations],
                         id={"type": "location-select", "index": loc},
                         class_name="bsk-form-control",
                     ),
@@ -36,11 +33,14 @@ def coords_input(loc, favourites):
     )
 
 
-def route_request_form(favourites):
+def route_request_form(locations: list[dict] = None):
+    if not locations:
+        locations = get_locations()
+
     return dbc.Form(
         [
-            coords_input("start", favourites),
-            coords_input("end", favourites),
+            coords_input("start", locations),
+            coords_input("end", locations),
             dbc.Button(
                 "Submit",
                 color="primary",
