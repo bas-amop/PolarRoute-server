@@ -1,146 +1,3318 @@
-<!DOCTYPE html>
-<html class="writer-html5" lang="en" >
-<head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <link rel="shortcut icon" href="../../../../img/favicon.ico" />
-    <title>views - PolarRoute-Server</title>
-    <link rel="stylesheet" href="../../../../css/theme.css" />
-    <link rel="stylesheet" href="../../../../css/theme_extra.css" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
-        <link href="../../../../assets/_mkdocstrings.css" rel="stylesheet" />
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
     
-      <script>
-        // Current page data
-        var mkdocs_page_name = "views";
-        var mkdocs_page_input_path = "autoapi/polarrouteserver/route_api/views.md";
-        var mkdocs_page_url = null;
-      </script>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../utils/">
+      
+      
+        <link rel="next" href="../../utils/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="https://cdn.web.bas.ac.uk/bas-style-kit/0.7.3/img/favicon/favicon-16x16.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
     
-    <!--[if lt IE 9]>
-      <script src="../../../../js/html5shiv.min.js"></script>
-    <![endif]-->
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
-      <script>hljs.highlightAll();</script> 
-</head>
+    
+      
+        <title>views - PolarRoute-Server</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
 
-<body class="wy-body-for-nav" role="document">
 
-  <div class="wy-grid-for-nav">
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
-    <div class="wy-side-scroll">
-      <div class="wy-side-nav-search">
-          <a href="../../../.." class="icon icon-home"> PolarRoute-Server
-        </a><div role="search">
-  <form id ="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
-      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
-  </form>
-</div>
-      </div>
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
 
-      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../../../..">Home</a>
-                </li>
-              </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../../../../vehicle-management/">Vehicle Management</a>
-                </li>
-              </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../../../../requesting-routes/">Requesting Routes</a>
-                </li>
-              </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../../../../how-polarroute-server-works/">How PolarRoute-server works</a>
-                </li>
-              </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../../../../deployment/">Deployment</a>
-                </li>
-              </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../../../../configuration/">Configuration</a>
-                </li>
-              </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../../../../development/">Development</a>
-                </li>
-              </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../../../../changelog/">Changelog</a>
-                </li>
-              </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../../../../api/">API Reference</a>
-                </li>
-              </ul>
-              <p class="caption"><span class="caption-text">Python Package API Reference</span></p>
-              <ul class="current">
-                  <li class="toctree-l1 current"><a class="reference internal current" href="../../">polarrouteserver</a>
-    <ul class="current">
-                <li class="toctree-l2 current"><a class="reference internal current" href="../">route_api</a>
-    <ul class="current">
-                <li class="toctree-l3"><a class="reference internal" href="../models/">models</a>
-                </li>
-                <li class="toctree-l3"><a class="reference internal" href="../responses/">responses</a>
-                </li>
-                <li class="toctree-l3"><a class="reference internal" href="../serializers/">serializers</a>
-                </li>
-                <li class="toctree-l3"><a class="reference internal" href="../tasks/">tasks</a>
-                </li>
-                <li class="toctree-l3"><a class="reference internal" href="../utils/">utils</a>
-                </li>
-                <li class="toctree-l3 current"><a class="reference internal current" href="#">views</a>
-    <ul class="current">
-    </ul>
-                </li>
-    </ul>
-                </li>
-                <li class="toctree-l2"><a class="reference internal" href="../../utils/">utils</a>
-    <ul>
-                <li class="toctree-l3"><a class="reference internal" href="../../utils/loggers/">loggers</a>
-                </li>
-    </ul>
-                </li>
-    </ul>
-                  </li>
-                  <li class="toctree-l1"><a class="reference internal" href="../../../request_route/">request_route</a>
-    <ul>
-                <li class="toctree-l2"><a class="reference internal" href="../../../request_route/request_route/">request_route</a>
-                </li>
-    </ul>
-                  </li>
-              </ul>
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="orange" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#polarrouteserver.route_api.views" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../../.." title="PolarRoute-Server" class="md-header__button md-logo" aria-label="PolarRoute-Server" data-md-component="logo">
+      
+  <img src="https://cdn.web.bas.ac.uk/bas-style-kit/0.7.3/img/logos-symbols/bas-roundel-inverse-transparent-64.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PolarRoute-Server
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              views
+            
+          </span>
+        </div>
       </div>
     </div>
-    </nav>
-
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
-          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../../../..">PolarRoute-Server</a>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="orange" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="orange" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
         
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
       </nav>
-      <div class="wy-nav-content">
-        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
-  <ul class="wy-breadcrumbs">
-    <li><a href="../../../.." class="icon icon-home" aria-label="Docs"></a></li>
-          <li class="breadcrumb-item">Python Package API Reference</li>
-          <li class="breadcrumb-item"><a href="../../">polarrouteserver</a></li>
-          <li class="breadcrumb-item"><a href="../">route_api</a></li>
-      <li class="breadcrumb-item active">views</li>
-    <li class="wy-breadcrumbs-aside">
-          <a href="https://github.com/home/runner/work/PolarRoute-server/PolarRoute-server/polarrouteserver/route_api/views.py" class="icon icon-github"> Edit on GitHub</a>
-    </li>
-  </ul>
-  <hr/>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
-          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
-            <div class="section" itemprop="articleBody">
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/bas-amop/polarroute-server/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
               
-                <div class="doc doc-object doc-module">
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="PolarRoute-Server" class="md-nav__button md-logo" aria-label="PolarRoute-Server" data-md-component="logo">
+      
+  <img src="https://cdn.web.bas.ac.uk/bas-style-kit/0.7.3/img/logos-symbols/bas-roundel-inverse-transparent-64.png" alt="logo">
+
+    </a>
+    PolarRoute-Server
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/bas-amop/polarroute-server/" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../vehicle-management/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vehicle Management
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../requesting-routes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Requesting Routes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../how-polarroute-server-works/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    How PolarRoute-server works
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deployment
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../development/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../changelog/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Changelog
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python Package API Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Python Package API Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_10_1" id="__nav_10_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    build
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_10_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    build
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_1_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_10_1_1" id="__nav_10_1_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    lib
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_1_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_1_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    lib
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_1_1_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_10_1_1_1" id="__nav_10_1_1_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    polarrouteserver
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_10_1_1_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_1_1_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    polarrouteserver
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/polarrouteserver/_version/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    _version
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/polarrouteserver/asgi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    asgi
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/polarrouteserver/celery/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    celery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_1_1_1_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_10_1_1_1_4" id="__nav_10_1_1_1_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    route_api
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_10_1_1_1_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_1_1_1_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    route_api
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/polarrouteserver/route_api/admin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    admin
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/polarrouteserver/route_api/apps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    apps
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_1_1_1_4_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_10_1_1_1_4_3" id="__nav_10_1_1_1_4_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    management
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="6" aria-labelledby="__nav_10_1_1_1_4_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_1_1_1_4_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    management
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_1_1_1_4_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_10_1_1_1_4_3_1" id="__nav_10_1_1_1_4_3_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    commands
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="7" aria-labelledby="__nav_10_1_1_1_4_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_1_1_1_4_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    commands
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/polarrouteserver/route_api/management/commands/ensure_adminuser/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    ensure_adminuser
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/polarrouteserver/route_api/management/commands/insert_mesh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    insert_mesh
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_1_1_1_4_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_10_1_1_1_4_4" id="__nav_10_1_1_1_4_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    migrations
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="6" aria-labelledby="__nav_10_1_1_1_4_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_1_1_1_4_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    migrations
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/polarrouteserver/route_api/migrations/0001_initial/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0001_initial
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/polarrouteserver/route_api/migrations/0002_alter_route_info/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0002_alter_route_info
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/polarrouteserver/route_api/migrations/0003_route_end_name_route_start_name/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0003_route_end_name_route_start_name
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/polarrouteserver/route_api/migrations/0004_remove_route_file/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0004_remove_route_file
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/polarrouteserver/route_api/migrations/0005_alter_route_end_name_alter_route_start_name/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0005_alter_route_end_name_alter_route_start_name
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/polarrouteserver/route_api/migrations/0006_alter_route_end_name_alter_route_start_name/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0006_alter_route_end_name_alter_route_start_name
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/polarrouteserver/route_api/migrations/0007_alter_route_end_name_alter_route_start_name/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0007_alter_route_end_name_alter_route_start_name
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/polarrouteserver/route_api/migrations/0008_mesh_valid_date_end_mesh_valid_date_start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0008_mesh_valid_date_end_mesh_valid_date_start
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/polarrouteserver/route_api/migrations/0009_alter_job_route_alter_route_mesh/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0009_alter_job_route_alter_route_mesh
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/polarrouteserver/route_api/migrations/0010_alter_mesh_options/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0010_alter_mesh_options
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/polarrouteserver/route_api/migrations/0011_alter_mesh_name/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0011_alter_mesh_name
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/polarrouteserver/route_api/migrations/0012_vehicle/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0012_vehicle
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/polarrouteserver/route_api/migrations/0013_location/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0013_location
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/polarrouteserver/route_api/migrations/0014_alter_job_route/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0014_alter_job_route
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/polarrouteserver/route_api/migrations/0015_alter_location_name/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0015_alter_location_name
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/polarrouteserver/route_api/migrations/0016_alter_location_name/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0016_alter_location_name
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/polarrouteserver/route_api/migrations/0017_route_tags/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0017_route_tags
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/polarrouteserver/route_api/migrations/0018_alter_route_tags/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    0018_alter_route_tags
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/polarrouteserver/route_api/models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/polarrouteserver/route_api/responses/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    responses
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/polarrouteserver/route_api/serializers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    serializers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/polarrouteserver/route_api/tasks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    tasks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/polarrouteserver/route_api/utils/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/polarrouteserver/route_api/views/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    views
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_1_1_1_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_10_1_1_1_5" id="__nav_10_1_1_1_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    settings
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_10_1_1_1_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_1_1_1_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    settings
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/polarrouteserver/settings/base/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    base
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/polarrouteserver/settings/development/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    development
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/polarrouteserver/settings/production/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    production
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/polarrouteserver/settings/test/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    test
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/polarrouteserver/urls/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    urls
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_1_1_1_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_10_1_1_1_7" id="__nav_10_1_1_1_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="5" aria-labelledby="__nav_10_1_1_1_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_1_1_1_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    utils
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/polarrouteserver/utils/loggers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    loggers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/polarrouteserver/wsgi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    wsgi
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_1_1_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_10_1_1_2" id="__nav_10_1_1_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    request_route
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="4" aria-labelledby="__nav_10_1_1_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_1_1_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    request_route
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../build/lib/request_route/request_route/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    request_route
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_10_2" id="__nav_10_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    polarrouteserver
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_10_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_10_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    polarrouteserver
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_2_1" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_10_2_1" id="__nav_10_2_1_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    route_api
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_2_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_10_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    route_api
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../models/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    models
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../responses/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    responses
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../serializers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    serializers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tasks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    tasks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../utils/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    views
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    views
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        views
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.EvaluateRouteView" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EvaluateRouteView
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="EvaluateRouteView">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.EvaluateRouteView.post" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        post
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.JobView" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JobView
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="JobView">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.JobView.delete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        delete
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.JobView.get" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.LoggingMixin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LoggingMixin
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.MeshView" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MeshView
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MeshView">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.MeshView.get" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.RecentRoutesView" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RecentRoutesView
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="RecentRoutesView">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.RecentRoutesView.get" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.RouteDetailView" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RouteDetailView
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="RouteDetailView">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.RouteDetailView.get" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.RouteRequestView" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RouteRequestView
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="RouteRequestView">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.RouteRequestView.post" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        post
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.VehicleDetailView" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VehicleDetailView
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="VehicleDetailView">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.VehicleDetailView.delete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        delete
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.VehicleDetailView.get" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.VehicleRequestView" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VehicleRequestView
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="VehicleRequestView">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.VehicleRequestView.get" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.VehicleRequestView.post" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        post
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.VehicleTypeListView" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VehicleTypeListView
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_2_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_10_2_2" id="__nav_10_2_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    utils
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_10_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    utils
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../utils/loggers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    loggers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_10_3" id="__nav_10_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    request_route
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_10_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    request_route
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../request_route/request_route/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    request_route
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        views
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.EvaluateRouteView" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EvaluateRouteView
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="EvaluateRouteView">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.EvaluateRouteView.post" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        post
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.JobView" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JobView
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="JobView">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.JobView.delete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        delete
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.JobView.get" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.LoggingMixin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LoggingMixin
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.MeshView" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MeshView
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="MeshView">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.MeshView.get" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.RecentRoutesView" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RecentRoutesView
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="RecentRoutesView">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.RecentRoutesView.get" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.RouteDetailView" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RouteDetailView
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="RouteDetailView">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.RouteDetailView.get" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.RouteRequestView" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RouteRequestView
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="RouteRequestView">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.RouteRequestView.post" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        post
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.VehicleDetailView" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VehicleDetailView
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="VehicleDetailView">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.VehicleDetailView.delete" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        delete
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.VehicleDetailView.get" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.VehicleRequestView" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VehicleRequestView
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="VehicleRequestView">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.VehicleRequestView.get" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.VehicleRequestView.post" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        post
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#polarrouteserver.route_api.views.VehicleTypeListView" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VehicleTypeListView
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+    <a href="https://github.com/home/runner/work/PolarRoute-server/PolarRoute-server/polarrouteserver/route_api/views.py" title="Edit this page" class="md-content__button md-icon" rel="edit">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M10 20H6V4h7v5h5v3.1l2-2V8l-6-6H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h4zm10.2-7c.1 0 .3.1.4.2l1.3 1.3c.2.2.2.6 0 .8l-1 1-2.1-2.1 1-1c.1-.1.2-.2.4-.2m0 3.9L14.1 23H12v-2.1l6.1-6.1z"/></svg>
+    </a>
+  
+  
+
+
+  <h1>views</h1>
+
+<div class="doc doc-object doc-module">
 
 
 
@@ -171,15 +3343,14 @@
 
 
 <h2 id="polarrouteserver.route_api.views.EvaluateRouteView" class="doc doc-heading">
-            <code>EvaluateRouteView</code>
+              <code class="highlight language-python"><span class="n">EvaluateRouteView</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>
 
-
-</h2>
+<a href="#polarrouteserver.route_api.views.EvaluateRouteView" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="LoggingMixin (polarrouteserver.route_api.views.LoggingMixin)" href="#polarrouteserver.route_api.views.LoggingMixin">LoggingMixin</a></code>, <code><a class="autorefs autorefs-internal" title="ResponseMixin (polarrouteserver.route_api.responses.ResponseMixin)" href="../responses/#polarrouteserver.route_api.responses.ResponseMixin">ResponseMixin</a></code>, <code><span title="rest_framework.views.APIView">APIView</span></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="LoggingMixin(*args, **kwargs) (polarrouteserver.route_api.views.LoggingMixin)" href="#polarrouteserver.route_api.views.LoggingMixin">LoggingMixin</a></code>, <code><a class="autorefs autorefs-internal" title="ResponseMixin (polarrouteserver.route_api.responses.ResponseMixin)" href="../responses/#polarrouteserver.route_api.responses.ResponseMixin">ResponseMixin</a></code>, <code><span title="rest_framework.views.APIView">APIView</span></code></p>
 
 
 
@@ -189,57 +3360,7 @@
 
 
 
-              <details class="quote">
-                <summary>Source code in <code>polarrouteserver/route_api/views.py</code></summary>
-                <pre class="highlight"><code class="language-python">class EvaluateRouteView(LoggingMixin, ResponseMixin, APIView):
-    serializer_class = None
 
-    @extend_schema(
-        operation_id="api_route_evaluation",
-        request=inline_serializer(
-            name="RouteEvaluationRequest",
-            fields={
-                "route": serializers.JSONField(help_text="The route JSON to evaluate."),
-                "custom_mesh_id": serializers.IntegerField(
-                    required=False,
-                    allow_null=True,
-                    help_text="Optional: Custom mesh ID to use for evaluation.",
-                ),
-            },
-        ),
-        responses={
-            200: routeEvaluationResponseSchema,
-            404: notFoundResponseSchema,
-        },
-    )
-    def post(self, request):
-        "POST Endpoint to evaluate traveltime and fuel usage on a given route."
-        data = request.data
-        route_json = data.get("route", None)
-        custom_mesh_id = data.get("custom_mesh_id", None)
-
-        if custom_mesh_id:
-            try:
-                mesh = Mesh.objects.get(id=custom_mesh_id)
-                meshes = [mesh]
-            except Mesh.DoesNotExist:
-                return self.not_found_response("No mesh available.")
-        else:
-            meshes = select_mesh_for_route_evaluation(route_json)
-
-            if meshes is None:
-                return self.not_found_response("No mesh available.")
-
-        response_data = {"polarrouteserver-version": polarrouteserver_version}
-
-        result_dict = evaluate_route(route_json, meshes[0])
-
-        if result_dict is None:
-            result_dict = {"error": "Route evaluation not possible."}
-
-        response_data.update(result_dict)
-        return self.success_response(response_data)</code></pre>
-              </details>
 
 
 
@@ -258,9 +3379,9 @@
 
 
 <h3 id="polarrouteserver.route_api.views.EvaluateRouteView.post" class="doc doc-heading">
-            <code class="highlight language-python">post(request)</code>
+            <code class="highlight language-python"><span class="n">post</span><span class="p">(</span><span class="n">request</span><span class="p">)</span></code>
 
-</h3>
+<a href="#polarrouteserver.route_api.views.EvaluateRouteView.post" class="headerlink" title="Permanent link">&para;</a></h3>
 
 
     <div class="doc doc-contents ">
@@ -268,54 +3389,6 @@
         <p>POST Endpoint to evaluate traveltime and fuel usage on a given route.</p>
 
 
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>polarrouteserver/route_api/views.py</code></summary>
-              <pre class="highlight"><code class="language-python">@extend_schema(
-    operation_id="api_route_evaluation",
-    request=inline_serializer(
-        name="RouteEvaluationRequest",
-        fields={
-            "route": serializers.JSONField(help_text="The route JSON to evaluate."),
-            "custom_mesh_id": serializers.IntegerField(
-                required=False,
-                allow_null=True,
-                help_text="Optional: Custom mesh ID to use for evaluation.",
-            ),
-        },
-    ),
-    responses={
-        200: routeEvaluationResponseSchema,
-        404: notFoundResponseSchema,
-    },
-)
-def post(self, request):
-    "POST Endpoint to evaluate traveltime and fuel usage on a given route."
-    data = request.data
-    route_json = data.get("route", None)
-    custom_mesh_id = data.get("custom_mesh_id", None)
-
-    if custom_mesh_id:
-        try:
-            mesh = Mesh.objects.get(id=custom_mesh_id)
-            meshes = [mesh]
-        except Mesh.DoesNotExist:
-            return self.not_found_response("No mesh available.")
-    else:
-        meshes = select_mesh_for_route_evaluation(route_json)
-
-        if meshes is None:
-            return self.not_found_response("No mesh available.")
-
-    response_data = {"polarrouteserver-version": polarrouteserver_version}
-
-    result_dict = evaluate_route(route_json, meshes[0])
-
-    if result_dict is None:
-        result_dict = {"error": "Route evaluation not possible."}
-
-    response_data.update(result_dict)
-    return self.success_response(response_data)</code></pre>
-            </details>
     </div>
 
 </div>
@@ -326,7 +3399,6 @@ def post(self, request):
 
     </div>
 
-
 </div>
 
 <div class="doc doc-object doc-class">
@@ -334,15 +3406,14 @@ def post(self, request):
 
 
 <h2 id="polarrouteserver.route_api.views.JobView" class="doc doc-heading">
-            <code>JobView</code>
+              <code class="highlight language-python"><span class="n">JobView</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>
 
-
-</h2>
+<a href="#polarrouteserver.route_api.views.JobView" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="LoggingMixin (polarrouteserver.route_api.views.LoggingMixin)" href="#polarrouteserver.route_api.views.LoggingMixin">LoggingMixin</a></code>, <code><a class="autorefs autorefs-internal" title="ResponseMixin (polarrouteserver.route_api.responses.ResponseMixin)" href="../responses/#polarrouteserver.route_api.responses.ResponseMixin">ResponseMixin</a></code>, <code><span title="rest_framework.generics.GenericAPIView">GenericAPIView</span></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="LoggingMixin(*args, **kwargs) (polarrouteserver.route_api.views.LoggingMixin)" href="#polarrouteserver.route_api.views.LoggingMixin">LoggingMixin</a></code>, <code><a class="autorefs autorefs-internal" title="ResponseMixin (polarrouteserver.route_api.responses.ResponseMixin)" href="../responses/#polarrouteserver.route_api.responses.ResponseMixin">ResponseMixin</a></code>, <code><span title="rest_framework.generics.GenericAPIView">GenericAPIView</span></code></p>
 
 
 
@@ -354,75 +3425,7 @@ def post(self, request):
 
 
 
-              <details class="quote">
-                <summary>Source code in <code>polarrouteserver/route_api/views.py</code></summary>
-                <pre class="highlight"><code class="language-python">class JobView(LoggingMixin, ResponseMixin, GenericAPIView):
-    """
-    View for handling job status requests
-    """
 
-    serializer_class = JobStatusSerializer
-
-    @extend_schema(
-        operation_id="api_job_retrieve_status",
-        responses={
-            200: jobStatusResponseSchema,
-            404: notFoundResponseSchema,
-        },
-    )
-    def get(self, request, id):
-        """Return status of job and route URL if complete."""
-
-        logger.info(
-            f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
-        )
-
-        try:
-            job = Job.objects.get(id=id)
-        except Job.DoesNotExist:
-            return self.not_found_response(f"Job with id {id} not found.")
-
-        serializer = JobStatusSerializer(job, context={"request": request})
-
-        return self.success_response(serializer.data)
-
-    @extend_schema(
-        operation_id="api_job_cancel",
-        responses={
-            202: acceptedResponseSchema,
-            404: notFoundResponseSchema,
-        },
-    )
-    def delete(self, request, id):
-        """Cancel job"""
-
-        logger.info(
-            f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
-        )
-
-        try:
-            job = Job.objects.get(id=id)
-        except Job.DoesNotExist:
-            return self.not_found_response(f"Job with id {id} not found.")
-
-        # Store route ID for response before deletion
-        route_id = job.route.id
-
-        # Cancel the Celery task
-        result = AsyncResult(id=str(id), app=app)
-        result.revoke()
-
-        # Delete the corresponding route (this will also delete the job due to CASCADE)
-        job.route.delete()
-
-        return self.accepted_response(
-            {
-                "message": f"Job {id} cancellation requested and route {route_id} deleted.",
-                "job_id": str(job.id),
-                "route_id": route_id,
-            }
-        )</code></pre>
-              </details>
 
 
 
@@ -441,9 +3444,9 @@ def post(self, request):
 
 
 <h3 id="polarrouteserver.route_api.views.JobView.delete" class="doc doc-heading">
-            <code class="highlight language-python">delete(request, id)</code>
+            <code class="highlight language-python"><span class="n">delete</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="nb">id</span><span class="p">)</span></code>
 
-</h3>
+<a href="#polarrouteserver.route_api.views.JobView.delete" class="headerlink" title="Permanent link">&para;</a></h3>
 
 
     <div class="doc doc-contents ">
@@ -451,45 +3454,6 @@ def post(self, request):
         <p>Cancel job</p>
 
 
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>polarrouteserver/route_api/views.py</code></summary>
-              <pre class="highlight"><code class="language-python">@extend_schema(
-    operation_id="api_job_cancel",
-    responses={
-        202: acceptedResponseSchema,
-        404: notFoundResponseSchema,
-    },
-)
-def delete(self, request, id):
-    """Cancel job"""
-
-    logger.info(
-        f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
-    )
-
-    try:
-        job = Job.objects.get(id=id)
-    except Job.DoesNotExist:
-        return self.not_found_response(f"Job with id {id} not found.")
-
-    # Store route ID for response before deletion
-    route_id = job.route.id
-
-    # Cancel the Celery task
-    result = AsyncResult(id=str(id), app=app)
-    result.revoke()
-
-    # Delete the corresponding route (this will also delete the job due to CASCADE)
-    job.route.delete()
-
-    return self.accepted_response(
-        {
-            "message": f"Job {id} cancellation requested and route {route_id} deleted.",
-            "job_id": str(job.id),
-            "route_id": route_id,
-        }
-    )</code></pre>
-            </details>
     </div>
 
 </div>
@@ -498,9 +3462,9 @@ def delete(self, request, id):
 
 
 <h3 id="polarrouteserver.route_api.views.JobView.get" class="doc doc-heading">
-            <code class="highlight language-python">get(request, id)</code>
+            <code class="highlight language-python"><span class="n">get</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="nb">id</span><span class="p">)</span></code>
 
-</h3>
+<a href="#polarrouteserver.route_api.views.JobView.get" class="headerlink" title="Permanent link">&para;</a></h3>
 
 
     <div class="doc doc-contents ">
@@ -508,31 +3472,6 @@ def delete(self, request, id):
         <p>Return status of job and route URL if complete.</p>
 
 
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>polarrouteserver/route_api/views.py</code></summary>
-              <pre class="highlight"><code class="language-python">@extend_schema(
-    operation_id="api_job_retrieve_status",
-    responses={
-        200: jobStatusResponseSchema,
-        404: notFoundResponseSchema,
-    },
-)
-def get(self, request, id):
-    """Return status of job and route URL if complete."""
-
-    logger.info(
-        f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
-    )
-
-    try:
-        job = Job.objects.get(id=id)
-    except Job.DoesNotExist:
-        return self.not_found_response(f"Job with id {id} not found.")
-
-    serializer = JobStatusSerializer(job, context={"request": request})
-
-    return self.success_response(serializer.data)</code></pre>
-            </details>
     </div>
 
 </div>
@@ -543,7 +3482,6 @@ def get(self, request, id):
 
     </div>
 
-
 </div>
 
 <div class="doc doc-object doc-class">
@@ -551,10 +3489,9 @@ def get(self, request, id):
 
 
 <h2 id="polarrouteserver.route_api.views.LoggingMixin" class="doc doc-heading">
-            <code>LoggingMixin</code>
+              <code class="highlight language-python"><span class="n">LoggingMixin</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>
 
-
-</h2>
+<a href="#polarrouteserver.route_api.views.LoggingMixin" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
     <div class="doc doc-contents ">
@@ -569,50 +3506,7 @@ def get(self, request, id):
 
 
 
-              <details class="quote">
-                <summary>Source code in <code>polarrouteserver/route_api/views.py</code></summary>
-                <pre class="highlight"><code class="language-python">class LoggingMixin:
-    """
-    Provides full logging of requests and responses
-    """
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.logger = logging.getLogger("django.request")
-
-    def initial(self, request, *args, **kwargs):
-        try:
-            self.logger.debug(
-                {
-                    "request": request.data,
-                    "method": request.method,
-                    "endpoint": request.path,
-                    "user": request.user.username,
-                    "ip_address": request.META.get("REMOTE_ADDR"),
-                    "user_agent": request.META.get("HTTP_USER_AGENT"),
-                }
-            )
-        except Exception:
-            self.logger.exception("Error logging request data")
-
-        super().initial(request, *args, **kwargs)
-
-    def finalize_response(self, request, response, *args, **kwargs):
-        try:
-            self.logger.debug(
-                {
-                    "response": response.data,
-                    "status_code": response.status_code,
-                    "user": request.user.username,
-                    "ip_address": request.META.get("REMOTE_ADDR"),
-                    "user_agent": request.META.get("HTTP_USER_AGENT"),
-                }
-            )
-        except Exception:
-            self.logger.exception("Error logging response data")
-
-        return super().finalize_response(request, response, *args, **kwargs)</code></pre>
-              </details>
 
 
 
@@ -633,7 +3527,6 @@ def get(self, request, id):
 
     </div>
 
-
 </div>
 
 <div class="doc doc-object doc-class">
@@ -641,15 +3534,14 @@ def get(self, request, id):
 
 
 <h2 id="polarrouteserver.route_api.views.MeshView" class="doc doc-heading">
-            <code>MeshView</code>
+              <code class="highlight language-python"><span class="n">MeshView</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>
 
-
-</h2>
+<a href="#polarrouteserver.route_api.views.MeshView" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="LoggingMixin (polarrouteserver.route_api.views.LoggingMixin)" href="#polarrouteserver.route_api.views.LoggingMixin">LoggingMixin</a></code>, <code><a class="autorefs autorefs-internal" title="ResponseMixin (polarrouteserver.route_api.responses.ResponseMixin)" href="../responses/#polarrouteserver.route_api.responses.ResponseMixin">ResponseMixin</a></code>, <code><span title="rest_framework.views.APIView">APIView</span></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="LoggingMixin(*args, **kwargs) (polarrouteserver.route_api.views.LoggingMixin)" href="#polarrouteserver.route_api.views.LoggingMixin">LoggingMixin</a></code>, <code><a class="autorefs autorefs-internal" title="ResponseMixin (polarrouteserver.route_api.responses.ResponseMixin)" href="../responses/#polarrouteserver.route_api.responses.ResponseMixin">ResponseMixin</a></code>, <code><span title="rest_framework.views.APIView">APIView</span></code></p>
 
 
 
@@ -659,42 +3551,7 @@ def get(self, request, id):
 
 
 
-              <details class="quote">
-                <summary>Source code in <code>polarrouteserver/route_api/views.py</code></summary>
-                <pre class="highlight"><code class="language-python">class MeshView(LoggingMixin, ResponseMixin, APIView):
-    serializer_class = None
 
-    @extend_schema(
-        operation_id="api_mesh_get",
-        responses={
-            200: meshDetailResponseSchema,
-            404: notFoundResponseSchema,
-        },
-    )
-    def get(self, request, id):
-        "GET Meshes by id"
-
-        logger.info(
-            f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
-        )
-
-        data = {"polarrouteserver-version": polarrouteserver_version}
-
-        try:
-            mesh = Mesh.objects.get(id=id)
-            data.update(
-                dict(
-                    id=mesh.id,
-                    json=mesh.json,
-                    geojson=EnvironmentMesh.load_from_json(mesh.json).to_geojson(),
-                )
-            )
-
-            return self.success_response(data)
-
-        except Mesh.DoesNotExist:
-            return self.not_found_response(f"Mesh with id {id} not found.")</code></pre>
-              </details>
 
 
 
@@ -713,9 +3570,9 @@ def get(self, request, id):
 
 
 <h3 id="polarrouteserver.route_api.views.MeshView.get" class="doc doc-heading">
-            <code class="highlight language-python">get(request, id)</code>
+            <code class="highlight language-python"><span class="n">get</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="nb">id</span><span class="p">)</span></code>
 
-</h3>
+<a href="#polarrouteserver.route_api.views.MeshView.get" class="headerlink" title="Permanent link">&para;</a></h3>
 
 
     <div class="doc doc-contents ">
@@ -723,39 +3580,6 @@ def get(self, request, id):
         <p>GET Meshes by id</p>
 
 
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>polarrouteserver/route_api/views.py</code></summary>
-              <pre class="highlight"><code class="language-python">@extend_schema(
-    operation_id="api_mesh_get",
-    responses={
-        200: meshDetailResponseSchema,
-        404: notFoundResponseSchema,
-    },
-)
-def get(self, request, id):
-    "GET Meshes by id"
-
-    logger.info(
-        f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
-    )
-
-    data = {"polarrouteserver-version": polarrouteserver_version}
-
-    try:
-        mesh = Mesh.objects.get(id=id)
-        data.update(
-            dict(
-                id=mesh.id,
-                json=mesh.json,
-                geojson=EnvironmentMesh.load_from_json(mesh.json).to_geojson(),
-            )
-        )
-
-        return self.success_response(data)
-
-    except Mesh.DoesNotExist:
-        return self.not_found_response(f"Mesh with id {id} not found.")</code></pre>
-            </details>
     </div>
 
 </div>
@@ -766,7 +3590,6 @@ def get(self, request, id):
 
     </div>
 
-
 </div>
 
 <div class="doc doc-object doc-class">
@@ -774,15 +3597,14 @@ def get(self, request, id):
 
 
 <h2 id="polarrouteserver.route_api.views.RecentRoutesView" class="doc doc-heading">
-            <code>RecentRoutesView</code>
+              <code class="highlight language-python"><span class="n">RecentRoutesView</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>
 
-
-</h2>
+<a href="#polarrouteserver.route_api.views.RecentRoutesView" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="LoggingMixin (polarrouteserver.route_api.views.LoggingMixin)" href="#polarrouteserver.route_api.views.LoggingMixin">LoggingMixin</a></code>, <code><a class="autorefs autorefs-internal" title="ResponseMixin (polarrouteserver.route_api.responses.ResponseMixin)" href="../responses/#polarrouteserver.route_api.responses.ResponseMixin">ResponseMixin</a></code>, <code><span title="rest_framework.generics.GenericAPIView">GenericAPIView</span></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="LoggingMixin(*args, **kwargs) (polarrouteserver.route_api.views.LoggingMixin)" href="#polarrouteserver.route_api.views.LoggingMixin">LoggingMixin</a></code>, <code><a class="autorefs autorefs-internal" title="ResponseMixin (polarrouteserver.route_api.responses.ResponseMixin)" href="../responses/#polarrouteserver.route_api.responses.ResponseMixin">ResponseMixin</a></code>, <code><span title="rest_framework.generics.GenericAPIView">GenericAPIView</span></code></p>
 
 
 
@@ -792,146 +3614,7 @@ def get(self, request, id):
 
 
 
-              <details class="quote">
-                <summary>Source code in <code>polarrouteserver/route_api/views.py</code></summary>
-                <pre class="highlight"><code class="language-python">class RecentRoutesView(LoggingMixin, ResponseMixin, GenericAPIView):
-    serializer_class = None  # No serializer needed - using manual response building
 
-    def _get_celery_task_status(self, job_id, calculated_timestamp, route_info):
-        """
-        Get Celery task status. Uses database state to avoid Celery broker calls.
-        """
-        if calculated_timestamp:
-            return "SUCCESS"
-
-        if route_info and "error" in str(route_info).lower():
-            return "FAILURE"
-
-        # Handle missing job scenarios
-        if not job_id:
-            return "PENDING"
-
-        # Job exists but no calculation yet - also PENDING
-        return "PENDING"
-
-    @extend_schema(
-        operation_id="api_recent_routes_list",
-        responses={
-            200: recentRoutesResponseSchema,
-        },
-    )
-    def get(self, request):
-        """Get recent routes"""
-
-        logger.info(
-            f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
-        )
-
-        # Only get today's routes
-        routes_recent = (
-            Route.objects.filter(requested__gte=timezone.now() - timedelta(hours=24))
-            .select_related("job")
-            .values(
-                "id",
-                "start_lat",
-                "start_lon",
-                "end_lat",
-                "end_lon",
-                "start_name",
-                "end_name",
-                "polar_route_version",
-                "requested",
-                "calculated",
-                "info",
-                "mesh_id",
-                "mesh__name",
-                "job__id",
-            )
-            .order_by("-requested")
-        )
-
-        if not routes_recent:
-            return self.success_response(
-                {
-                    "routes": [],
-                    "polarrouteserver-version": polarrouteserver_version,
-                    "message": "No recent routes found for last 24 hours.",
-                }
-            )
-
-        # Get route IDs for tag lookup
-        route_ids = [route["id"] for route in routes_recent]
-
-        # Get all tags for routes in one query
-        route_tags = {}
-        if route_ids:
-            content_type = ContentType.objects.get_for_model(Route)
-            tagged_items = (
-                TaggedItem.objects.filter(
-                    content_type=content_type, object_id__in=route_ids
-                )
-                .select_related("tag")
-                .values("object_id", "tag__name")
-            )
-
-            for item in tagged_items:
-                route_id = int(item["object_id"])
-                if route_id not in route_tags:
-                    route_tags[route_id] = []
-                route_tags[route_id].append(item["tag__name"])
-
-        routes_data = []
-        for route in routes_recent:
-            job_id = route.get("job__id")
-            status = self._get_celery_task_status(
-                job_id, route["calculated"], route["info"]
-            )
-
-            # Build lightweight route data
-            route_data = {
-                "id": route["id"],
-                "start_lat": route["start_lat"],
-                "start_lon": route["start_lon"],
-                "end_lat": route["end_lat"],
-                "end_lon": route["end_lon"],
-                "start_name": route["start_name"],
-                "end_name": route["end_name"],
-                "polar_route_version": route["polar_route_version"],
-                "requested": route["requested"].isoformat()
-                if route["requested"]
-                else None,
-                "calculated": route["calculated"].isoformat()
-                if route["calculated"]
-                else None,
-                "status": status,
-                "route_url": reverse(
-                    "route_detail", args=[route["id"]], request=request
-                ),
-                "tags": route_tags.get(route["id"], []),
-            }
-
-            if job_id:
-                route_data["job_id"] = job_id
-                route_data["job_status_url"] = reverse(
-                    "job_detail", args=[job_id], request=request
-                )
-
-            # Add minimal mesh info without loading the heavy JSON
-            if route["mesh_id"]:
-                route_data["mesh"] = {
-                    "id": route["mesh_id"],
-                    "name": route["mesh__name"],
-                }
-
-            routes_data.append(route_data)
-
-        response_data = {
-            "routes": routes_data,
-            "polarrouteserver-version": polarrouteserver_version,
-        }
-
-        return self.success_response(response_data)</code></pre>
-              </details>
 
 
 
@@ -950,9 +3633,9 @@ def get(self, request, id):
 
 
 <h3 id="polarrouteserver.route_api.views.RecentRoutesView.get" class="doc doc-heading">
-            <code class="highlight language-python">get(request)</code>
+            <code class="highlight language-python"><span class="n">get</span><span class="p">(</span><span class="n">request</span><span class="p">)</span></code>
 
-</h3>
+<a href="#polarrouteserver.route_api.views.RecentRoutesView.get" class="headerlink" title="Permanent link">&para;</a></h3>
 
 
     <div class="doc doc-contents ">
@@ -960,126 +3643,6 @@ def get(self, request, id):
         <p>Get recent routes</p>
 
 
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>polarrouteserver/route_api/views.py</code></summary>
-              <pre class="highlight"><code class="language-python">@extend_schema(
-    operation_id="api_recent_routes_list",
-    responses={
-        200: recentRoutesResponseSchema,
-    },
-)
-def get(self, request):
-    """Get recent routes"""
-
-    logger.info(
-        f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
-    )
-
-    # Only get today's routes
-    routes_recent = (
-        Route.objects.filter(requested__gte=timezone.now() - timedelta(hours=24))
-        .select_related("job")
-        .values(
-            "id",
-            "start_lat",
-            "start_lon",
-            "end_lat",
-            "end_lon",
-            "start_name",
-            "end_name",
-            "polar_route_version",
-            "requested",
-            "calculated",
-            "info",
-            "mesh_id",
-            "mesh__name",
-            "job__id",
-        )
-        .order_by("-requested")
-    )
-
-    if not routes_recent:
-        return self.success_response(
-            {
-                "routes": [],
-                "polarrouteserver-version": polarrouteserver_version,
-                "message": "No recent routes found for last 24 hours.",
-            }
-        )
-
-    # Get route IDs for tag lookup
-    route_ids = [route["id"] for route in routes_recent]
-
-    # Get all tags for routes in one query
-    route_tags = {}
-    if route_ids:
-        content_type = ContentType.objects.get_for_model(Route)
-        tagged_items = (
-            TaggedItem.objects.filter(
-                content_type=content_type, object_id__in=route_ids
-            )
-            .select_related("tag")
-            .values("object_id", "tag__name")
-        )
-
-        for item in tagged_items:
-            route_id = int(item["object_id"])
-            if route_id not in route_tags:
-                route_tags[route_id] = []
-            route_tags[route_id].append(item["tag__name"])
-
-    routes_data = []
-    for route in routes_recent:
-        job_id = route.get("job__id")
-        status = self._get_celery_task_status(
-            job_id, route["calculated"], route["info"]
-        )
-
-        # Build lightweight route data
-        route_data = {
-            "id": route["id"],
-            "start_lat": route["start_lat"],
-            "start_lon": route["start_lon"],
-            "end_lat": route["end_lat"],
-            "end_lon": route["end_lon"],
-            "start_name": route["start_name"],
-            "end_name": route["end_name"],
-            "polar_route_version": route["polar_route_version"],
-            "requested": route["requested"].isoformat()
-            if route["requested"]
-            else None,
-            "calculated": route["calculated"].isoformat()
-            if route["calculated"]
-            else None,
-            "status": status,
-            "route_url": reverse(
-                "route_detail", args=[route["id"]], request=request
-            ),
-            "tags": route_tags.get(route["id"], []),
-        }
-
-        if job_id:
-            route_data["job_id"] = job_id
-            route_data["job_status_url"] = reverse(
-                "job_detail", args=[job_id], request=request
-            )
-
-        # Add minimal mesh info without loading the heavy JSON
-        if route["mesh_id"]:
-            route_data["mesh"] = {
-                "id": route["mesh_id"],
-                "name": route["mesh__name"],
-            }
-
-        routes_data.append(route_data)
-
-    response_data = {
-        "routes": routes_data,
-        "polarrouteserver-version": polarrouteserver_version,
-    }
-
-    return self.success_response(response_data)</code></pre>
-            </details>
     </div>
 
 </div>
@@ -1090,7 +3653,6 @@ def get(self, request):
 
     </div>
 
-
 </div>
 
 <div class="doc doc-object doc-class">
@@ -1098,15 +3660,14 @@ def get(self, request):
 
 
 <h2 id="polarrouteserver.route_api.views.RouteDetailView" class="doc doc-heading">
-            <code>RouteDetailView</code>
+              <code class="highlight language-python"><span class="n">RouteDetailView</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>
 
-
-</h2>
+<a href="#polarrouteserver.route_api.views.RouteDetailView" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="LoggingMixin (polarrouteserver.route_api.views.LoggingMixin)" href="#polarrouteserver.route_api.views.LoggingMixin">LoggingMixin</a></code>, <code><a class="autorefs autorefs-internal" title="ResponseMixin (polarrouteserver.route_api.responses.ResponseMixin)" href="../responses/#polarrouteserver.route_api.responses.ResponseMixin">ResponseMixin</a></code>, <code><span title="rest_framework.generics.GenericAPIView">GenericAPIView</span></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="LoggingMixin(*args, **kwargs) (polarrouteserver.route_api.views.LoggingMixin)" href="#polarrouteserver.route_api.views.LoggingMixin">LoggingMixin</a></code>, <code><a class="autorefs autorefs-internal" title="ResponseMixin (polarrouteserver.route_api.responses.ResponseMixin)" href="../responses/#polarrouteserver.route_api.responses.ResponseMixin">ResponseMixin</a></code>, <code><span title="rest_framework.generics.GenericAPIView">GenericAPIView</span></code></p>
 
 
 
@@ -1116,35 +3677,7 @@ def get(self, request):
 
 
 
-              <details class="quote">
-                <summary>Source code in <code>polarrouteserver/route_api/views.py</code></summary>
-                <pre class="highlight"><code class="language-python">class RouteDetailView(LoggingMixin, ResponseMixin, GenericAPIView):
-    serializer_class = RouteSerializer
 
-    @extend_schema(
-        operation_id="api_route_retrieve_by_id",
-        description="Retrieve route details by ID. Returns the route data.",
-        responses={
-            200: routeSchema,
-            404: notFoundResponseSchema,
-        },
-    )
-    def get(self, request, id):
-        """Return route data by route ID."""
-
-        logger.info(
-            f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
-        )
-
-        try:
-            route = Route.objects.get(id=id)
-        except Route.DoesNotExist:
-            return self.not_found_response(f"Route with id {id} not found.")
-
-        data = RouteSerializer(route).data
-
-        return self.success_response(data)</code></pre>
-              </details>
 
 
 
@@ -1163,9 +3696,9 @@ def get(self, request):
 
 
 <h3 id="polarrouteserver.route_api.views.RouteDetailView.get" class="doc doc-heading">
-            <code class="highlight language-python">get(request, id)</code>
+            <code class="highlight language-python"><span class="n">get</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="nb">id</span><span class="p">)</span></code>
 
-</h3>
+<a href="#polarrouteserver.route_api.views.RouteDetailView.get" class="headerlink" title="Permanent link">&para;</a></h3>
 
 
     <div class="doc doc-contents ">
@@ -1173,32 +3706,6 @@ def get(self, request):
         <p>Return route data by route ID.</p>
 
 
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>polarrouteserver/route_api/views.py</code></summary>
-              <pre class="highlight"><code class="language-python">@extend_schema(
-    operation_id="api_route_retrieve_by_id",
-    description="Retrieve route details by ID. Returns the route data.",
-    responses={
-        200: routeSchema,
-        404: notFoundResponseSchema,
-    },
-)
-def get(self, request, id):
-    """Return route data by route ID."""
-
-    logger.info(
-        f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
-    )
-
-    try:
-        route = Route.objects.get(id=id)
-    except Route.DoesNotExist:
-        return self.not_found_response(f"Route with id {id} not found.")
-
-    data = RouteSerializer(route).data
-
-    return self.success_response(data)</code></pre>
-            </details>
     </div>
 
 </div>
@@ -1209,7 +3716,6 @@ def get(self, request, id):
 
     </div>
 
-
 </div>
 
 <div class="doc doc-object doc-class">
@@ -1217,15 +3723,14 @@ def get(self, request, id):
 
 
 <h2 id="polarrouteserver.route_api.views.RouteRequestView" class="doc doc-heading">
-            <code>RouteRequestView</code>
+              <code class="highlight language-python"><span class="n">RouteRequestView</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>
 
-
-</h2>
+<a href="#polarrouteserver.route_api.views.RouteRequestView" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="LoggingMixin (polarrouteserver.route_api.views.LoggingMixin)" href="#polarrouteserver.route_api.views.LoggingMixin">LoggingMixin</a></code>, <code><a class="autorefs autorefs-internal" title="ResponseMixin (polarrouteserver.route_api.responses.ResponseMixin)" href="../responses/#polarrouteserver.route_api.responses.ResponseMixin">ResponseMixin</a></code>, <code><span title="rest_framework.generics.GenericAPIView">GenericAPIView</span></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="LoggingMixin(*args, **kwargs) (polarrouteserver.route_api.views.LoggingMixin)" href="#polarrouteserver.route_api.views.LoggingMixin">LoggingMixin</a></code>, <code><a class="autorefs autorefs-internal" title="ResponseMixin (polarrouteserver.route_api.responses.ResponseMixin)" href="../responses/#polarrouteserver.route_api.responses.ResponseMixin">ResponseMixin</a></code>, <code><span title="rest_framework.generics.GenericAPIView">GenericAPIView</span></code></p>
 
 
 
@@ -1235,183 +3740,7 @@ def get(self, request, id):
 
 
 
-              <details class="quote">
-                <summary>Source code in <code>polarrouteserver/route_api/views.py</code></summary>
-                <pre class="highlight"><code class="language-python">class RouteRequestView(LoggingMixin, ResponseMixin, GenericAPIView):
-    serializer_class = RouteSerializer
 
-    @extend_schema(
-        operation_id="api_route_create_request",
-        request=inline_serializer(
-            name="RouteCreationRequest",
-            # This should be updated along with the json validation below
-            fields={
-                "start_lat": serializers.FloatField(
-                    help_text="Starting latitude of the route."
-                ),
-                "start_lon": serializers.FloatField(
-                    help_text="Starting longitude of the route."
-                ),
-                "end_lat": serializers.FloatField(
-                    help_text="Ending latitude of the route."
-                ),
-                "end_lon": serializers.FloatField(
-                    help_text="Ending longitude of the route."
-                ),
-                "start_name": serializers.CharField(
-                    required=False,
-                    allow_null=True,
-                    help_text="Name of the start point.",
-                ),
-                "end_name": serializers.CharField(
-                    required=False, allow_null=True, help_text="Name of the end point."
-                ),
-                "mesh_id": serializers.IntegerField(
-                    required=False,
-                    allow_null=True,
-                    help_text="Optional: Custom mesh ID to use for route calculation.",
-                ),
-                "force_new_route": serializers.BooleanField(
-                    required=False,
-                    default=False,
-                    help_text="If true, forces recalculation even if an existing route is found.",
-                ),
-                "tags": serializers.ListField(
-                    child=serializers.CharField(max_length=50),
-                    required=False,
-                    allow_null=True,
-                    help_text="Optional tags for route (e.g., ['archive', 'SD056']). Can also accept a single string or comma-separated string.",
-                ),
-            },
-        ),
-        responses={
-            202: routeAcceptedResponseSchema,
-            400: badRequestResponseSchema,
-            404: notFoundResponseSchema,
-        },
-    )
-    def post(self, request):
-        """Entry point for route requests"""
-
-        logger.info(
-            f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}: {request.data}"
-        )
-
-        data = request.data
-
-        # TODO validate request JSON
-        try:
-            start_lat = float(data["start_lat"])
-            start_lon = float(data["start_lon"])
-            end_lat = float(data["end_lat"])
-            end_lon = float(data["end_lon"])
-        except (ValueError, TypeError, KeyError) as e:
-            msg = f"Invalid coordinate values provided: {e}"
-            logger.error(msg)
-            return self.bad_request_response(msg)
-
-        start_name = data.get("start_name", None)
-        end_name = data.get("end_name", None)
-        custom_mesh_id = data.get("mesh_id", None)
-        force_new_route = data.get("force_new_route", False)
-        tags = data.get("tags", None)
-
-        if custom_mesh_id:
-            try:
-                logger.info(f"Got custom mesh id {custom_mesh_id} in request.")
-                meshes = [Mesh.objects.get(id=custom_mesh_id)]
-            except Mesh.DoesNotExist:
-                msg = f"Mesh id {custom_mesh_id} requested. Does not exist."
-                logger.info(msg)
-                return self.not_found_response(msg)
-        else:
-            meshes = select_mesh(start_lat, start_lon, end_lat, end_lon)
-
-        if meshes is None:
-            return self.not_found_response("No mesh available.")
-
-        logger.debug(f"Using meshes: {[mesh.id for mesh in meshes]}")
-        # TODO Future: calculate an up to date mesh if none available
-
-        existing_route = route_exists(meshes, start_lat, start_lon, end_lat, end_lon)
-
-        if existing_route is not None:
-            if not force_new_route:
-                logger.info(f"Existing route found: {existing_route}")
-
-                # Check if there's an existing job for this route
-                existing_job = existing_route.job_set.latest("datetime")
-
-                response_data = {
-                    "id": str(existing_job.id),
-                    "status-url": reverse(
-                        "job_detail", args=[existing_job.id], request=request
-                    ),
-                    "polarrouteserver-version": polarrouteserver_version,
-                    "info": {
-                        "message": "Pre-existing route found. Job already exists. To force new calculation, include 'force_new_route': true in POST request."
-                    },
-                }
-
-                return self.accepted_response(response_data)
-            else:
-                logger.info(
-                    f"Found existing route(s) but got force_new_route={force_new_route}, beginning recalculation."
-                )
-
-        logger.debug(
-            f"Using mesh {meshes[0].id} as primary mesh with {[mesh.id for mesh in meshes[1:]]} as backup."
-        )
-
-        # Create route in database
-        route = Route.objects.create(
-            start_lat=start_lat,
-            start_lon=start_lon,
-            end_lat=end_lat,
-            end_lon=end_lon,
-            mesh=meshes[0],
-            start_name=start_name,
-            end_name=end_name,
-        )
-
-        # Add tags if provided
-        if tags:
-            # Handle both string and list inputs
-            if isinstance(tags, str):
-                # If it's a string, split by comma and strip whitespace
-                tags_list = [t.strip() for t in tags.split(",") if t.strip()]
-            elif isinstance(tags, list):
-                tags_list = [str(t).strip() for t in tags if str(t).strip()]
-            else:
-                tags_list = []
-
-            logger.info(f"Adding tags to route {route.id}: {tags_list}")
-            if tags_list:
-                route.tags.add(*tags_list)
-                logger.info(
-                    f"Route {route.id} now has tags: {[tag.name for tag in route.tags.all()]}"
-                )
-
-        # Start the task calculation
-        task = optimise_route.delay(
-            route.id, backup_mesh_ids=[mesh.id for mesh in meshes[1:]]
-        )
-
-        # Create database record representing the calculation job
-        job = Job.objects.create(
-            id=task.id,
-            route=route,
-        )
-
-        # Prepare response data
-        data = {
-            "id": job.id,
-            "status-url": reverse("job_detail", args=[job.id], request=request),
-            "polarrouteserver-version": polarrouteserver_version,
-        }
-
-        return self.accepted_response(data)</code></pre>
-              </details>
 
 
 
@@ -1430,9 +3759,9 @@ def get(self, request, id):
 
 
 <h3 id="polarrouteserver.route_api.views.RouteRequestView.post" class="doc doc-heading">
-            <code class="highlight language-python">post(request)</code>
+            <code class="highlight language-python"><span class="n">post</span><span class="p">(</span><span class="n">request</span><span class="p">)</span></code>
 
-</h3>
+<a href="#polarrouteserver.route_api.views.RouteRequestView.post" class="headerlink" title="Permanent link">&para;</a></h3>
 
 
     <div class="doc doc-contents ">
@@ -1440,180 +3769,6 @@ def get(self, request, id):
         <p>Entry point for route requests</p>
 
 
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>polarrouteserver/route_api/views.py</code></summary>
-              <pre class="highlight"><code class="language-python">@extend_schema(
-    operation_id="api_route_create_request",
-    request=inline_serializer(
-        name="RouteCreationRequest",
-        # This should be updated along with the json validation below
-        fields={
-            "start_lat": serializers.FloatField(
-                help_text="Starting latitude of the route."
-            ),
-            "start_lon": serializers.FloatField(
-                help_text="Starting longitude of the route."
-            ),
-            "end_lat": serializers.FloatField(
-                help_text="Ending latitude of the route."
-            ),
-            "end_lon": serializers.FloatField(
-                help_text="Ending longitude of the route."
-            ),
-            "start_name": serializers.CharField(
-                required=False,
-                allow_null=True,
-                help_text="Name of the start point.",
-            ),
-            "end_name": serializers.CharField(
-                required=False, allow_null=True, help_text="Name of the end point."
-            ),
-            "mesh_id": serializers.IntegerField(
-                required=False,
-                allow_null=True,
-                help_text="Optional: Custom mesh ID to use for route calculation.",
-            ),
-            "force_new_route": serializers.BooleanField(
-                required=False,
-                default=False,
-                help_text="If true, forces recalculation even if an existing route is found.",
-            ),
-            "tags": serializers.ListField(
-                child=serializers.CharField(max_length=50),
-                required=False,
-                allow_null=True,
-                help_text="Optional tags for route (e.g., ['archive', 'SD056']). Can also accept a single string or comma-separated string.",
-            ),
-        },
-    ),
-    responses={
-        202: routeAcceptedResponseSchema,
-        400: badRequestResponseSchema,
-        404: notFoundResponseSchema,
-    },
-)
-def post(self, request):
-    """Entry point for route requests"""
-
-    logger.info(
-        f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}: {request.data}"
-    )
-
-    data = request.data
-
-    # TODO validate request JSON
-    try:
-        start_lat = float(data["start_lat"])
-        start_lon = float(data["start_lon"])
-        end_lat = float(data["end_lat"])
-        end_lon = float(data["end_lon"])
-    except (ValueError, TypeError, KeyError) as e:
-        msg = f"Invalid coordinate values provided: {e}"
-        logger.error(msg)
-        return self.bad_request_response(msg)
-
-    start_name = data.get("start_name", None)
-    end_name = data.get("end_name", None)
-    custom_mesh_id = data.get("mesh_id", None)
-    force_new_route = data.get("force_new_route", False)
-    tags = data.get("tags", None)
-
-    if custom_mesh_id:
-        try:
-            logger.info(f"Got custom mesh id {custom_mesh_id} in request.")
-            meshes = [Mesh.objects.get(id=custom_mesh_id)]
-        except Mesh.DoesNotExist:
-            msg = f"Mesh id {custom_mesh_id} requested. Does not exist."
-            logger.info(msg)
-            return self.not_found_response(msg)
-    else:
-        meshes = select_mesh(start_lat, start_lon, end_lat, end_lon)
-
-    if meshes is None:
-        return self.not_found_response("No mesh available.")
-
-    logger.debug(f"Using meshes: {[mesh.id for mesh in meshes]}")
-    # TODO Future: calculate an up to date mesh if none available
-
-    existing_route = route_exists(meshes, start_lat, start_lon, end_lat, end_lon)
-
-    if existing_route is not None:
-        if not force_new_route:
-            logger.info(f"Existing route found: {existing_route}")
-
-            # Check if there's an existing job for this route
-            existing_job = existing_route.job_set.latest("datetime")
-
-            response_data = {
-                "id": str(existing_job.id),
-                "status-url": reverse(
-                    "job_detail", args=[existing_job.id], request=request
-                ),
-                "polarrouteserver-version": polarrouteserver_version,
-                "info": {
-                    "message": "Pre-existing route found. Job already exists. To force new calculation, include 'force_new_route': true in POST request."
-                },
-            }
-
-            return self.accepted_response(response_data)
-        else:
-            logger.info(
-                f"Found existing route(s) but got force_new_route={force_new_route}, beginning recalculation."
-            )
-
-    logger.debug(
-        f"Using mesh {meshes[0].id} as primary mesh with {[mesh.id for mesh in meshes[1:]]} as backup."
-    )
-
-    # Create route in database
-    route = Route.objects.create(
-        start_lat=start_lat,
-        start_lon=start_lon,
-        end_lat=end_lat,
-        end_lon=end_lon,
-        mesh=meshes[0],
-        start_name=start_name,
-        end_name=end_name,
-    )
-
-    # Add tags if provided
-    if tags:
-        # Handle both string and list inputs
-        if isinstance(tags, str):
-            # If it's a string, split by comma and strip whitespace
-            tags_list = [t.strip() for t in tags.split(",") if t.strip()]
-        elif isinstance(tags, list):
-            tags_list = [str(t).strip() for t in tags if str(t).strip()]
-        else:
-            tags_list = []
-
-        logger.info(f"Adding tags to route {route.id}: {tags_list}")
-        if tags_list:
-            route.tags.add(*tags_list)
-            logger.info(
-                f"Route {route.id} now has tags: {[tag.name for tag in route.tags.all()]}"
-            )
-
-    # Start the task calculation
-    task = optimise_route.delay(
-        route.id, backup_mesh_ids=[mesh.id for mesh in meshes[1:]]
-    )
-
-    # Create database record representing the calculation job
-    job = Job.objects.create(
-        id=task.id,
-        route=route,
-    )
-
-    # Prepare response data
-    data = {
-        "id": job.id,
-        "status-url": reverse("job_detail", args=[job.id], request=request),
-        "polarrouteserver-version": polarrouteserver_version,
-    }
-
-    return self.accepted_response(data)</code></pre>
-            </details>
     </div>
 
 </div>
@@ -1624,7 +3779,6 @@ def post(self, request):
 
     </div>
 
-
 </div>
 
 <div class="doc doc-object doc-class">
@@ -1632,15 +3786,14 @@ def post(self, request):
 
 
 <h2 id="polarrouteserver.route_api.views.VehicleDetailView" class="doc doc-heading">
-            <code>VehicleDetailView</code>
+              <code class="highlight language-python"><span class="n">VehicleDetailView</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>
 
-
-</h2>
+<a href="#polarrouteserver.route_api.views.VehicleDetailView" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="LoggingMixin (polarrouteserver.route_api.views.LoggingMixin)" href="#polarrouteserver.route_api.views.LoggingMixin">LoggingMixin</a></code>, <code><a class="autorefs autorefs-internal" title="ResponseMixin (polarrouteserver.route_api.responses.ResponseMixin)" href="../responses/#polarrouteserver.route_api.responses.ResponseMixin">ResponseMixin</a></code>, <code><span title="rest_framework.generics.GenericAPIView">GenericAPIView</span></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="LoggingMixin(*args, **kwargs) (polarrouteserver.route_api.views.LoggingMixin)" href="#polarrouteserver.route_api.views.LoggingMixin">LoggingMixin</a></code>, <code><a class="autorefs autorefs-internal" title="ResponseMixin (polarrouteserver.route_api.responses.ResponseMixin)" href="../responses/#polarrouteserver.route_api.responses.ResponseMixin">ResponseMixin</a></code>, <code><span title="rest_framework.generics.GenericAPIView">GenericAPIView</span></code></p>
 
 
 
@@ -1650,61 +3803,7 @@ def post(self, request):
 
 
 
-              <details class="quote">
-                <summary>Source code in <code>polarrouteserver/route_api/views.py</code></summary>
-                <pre class="highlight"><code class="language-python">class VehicleDetailView(LoggingMixin, ResponseMixin, GenericAPIView):
-    serializer_class = VehicleSerializer
 
-    @extend_schema(
-        operation_id="api_vehicle_retrieve_by_type",
-        responses={
-            200: successResponseSchema,
-            404: notFoundResponseSchema,
-        },
-    )
-    def get(self, request, vessel_type):
-        """Retrieve vehicle by vessel_type"""
-
-        logger.info(
-            f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
-        )
-
-        logger.info(f"Fetching vehicle(s) with vessel_type={vessel_type}")
-        vehicles = Vehicle.objects.filter(vessel_type=vessel_type)
-
-        serializer = self.serializer_class(vehicles, many=True)
-
-        return self.success_response(serializer.data)
-
-    @extend_schema(
-        operation_id="api_vehicle_delete_by_type",
-        responses={
-            204: noContentResponseSchema,
-            404: notFoundResponseSchema,
-        },
-    )
-    def delete(self, request, vessel_type):
-        """Delete vehicle by vessel_type"""
-
-        logger.info(
-            f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
-        )
-
-        try:
-            vehicle = Vehicle.objects.get(vessel_type=vessel_type)
-            vehicle.delete()
-            logger.info(f"Deleted vehicle with vessel_type={vessel_type}")
-            return self.no_content_response(
-                data={"message": f"Vehicle '{vessel_type}' deleted successfully."}
-            )
-        except Vehicle.DoesNotExist:
-            logger.error(
-                f"Vehicle with vessel_type={vessel_type} not found for deletion."
-            )
-            return self.not_found_response(
-                f"Vehicle with vessel_type '{vessel_type}' not found."
-            )</code></pre>
-              </details>
 
 
 
@@ -1723,9 +3822,9 @@ def post(self, request):
 
 
 <h3 id="polarrouteserver.route_api.views.VehicleDetailView.delete" class="doc doc-heading">
-            <code class="highlight language-python">delete(request, vessel_type)</code>
+            <code class="highlight language-python"><span class="n">delete</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">vessel_type</span><span class="p">)</span></code>
 
-</h3>
+<a href="#polarrouteserver.route_api.views.VehicleDetailView.delete" class="headerlink" title="Permanent link">&para;</a></h3>
 
 
     <div class="doc doc-contents ">
@@ -1733,37 +3832,6 @@ def post(self, request):
         <p>Delete vehicle by vessel_type</p>
 
 
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>polarrouteserver/route_api/views.py</code></summary>
-              <pre class="highlight"><code class="language-python">@extend_schema(
-    operation_id="api_vehicle_delete_by_type",
-    responses={
-        204: noContentResponseSchema,
-        404: notFoundResponseSchema,
-    },
-)
-def delete(self, request, vessel_type):
-    """Delete vehicle by vessel_type"""
-
-    logger.info(
-        f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
-    )
-
-    try:
-        vehicle = Vehicle.objects.get(vessel_type=vessel_type)
-        vehicle.delete()
-        logger.info(f"Deleted vehicle with vessel_type={vessel_type}")
-        return self.no_content_response(
-            data={"message": f"Vehicle '{vessel_type}' deleted successfully."}
-        )
-    except Vehicle.DoesNotExist:
-        logger.error(
-            f"Vehicle with vessel_type={vessel_type} not found for deletion."
-        )
-        return self.not_found_response(
-            f"Vehicle with vessel_type '{vessel_type}' not found."
-        )</code></pre>
-            </details>
     </div>
 
 </div>
@@ -1772,9 +3840,9 @@ def delete(self, request, vessel_type):
 
 
 <h3 id="polarrouteserver.route_api.views.VehicleDetailView.get" class="doc doc-heading">
-            <code class="highlight language-python">get(request, vessel_type)</code>
+            <code class="highlight language-python"><span class="n">get</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">vessel_type</span><span class="p">)</span></code>
 
-</h3>
+<a href="#polarrouteserver.route_api.views.VehicleDetailView.get" class="headerlink" title="Permanent link">&para;</a></h3>
 
 
     <div class="doc doc-contents ">
@@ -1782,29 +3850,6 @@ def delete(self, request, vessel_type):
         <p>Retrieve vehicle by vessel_type</p>
 
 
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>polarrouteserver/route_api/views.py</code></summary>
-              <pre class="highlight"><code class="language-python">@extend_schema(
-    operation_id="api_vehicle_retrieve_by_type",
-    responses={
-        200: successResponseSchema,
-        404: notFoundResponseSchema,
-    },
-)
-def get(self, request, vessel_type):
-    """Retrieve vehicle by vessel_type"""
-
-    logger.info(
-        f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
-    )
-
-    logger.info(f"Fetching vehicle(s) with vessel_type={vessel_type}")
-    vehicles = Vehicle.objects.filter(vessel_type=vessel_type)
-
-    serializer = self.serializer_class(vehicles, many=True)
-
-    return self.success_response(serializer.data)</code></pre>
-            </details>
     </div>
 
 </div>
@@ -1815,7 +3860,6 @@ def get(self, request, vessel_type):
 
     </div>
 
-
 </div>
 
 <div class="doc doc-object doc-class">
@@ -1823,15 +3867,14 @@ def get(self, request, vessel_type):
 
 
 <h2 id="polarrouteserver.route_api.views.VehicleRequestView" class="doc doc-heading">
-            <code>VehicleRequestView</code>
+              <code class="highlight language-python"><span class="n">VehicleRequestView</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>
 
-
-</h2>
+<a href="#polarrouteserver.route_api.views.VehicleRequestView" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="LoggingMixin (polarrouteserver.route_api.views.LoggingMixin)" href="#polarrouteserver.route_api.views.LoggingMixin">LoggingMixin</a></code>, <code><a class="autorefs autorefs-internal" title="ResponseMixin (polarrouteserver.route_api.responses.ResponseMixin)" href="../responses/#polarrouteserver.route_api.responses.ResponseMixin">ResponseMixin</a></code>, <code><span title="rest_framework.generics.GenericAPIView">GenericAPIView</span></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="LoggingMixin(*args, **kwargs) (polarrouteserver.route_api.views.LoggingMixin)" href="#polarrouteserver.route_api.views.LoggingMixin">LoggingMixin</a></code>, <code><a class="autorefs autorefs-internal" title="ResponseMixin (polarrouteserver.route_api.responses.ResponseMixin)" href="../responses/#polarrouteserver.route_api.responses.ResponseMixin">ResponseMixin</a></code>, <code><span title="rest_framework.generics.GenericAPIView">GenericAPIView</span></code></p>
 
 
 
@@ -1841,104 +3884,7 @@ def get(self, request, vessel_type):
 
 
 
-              <details class="quote">
-                <summary>Source code in <code>polarrouteserver/route_api/views.py</code></summary>
-                <pre class="highlight"><code class="language-python">class VehicleRequestView(LoggingMixin, ResponseMixin, GenericAPIView):
-    serializer_class = VehicleSerializer
 
-    @extend_schema(
-        operation_id="api_vehicle_create_request",
-        request=VehicleSerializer,
-        responses={
-            200: successResponseSchema,
-            400: badRequestResponseSchema,
-            406: notAcceptableResponseSchema,
-        },
-    )
-    def post(self, request):
-        """Entry point to create vehicles"""
-
-        logger.info(
-            f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}: {request.data}"
-        )
-
-        data = request.data
-
-        # Using Polarroute's built in validation to validate vessel config supplied
-        try:
-            validate_vessel_config(data)
-            logging.info("Vessel config is valid.")
-        except Exception as e:
-            if isinstance(e, ValidationError):
-                error_message = f"Validation error: {e.message}"
-            else:
-                error_message = f"{e}"
-
-            logging.error(error_message)
-
-            return self.bad_request_response(error_message)
-
-        # Separate out vessel_type and force_properties for checking logic below
-        force_properties = data.get("force_properties", None)
-        vessel_type = data["vessel_type"]
-
-        # Check if vehicle exists already
-        vehicle_queryset = Vehicle.objects.filter(vessel_type=vessel_type)
-
-        # If the vehicle exists, obtain it and return an error if user has not specified force_properties
-        if vehicle_queryset.exists():
-            logger.info(f"Existing vehicle found: {vessel_type}")
-
-            if not force_properties:
-                return self.not_acceptable_response(
-                    "Pre-existing vehicle was found. "
-                    "To force new properties on an existing vehicle, "
-                    "include 'force_properties': true in POST request."
-                )
-
-            # If a user has specified force_properties, update that vessel_type's properties
-            # The vessel_type and force_properties fields need to be removed to allow updating
-            vehicle_properties = data.copy()
-            for key in ["vessel_type", "force_properties"]:
-                vehicle_properties.pop(key, None)
-
-            vehicle_queryset.update(**vehicle_properties)
-            logger.info(f"Updating properties for existing vehicle: {vessel_type}")
-
-            response_data = {"vessel_type": vessel_type}
-
-        else:
-            logger.info("Creating new vehicle:")
-
-            # Create vehicle in database
-            vehicle = Vehicle.objects.create(**data)
-
-            # Prepare response data
-            response_data = {"vessel_type": vehicle.vessel_type}
-
-        return self.success_response(response_data)
-
-    @extend_schema(
-        operation_id="api_vehicle_list_retrieve",
-        responses={
-            200: successResponseSchema,
-            204: noContentResponseSchema,
-        },
-    )
-    def get(self, request):
-        """Retrieve all vehicles"""
-
-        logger.info(
-            f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
-        )
-
-        logger.info("Fetching all vehicles")
-        vehicles = Vehicle.objects.all()
-
-        serializer = self.serializer_class(vehicles, many=True)
-
-        return self.success_response(serializer.data)</code></pre>
-              </details>
 
 
 
@@ -1957,9 +3903,9 @@ def get(self, request, vessel_type):
 
 
 <h3 id="polarrouteserver.route_api.views.VehicleRequestView.get" class="doc doc-heading">
-            <code class="highlight language-python">get(request)</code>
+            <code class="highlight language-python"><span class="n">get</span><span class="p">(</span><span class="n">request</span><span class="p">)</span></code>
 
-</h3>
+<a href="#polarrouteserver.route_api.views.VehicleRequestView.get" class="headerlink" title="Permanent link">&para;</a></h3>
 
 
     <div class="doc doc-contents ">
@@ -1967,29 +3913,6 @@ def get(self, request, vessel_type):
         <p>Retrieve all vehicles</p>
 
 
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>polarrouteserver/route_api/views.py</code></summary>
-              <pre class="highlight"><code class="language-python">@extend_schema(
-    operation_id="api_vehicle_list_retrieve",
-    responses={
-        200: successResponseSchema,
-        204: noContentResponseSchema,
-    },
-)
-def get(self, request):
-    """Retrieve all vehicles"""
-
-    logger.info(
-        f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
-    )
-
-    logger.info("Fetching all vehicles")
-    vehicles = Vehicle.objects.all()
-
-    serializer = self.serializer_class(vehicles, many=True)
-
-    return self.success_response(serializer.data)</code></pre>
-            </details>
     </div>
 
 </div>
@@ -1998,9 +3921,9 @@ def get(self, request):
 
 
 <h3 id="polarrouteserver.route_api.views.VehicleRequestView.post" class="doc doc-heading">
-            <code class="highlight language-python">post(request)</code>
+            <code class="highlight language-python"><span class="n">post</span><span class="p">(</span><span class="n">request</span><span class="p">)</span></code>
 
-</h3>
+<a href="#polarrouteserver.route_api.views.VehicleRequestView.post" class="headerlink" title="Permanent link">&para;</a></h3>
 
 
     <div class="doc doc-contents ">
@@ -2008,80 +3931,6 @@ def get(self, request):
         <p>Entry point to create vehicles</p>
 
 
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>polarrouteserver/route_api/views.py</code></summary>
-              <pre class="highlight"><code class="language-python">@extend_schema(
-    operation_id="api_vehicle_create_request",
-    request=VehicleSerializer,
-    responses={
-        200: successResponseSchema,
-        400: badRequestResponseSchema,
-        406: notAcceptableResponseSchema,
-    },
-)
-def post(self, request):
-    """Entry point to create vehicles"""
-
-    logger.info(
-        f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}: {request.data}"
-    )
-
-    data = request.data
-
-    # Using Polarroute's built in validation to validate vessel config supplied
-    try:
-        validate_vessel_config(data)
-        logging.info("Vessel config is valid.")
-    except Exception as e:
-        if isinstance(e, ValidationError):
-            error_message = f"Validation error: {e.message}"
-        else:
-            error_message = f"{e}"
-
-        logging.error(error_message)
-
-        return self.bad_request_response(error_message)
-
-    # Separate out vessel_type and force_properties for checking logic below
-    force_properties = data.get("force_properties", None)
-    vessel_type = data["vessel_type"]
-
-    # Check if vehicle exists already
-    vehicle_queryset = Vehicle.objects.filter(vessel_type=vessel_type)
-
-    # If the vehicle exists, obtain it and return an error if user has not specified force_properties
-    if vehicle_queryset.exists():
-        logger.info(f"Existing vehicle found: {vessel_type}")
-
-        if not force_properties:
-            return self.not_acceptable_response(
-                "Pre-existing vehicle was found. "
-                "To force new properties on an existing vehicle, "
-                "include 'force_properties': true in POST request."
-            )
-
-        # If a user has specified force_properties, update that vessel_type's properties
-        # The vessel_type and force_properties fields need to be removed to allow updating
-        vehicle_properties = data.copy()
-        for key in ["vessel_type", "force_properties"]:
-            vehicle_properties.pop(key, None)
-
-        vehicle_queryset.update(**vehicle_properties)
-        logger.info(f"Updating properties for existing vehicle: {vessel_type}")
-
-        response_data = {"vessel_type": vessel_type}
-
-    else:
-        logger.info("Creating new vehicle:")
-
-        # Create vehicle in database
-        vehicle = Vehicle.objects.create(**data)
-
-        # Prepare response data
-        response_data = {"vessel_type": vehicle.vessel_type}
-
-    return self.success_response(response_data)</code></pre>
-            </details>
     </div>
 
 </div>
@@ -2092,7 +3941,6 @@ def post(self, request):
 
     </div>
 
-
 </div>
 
 <div class="doc doc-object doc-class">
@@ -2100,15 +3948,14 @@ def post(self, request):
 
 
 <h2 id="polarrouteserver.route_api.views.VehicleTypeListView" class="doc doc-heading">
-            <code>VehicleTypeListView</code>
+              <code class="highlight language-python"><span class="n">VehicleTypeListView</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></code>
 
-
-</h2>
+<a href="#polarrouteserver.route_api.views.VehicleTypeListView" class="headerlink" title="Permanent link">&para;</a></h2>
 
 
     <div class="doc doc-contents ">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="LoggingMixin (polarrouteserver.route_api.views.LoggingMixin)" href="#polarrouteserver.route_api.views.LoggingMixin">LoggingMixin</a></code>, <code><a class="autorefs autorefs-internal" title="ResponseMixin (polarrouteserver.route_api.responses.ResponseMixin)" href="../responses/#polarrouteserver.route_api.responses.ResponseMixin">ResponseMixin</a></code>, <code><span title="rest_framework.generics.GenericAPIView">GenericAPIView</span></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="LoggingMixin(*args, **kwargs) (polarrouteserver.route_api.views.LoggingMixin)" href="#polarrouteserver.route_api.views.LoggingMixin">LoggingMixin</a></code>, <code><a class="autorefs autorefs-internal" title="ResponseMixin (polarrouteserver.route_api.responses.ResponseMixin)" href="../responses/#polarrouteserver.route_api.responses.ResponseMixin">ResponseMixin</a></code>, <code><span title="rest_framework.generics.GenericAPIView">GenericAPIView</span></code></p>
 
 
 
@@ -2120,39 +3967,7 @@ def post(self, request):
 
 
 
-              <details class="quote">
-                <summary>Source code in <code>polarrouteserver/route_api/views.py</code></summary>
-                <pre class="highlight"><code class="language-python">class VehicleTypeListView(LoggingMixin, ResponseMixin, GenericAPIView):
-    """
-    Endpoint to list all distinct vessel_types available.
-    """
 
-    serializer_class = VesselTypeSerializer
-
-    @extend_schema(
-        operation_id="api_vehicle_available_list",
-        responses={
-            200: vehicleTypeListResponseSchema,
-        },
-    )
-    def get(self, request):
-        logger.info(
-            f"{request.method} {request.path} from {request.META.get('REMOTE_ADDR')}"
-        )
-
-        vessel_types = Vehicle.objects.values_list("vessel_type", flat=True).distinct()
-        vessel_types_list = list(vessel_types)
-
-        if not vessel_types_list:
-            logger.warning("No available vessel_types found in the database.")
-            return self.success_response(
-                {"vessel_types": [], "message": "No available vessel types found."}
-            )
-
-        logger.info(f"Returning {len(vessel_types_list)} distinct vessel_types")
-
-        return self.success_response({"vessel_types": vessel_types_list})</code></pre>
-              </details>
 
 
 
@@ -2173,7 +3988,6 @@ def post(self, request):
 
     </div>
 
-
 </div>
 
 
@@ -2184,55 +3998,64 @@ def post(self, request):
     </div>
 
 </div>
-              
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
             </div>
-          </div><footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../utils/" class="btn btn-neutral float-left" title="utils"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../../utils/" class="btn btn-neutral float-right" title="utils">Next <span class="icon icon-circle-arrow-right"></span></a>
-    </div>
-
-  <hr/>
-
-  <div role="contentinfo">
-    <!-- Copyright etc -->
-  </div>
-
-  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
-</footer>
           
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
-      </div>
-
-    </section>
-
-  </div>
-
-  <div class="rst-versions" role="note" aria-label="Versions">
-  <span class="rst-current-version" data-toggle="rst-current-version">
-    
-        <span>
-          <a href="https://github.com/bas-amop/polarroute-server/" class="fa fa-github" style="color: #fcfcfc"> GitHub</a>
-        </span>
-    
-    
-      <span><a href="../utils/" style="color: #fcfcfc">&laquo; Previous</a></span>
-    
-    
-      <span><a href="../../utils/" style="color: #fcfcfc">Next &raquo;</a></span>
-    
-  </span>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2026 British Antarctic Survey
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
 </div>
-    <script src="../../../../js/jquery-3.6.0.min.js"></script>
-    <script>var base_url = "../../../..";</script>
-    <script src="../../../../js/theme_extra.js"></script>
-    <script src="../../../../js/theme.js"></script>
-      <script src="../../../../search/main.js"></script>
-    <script>
-        jQuery(function () {
-            SphinxRtdTheme.Navigation.enable(true);
-        });
-    </script>
-
-</body>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["content.code.copy", "content.action.edit"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
 </html>
