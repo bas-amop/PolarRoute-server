@@ -58,13 +58,6 @@ dev = [
 prod = [
     "gunicorn"
 ]
-docs = [
-    "mkdocs",
-    "mkdocs-autoapi",
-    "mkdocs-include-markdown-plugin",
-    "mkdocstrings[python]",
-    "mkdocs-render-swagger-plugin",
-]
 build = [
     "build"
 ]
@@ -73,6 +66,16 @@ cov = [
 ]
 cov-badge = [
     "coverage-badge"
+]
+
+[dependency-groups]
+docs = [
+    "mkdocs",
+    "mkdocs-material",
+    "mkdocs-autoapi",
+    "mkdocs-include-markdown-plugin",
+    "mkdocstrings[python]",
+    "mkdocs-render-swagger-plugin",
 ]
 
 [project.scripts]
